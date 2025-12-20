@@ -51,7 +51,7 @@ function applyUnstableForm(actor, resultName) {
 				value: 1
 			  },
 			  {
-				key: "system.abilities.con.check.bonuses.disadvantage"",
+				key: "system.abilities.con.check.bonuses.disadvantage",
 				mode: CONST.ACTIVE_EFFECT_MODES.ADD,
 				value: 1
 			  }],

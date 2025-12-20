@@ -42,4 +42,4 @@ hooks.once("dnd5e.restCompleted", async (actor, result) => {
 		  effectsToRemove.map(e => e.id)
 		);
 	}
-}
+})
