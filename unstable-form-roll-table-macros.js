@@ -30,7 +30,7 @@ function applyUnstableForm(actor, resultName) {
 		  icon: "icons/svg/poison.svg",
 		  statuses: ["aberrantDefenseless"],
 		  changes: [{
-			key: "system.abilities.con.check.bonuses.disadvantage"",
+			key: "system.abilities.con.check.bonuses.disadvantage",
 			mode: CONST.ACTIVE_EFFECT_MODES.ADD,
 			value: 1
 		  }],
@@ -46,7 +46,7 @@ function applyUnstableForm(actor, resultName) {
 			icon: "icons/svg/poison.svg",
 			statuses: ["aberrantClumsiness"],
 			changes: [{
-				key: "system.abilities.con.check.bonuses.disadvantage"",
+				key: "system.abilities.con.check.bonuses.disadvantage",
 				mode: CONST.ACTIVE_EFFECT_MODES.ADD,
 				value: 1
 			  },

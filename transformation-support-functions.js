@@ -21,7 +21,7 @@ Hooks.on("drawTableResult", async (table, result, options) => {
 	const actor = ChatMessage.getSpeakerActor(speaker);
 	const tableName = table.name
 	switch(tableName){
-		case tableName.startswith(actor, "Unstable Form") {
+		case tableName.startswith(actor, "Unstable Form") :
 			await applyUnstableForm(result.name);
 			break;
 	}
