@@ -25,15 +25,15 @@ Hooks.once("init", function(){
 		id: "aberrantDistraction",
 		img: "systems/dnd5e/icons/svg/statuses/cover-three-quarters.svg",
 		name: "Aberrant Distraction"
-	}
+	})
 	CONFIG.DND5E.statusEffects.push({
 		id: "aberrantDefenseless",
 		img: "systems/dnd5e/icons/svg/statuses/cover-three-quarters.svg",
 		name: "Aberrant Defenseless"
-	}
+	})
 	CONFIG.DND5E.statusEffects.push({
 		id: "aberrantClumsiness",
 		img: "systems/dnd5e/icons/svg/statuses/cover-three-quarters.svg",
 		name: "Aberrant Clumsiness"
-	}
+	})
 });
