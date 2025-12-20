@@ -16,24 +16,20 @@ Hooks.once("init", function(){
 			vampire: "Vampire"
 		}
 	}
-	CONFIG.DND5E.statusEffects.push({
-		id: "aberrantConfusion"
-		icon: "systems/dnd5e/icons/svg/statuses/cover-three-quarters.svg"
+	CONFIG.DND5E.statusEffects.aberrantConfusion = {
+		img: "systems/dnd5e/icons/svg/statuses/cover-three-quarters.svg"
 		name: "Aberrant Confusion"
-	})
-	CONFIG.DND5E.statusEffects.push({
-		id: "aberrantDistraction"
-		icon: "systems/dnd5e/icons/svg/statuses/cover-three-quarters.svg"
+	}
+	CONFIG.DND5E.statusEffects.aberrantDistraction = {
+		img: "systems/dnd5e/icons/svg/statuses/cover-three-quarters.svg"
 		name: "Aberrant Distraction"
 	}
-	CONFIG.DND5E.statusEffects.push({
-		id: "aberrantDefenseless"
-		icon: "systems/dnd5e/icons/svg/statuses/cover-three-quarters.svg"
+	CONFIG.DND5E.statusEffects.aberrantDefenseless = {
+		img: "systems/dnd5e/icons/svg/statuses/cover-three-quarters.svg"
 		name: "Aberrant Defenseless"
 	}
-	CONFIG.DND5E.statusEffects.push({
-		id: "aberrantClumsiness"
-		icon: "systems/dnd5e/icons/svg/statuses/cover-three-quarters.svg"
+	CONFIG.DND5E.statusEffects.aberrantClumsiness = {
+		img: "systems/dnd5e/icons/svg/statuses/cover-three-quarters.svg"
 		name: "Aberrant Clumsiness"
 	}
 });
