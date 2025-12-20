@@ -27,7 +27,7 @@ Hooks.on("drawTableResult", async (table, result, options) => {
 	}
 });
 
-hooks.once("dnd5e.restCompleted", async (actor, result) => {
+Hooks.once("dnd5e.restCompleted", async (actor, result) => {
 	if (result.shortRest){
 		if (actor.statuses.contains("Abberant Loss of Vitality" && dhd != 0)){
 			actor.system.attributes.hp.value-=((dhd*-1)*actor.system.abilities.con.mod)
