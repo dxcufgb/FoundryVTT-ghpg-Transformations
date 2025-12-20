@@ -15,3 +15,31 @@ function actorIsBloodied(actor){
 function actorIsHidingHideousForm(actor) {
 	return (actor.system.concentration.ability == "Hide Hideous Form")
 }
+
+Hooks.on("drawTableResult", async (table, result, options) => {
+	const speaker = ChatMessage.getSpeaker();
+	const actor = ChatMessage.getSpeakerActor(speaker);
+	const tableName
+	switch(tableName){
+		case tableName.startswith(actor, "Unstable Form") {
+			await applyUnstableForm(result.name);
+			break;
+	}
+});
+
+hooks.once("dnd5e.restCompleted", async (actor, result) => {
+	if (result.shortRest){
+		if (actor.statuses.contains("Abberant Loss of Vitality" && dhd != 0)){
+			actor.system.attributes.hp.value-=((dhd*-1)*actor.system.abilities.con.mod)
+		}
+	} else if (result.longRest){
+		const effectsToRemove = actor.effects.filter(effect =>
+		  [...effect.statuses].some(status => status.startsWith("aberrant"))
+		);
+		if (!effectsToRemove.length) return;
+		await actor.deleteEmbeddedDocuments(
+		  "ActiveEffect",
+		  effectsToRemove.map(e => e.id)
+		);
+	}
+}
