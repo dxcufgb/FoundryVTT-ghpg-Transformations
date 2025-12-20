@@ -16,24 +16,20 @@ Hooks.once("init", function(){
 			vampire: "Vampire"
 		}
 	}
-	CONFIG.DND5E.statusEffects.push({
-		id: "aberrantConfusion",
+	CONFIG.DND5E.statusEffects.aberrantConfusion = {
 		img: "systems/dnd5e/icons/svg/statuses/cover-three-quarters.svg",
 		name: "Aberrant Confusion"
-	})
-	CONFIG.DND5E.statusEffects.push({
-		id: "aberrantDistraction",
+	}
+	CONFIG.DND5E.statusEffects.aberrantDistraction = {
 		img: "systems/dnd5e/icons/svg/statuses/cover-three-quarters.svg",
 		name: "Aberrant Distraction"
-	})
-	CONFIG.DND5E.statusEffects.push({
-		id: "aberrantDefenseless",
+	}
+	CONFIG.DND5E.statusEffects.aberrantDefenseless = {
 		img: "systems/dnd5e/icons/svg/statuses/cover-three-quarters.svg",
 		name: "Aberrant Defenseless"
-	})
-	CONFIG.DND5E.statusEffects.push({
-		id: "aberrantClumsiness",
+	}
+	CONFIG.DND5E.statusEffects.aberrantClumsiness = {
 		img: "systems/dnd5e/icons/svg/statuses/cover-three-quarters.svg",
 		name: "Aberrant Clumsiness"
-	})
+	}
 });
