@@ -5,13 +5,13 @@ function applyUnstableForm(actor, resultName) {
 		const current = actor.system.attributes.exhaustion ?? 0;
 		const newValue = Math.clamp(current + 2, 0, 6);
 
-		await actor.update({
+		actor.update({
 		  "system.attributes.exhaustion": newValue
 		});
 		resolve(true);
 		break;
 	  case "Aberrant Distraction":
-		await actor.createEmbeddedDocuments("ActiveEffect", [{
+		actor.createEmbeddedDocuments("ActiveEffect", [{
 		  label: resultName,
 		  icon: "icons/svg/poison.svg",
 		  statuses: ["aberrantDistraction"],
@@ -25,7 +25,7 @@ function applyUnstableForm(actor, resultName) {
 	    resolve(true);
 	    break;
 	  case "Aberrant Defenseless":
-		await actor.createEmbeddedDocuments("ActiveEffect", [{
+		actor.createEmbeddedDocuments("ActiveEffect", [{
 		  label: resultName,
 		  icon: "icons/svg/poison.svg",
 		  statuses: ["aberrantDefenseless"],

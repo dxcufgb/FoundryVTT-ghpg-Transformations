@@ -19,7 +19,7 @@ function actorIsHidingHideousForm(actor) {
 Hooks.on("drawTableResult", async (table, result, options) => {
 	const speaker = ChatMessage.getSpeaker();
 	const actor = ChatMessage.getSpeakerActor(speaker);
-	const tableName
+	const tableName = table.name
 	switch(tableName){
 		case tableName.startswith(actor, "Unstable Form") {
 			await applyUnstableForm(result.name);
