@@ -74,20 +74,10 @@ function actorIsHidingHideousForm(actor) {
 	return (actor.system.concentration.ability == "Hide Hideous Form")
 }
 
-// Hooks.on("drawTableResult", async (table, result, options) => {
-// 	const speaker = ChatMessage.getSpeaker();
-// 	const actor = ChatMessage.getSpeakerActor(speaker);
-// 	const tableName = table.name
-// 	console.log(`${actor.name} rolled on table ${tableName}!`)
-// 	switch (tableName) {
-// 		case tableName.startswith(actor, "Unstable Form"):
-// 			console.log("Applying result from unstable form macros!")
-// 			await applyUnstableForm(result.name);
-// 			break;
-// 	}
-// });
-
 Hooks.once("dnd5e.restCompleted", async (actor, result) => {
+	console.log("restCompleted hook!")
+	console.log(actor)
+	console.log(result)
 	if (result.shortRest) {
 		console.log("short rest was performed");
 		console.log(actor.statuses.contains("Abberant Loss of Vitality"));
