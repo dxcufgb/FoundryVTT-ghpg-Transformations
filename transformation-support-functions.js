@@ -90,19 +90,19 @@ function actorIsHidingHideousForm(actor) {
 Hooks.once("dnd5e.restCompleted", async (actor, result) => {
 	if (result.shortRest) {
 		if (actor.statuses.contains("Abberant Loss of Vitality" && dhd != 0)) {
-			actor.system.attributes.hp.value -= ((dhd * -1) * actor.system.abilities.con.mod)
+			actor.system.attributes.hp.value -= ((dhd * -1) * actor.system.abilities.con.mod);
 		}
 	} else if (result.longRest) {
-		const transformationTableName = findTransformationTableName(actor)
+		const transformationTableName = findTransformationTableName(actor);
 		if (transformationTableName != "") {
-			const drawResult = drawTableResult(actor, transformationTableName)
-			console.log(drawResult)
+			const drawResult = await drawTableResult(actor, transformationTableName);
+			applyRollTableResult(actor, drawResult.results[0].name, transformationTableName);
 		}
 	}
 });
 
 Hooks.on("combatantRollInitiative", (combatant, roll) => {
-	const actor = combatant.actor
+	const actor = combatant.actor;
 	if (actor.statuses.includes("AberrantConfusion")) {
 		actor.toggleStatusEffect("stunned", { active: true });
 	}
@@ -288,12 +288,19 @@ function findTransformationTableName(actor) {
 	return tableName;
 }
 
-function drawTableResult(actor, tableName) {
+async function drawTableResult(actor, tableName) {
 	const table = game.tables.getName(tableName);
 	if (!table) {
 		ui.notifications.error(`Table "${tableName}" not found`);
 		return;
 	}
-	const draw = table.draw({ speaker: actor, roll: true, displayChat: true });
+	const draw = await table.draw({ speaker: actor, roll: true, displayChat: true });
 	return draw;
+}
+
+async function applyRollTableResult(actor, resultName, transformationTableName) {
+	if (transformationTableName.startsWith("Unstable Form")) {
+		console.log("Applying result from unstable form macros!");
+		await applyUnstableForm(actor, resultName);
+	}
 }
