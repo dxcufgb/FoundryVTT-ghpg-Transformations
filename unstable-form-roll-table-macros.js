@@ -58,9 +58,12 @@ async function applyUnstableForm(actor, effectName) {
 			iconFilePath = "icons/svg/poison.svg";
 			Object.values(MOVEMENT_TYPE).forEach(movementType => {
 				if (actor.system.attributes.movement[movementType] > 0) {
+					//TODO: find out whythis does not work.
 					effects.push(getSystemEffectChange(movementType, 5, CONST.ACTIVE_EFFECT_MODES.ADD));
 				}
 			});
+			console.log("Aberrant Powerfull Lower Limbs was activated with the following values:");
+			console.log(effects);
 			break;
 		case "Aberrant Temporary Vitality Boost":
 			const currentTempHp = actor.system.attributes.hp.temp ?? 0;
