@@ -89,7 +89,7 @@ Hooks.once("dnd5e.restCompleted", async (actor, result) => {
 
 		const transformationTableName = findTransformationTableName(actor);
 		if (transformationTableName != "") {
-			await removeActiveTransformationEffect(actor, transformationTableName);
+			await removeActiveTransformationEffect(actor);
 			const drawResult = await drawTableResult(actor, transformationTableName);
 			applyRollTableResult(actor, drawResult.results[0].name, transformationTableName);
 		}
@@ -111,7 +111,10 @@ function createActiveEffectOnActor(actor, effectName, description, icon, changes
 		statuses: [effectName.replace(" ", "")],
 		img: icon,
 		changes: changes,
-		origin: actor.uuid
+		origin: actor.uuid,
+		flags: {
+			["gh-transformation"]: { removeOnLongRest: true }
+		},
 	}]);
 }
 
@@ -299,13 +302,9 @@ async function applyRollTableResult(actor, resultName, transformationTableName) 
 	}
 }
 
-async function removeActiveTransformationEffect(actor, tableName) {
-	let effectNameStartsWith
-	if (tableName.startsWith("Unstable Form")) {
-		effectNameStartsWith = "Aberrant"
-	}
+async function removeActiveTransformationEffect(actor) {
 	const effects = actor.effects.filter(e =>
-		e.statuses.startsWith(effectNameStartsWith)
+		e.flags["gh-transformation"]?.removeOnLongRest
 	);
 
 	if (effects.length) {
