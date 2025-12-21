@@ -1,124 +1,123 @@
-function applyUnstableForm(actor, effectName) {
-	return new Promise((resolve) => {
-		let effectDescription = '';
-		let iconFilePath = '';
-		let effects = [];
-		let runEffectsFunction = true;
-		switch (effectName) {
-			case "Aberrant Exhaustion":
-				const currentExhaustion = actor.system.attributes.exhaustion ?? 0;
-				const newExhaustion = Math.clamp(currentExhaustion + 2, 0, 6);
-				actor.update({
-					"system.attributes.exhaustion": newExhaustion
-				});
-				runEffectsFunction = false;
-				break;
-			case "Aberrant Confusion":
-				effectDescription = "After rolling Initiative, you have the Stunned condition until the end of your first turn";
-				iconFilePath = "icons/svg/poison.svg";
-				break;
-			case "Aberrant Slowness":
-				effectDescription = "After rolling Initiative, you have the Stunned condition until the end of your first turn";
-				iconFilePath = "icons/svg/poison.svg";
-				Object.values(MOVEMENT_TYPE).forEach(movementType => {
-					if (actor.system.attributes.movement[movementType] > 0) {
-						effects.push(getSystemEffectChange(movementType, -15, CONST.ACTIVE_EFFECT_MODES.ADD));
-					}
-				});
-				break;
-			case "Aberrant Slugginess":
-				effectDescription = "Your body does not react quickly to mental commands. You cannot take Reactions.";
-				iconFilePath = "icons/svg/poison.svg";
-				break;
-			case "Aberrant Distraction":
-				effectDescription = "Imposes disadvantage on dexterity saving throws";
-				iconFilePath = "icons/svg/poison.svg";
-				effects.push(getDisadvantageEffectChanges(SKILLS.PERCEPTION));
-				break;
-			case "Aberrant Defenseless":
-				effectDescription = "Imposes disadvantage on constitution saving throws";
-				iconFilePath = "icons/svg/poison.svg";
-				effects.push(getDisadvantageEffectChanges(ABILITIES.CONSTITUTION));
-				break;
-			case "Aberrant Clumsiness":
-				effectDescription = "Imposes disadvantage on constitution ability checks and saving throws";
-				iconFilePath = "icons/svg/poison.svg";
-				effects.push(getDisadvantageEffectChanges(ABILITY.DEXTERITY, ROLL_TYPE.ABILITY_CHECK));
-				effects.push(getDisadvantageEffectChanges(ABILITY.DEXTERITY, ROLL_TYPE.SAVING_THROW));
-				break;
-			case "Aberrant Loss of Vitality":
-				effectDescription = "Imposes disadvantage on constitution ability checks and saving throws";
-				iconFilePath = "icons/svg/poison.svg";
-				break;
-			case "Aberrant Slow Speech":
-				effectDescription = "Speaking is difficult. You can only utter one word during each turn. This does not hamper spellcasting";
-				iconFilePath = "icons/svg/poison.svg";
-				break;
-			case "Aberrant Powerfull Lower Limbs":
-				effectDescription = "Your lower limbs become more powerful. Your Speed increases by 5 feet";
-				iconFilePath = "icons/svg/poison.svg";
-				Object.values(MOVEMENT_TYPE).forEach(movementType => {
-					if (actor.system.attributes.movement[movementType] > 0) {
-						effects.push(getSystemEffectChange(movementType, 5, CONST.ACTIVE_EFFECT_MODES.ADD));
-					}
-				});
-				break;
-			case "Aberrant Temporary Vitality Boost":
-				const currentTempHp = actor.system.attributes.hp.temp ?? 0;
-				const newTempHp = currentTempHp + (actor.system.scale["aberrant-horror"]["transformation-level"].value * 4);
-				actor.update({
-					"system.attributes.hp.temp": newTempHp
-				});
-				runEffectsFunction = false;
-				break;
-			case "Aberrant Resilience":
-				effectDescription = "Your body’s systems are enhanced. You have Advantage on Death Saving Throws";
-				iconFilePath = "icons/svg/poison.svg";
-				effects.push(getAdvantageEffectChanges(ATTRIBUTES.DEATH_SAVES, ROLL_TYPE.SAVING_THROW));
-				break;
-			case "Aberrant Overload":
-				effectDescription = "The stress of your Transformation becomes too much. You die. You cannot be restored to life by any spell below level 5";
-				actor.update({
-					"system.attributes.hp.temp": 0
-				});
-				actor.update({
-					"system.attributes.hp.value": 0
-				});
-				actor.update({
-					"system.attributes.death.failure": 3
-				});
-				getSimpleDialog(effectName, effectDescription).render(true);
-				ChatMessage.create({
-					speaker: ChatMessage.getSpeaker({ actor }),
-					content: effectDescription
-				});
-				runEffectsFunction = false
-				break;
-			case "Aberrant Weakness":
-				effectDescription = "Your form becomes fragile. Your Hit Point Maximum is half your normal maximum";
-				iconFilePath = "icons/svg/poison.svg";
-				const newMaxHp = (actor.system.attributes.hp.max / 2);
-				effects.push(getSystemEffectChange(ATTRIBUTES.HEALT_POINTS_MAX, newMaxHp, CONST.ACTIVE_EFFECT_MODES.OVERRIDE));
-				break;
-			case "Aberrant Weakness":
-				effectDescription = "Your body starts to lose cohesion. You have Disadvantage on all D20 Tests.";
-				iconFilePath = "icons/svg/poison.svg";
-				Object.values(SKILL).forEach(skill => {
-					effects.push(getSkillDisadvantageEffectChanges(skill));
-				});
-				Object.values(ABILITY).forEach(ability => {
-					effects.push(getAbilityCheckDisadvantageEffectChanges(ability));
-					effects.push(getAbilitySaveDisadvantageEffectChanges(ability));
-				});
-				Object.values(ATTRIBUTES.ROLLABLE).forEach(attribute => {
-					effects.push(getAttributeCheckDisadvantageEffectChanges(attribute));
-					effects.push(getAttributeSaveDisadvantageEffectChanges(attribute));
-				});
-				break;
-		}
-		if (runEffectsFunction) {
-			createActiveEffectOnActor(actor, effectName, effectDescription, iconFilePath, effects);
-		}
-		resolve(true);
-	});
+async function applyUnstableForm(actor, effectName) {
+	console.log("Attempting to apply transformation roll table effects!");
+	let effectDescription = '';
+	let iconFilePath = '';
+	let effects = [];
+	let runEffectsFunction = true;
+	switch (effectName) {
+		case "Aberrant Exhaustion":
+			const currentExhaustion = actor.system.attributes.exhaustion ?? 0;
+			const newExhaustion = Math.clamp(currentExhaustion + 2, 0, 6);
+			actor.update({
+				"system.attributes.exhaustion": newExhaustion
+			});
+			runEffectsFunction = false;
+			break;
+		case "Aberrant Confusion":
+			effectDescription = "After rolling Initiative, you have the Stunned condition until the end of your first turn";
+			iconFilePath = "icons/svg/poison.svg";
+			break;
+		case "Aberrant Slowness":
+			effectDescription = "After rolling Initiative, you have the Stunned condition until the end of your first turn";
+			iconFilePath = "icons/svg/poison.svg";
+			Object.values(MOVEMENT_TYPE).forEach(movementType => {
+				if (actor.system.attributes.movement[movementType] > 0) {
+					effects.push(getSystemEffectChange(movementType, -15, CONST.ACTIVE_EFFECT_MODES.ADD));
+				}
+			});
+			break;
+		case "Aberrant Slugginess":
+			effectDescription = "Your body does not react quickly to mental commands. You cannot take Reactions.";
+			iconFilePath = "icons/svg/poison.svg";
+			break;
+		case "Aberrant Distraction":
+			effectDescription = "Imposes disadvantage on dexterity saving throws";
+			iconFilePath = "icons/svg/poison.svg";
+			effects.push(getDisadvantageEffectChanges(SKILLS.PERCEPTION));
+			break;
+		case "Aberrant Defenseless":
+			effectDescription = "Imposes disadvantage on constitution saving throws";
+			iconFilePath = "icons/svg/poison.svg";
+			effects.push(getDisadvantageEffectChanges(ABILITIES.CONSTITUTION));
+			break;
+		case "Aberrant Clumsiness":
+			effectDescription = "Imposes disadvantage on constitution ability checks and saving throws";
+			iconFilePath = "icons/svg/poison.svg";
+			effects.push(getDisadvantageEffectChanges(ABILITY.DEXTERITY, ROLL_TYPE.ABILITY_CHECK));
+			effects.push(getDisadvantageEffectChanges(ABILITY.DEXTERITY, ROLL_TYPE.SAVING_THROW));
+			break;
+		case "Aberrant Loss of Vitality":
+			effectDescription = "Imposes disadvantage on constitution ability checks and saving throws";
+			iconFilePath = "icons/svg/poison.svg";
+			break;
+		case "Aberrant Slow Speech":
+			effectDescription = "Speaking is difficult. You can only utter one word during each turn. This does not hamper spellcasting";
+			iconFilePath = "icons/svg/poison.svg";
+			break;
+		case "Aberrant Powerfull Lower Limbs":
+			effectDescription = "Your lower limbs become more powerful. Your Speed increases by 5 feet";
+			iconFilePath = "icons/svg/poison.svg";
+			Object.values(MOVEMENT_TYPE).forEach(movementType => {
+				if (actor.system.attributes.movement[movementType] > 0) {
+					effects.push(getSystemEffectChange(movementType, 5, CONST.ACTIVE_EFFECT_MODES.ADD));
+				}
+			});
+			break;
+		case "Aberrant Temporary Vitality Boost":
+			const currentTempHp = actor.system.attributes.hp.temp ?? 0;
+			const newTempHp = currentTempHp + (actor.system.scale["aberrant-horror"]["transformation-level"].value * 4);
+			actor.update({
+				"system.attributes.hp.temp": newTempHp
+			});
+			runEffectsFunction = false;
+			break;
+		case "Aberrant Resilience":
+			effectDescription = "Your body’s systems are enhanced. You have Advantage on Death Saving Throws";
+			iconFilePath = "icons/svg/poison.svg";
+			effects.push(getAdvantageEffectChanges(ATTRIBUTES.DEATH_SAVES, ROLL_TYPE.SAVING_THROW));
+			break;
+		case "Aberrant Overload":
+			effectDescription = "The stress of your Transformation becomes too much. You die. You cannot be restored to life by any spell below level 5";
+			actor.update({
+				"system.attributes.hp.temp": 0
+			});
+			actor.update({
+				"system.attributes.hp.value": 0
+			});
+			actor.update({
+				"system.attributes.death.failure": 3
+			});
+			getSimpleDialog(effectName, effectDescription).render(true);
+			ChatMessage.create({
+				speaker: ChatMessage.getSpeaker({ actor }),
+				content: effectDescription
+			});
+			runEffectsFunction = false
+			break;
+		case "Aberrant Weakness":
+			effectDescription = "Your form becomes fragile. Your Hit Point Maximum is half your normal maximum";
+			iconFilePath = "icons/svg/poison.svg";
+			const newMaxHp = (actor.system.attributes.hp.max / 2);
+			effects.push(getSystemEffectChange(ATTRIBUTES.HEALT_POINTS_MAX, newMaxHp, CONST.ACTIVE_EFFECT_MODES.OVERRIDE));
+			break;
+		case "Aberrant Weakness":
+			effectDescription = "Your body starts to lose cohesion. You have Disadvantage on all D20 Tests.";
+			iconFilePath = "icons/svg/poison.svg";
+			Object.values(SKILL).forEach(skill => {
+				effects.push(getSkillDisadvantageEffectChanges(skill));
+			});
+			Object.values(ABILITY).forEach(ability => {
+				effects.push(getAbilityCheckDisadvantageEffectChanges(ability));
+				effects.push(getAbilitySaveDisadvantageEffectChanges(ability));
+			});
+			Object.values(ATTRIBUTES.ROLLABLE).forEach(attribute => {
+				effects.push(getAttributeCheckDisadvantageEffectChanges(attribute));
+				effects.push(getAttributeSaveDisadvantageEffectChanges(attribute));
+			});
+			break;
+	}
+	if (runEffectsFunction) {
+		createActiveEffectOnActor(actor, effectName, effectDescription, iconFilePath, effects);
+	}
+	console.log("transformation roll table effects should be applied!");
 }
