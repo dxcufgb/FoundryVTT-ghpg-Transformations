@@ -141,7 +141,7 @@ function createActiveEffectOnActor(actor, effectName, description, icon, changes
 function getSystemEffectChange(identifier, value, changeType) {
 	const overrideType = findOverrideType(identifier)
 	effects = [
-		{ key: `system.${overrideType}.${skillKey}`, mode: changeType, value: value }
+		{ key: `system.${overrideType}.${identifier}`, mode: changeType, value: value }
 	]
 }
 
