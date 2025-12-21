@@ -74,7 +74,7 @@ function actorIsHidingHideousForm(actor) {
 	return (actor.system.concentration.ability == "Hide Hideous Form")
 }
 
-Hooks.once("dnd5e.restCompleted", async (actor, result) => {
+Hooks.on("dnd5e.restCompleted", async (actor, result) => {
 	console.log("restCompleted hook!")
 	console.log(actor)
 	console.log(result)
@@ -86,7 +86,6 @@ Hooks.once("dnd5e.restCompleted", async (actor, result) => {
 			actor.system.attributes.hp.value -= ((dhd * -1) * actor.system.abilities.con.mod);
 		}
 	} else if (result.longRest) {
-
 		const transformationTableName = findTransformationTableName(actor);
 		if (transformationTableName != "") {
 			await removeActiveTransformationEffect(actor);
