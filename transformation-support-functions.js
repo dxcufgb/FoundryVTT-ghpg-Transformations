@@ -89,7 +89,10 @@ function actorIsHidingHideousForm(actor) {
 
 Hooks.once("dnd5e.restCompleted", async (actor, result) => {
 	if (result.shortRest) {
-		if (actor.statuses.contains("Abberant Loss of Vitality" && dhd != 0)) {
+		console.log("short rest was performed");
+		console.log(actor.statuses.contains("Abberant Loss of Vitality"));
+		console.log(dhd);
+		if (actor.statuses.contains("Abberant Loss of Vitality") && dhd != 0) {
 			actor.system.attributes.hp.value -= ((dhd * -1) * actor.system.abilities.con.mod);
 		}
 	} else if (result.longRest) {
@@ -300,7 +303,6 @@ async function drawTableResult(actor, tableName) {
 
 async function applyRollTableResult(actor, resultName, transformationTableName) {
 	if (transformationTableName.startsWith("Unstable Form")) {
-		console.log("Applying result from unstable form macros!");
 		await applyUnstableForm(actor, resultName);
 	}
 }

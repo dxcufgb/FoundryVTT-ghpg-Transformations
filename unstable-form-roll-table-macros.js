@@ -1,5 +1,4 @@
 async function applyUnstableForm(actor, effectName) {
-	console.log("Attempting to apply transformation roll table effects!");
 	let effectDescription = '';
 	let iconFilePath = '';
 	let effects = [];
@@ -119,5 +118,4 @@ async function applyUnstableForm(actor, effectName) {
 	if (runEffectsFunction) {
 		createActiveEffectOnActor(actor, effectName, effectDescription, iconFilePath, effects);
 	}
-	console.log("transformation roll table effects should be applied!");
 }
