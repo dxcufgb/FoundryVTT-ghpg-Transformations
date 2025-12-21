@@ -125,13 +125,21 @@ function getSystemEffectChange(identifier, value, changeType) {
 }
 
 function getDisadvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
-	if (SKILL.includes(identifier)) {
+	if (SKILL[identifier]) {
 		getSkillDisadvantageEffectChanges(identifier)
-	} else if (ABILITY.includes(identifier)) {
+	} else if (ABILITY[identifier]) {
 		if (type == ROLL_TYPE.ABILITY_CHECK) {
 			getAbilityCheckDisadvantageEffectChanges(identifier)
 		} else if (type == ROLL_TYPE.SAVING_THROW) {
 			getAbilitySaveDisadvantageEffectChanges(identifier)
+		} else {
+			console.log(`Unknown roll type "${type}" in getDisadvantageEffectChanges`)
+		}
+	} else if (ATTRIBUTE[identifier]) {
+		if (type == ROLL_TYPE.ABILITY_CHECK) {
+			getAttributeCheckDisadvantageEffectChanges(identifier)
+		} else if (type == ROLL_TYPE.SAVING_THROW) {
+			getAttributeSaveDisadvantageEffectChanges(identifier)
 		} else {
 			console.log(`Unknown roll type "${type}" in getDisadvantageEffectChanges`)
 		}
@@ -141,9 +149,9 @@ function getDisadvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK
 }
 
 function getAdvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
-	if (SKILL.includes(identifier)) {
+	if (SKILL[identifier]) {
 		getSkillAdvantageEffectChanges(identifier)
-	} else if (ABILITY.includes(identifier)) {
+	} else if (ABILITY[identifier]) {
 		if (type == ROLL_TYPE.ABILITY_CHECK) {
 			getAbilityCheckAdvantageEffectChanges(identifier)
 		} else if (type == ROLL_TYPE.SAVING_THROW) {
@@ -151,7 +159,7 @@ function getAdvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
 		} else {
 			console.log(`Unknown roll type "${type}" in getAdvantageEffectChanges`)
 		}
-	} else if (ATTRIBUTE.includes(identifier)) {
+	} else if (ATTRIBUTE[identifier]) {
 		if (type == ROLL_TYPE.ABILITY_CHECK) {
 			getAttributeCheckAdvantageEffectChanges(identifier)
 		} else if (type == ROLL_TYPE.SAVING_THROW) {
@@ -247,9 +255,9 @@ function geAttributeSaveDisadvantageEffectChanges(ability) {
 }
 
 function findOverrideType(identifier) {
-	if (MOVEMENT_TYPE.includes(identifier)) {
+	if (MOVEMENT_TYPE[identifier]) {
 		return OVERRIDE_TYPE.MOVEMENT_TYPE
-	} else if (ATTRIBUTE.includes(identifier)) {
+	} else if (ATTRIBUTE[identifier]) {
 		return OVERRIDE_TYPE.ATTRIBUTES
 	}
 
