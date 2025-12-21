@@ -74,18 +74,18 @@ function actorIsHidingHideousForm(actor) {
 	return (actor.system.concentration.ability == "Hide Hideous Form")
 }
 
-Hooks.on("drawTableResult", async (table, result, options) => {
-	const speaker = ChatMessage.getSpeaker();
-	const actor = ChatMessage.getSpeakerActor(speaker);
-	const tableName = table.name
-	console.log(`${actor.name} rolled on table ${tableName}!`)
-	switch (tableName) {
-		case tableName.startswith(actor, "Unstable Form"):
-			console.log("Applying result from unstable form macros!")
-			await applyUnstableForm(result.name);
-			break;
-	}
-});
+// Hooks.on("drawTableResult", async (table, result, options) => {
+// 	const speaker = ChatMessage.getSpeaker();
+// 	const actor = ChatMessage.getSpeakerActor(speaker);
+// 	const tableName = table.name
+// 	console.log(`${actor.name} rolled on table ${tableName}!`)
+// 	switch (tableName) {
+// 		case tableName.startswith(actor, "Unstable Form"):
+// 			console.log("Applying result from unstable form macros!")
+// 			await applyUnstableForm(result.name);
+// 			break;
+// 	}
+// });
 
 Hooks.once("dnd5e.restCompleted", async (actor, result) => {
 	if (result.shortRest) {
@@ -93,14 +93,11 @@ Hooks.once("dnd5e.restCompleted", async (actor, result) => {
 			actor.system.attributes.hp.value -= ((dhd * -1) * actor.system.abilities.con.mod)
 		}
 	} else if (result.longRest) {
-		// const effectsToRemove = actor.effects.filter(effect =>
-		// 	[...effect.statuses].some(status => status.startsWith("aberrant"))
-		// );
-		// if (!effectsToRemove.length) return;
-		// await actor.deleteEmbeddedDocuments(
-		// 	"ActiveEffect",
-		// 	effectsToRemove.map(e => e.id)
-		// );
+		const transformationTableName = findTransformationTableName(actor)
+		if (transformationTableName != "") {
+			const drawResult = drawTableResult(actor, transformationTableName)
+			console.log(drawResult)
+		}
 	}
 });
 
@@ -258,5 +255,45 @@ function findOverrideType(identifier) {
 	} else if (ATTRIBUTES.includes(identifier)) {
 		return OVERRIDE_TYPE.ATTRIBUTES
 	}
-		
+
+}
+
+function findTransformationTableName(actor) {
+	const scale = actor.system.scale
+	let tablePrefix = ""
+	let transformationLevel = 0
+	let tableName
+	if (scale["aberrant-horror"]) {
+		transformationLevel = scale["aberrant-horror"]["transformation-level"].value;
+		tablePrefix = "Unstable Form Stage "
+	}
+	if (tablePrefix == "") {
+		console.log("No table found");
+		return "";
+	}
+	switch (transformationLevel) {
+		case 1:
+			tableName = tablePrefix + "1";
+			break;
+		case 2:
+			tableName = tablePrefix + "2";
+			break;
+		case 3:
+			tableName = tablePrefix + "3";
+			break;
+		case 4:
+			tableName = tablePrefix + "4";
+			break;
+	}
+	return tableName;
+}
+
+function drawTableResult(actor, tableName) {
+	const table = game.tables.getName(tableName);
+	if (!table) {
+		ui.notifications.error(`Table "${tableName}" not found`);
+		return;
+	}
+	const draw = table.draw({ speaker: actor, roll: true, displayChat: true });
+	return draw;
 }
