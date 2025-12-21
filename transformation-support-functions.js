@@ -301,7 +301,7 @@ async function applyRollTableResult(actor, resultName, transformationTableName) 
 
 async function removeActiveTransformationEffect(actor, tableName) {
 	let effectNameStartsWith
-	if (transformationTableName.startsWith("Unstable Form")) {
+	if (tableName.startsWith("Unstable Form")) {
 		effectNameStartsWith = "Aberrant"
 	}
 	const effects = actor.effects.filter(e =>
