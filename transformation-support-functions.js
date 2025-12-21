@@ -298,20 +298,9 @@ async function drawTableResult(actor, tableName) {
 	return draw;
 }
 
-<<<<<<< Updated upstream
 async function applyRollTableResult(actor, resultName, transformationTableName) {
 	if (transformationTableName.startsWith("Unstable Form")) {
 		console.log("Applying result from unstable form macros!");
 		await applyUnstableForm(actor, resultName);
 	}
 }
-=======
-async function getResultFromRollTable(actor, resultName, transformationTableName) {
-	switch (transformationTableName) {
-		case transformationTableName.startsWith("Unstable Form"):
-			console.log("Applying result from unstable form macros!")
-			await applyUnstableForm(actor, resultName);
-			break;
-	}
-}
->>>>>>> Stashed changes
