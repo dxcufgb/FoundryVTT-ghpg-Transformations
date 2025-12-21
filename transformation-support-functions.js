@@ -95,8 +95,13 @@ Hooks.once("dnd5e.restCompleted", async (actor, result) => {
 	} else if (result.longRest) {
 		const transformationTableName = findTransformationTableName(actor);
 		if (transformationTableName != "") {
+<<<<<<< Updated upstream
 			const drawResult = await drawTableResult(actor, transformationTableName);
 			applyRollTableResult(actor, drawResult.results[0].name, transformationTableName);
+=======
+			const drawResult = await drawTableResult(actor, transformationTableName)
+			getResultFromRollTable(actor, drawResult.results[0].name, transformationTableName)
+>>>>>>> Stashed changes
 		}
 	}
 });
@@ -298,9 +303,20 @@ async function drawTableResult(actor, tableName) {
 	return draw;
 }
 
+<<<<<<< Updated upstream
 async function applyRollTableResult(actor, resultName, transformationTableName) {
 	if (transformationTableName.startsWith("Unstable Form")) {
 		console.log("Applying result from unstable form macros!");
 		await applyUnstableForm(actor, resultName);
 	}
 }
+=======
+async function getResultFromRollTable(actor, resultName, transformationTableName) {
+	switch (transformationTableName) {
+		case transformationTableName.startsWith("Unstable Form"):
+			console.log("Applying result from unstable form macros!")
+			await applyUnstableForm(actor, resultName);
+			break;
+	}
+}
+>>>>>>> Stashed changes

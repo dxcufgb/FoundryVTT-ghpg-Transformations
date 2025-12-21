@@ -20,8 +20,8 @@ function applyUnstableForm(actor, effectName) {
 			case "Aberrant Slowness":
 				effectDescription = "After rolling Initiative, you have the Stunned condition until the end of your first turn";
 				iconFilePath = "icons/svg/poison.svg";
-				MOVEMENT_TYPE.array.forEach(movementType => {
-					if (actor.system.attributes.movement[movementType] > 0){
+				Object.values(MOVEMENT_TYPE).forEach(movementType => {
+					if (actor.system.attributes.movement[movementType] > 0) {
 						effects.push(getSystemEffectChange(movementType, -15, CONST.ACTIVE_EFFECT_MODES.ADD));
 					}
 				});
@@ -57,8 +57,8 @@ function applyUnstableForm(actor, effectName) {
 			case "Aberrant Powerfull Lower Limbs":
 				effectDescription = "Your lower limbs become more powerful. Your Speed increases by 5 feet";
 				iconFilePath = "icons/svg/poison.svg";
-				MOVEMENT_TYPE.array.forEach(movementType => {
-					if (actor.system.attributes.movement[movementType] > 0){
+				Object.values(MOVEMENT_TYPE).forEach(movementType => {
+					if (actor.system.attributes.movement[movementType] > 0) {
 						effects.push(getSystemEffectChange(movementType, 5, CONST.ACTIVE_EFFECT_MODES.ADD));
 					}
 				});
@@ -103,20 +103,20 @@ function applyUnstableForm(actor, effectName) {
 			case "Aberrant Weakness":
 				effectDescription = "Your body starts to lose cohesion. You have Disadvantage on all D20 Tests."
 				iconFilePath = "icons/svg/poison.svg";
-				SKILL.array.forEach(skill => {
+				Object.values(SKILL).forEach(skill => {
 					effects.push(getSkillDisadvantageEffectChanges(skill));
 				});
-				ABILITY.array.forEach(ability => {
+				Object.values(ABILITY).forEach(ability => {
 					effects.push(getAbilityCheckDisadvantageEffectChanges(ability))
 					effects.push(getAbilitySaveDisadvantageEffectChanges(ability))
 				});
-				ATTRIBUTES.ROLLABLE.array.forEach(attribute => {
+				Object.values(ATTRIBUTES.ROLLABLE).forEach(attribute => {
 					effects.push(getAttributeCheckDisadvantageEffectChanges(attribute))
 					effects.push(getAttributeSaveDisadvantageEffectChanges(attribute))
 				})
 				break;
 		}
-		if (runEffectsFunction){
+		if (runEffectsFunction) {
 			createActiveEffectOnActor(actor, effectName, effectDescription, iconFilePath, effects)
 		}
 		resolve(true);
