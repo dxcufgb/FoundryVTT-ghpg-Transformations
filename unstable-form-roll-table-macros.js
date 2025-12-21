@@ -32,12 +32,12 @@ async function applyUnstableForm(actor, effectName) {
 		case "Aberrant Distraction":
 			effectDescription = "Imposes disadvantage on dexterity saving throws";
 			iconFilePath = "icons/svg/poison.svg";
-			effects.push(getDisadvantageEffectChanges(SKILLS.PERCEPTION));
+			effects.push(getDisadvantageEffectChanges(SKILL.PERCEPTION));
 			break;
 		case "Aberrant Defenseless":
 			effectDescription = "Imposes disadvantage on constitution saving throws";
 			iconFilePath = "icons/svg/poison.svg";
-			effects.push(getDisadvantageEffectChanges(ABILITIES.CONSTITUTION));
+			effects.push(getDisadvantageEffectChanges(ABILITY.CONSTITUTION));
 			break;
 		case "Aberrant Clumsiness":
 			effectDescription = "Imposes disadvantage on constitution ability checks and saving throws";
@@ -73,7 +73,7 @@ async function applyUnstableForm(actor, effectName) {
 		case "Aberrant Resilience":
 			effectDescription = "Your body’s systems are enhanced. You have Advantage on Death Saving Throws";
 			iconFilePath = "icons/svg/poison.svg";
-			effects.push(getAdvantageEffectChanges(ATTRIBUTES.DEATH_SAVES, ROLL_TYPE.SAVING_THROW));
+			effects.push(getAdvantageEffectChanges(ATTRIBUTE.DEATH_SAVES, ROLL_TYPE.SAVING_THROW));
 			break;
 		case "Aberrant Overload":
 			effectDescription = "The stress of your Transformation becomes too much. You die. You cannot be restored to life by any spell below level 5";
@@ -97,7 +97,7 @@ async function applyUnstableForm(actor, effectName) {
 			effectDescription = "Your form becomes fragile. Your Hit Point Maximum is half your normal maximum";
 			iconFilePath = "icons/svg/poison.svg";
 			const newMaxHp = (actor.system.attributes.hp.max / 2);
-			effects.push(getSystemEffectChange(ATTRIBUTES.HEALT_POINTS_MAX, newMaxHp, CONST.ACTIVE_EFFECT_MODES.OVERRIDE));
+			effects.push(getSystemEffectChange(ATTRIBUTE.HEALT_POINTS_MAX, newMaxHp, CONST.ACTIVE_EFFECT_MODES.OVERRIDE));
 			break;
 		case "Aberrant Weakness":
 			effectDescription = "Your body starts to lose cohesion. You have Disadvantage on all D20 Tests.";
@@ -109,7 +109,7 @@ async function applyUnstableForm(actor, effectName) {
 				effects.push(getAbilityCheckDisadvantageEffectChanges(ability));
 				effects.push(getAbilitySaveDisadvantageEffectChanges(ability));
 			});
-			Object.values(ATTRIBUTES.ROLLABLE).forEach(attribute => {
+			Object.values(ATTRIBUTE.ROLLABLE).forEach(attribute => {
 				effects.push(getAttributeCheckDisadvantageEffectChanges(attribute));
 				effects.push(getAttributeSaveDisadvantageEffectChanges(attribute));
 			});

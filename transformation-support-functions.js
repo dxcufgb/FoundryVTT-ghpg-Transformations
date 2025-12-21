@@ -46,7 +46,7 @@ const OVERRIDE_TYPE = Object.freeze({
 	ATTRIBUTES: "attributes"
 });
 
-const ATTRIBUTES = Object.freeze({
+const ATTRIBUTE = Object.freeze({
 	HEALT_POINTS: "hp.value",
 	HEALT_POINTS_MAX: "hp.max",
 	ROLLABLE: Object.freeze({
@@ -152,7 +152,7 @@ function getAdvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
 		} else {
 			console.log(`Unknown roll type "${type}" in getAdvantageEffectChanges`)
 		}
-	} else if (ATTRIBUTES.includes(identifier)) {
+	} else if (ATTRIBUTE.includes(identifier)) {
 		if (type == ROLL_TYPE.ABILITY_CHECK) {
 			getAttributeCheckAdvantageEffectChanges(identifier)
 		} else if (type == ROLL_TYPE.SAVING_THROW) {
@@ -250,7 +250,7 @@ function geAttributeSaveDisadvantageEffectChanges(ability) {
 function findOverrideType(identifier) {
 	if (MOVEMENT_TYPE.includes(identifier)) {
 		return OVERRIDE_TYPE.MOVEMENT_TYPE
-	} else if (ATTRIBUTES.includes(identifier)) {
+	} else if (ATTRIBUTE.includes(identifier)) {
 		return OVERRIDE_TYPE.ATTRIBUTES
 	}
 
