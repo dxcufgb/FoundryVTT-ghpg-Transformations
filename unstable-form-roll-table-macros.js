@@ -114,6 +114,10 @@ async function applyUnstableForm(actor, effectName) {
 				effects.push(getAttributeSaveDisadvantageEffectChanges(attribute));
 			});
 			break;
+		default:
+			//assumed to be a "no effect" result from roll table
+			runEffectsFunction = false;
+			break;
 	}
 	if (runEffectsFunction) {
 		createActiveEffectOnActor(actor, effectName, effectDescription, iconFilePath, effects);
