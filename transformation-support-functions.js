@@ -86,8 +86,10 @@ Hooks.once("dnd5e.restCompleted", async (actor, result) => {
 			actor.system.attributes.hp.value -= ((dhd * -1) * actor.system.abilities.con.mod);
 		}
 	} else if (result.longRest) {
+
 		const transformationTableName = findTransformationTableName(actor);
 		if (transformationTableName != "") {
+			await removeActiveTransformationEffect(actor, transformationTableName);
 			const drawResult = await drawTableResult(actor, transformationTableName);
 			applyRollTableResult(actor, drawResult.results[0].name, transformationTableName);
 		}
@@ -107,7 +109,7 @@ function createActiveEffectOnActor(actor, effectName, description, icon, changes
 		name: effectName,
 		description: description,
 		statuses: [effectName.replace(" ", "")],
-		icon: icon,
+		img: icon,
 		changes: changes,
 		origin: actor.uuid
 	}]);
@@ -294,5 +296,22 @@ async function drawTableResult(actor, tableName) {
 async function applyRollTableResult(actor, resultName, transformationTableName) {
 	if (transformationTableName.startsWith("Unstable Form")) {
 		await applyUnstableForm(actor, resultName);
+	}
+}
+
+async function removeActiveTransformationEffect(actor, tableName) {
+	let effectNameStartsWith
+	if (transformationTableName.startsWith("Unstable Form")) {
+		effectNameStartsWith = "Aberrant"
+	}
+	const effects = actor.effects.filter(e =>
+		e.statuses.startsWith(effectNameStartsWith)
+	);
+
+	if (effects.length) {
+		await actor.deleteEmbeddedDocuments(
+			"ActiveEffect",
+			effects.map(e => e.id)
+		);
 	}
 }
