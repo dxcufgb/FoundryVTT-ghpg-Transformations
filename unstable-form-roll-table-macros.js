@@ -23,12 +23,7 @@ async function applyUnstableForm(actor, effectName) {
 			console.log("looping over movement types");
 			Object.values(MOVEMENT_TYPE).forEach(movementType => {
 				if (actor.system.attributes.movement[movementType] > 0) {
-					console.log(movementType);
-					console.log(actor.system.attributes.movement[movementType])
-					tempEffects = getSystemEffectChange(movementType, -15, CONST.ACTIVE_EFFECT_MODES.ADD);
-					console.log(`effects returned by method:`);
-					console.log(tempEffects);
-					effects.push(tempEffects);
+					effects = effects.concat(getSystemEffectChange(movementType, -15, CONST.ACTIVE_EFFECT_MODES.ADD));
 				}
 			});
 			console.log("Aberrant Powerfull Lower Limbs was activated with the following values:");
@@ -41,30 +36,18 @@ async function applyUnstableForm(actor, effectName) {
 		case "Aberrant Distraction":
 			effectDescription = "Imposes disadvantage on dexterity saving throws";
 			iconFilePath = "icons/svg/poison.svg";
-			tempEffects = getDisadvantageEffectChanges(SKILL.PERCEPTION, ROLL_TYPE.SAVING_THROW);
-			console.log(`effects returned by method:`);
-			console.log(tempEffects);
-			effects.push(tempEffects);
+			effects = effects.concat(getDisadvantageEffectChanges(SKILL.PERCEPTION, ROLL_TYPE.SAVING_THROW));
 			break;
 		case "Aberrant Defenseless":
 			effectDescription = "Imposes disadvantage on constitution saving throws";
 			iconFilePath = "icons/svg/poison.svg";
-			tempEffects = getDisadvantageEffectChanges(ABILITY.CONSTITUTION, ROLL_TYPE.SAVING_THROW);
-			console.log(`effects returned by method:`);
-			console.log(tempEffects);
-			effects.push(tempEffects);
+			effects = effects.concat(getDisadvantageEffectChanges(ABILITY.CONSTITUTION, ROLL_TYPE.SAVING_THROW));
 			break;
 		case "Aberrant Clumsiness":
 			effectDescription = "Imposes disadvantage on constitution ability checks and saving throws";
 			iconFilePath = "icons/svg/poison.svg";
-			tempEffects = getDisadvantageEffectChanges(ABILITY.DEXTERITY, ROLL_TYPE.ABILITY_CHECK);
-			console.log(`effects returned by method:`);
-			console.log(tempEffects);
-			effects.push(tempEffects);
-			tempEffects = getDisadvantageEffectChanges(ABILITY.DEXTERITY, ROLL_TYPE.SAVING_THROW);
-			console.log(`effects returned by method:`);
-			console.log(tempEffects);
-			effects.push(tempEffects);
+			effects = effects.concat(getDisadvantageEffectChanges(ABILITY.DEXTERITY, ROLL_TYPE.ABILITY_CHECK));
+			effects = effects.concat(getDisadvantageEffectChanges(ABILITY.DEXTERITY, ROLL_TYPE.SAVING_THROW));
 			break;
 		case "Aberrant Loss of Vitality":
 			effectDescription = "Imposes disadvantage on constitution ability checks and saving throws";
@@ -83,10 +66,7 @@ async function applyUnstableForm(actor, effectName) {
 				console.log(actor.system.attributes.movement[movementType])
 				if (actor.system.attributes.movement[movementType] > 0) {
 					//TODO: find out whythis does not work.
-					const tempEffects = getSystemEffectChange(movementType, 5, CONST.ACTIVE_EFFECT_MODES.ADD);
-					console.log(`effects returned by method:`);
-					console.log(tempEffects);
-					effects.push(tempEffects);
+					effects = effects.concat(getSystemEffectChange(movementType, 5, CONST.ACTIVE_EFFECT_MODES.ADD));
 				}
 			});
 			console.log("Aberrant Powerfull Lower Limbs was activated with the following values:");
@@ -103,10 +83,7 @@ async function applyUnstableForm(actor, effectName) {
 		case "Aberrant Resilience":
 			effectDescription = "Your body’s systems are enhanced. You have Advantage on Death Saving Throws";
 			iconFilePath = "icons/svg/poison.svg";
-			tempEffects = getAdvantageEffectChanges(ATTRIBUTE.ROLLABLE.DEATH_SAVES, ROLL_TYPE.SAVING_THROW);
-			console.log(`effects returned by method:`);
-			console.log(tempEffects);
-			effects.push(tempEffects);
+			effects = effects.concat(getAdvantageEffectChanges(ATTRIBUTE.ROLLABLE.DEATH_SAVES, ROLL_TYPE.SAVING_THROW));
 			break;
 		case "Aberrant Overload":
 			effectDescription = "The stress of your Transformation becomes too much. You die. You cannot be restored to life by any spell below level 5";
@@ -130,21 +107,21 @@ async function applyUnstableForm(actor, effectName) {
 			effectDescription = "Your form becomes fragile. Your Hit Point Maximum is half your normal maximum";
 			iconFilePath = "icons/svg/poison.svg";
 			const newMaxHp = (actor.system.attributes.hp.max / 2);
-			effects.push(getSystemEffectChange(ATTRIBUTE.HEALT_POINTS_MAX, newMaxHp, CONST.ACTIVE_EFFECT_MODES.OVERRIDE));
+			effects = effects.concat(getSystemEffectChange(ATTRIBUTE.HEALT_POINTS_MAX, newMaxHp, CONST.ACTIVE_EFFECT_MODES.OVERRIDE));
 			break;
 		case "Aberrant Weakness":
 			effectDescription = "Your body starts to lose cohesion. You have Disadvantage on all D20 Tests.";
 			iconFilePath = "icons/svg/poison.svg";
 			Object.values(SKILL).forEach(skill => {
-				effects.push(getSkillDisadvantageEffectChanges(skill));
+				effects = effects.concat(getSkillDisadvantageEffectChanges(skill));
 			});
 			Object.values(ABILITY).forEach(ability => {
-				effects.push(getAbilityCheckDisadvantageEffectChanges(ability));
-				effects.push(getAbilitySaveDisadvantageEffectChanges(ability));
+				effects = effects.concat(getAbilityCheckDisadvantageEffectChanges(ability));
+				effects = effects.concat(getAbilitySaveDisadvantageEffectChanges(ability));
 			});
 			Object.values(ATTRIBUTE.ROLLABLE).forEach(attribute => {
-				effects.push(getAttributeCheckDisadvantageEffectChanges(attribute));
-				effects.push(getAttributeSaveDisadvantageEffectChanges(attribute));
+				effects = effects.concat(getAttributeCheckDisadvantageEffectChanges(attribute));
+				effects = effects.concat(getAttributeSaveDisadvantageEffectChanges(attribute));
 			});
 			break;
 		default:

@@ -99,6 +99,9 @@ Hooks.on("dnd5e.restCompleted", async (actor, result) => {
 	if (result.type == "short") {
 		if (actor.statuses.has("AberrantLossofVitality") && result.dhd != 0) {
 			console.log(result.dhd);
+			console.log((result.dhd * -1));
+			console.log()
+			console.log((result.dhd * -1) * actor.system.abilities.con.mod);
 			actor.system.attributes.hp.value -= ((result.dhd * -1) * actor.system.abilities.con.mod);
 		}
 	} else if (result.longRest) {
