@@ -130,20 +130,33 @@ Hooks.on("dnd5e.rollInitiative", (actor, combatant) => {
 	}
 });
 
-Hooks.on("dnd5e.preRollDeathSave", (data, rollData) => {
-	const actor = data.subject;
-	console.log(actor);
-	console.log(`${actor.name} is about to roll a deathSave!`);
-	console.log("RollData:");
-	console.log(rollData);
-	if (actor.statuses.has("AberrantResilience")) {
-		console.log(`${actor.name} has Aberrant Resilience!`);
-		console.log(rollData.options);
-		rollData.options.advantageMode = 1;
-		rollData.options.defaultButton = "advantage";
-	}
-	console.log(rollData);
-});
+// Hooks.on("dnd5e.preRollDeathSave", (data, rollData) => {
+// 	const actor = data.subject;
+// 	console.log(actor);
+// 	console.log(`${actor.name} is about to roll a deathSave!`);
+// 	console.log("RollData:");
+// 	console.log(rollData);
+// 	if (actor.statuses.has("AberrantResilience")) {
+// 		console.log(`${actor.name} has Aberrant Resilience!`);
+// 		console.log(rollData.options);
+// 		rollData.options.advantageMode = 1;
+// 		rollData.options.defaultButton = "advantage";
+// 	}
+// 	console.log(rollData);
+// });
+
+libWrapper.register(
+	"transformations",
+	"CONFIG.Actor.documentClass.prototype.rollDeathSave",
+	async function (wrapped, options = {}) {
+		const actor = this;
+		if (actor.statuses.has("AberrantResilience")) {
+			options.advantage = true;
+		}
+		return wrapped.call(this, options);
+	},
+	"WRAPPER"
+);
 
 async function createActiveEffectOnActor(actor, effectName, description, icon, changes) {
 	console.log(`creating activeEffect with effects:`)
