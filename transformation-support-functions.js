@@ -145,18 +145,23 @@ Hooks.on("dnd5e.rollInitiative", (actor, combatant) => {
 // 	console.log(rollData);
 // });
 
-libWrapper.register(
-	"transformations",
-	"CONFIG.Actor.documentClass.prototype.rollDeathSave",
-	async function (wrapped, options = {}) {
-		const actor = this;
-		if (actor.statuses.has("AberrantResilience")) {
-			options.advantage = true;
-		}
-		return wrapped.call(this, options);
-	},
-	"WRAPPER"
-);
+Hooks.once("init", () => {
+	libWrapper.register(
+		"transformations",
+		"CONFIG.Actor.documentClass.prototype.rollDeathSave",
+		async function (wrapped, options = {}) {
+			const actor = this;
+			if (actor.statuses.has("AberrantResilience")) {
+				options.advantage = true;
+			}
+			return wrapped.call(actor, {
+				...options,
+				...result
+			});
+		},
+		"WRAPPER"
+	);
+});
 
 async function createActiveEffectOnActor(actor, effectName, description, icon, changes) {
 	console.log(`creating activeEffect with effects:`)
