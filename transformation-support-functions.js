@@ -141,6 +141,7 @@ Hooks.on("dnd5e.preRollDeathSave", (data, rollData) => {
 		rollData.options.advantageMode = 1;
 		rollData.options.defaultButton = "advantage";
 	}
+	console.log(rollData);
 });
 
 async function createActiveEffectOnActor(actor, effectName, description, icon, changes) {
