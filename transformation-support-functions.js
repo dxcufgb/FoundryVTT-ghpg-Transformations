@@ -140,28 +140,29 @@ function getSystemEffectChange(identifier, value, changeType) {
 	effects = [
 		{ key: `system.${overrideType}.${identifier}`, mode: changeType, value: value }
 	]
+	return effects;
 }
 
 function getDisadvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
 	console.log(`looking for ${identifier}`);
 	if (SKILL.contains(identifier)) {
 		console.log(`${identifier} is SKILL`);
-		getSkillDisadvantageEffectChanges(identifier)
+		return getSkillDisadvantageEffectChanges(identifier)
 	} else if (ABILITY.contains(identifier)) {
 		console.log(`${identifier} is ABILITY`);
 		if (type == ROLL_TYPE.ABILITY_CHECK) {
-			getAbilityCheckDisadvantageEffectChanges(identifier)
+			return getAbilityCheckDisadvantageEffectChanges(identifier)
 		} else if (type == ROLL_TYPE.SAVING_THROW) {
-			getAbilitySaveDisadvantageEffectChanges(identifier)
+			return getAbilitySaveDisadvantageEffectChanges(identifier)
 		} else {
 			console.log(`Unknown roll type "${type}" in getDisadvantageEffectChanges`)
 		}
 	} else if (ATTRIBUTE.contains(identifier)) {
 		console.log(`${identifier} is ATTRIBUTE`);
 		if (type == ROLL_TYPE.ABILITY_CHECK) {
-			getAttributeCheckDisadvantageEffectChanges(identifier)
+			return getAttributeCheckDisadvantageEffectChanges(identifier)
 		} else if (type == ROLL_TYPE.SAVING_THROW) {
-			getAttributeSaveDisadvantageEffectChanges(identifier)
+			return getAttributeSaveDisadvantageEffectChanges(identifier)
 		} else {
 			console.log(`Unknown roll type "${type}" in getDisadvantageEffectChanges`)
 		}
@@ -172,20 +173,20 @@ function getDisadvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK
 
 function getAdvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
 	if (SKILL.contains(identifier)) {
-		getSkillAdvantageEffectChanges(identifier)
+		return getSkillAdvantageEffectChanges(identifier)
 	} else if (ABILITY.contains(identifier)) {
 		if (type == ROLL_TYPE.ABILITY_CHECK) {
-			getAbilityCheckAdvantageEffectChanges(identifier)
+			return getAbilityCheckAdvantageEffectChanges(identifier)
 		} else if (type == ROLL_TYPE.SAVING_THROW) {
-			getAbilitySaveAdvantageEffectChanges(identifier)
+			return getAbilitySaveAdvantageEffectChanges(identifier)
 		} else {
 			console.log(`Unknown roll type "${type}" in getAdvantageEffectChanges`)
 		}
 	} else if (ATTRIBUTE.contains(identifier)) {
 		if (type == ROLL_TYPE.ABILITY_CHECK) {
-			getAttributeCheckAdvantageEffectChanges(identifier)
+			return getAttributeCheckAdvantageEffectChanges(identifier)
 		} else if (type == ROLL_TYPE.SAVING_THROW) {
-			getAttributeSaveAdvantageEffectChanges(identifier)
+			return getAttributeSaveAdvantageEffectChanges(identifier)
 		} else {
 			console.log(`Unknown roll type "${type}" in getAdvantageEffectChanges`)
 		}
