@@ -19,11 +19,16 @@ async function applyUnstableForm(actor, effectName) {
 		case "Aberrant Slowness":
 			effectDescription = "After rolling Initiative, you have the Stunned condition until the end of your first turn";
 			iconFilePath = "icons/svg/poison.svg";
+			console.log("looping over movement types");
 			Object.values(MOVEMENT_TYPE).forEach(movementType => {
 				if (actor.system.attributes.movement[movementType] > 0) {
+					console.log(movementType);
+					console.log(actor.system.attributes.movement[movementType])
 					effects.push(getSystemEffectChange(movementType, -15, CONST.ACTIVE_EFFECT_MODES.ADD));
 				}
 			});
+			console.log("Aberrant Powerfull Lower Limbs was activated with the following values:");
+			console.log(effects);
 			break;
 		case "Aberrant Slugginess":
 			effectDescription = "Your body does not react quickly to mental commands. You cannot take Reactions.";
