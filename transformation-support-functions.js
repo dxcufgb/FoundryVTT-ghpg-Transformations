@@ -124,6 +124,8 @@ Hooks.on("dnd5e.rollInitiative", (actor, combatant) => {
 });
 
 function createActiveEffectOnActor(actor, effectName, description, icon, changes) {
+	console.log(`creating activeEffect with effects:`)
+	console.log(changes)
 	actor.createEmbeddedDocuments("ActiveEffect", [{
 		label: effectName,
 		name: effectName,
