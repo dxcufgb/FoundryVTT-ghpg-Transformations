@@ -131,14 +131,15 @@ Hooks.on("dnd5e.rollInitiative", (actor, combatant) => {
 });
 
 Hooks.on("dnd5e.preRollDeathSave", (data, rollData) => {
-	const actor = data.subject
-	console.log(actor)
+	const actor = data.subject;
+	console.log(actor);
 	console.log(`${actor.name} is about to roll a deathSave!`);
 	console.log("RollData:");
 	console.log(rollData);
 	if (actor.statuses.has("AberrantResilience")) {
 		console.log(`${actor.name} has Aberrant Resilience!`);
 		rollData.advantageMode = 1;
+		rollData.defaultButton = "advantage";
 	}
 });
 
