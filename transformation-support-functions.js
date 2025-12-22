@@ -82,8 +82,13 @@ function getActorTransformationLevel(actor, transformationType) {
 	return level;
 }
 
-function getCurrentActor() {
-	const actor = game.user.character ?? canvas.tokens.controlled[0]?.actor ?? this.actor;
+function getCurrentActor(name = null) {
+	let actor
+	if (!name) {
+		actor = game.user.character ?? canvas.tokens.controlled[0]?.actor ?? this.actor;
+	} else {
+		actor = game.actors.getName(name);
+	}
 	return actor;
 }
 
@@ -122,6 +127,19 @@ Hooks.on("dnd5e.rollInitiative", (actor, combatant) => {
 			speaker: ChatMessage.getSpeaker({ actor }),
 			content: `Due to Aberrant Confusion ${actor.name} is stunned for the first round!`
 		});
+	}
+});
+
+Hooks.on("dnd5e.preRollDeathSave", (actor, rollData) => {
+	if (!actor) {
+		actor = getCurrentActor(rollData.options.window.subtitle)
+	}
+	console.log(`${actor.name} is about to roll a deathSave!`);
+	console.log("RollData:");
+	console.log(rollData);
+	if (actor.statuses.has("AberrantResilience")) {
+		console.log(`${actor.name} has Aberrant Resilience!`);
+		rollData.advantageMode = 1;
 	}
 });
 
