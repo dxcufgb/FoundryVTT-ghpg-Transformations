@@ -164,7 +164,7 @@ function getDisadvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK
 		} else {
 			console.log(`Unknown roll type "${type}" in getDisadvantageEffectChanges`)
 		}
-	} else if (ATTRIBUTE.contains(identifier)) {
+	} else if (ATTRIBUTE.ROLLABLE.contains(identifier)) {
 		console.log(`${identifier} is ATTRIBUTE`);
 		if (type == ROLL_TYPE.ABILITY_CHECK) {
 			return getAttributeCheckDisadvantageEffectChanges(identifier)
@@ -189,7 +189,7 @@ function getAdvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
 		} else {
 			console.log(`Unknown roll type "${type}" in getAdvantageEffectChanges`)
 		}
-	} else if (ATTRIBUTE.contains(identifier)) {
+	} else if (ATTRIBUTE.ROLLABLE.contains(identifier)) {
 		if (type == ROLL_TYPE.ABILITY_CHECK) {
 			return getAttributeCheckAdvantageEffectChanges(identifier)
 		} else if (type == ROLL_TYPE.SAVING_THROW) {
