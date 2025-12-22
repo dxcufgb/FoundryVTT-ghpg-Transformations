@@ -134,7 +134,7 @@ Hooks.on("dnd5e.preRollDeathSave", (actor, rollData) => {
 	if (!actor) {
 		actor = getCurrentActor(rollData.options.window.subtitle)
 	}
-	conaols.log(actor)
+	console.log(actor)
 	console.log(`${actor.name} is about to roll a deathSave!`);
 	console.log("RollData:");
 	console.log(rollData);
