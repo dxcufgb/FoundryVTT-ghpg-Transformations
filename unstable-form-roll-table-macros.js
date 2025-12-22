@@ -20,14 +20,11 @@ async function applyUnstableForm(actor, effectName) {
 		case "Aberrant Slowness":
 			effectDescription = "After rolling Initiative, you have the Stunned condition until the end of your first turn";
 			iconFilePath = "icons/svg/poison.svg";
-			console.log("looping over movement types");
 			Object.values(MOVEMENT_TYPE).forEach(movementType => {
 				if (actor.system.attributes.movement[movementType] > 0) {
 					effects = effects.concat(getSystemEffectChange(movementType, -15, CONST.ACTIVE_EFFECT_MODES.ADD));
 				}
 			});
-			console.log("Aberrant Powerfull Lower Limbs was activated with the following values:");
-			console.log(effects);
 			break;
 		case "Aberrant Slugginess":
 			effectDescription = "Your body does not react quickly to mental commands. You cannot take Reactions.";
@@ -60,17 +57,11 @@ async function applyUnstableForm(actor, effectName) {
 		case "Aberrant Powerfull Lower Limbs":
 			effectDescription = "Your lower limbs become more powerful. Your Speed increases by 5 feet";
 			iconFilePath = "icons/svg/poison.svg";
-			console.log("looping over movement types");
 			Object.values(MOVEMENT_TYPE).forEach(movementType => {
-				console.log(movementType);
-				console.log(actor.system.attributes.movement[movementType])
 				if (actor.system.attributes.movement[movementType] > 0) {
-					//TODO: find out whythis does not work.
 					effects = effects.concat(getSystemEffectChange(movementType, 5, CONST.ACTIVE_EFFECT_MODES.ADD));
 				}
 			});
-			console.log("Aberrant Powerfull Lower Limbs was activated with the following values:");
-			console.log(effects);
 			break;
 		case "Aberrant Temporary Vitality Boost":
 			const currentTempHp = actor.system.attributes.hp.temp ?? 0;

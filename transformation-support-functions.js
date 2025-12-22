@@ -151,7 +151,7 @@ function getSystemEffectChange(identifier, value, changeType) {
 }
 
 function getDisadvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
-	console.log(`looking for ${identifier}`);
+	console.log(`looking for ${identifier} in getDisadvantageEffectChanges`);
 	if (SKILL.contains(identifier)) {
 		console.log(`${identifier} is SKILL`);
 		return getSkillDisadvantageEffectChanges(identifier)
@@ -165,7 +165,7 @@ function getDisadvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK
 			console.log(`Unknown roll type "${type}" in getDisadvantageEffectChanges`)
 		}
 	} else if (ATTRIBUTE.ROLLABLE.contains(identifier)) {
-		console.log(`${identifier} is ATTRIBUTE`);
+		console.log(`${identifier} is ATTRIBUTE.ROLLABLE`);
 		if (type == ROLL_TYPE.ABILITY_CHECK) {
 			return getAttributeCheckDisadvantageEffectChanges(identifier)
 		} else if (type == ROLL_TYPE.SAVING_THROW) {
@@ -179,9 +179,12 @@ function getDisadvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK
 }
 
 function getAdvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
+	console.log(`looking for ${identifier} in getAdvantageEffectChanges`);
 	if (SKILL.contains(identifier)) {
+		console.log(`${identifier} is SKILL`);
 		return getSkillAdvantageEffectChanges(identifier)
 	} else if (ABILITY.contains(identifier)) {
+		console.log(`${identifier} is ABILITY`);
 		if (type == ROLL_TYPE.ABILITY_CHECK) {
 			return getAbilityCheckAdvantageEffectChanges(identifier)
 		} else if (type == ROLL_TYPE.SAVING_THROW) {
@@ -190,6 +193,7 @@ function getAdvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
 			console.log(`Unknown roll type "${type}" in getAdvantageEffectChanges`)
 		}
 	} else if (ATTRIBUTE.ROLLABLE.contains(identifier)) {
+		console.log(`${identifier} is ATTRIBUTE.ROLLABLE`);
 		if (type == ROLL_TYPE.ABILITY_CHECK) {
 			return getAttributeCheckAdvantageEffectChanges(identifier)
 		} else if (type == ROLL_TYPE.SAVING_THROW) {
