@@ -122,16 +122,16 @@ Hooks.on("dnd5e.rollInitiative", (actor, combatant) => {
 	}
 });
 
-function createActiveEffectOnActor(actor, effectName, description, icon, changes) {
+async function createActiveEffectOnActor(actor, effectName, description, icon, changes) {
 	console.log(`creating activeEffect with effects:`)
 	console.log(changes)
-	actor.createEmbeddedDocuments("ActiveEffect", [{
+	await actor.createEmbeddedDocuments("ActiveEffect", [{
 		label: effectName,
 		name: effectName,
 		description: description,
 		statuses: [effectName.replaceAll(" ", "")],
 		img: icon,
-		changes: changes,
+		changes: [changes],
 		origin: actor.uuid,
 		flags: {
 			["gh-transformation"]: { removeOnLongRest: true }
