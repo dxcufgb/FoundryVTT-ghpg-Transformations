@@ -130,10 +130,8 @@ Hooks.on("dnd5e.rollInitiative", (actor, combatant) => {
 	}
 });
 
-Hooks.on("dnd5e.preRollDeathSave", (actor, rollData) => {
-	if (!actor) {
-		actor = getCurrentActor(rollData.options.window.subtitle)
-	}
+Hooks.on("dnd5e.preRollDeathSave", (data, rollData) => {
+	const actor = data.subject
 	console.log(actor)
 	console.log(`${actor.name} is about to roll a deathSave!`);
 	console.log("RollData:");
