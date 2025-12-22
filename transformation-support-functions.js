@@ -269,7 +269,7 @@ function getAbilitySaveAdvantageEffectChanges(ability) {
 function getAttributeAdvantageEffectChanges(attribute) {
 	console.log(`using key: system.skills.${attribute}.roll.mode`)
 	effects = [
-		// { key: `system.attribute.${attribute}.roll.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
+		{ key: `system.attribute.${attribute}.roll.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
 		{ key: `system.attributes.${attribute}.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 }
 	]
 	return effects;
@@ -278,7 +278,7 @@ function getAttributeAdvantageEffectChanges(attribute) {
 function getAttributeDisadvantageEffectChanges(attribute) {
 	console.log(`using key: system.skills.${attribute}.roll.mode`)
 	effects = [
-		// { key: `system.attribute.${attribute}.roll.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
+		{ key: `system.attribute.${attribute}.roll.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
 		{ key: `system.attributes.${attribute}.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: -1 }
 	]
 	return effects;
