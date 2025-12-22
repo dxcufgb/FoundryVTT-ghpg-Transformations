@@ -96,14 +96,9 @@ function actorIsHidingHideousForm(actor) {
 }
 
 Hooks.on("dnd5e.restCompleted", async (actor, result) => {
-	console.log("restCompleted hook!")
-	console.log(actor)
-	console.log(result)
 	if (result.type == "short") {
-		console.log("short rest was performed");
-		console.log(actor.statuses.has("AberrantLossofVitality"));
-		console.log(result.dhd);
 		if (actor.statuses.has("AberrantLossofVitality") && result.dhd != 0) {
+			console.log(result.dhd);
 			actor.system.attributes.hp.value -= ((result.dhd * -1) * actor.system.abilities.con.mod);
 		}
 	} else if (result.longRest) {

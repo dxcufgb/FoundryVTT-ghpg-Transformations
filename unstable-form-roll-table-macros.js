@@ -3,6 +3,7 @@ async function applyUnstableForm(actor, effectName) {
 	let iconFilePath = '';
 	let effects = [];
 	let runEffectsFunction = true;
+	let tempEffects
 	switch (effectName) {
 		case "Aberrant Exhaustion":
 			const currentExhaustion = actor.system.attributes.exhaustion ?? 0;
@@ -24,7 +25,10 @@ async function applyUnstableForm(actor, effectName) {
 				if (actor.system.attributes.movement[movementType] > 0) {
 					console.log(movementType);
 					console.log(actor.system.attributes.movement[movementType])
-					effects.push(getSystemEffectChange(movementType, -15, CONST.ACTIVE_EFFECT_MODES.ADD));
+					tempEffects = getSystemEffectChange(movementType, -15, CONST.ACTIVE_EFFECT_MODES.ADD);
+					console.log(`effects returned by method:`);
+					console.log(tempEffects);
+					effects.push(tempEffects);
 				}
 			});
 			console.log("Aberrant Powerfull Lower Limbs was activated with the following values:");
@@ -37,18 +41,30 @@ async function applyUnstableForm(actor, effectName) {
 		case "Aberrant Distraction":
 			effectDescription = "Imposes disadvantage on dexterity saving throws";
 			iconFilePath = "icons/svg/poison.svg";
-			effects.push(getDisadvantageEffectChanges(SKILL.PERCEPTION));
+			tempEffects = getDisadvantageEffectChanges(SKILL.PERCEPTION, ROLL_TYPE.SAVING_THROW);
+			console.log(`effects returned by method:`);
+			console.log(tempEffects);
+			effects.push(tempEffects);
 			break;
 		case "Aberrant Defenseless":
 			effectDescription = "Imposes disadvantage on constitution saving throws";
 			iconFilePath = "icons/svg/poison.svg";
-			effects.push(getDisadvantageEffectChanges(ABILITY.CONSTITUTION));
+			tempEffects = getDisadvantageEffectChanges(ABILITY.CONSTITUTION, ROLL_TYPE.SAVING_THROW);
+			console.log(`effects returned by method:`);
+			console.log(tempEffects);
+			effects.push(tempEffects);
 			break;
 		case "Aberrant Clumsiness":
 			effectDescription = "Imposes disadvantage on constitution ability checks and saving throws";
 			iconFilePath = "icons/svg/poison.svg";
-			effects.push(getDisadvantageEffectChanges(ABILITY.DEXTERITY, ROLL_TYPE.ABILITY_CHECK));
-			effects.push(getDisadvantageEffectChanges(ABILITY.DEXTERITY, ROLL_TYPE.SAVING_THROW));
+			tempEffects = getDisadvantageEffectChanges(ABILITY.DEXTERITY, ROLL_TYPE.ABILITY_CHECK);
+			console.log(`effects returned by method:`);
+			console.log(tempEffects);
+			effects.push(tempEffects);
+			tempEffects = getDisadvantageEffectChanges(ABILITY.DEXTERITY, ROLL_TYPE.SAVING_THROW);
+			console.log(`effects returned by method:`);
+			console.log(tempEffects);
+			effects.push(tempEffects);
 			break;
 		case "Aberrant Loss of Vitality":
 			effectDescription = "Imposes disadvantage on constitution ability checks and saving throws";
@@ -67,7 +83,10 @@ async function applyUnstableForm(actor, effectName) {
 				console.log(actor.system.attributes.movement[movementType])
 				if (actor.system.attributes.movement[movementType] > 0) {
 					//TODO: find out whythis does not work.
-					effects.push(getSystemEffectChange(movementType, 5, CONST.ACTIVE_EFFECT_MODES.ADD));
+					const tempEffects = getSystemEffectChange(movementType, 5, CONST.ACTIVE_EFFECT_MODES.ADD);
+					console.log(`effects returned by method:`);
+					console.log(tempEffects);
+					effects.push(tempEffects);
 				}
 			});
 			console.log("Aberrant Powerfull Lower Limbs was activated with the following values:");
@@ -84,7 +103,10 @@ async function applyUnstableForm(actor, effectName) {
 		case "Aberrant Resilience":
 			effectDescription = "Your body’s systems are enhanced. You have Advantage on Death Saving Throws";
 			iconFilePath = "icons/svg/poison.svg";
-			effects.push(getAdvantageEffectChanges(ATTRIBUTE.DEATH_SAVES, ROLL_TYPE.SAVING_THROW));
+			tempEffects = getAdvantageEffectChanges(ATTRIBUTE.DEATH_SAVES, ROLL_TYPE.SAVING_THROW);
+			console.log(`effects returned by method:`);
+			console.log(tempEffects);
+			effects.push(tempEffects);
 			break;
 		case "Aberrant Overload":
 			effectDescription = "The stress of your Transformation becomes too much. You die. You cannot be restored to life by any spell below level 5";
