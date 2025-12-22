@@ -138,6 +138,7 @@ Hooks.on("dnd5e.preRollDeathSave", (data, rollData) => {
 	console.log(rollData);
 	if (actor.statuses.has("AberrantResilience")) {
 		console.log(`${actor.name} has Aberrant Resilience!`);
+		console.log(rollData.options);
 		rollData.options.advantageMode = 1;
 		rollData.options.defaultButton = "advantage";
 	}
