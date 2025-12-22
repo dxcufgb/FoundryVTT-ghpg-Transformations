@@ -14,40 +14,41 @@ class Transformation {
                 transformation = transformationName;
             }
         });
+
         switch (transformation) {
-            case ABERRANT_HORROR:
+            case TRANSFORMATIONS.ABERRANT_HORROR:
                 return new AberrantHorror(actor);
-            case FEY:
+            case TRANSFORMATIONS.FEY:
                 console.log(`${transformation} not yet implemented!`);
                 break;
-            case FIEND:
+            case TRANSFORMATIONS.FIEND:
                 console.log(`${transformation} not yet implemented!`);
                 break;
-            case HAG:
+            case TRANSFORMATIONS.HAG:
                 console.log(`${transformation} not yet implemented!`);
                 break;
-            case LICH:
+            case TRANSFORMATIONS.LICH:
                 console.log(`${transformation} not yet implemented!`);
                 break;
-            case LYCANTHROPE:
+            case TRANSFORMATIONS.LYCANTHROPE:
                 console.log(`${transformation} not yet implemented!`);
                 break;
-            case OOZE:
+            case TRANSFORMATIONS.OOZE:
                 console.log(`${transformation} not yet implemented!`);
                 break;
-            case PRIMORDIAL:
+            case TRANSFORMATIONS.PRIMORDIAL:
                 console.log(`${transformation} not yet implemented!`);
                 break;
-            case SERAPH:
+            case TRANSFORMATIONS.SERAPH:
                 console.log(`${transformation} not yet implemented!`);
                 break;
-            case SHADOWSTEEL_GHOUL:
+            case TRANSFORMATIONS.SHADOWSTEEL_GHOUL:
                 console.log(`${transformation} not yet implemented!`);
                 break;
-            case SPECTER:
+            case TRANSFORMATIONS.SPECTER:
                 console.log(`${transformation} not yet implemented!`);
                 break;
-            case VAMPIRE:
+            case TRANSFORMATIONS.VAMPIRE:
                 console.log(`${transformation} not yet implemented!`);
                 break;
             default:
@@ -97,9 +98,7 @@ class Transformation {
     }
 
     async applyRollTableResult(transformation, resultName) {
-        if (transformationTableName.startsWith("Unstable Form")) {
-            await applyUnstableForm(actor, resultName);
-        }
+        console.log("should be implemented AND called at sub-class level!")
     }
 
     async removeActiveTransformationEffect(transformation) {
