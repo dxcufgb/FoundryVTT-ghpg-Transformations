@@ -101,10 +101,10 @@ Hooks.on("dnd5e.restCompleted", async (actor, result) => {
 	console.log(result)
 	if (result.type == "short") {
 		console.log("short rest was performed");
-		console.log(actor.statuses.has("AbberantLossofVitality"));
-		console.log(dhd);
-		if (actor.statuses.has("AbberantLossofVitality") && dhd != 0) {
-			actor.system.attributes.hp.value -= ((dhd * -1) * actor.system.abilities.con.mod);
+		console.log(actor.statuses.has("AberrantLossofVitality"));
+		console.log(result.dhd);
+		if (actor.statuses.has("AberrantLossofVitality") && result.dhd != 0) {
+			actor.system.attributes.hp.value -= ((result.dhd * -1) * actor.system.abilities.con.mod);
 		}
 	} else if (result.longRest) {
 		const transformationTableName = findTransformationTableName(actor);
@@ -195,7 +195,7 @@ function getAdvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
 }
 
 function getSkillDisadvantageEffectChanges(skill) {
-	skillKey = SKILLS[skill]
+	skillKey = SKILL[skill]
 	effects = [
 		// { key: `system.skills.${skillKey}.check.bonuses.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 },
 		{ key: `system.skills.${skillKey}.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: -1 }
@@ -237,7 +237,7 @@ function getAbilitySaveAdvantageEffectChanges(ability) {
 }
 
 function getSkillAdvantageEffectChanges(skill) {
-	skillKey = SKILLS[skill]
+	skillKey = SKILL[skill]
 	effects = [
 		// { key: `system.skills.${skillKey}.check.bonuses.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 },
 		{ key: `system.skills.${skillKey}.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 }
