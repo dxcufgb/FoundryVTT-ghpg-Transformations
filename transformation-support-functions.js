@@ -145,7 +145,7 @@ Hooks.on("dnd5e.rollInitiative", (actor, combatant) => {
 // 	console.log(rollData);
 // });
 
-Hooks.once("init", () => {
+Hooks.once("libWrapper.Ready", () => {
 	libWrapper.register(
 		"transformations",
 		"CONFIG.Actor.documentClass.prototype.rollDeathSave",
@@ -154,10 +154,7 @@ Hooks.once("init", () => {
 			if (actor.statuses.has("AberrantResilience")) {
 				options.advantage = true;
 			}
-			return wrapped.call(actor, {
-				...options,
-				...result
-			});
+			return wrapped.call(this, options);
 		},
 		"WRAPPER"
 	);
