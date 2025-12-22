@@ -271,7 +271,7 @@ function getAttributeAdvantageEffectChanges(attribute) {
 	effects = [
 		{ key: `system.attributes.${attribute}.roll.advantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
 		{ key: `system.attributes.${attribute}.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 },
-		{ key: `system.attributes.${attribute}.save.bonuses.advantage`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 }
+		{ key: `system.attributes.${attribute}.save.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 }
 	]
 	return effects;
 }
@@ -281,7 +281,7 @@ function getAttributeDisadvantageEffectChanges(attribute) {
 	effects = [
 		{ key: `system.attributes.${attribute}.roll.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
 		{ key: `system.attributes.${attribute}.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: -1 },
-		{ key: `system.attributes.${attribute}.save.bonuses.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: -1 }
+		{ key: `system.attributes.${attribute}.save.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: -1 }
 	]
 	return effects;
 }
