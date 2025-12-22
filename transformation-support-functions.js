@@ -134,7 +134,7 @@ async function createActiveEffectOnActor(actor, effectName, description, icon, c
 		description: description,
 		statuses: [effectName.replaceAll(" ", "")],
 		img: icon,
-		changes,
+		changes: changes,
 		origin: actor.uuid,
 		flags: {
 			["gh-transformation"]: { removeOnLongRest: true }
