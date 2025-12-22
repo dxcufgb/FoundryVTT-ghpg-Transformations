@@ -118,6 +118,7 @@ Hooks.on("dnd5e.restCompleted", async (actor, result) => {
 
 Hooks.on("combatantRollInitiative", (combatant, roll) => {
 	const actor = combatant.actor;
+	console.log(`${actor.name} rolled for initiative!`);
 	if (actor.statuses.has("AberrantConfusion")) {
 		actor.toggleStatusEffect("stunned", { active: true });
 	}
