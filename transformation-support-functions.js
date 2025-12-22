@@ -315,9 +315,9 @@ function findOverrideType(identifier) {
 	console.log(`is attribute: ${ATTRIBUTE.contains(identifier)}`)
 	console.log(`is attribute rollable: ${ATTRIBUTE.ROLLABLE.contains(identifier)}`)
 	if (MOVEMENT_TYPE.contains(identifier)) {
-		return OVERRIDE_TYPE[MOVEMENT_TYPE];
+		return OVERRIDE_TYPE.MOVEMENT_TYPE;
 	} else if (ATTRIBUTE.contains(identifier) || ATTRIBUTE.ROLLABLE.contains(identifier)) {
-		return OVERRIDE_TYPE[ATTRIBUTES];
+		return OVERRIDE_TYPE.ATTRIBUTES;
 	} else {
 		console.log(`Uknown identifier: ${identifier} in findOverrideType!`);
 	}
