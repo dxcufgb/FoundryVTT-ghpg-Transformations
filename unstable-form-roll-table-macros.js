@@ -74,7 +74,11 @@ async function applyUnstableForm(actor, effectName) {
 		case "Aberrant Resilience":
 			effectDescription = "Your body’s systems are enhanced. You have Advantage on Death Saving Throws";
 			iconFilePath = "icons/svg/poison.svg";
-			effects = effects.concat(getAdvantageEffectChanges(ATTRIBUTE.ROLLABLE.DEATH_SAVES, ROLL_TYPE.SAVING_THROW));
+			effects = effects.concat([{
+				key: "flags.midi-qol.advantage.deathSave",
+				mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+				value: true
+			}]);
 			break;
 		case "Aberrant Overload":
 			effectDescription = "The stress of your Transformation becomes too much. You die. You cannot be restored to life by any spell below level 5";
