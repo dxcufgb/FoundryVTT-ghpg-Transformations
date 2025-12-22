@@ -103,7 +103,7 @@ async function applyUnstableForm(actor, effectName) {
 		case "Aberrant Resilience":
 			effectDescription = "Your body’s systems are enhanced. You have Advantage on Death Saving Throws";
 			iconFilePath = "icons/svg/poison.svg";
-			tempEffects = getAdvantageEffectChanges(ATTRIBUTE.DEATH_SAVES, ROLL_TYPE.SAVING_THROW);
+			tempEffects = getAdvantageEffectChanges(ATTRIBUTE.ROLLABLE.DEATH_SAVES, ROLL_TYPE.SAVING_THROW);
 			console.log(`effects returned by method:`);
 			console.log(tempEffects);
 			effects.push(tempEffects);
@@ -153,6 +153,6 @@ async function applyUnstableForm(actor, effectName) {
 			break;
 	}
 	if (runEffectsFunction) {
-		createActiveEffectOnActor(actor, effectName, effectDescription, iconFilePath, effects);
+		await createActiveEffectOnActor(actor, effectName, effectDescription, iconFilePath, effects);
 	}
 }
