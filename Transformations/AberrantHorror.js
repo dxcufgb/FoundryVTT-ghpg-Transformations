@@ -12,22 +12,25 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         super(actor);
         this.transformationLevel = super.getActorTransformationLevel(this);
         this.initialized = true
-        console.log(this)
     }
 
     onDamage() {
+        console.log("onDamage AberrantHorror");
         this.aberrantForm()
     }
 
     onShortRest() {
+        console.log("onShortRest AberrantHorror");
         this.aberrantLossofVitality()
     }
 
     onLongRest() {
+        console.log("onLongRest AberrantHorror");
         super.rollResultFromRollTable();
     }
 
     onInitiative() {
+        console.log("onInitiative AberrantHorror");
         if (this.actor.statuses.has("AberrantConfusion")) {
             this.actor.toggleStatusEffect("stunned", { active: true });
             ChatMessage.create({

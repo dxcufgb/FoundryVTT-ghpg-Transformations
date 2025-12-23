@@ -66,7 +66,11 @@ Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {
 
 Hooks.on("dnd5e.restCompleted", async (actor, result) => {
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
+    console.log(transformation);
+    console.log(transformation.initialized);
     if (transformation?.initialized) {
+        console.log(result.type);
+        console.log(result.longRest);
         if (result.type == "short") {
             transformation.onShortRest();
         } else if (result.longRest) {
