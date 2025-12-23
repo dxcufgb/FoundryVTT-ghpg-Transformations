@@ -26,9 +26,12 @@ Hooks.once("init", async () => {
     }
 
     const constants = await import("./Constants.js");
+    console.log(constants);
     await import("./Transformations/Transformation.js");
     const utils = await import("./TransformationSupportFunctions.js");
+    console.log(utils);
     const dialogs = await import("./TransformationDialogs.js");
+    console.log(dialogs);
     await import("./Transformations/RollTables/unstable-form-roll-table-macros.js");
     await import("./Transformations/AberrantHorror.js");
 

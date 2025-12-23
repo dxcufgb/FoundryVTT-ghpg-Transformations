@@ -91,5 +91,3 @@ export const TRANSFORMATIONS = Object.freeze({
     SPECTER: "Specter",
     VAMPIRE: "Vampire"
 });
-
-Transformations.set("constants", this);
