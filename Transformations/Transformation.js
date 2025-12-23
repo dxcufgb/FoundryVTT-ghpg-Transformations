@@ -29,24 +29,25 @@ export class Transformation {
     }
 
     onDamage() {
-
+        console.error("should be implemented AND called at sub-class level!");
     }
 
     onShortRest() {
-
+        console.error("should be implemented AND called at sub-class level!");
     }
 
     onLongRest() {
-
+        console.error("should be implemented AND called at sub-class level!");
     }
 
     onInitiative() {
-
+        console.error("should be implemented AND called at sub-class level!");
     }
 
     async rollResultFromRollTable(transformation) {
         await removeActiveTransformationEffect(transformation.actor);
         const drawResult = await drawTableResult(transformation);
+        console.log(drawResult);
         await this.applyRollTableResult(drawResult.results[0].name);
     }
 
@@ -68,7 +69,7 @@ export class Transformation {
     }
 
     async applyRollTableResult(resultName) {
-        console.log("should be implemented AND called at sub-class level!")
+        console.error("should be implemented AND called at sub-class level!");
     }
 
     async removeActiveTransformationEffect(transformation) {
