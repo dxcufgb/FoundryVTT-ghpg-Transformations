@@ -76,3 +76,5 @@ class AberrantHorror extends Transformation {
         }
     }
 }
+
+Transformations.transformations.set("aberrant-horror", this);
