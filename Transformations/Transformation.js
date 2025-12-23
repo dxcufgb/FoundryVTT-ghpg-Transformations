@@ -46,6 +46,7 @@ export class Transformation {
 
     async rollResultFromRollTable(transformation) {
         await this.removeActiveTransformationEffect(transformation);
+        console.log("effects have been remove from actor")
         const drawResult = await this.drawTableResult(transformation);
         console.log(drawResult);
         await this.applyRollTableResult(drawResult.results[0].name);
@@ -72,10 +73,8 @@ export class Transformation {
         console.error("should be implemented AND called at sub-class level!");
     }
 
-    async removeActiveTransformationEffect(transformation) {
-        console.log(transformation);
-        console.log(this);
-        const effects = transformation.actor.effects.filter(e =>
+    async removeActiveTransformationEffect() {
+        const effects = this.actor.effects.filter(e =>
             e.flags["gh-transformation"]?.removeOnLongRest
         );
 
