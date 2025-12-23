@@ -35,9 +35,7 @@ Hooks.once("init", async () => {
     await import("./Transformations/RollTables/unstable-form-roll-table-macros.js");
     await import("./Transformations/AberrantHorror.js");
 
-    Object.assign(Transformations.transformationUtils, utils);
-    Object.assign(Transformations.constants, constants);
-    Object.assign(Transformations.dialogs, dialogs);
+    Transformations.set("constants", constants);
 });
 
 Hooks.once("setup", () => {
