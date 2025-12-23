@@ -1,11 +1,6 @@
 Hooks.once("init", async () => {
     console.log("Transformations | Init");
-    globalThis.Transformations = {
-        transformations: new Map(),
-        constants: new Map(),
-        transformationUtils: new Map(),
-        dialogs: new Map()
-    };
+    globalThis.Transformations ??= {}
 
     CONFIG.DND5E.featureTypes.transformation = {
         label: "Transformation Feature",
@@ -25,15 +20,14 @@ Hooks.once("init", async () => {
         }
     }
 
-    const constants = await import("./Constants.js");
-    console.log(constants);
-    await import("./Transformations/Transformation.js");
-    const utils = await import("./TransformationSupportFunctions.js");
-    console.log(utils);
-    const dialogs = await import("./TransformationDialogs.js");
-    console.log(dialogs);
-    await import("./Transformations/RollTables/unstable-form-roll-table-macros.js");
-    await import("./Transformations/AberrantHorror.js");
+    globalThis.Transformations.constants = await import("./Constants.js");
+    // await import("./Transformations/Transformation.js");
+    // const utils = await import("./TransformationSupportFunctions.js");
+    // console.log(utils);
+    // const dialogs = await import("./TransformationDialogs.js");
+    // console.log(dialogs);
+    // await import("./Transformations/RollTables/unstable-form-roll-table-macros.js");
+    // await import("./Transformations/AberrantHorror.js");
 
     Transformations.constants = constants
 });
