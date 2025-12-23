@@ -24,15 +24,19 @@ Hooks.once("init", async () => {
     Transformations.constants = {}
     Object.assign(Transformations.constants, constants);
     console.log("Transformations | Constants loaded", Transformations.constants);
-    // await import("./Transformations/Transformation.js");
+    const transformationMasterClass = await import("./Transformations/Transformation.js");
+    Transformations.Transformations = []
+    Transformations.Transformations.push(transformationMasterClass);
+    console.log("Transformations | Transformation Master class loaded", Transformations.Transformations);
     // const utils = await import("./TransformationSupportFunctions.js");
-    // console.log(utils);
+
     // const dialogs = await import("./TransformationDialogs.js");
-    // console.log(dialogs);
+
     // await import("./Transformations/RollTables/unstable-form-roll-table-macros.js");
+
     // await import("./Transformations/AberrantHorror.js");
 
-    Transformations.constants = constants
+    // Transformations.constants = constants
 });
 
 Hooks.once("setup", () => {
