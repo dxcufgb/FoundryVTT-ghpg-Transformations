@@ -42,9 +42,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     async applyRollTableResult(resultName) {
-        if (transformationTableName.startsWith("Unstable Form")) {
-            await applyUnstableForm(this.actor, resultName);
-        }
+        this.constructor.rollTableEffectFunction(this.actor, resultName)
     }
 
     actorIsHidingHideousForm(actor) {

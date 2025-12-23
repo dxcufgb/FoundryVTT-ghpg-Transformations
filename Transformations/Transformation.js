@@ -44,9 +44,10 @@ export class Transformation {
 
     }
 
-    async rollResultFromRollTable() {
-        await removeActiveTransformationEffect(this.actor);
-        const drawResult = await drawTableResult(this);
+    async rollResultFromRollTableTable(transformation) {
+        await removeActiveTransformationEffect(transformation.actor);
+        const drawResult = await drawTableResult(transformation);
+        await this.applyRollTableResult(drawResult.results[0].name);
     }
 
     getRollTableName(transformationObject) {
@@ -63,8 +64,11 @@ export class Transformation {
             ui.notifications.error(`Table "${transformation.tableName}" not found`);
             return;
         }
-        const draw = await table.draw({ speaker: transformation.actor, roll: true, displayChat: true });
-        transformation.rollTableEffectFunction(transformation.actor, draw.results[0].name)
+        return await table.draw({ speaker: transformation.actor, roll: true, displayChat: true });
+    }
+
+    async applyRollTableResult(resultName) {
+        console.log("should be implemented AND called at sub-class level!")
     }
 
     async removeActiveTransformationEffect(transformation) {
