@@ -1,12 +1,12 @@
 class AberrantHorror extends Transformation {
 
     constructor(actor) {
-        this.actor = actor;
+        super(actor);
         this.id = "aberrant-horror";
         this.name = "Aberrant Horror";
         this.tablePrefix = "Unstable Form Stage";
         this.transformationLevelKey = "aberrant-transformation-level";
-        this.transformationLevel = getActorTransformationLevel(actor, this);
+        this.transformationLevel = super.getActorTransformationLevel(actor, this);
         this.initialized = true
     }
 
@@ -33,7 +33,7 @@ class AberrantHorror extends Transformation {
     }
 
     async rollResultFromRollTableTable(actor, tableName) {
-        await super.rollResultFromRollTableTable(actor, tableName);
+        await super.rollResultFromRollTableTable(actor, tableName,);
     }
 
     async applyRollTableResult(resultName) {

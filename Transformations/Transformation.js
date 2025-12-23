@@ -4,17 +4,21 @@ class Transformation {
     name;
     tablePrefix;
     transformationLevelKey;
-    transformationLevel = 0
-    initialized = false
+    transformationLevel = 0;
+    initialized = false;
+    actor
 
     constructor(actor) {
+        this.actor = actor;
+    }
+
+    getTransformationType(actor) {
         let transformation;
         Object.values(TRANSFORMATIONS).forEach(transformationName => {
             if (actor.items.getName(transformationName)) {
                 transformation = transformationName;
             }
         });
-
         switch (transformation) {
             case TRANSFORMATIONS.ABERRANT_HORROR:
                 return new AberrantHorror(actor);
@@ -84,7 +88,7 @@ class Transformation {
     }
 
     getActorTransformationLevel(transformation) {
-        this.level = transformation.actor.system.scale[transformation.id][transformation.transformationLevelKey].value;
+        return transformation.actor.system.scale[transformation.id][transformation.transformationLevelKey].value;
     }
 
     async drawTableResult(transformation) {
