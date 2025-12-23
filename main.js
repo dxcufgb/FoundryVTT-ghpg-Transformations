@@ -1,5 +1,3 @@
-import { Transformation } from "./Transformations/Transformation.js";
-
 Hooks.once("init", async () => {
     console.log("Transformations | Init");
     globalThis.Transformations ??= {}
