@@ -1,9 +1,12 @@
+import { applyRollTableResult } from ("./RollTables/UnstableFormRollTable.js");
+
 export class AberrantHorror extends TransformationModule.TransformationParent.Transformation {
 
     static id = "aberrant-horror";
     static name = "Aberrant Horror";
     static tablePrefix = "Unstable Form Stage";
     static transformationLevelKey = "aberrant-transformation-level";
+    static rollTableEffectFunction = applyRollTableResult;
 
     constructor(actor) {
         super(actor);
@@ -21,7 +24,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     onLongRest() {
-        rollResultFromRollTable(this.actor, super.getRollTableName(this));
+        super.rollResultFromRollTable();
     }
 
     onInitiative() {
