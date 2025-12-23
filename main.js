@@ -23,13 +23,12 @@ Hooks.once("init", async () => {
     const constants = await import("./Constants.js");
     Transformations.constants = {}
     Object.assign(Transformations.constants, constants);
-    console.log("Transformations | Constants loaded", Transformations.constants);
     const transformationMasterClass = await import("./Transformations/Transformation.js");
     Transformations.Transformations = {}
     Transformations.Transformations['master'] = transformationMasterClass;
-    console.log("Transformations | Transformation Master class loaded", Transformations.Transformations);
-    // const utils = await import("./TransformationSupportFunctions.js");
-
+    const utils = await import("./TransformationSupportFunctions.js");
+    Transformations.utils = {}
+    Object.assign(Transformations.utils, utils)
     // const dialogs = await import("./TransformationDialogs.js");
 
     // await import("./Transformations/RollTables/unstable-form-roll-table-macros.js");
