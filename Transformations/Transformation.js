@@ -49,6 +49,10 @@ export class Transformation {
     }
 
     getActorTransformationLevel(transformation) {
+        console.log(transformation);
+        console.log(transformation.id);
+        console.log(transformation.transformationLevelKey);
+        console.log(transformation.actor.system.scale);
         return transformation.actor.system.scale[transformation.id][transformation.transformationLevelKey].value;
     }
 
