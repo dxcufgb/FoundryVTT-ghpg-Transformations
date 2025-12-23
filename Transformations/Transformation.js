@@ -49,13 +49,7 @@ export class Transformation {
     }
 
     getActorTransformationLevel(transformation) {
-        console.log(transformation);
-        console.log(transformation.constructor.id);
-        console.log(transformation.constructor.transformationLevelKey);
-        console.log(transformation.actor.system.scale);
-        console.log(transformation.actor.system.scale[transformation.constructor.id]);
-        console.log(transformation.actor.system.scale[transformation.constructor.id][transformation.constructor.transformationLevelKey]);
-        return transformation.actor.system.scale[transformation.id][transformation.transformationLevelKey].value;
+        return transformation.actor.system.scale[transformation.constructor.id][transformation.constructor.transformationLevelKey].value;
     }
 
     async drawTableResult(transformation) {
