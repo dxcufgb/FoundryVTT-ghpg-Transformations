@@ -1,4 +1,4 @@
-const SKILL = Object.freeze({
+export const SKILL = Object.freeze({
     ACROBATICS: "acr",
     ANIMAL_HANDLING: "ani",
     ARCANA: "arc",
@@ -22,7 +22,7 @@ const SKILL = Object.freeze({
     }
 });
 
-const ABILITY = Object.freeze({
+export const ABILITY = Object.freeze({
     STRENGTH: "str",
     DEXTERITY: "dex",
     CONSTITUTION: "con",
@@ -34,7 +34,7 @@ const ABILITY = Object.freeze({
     }
 });
 
-const ROLL_TYPE = Object.freeze({
+export const ROLL_TYPE = Object.freeze({
     ABILITY_CHECK: 0,
     SAVING_THROW: 1,
     contains(value) {
@@ -42,7 +42,7 @@ const ROLL_TYPE = Object.freeze({
     }
 });
 
-const MOVEMENT_TYPE = Object.freeze({
+export const MOVEMENT_TYPE = Object.freeze({
     BURROW: "burrow",
     CLIMB: "climb",
     FLY: "fly",
@@ -53,7 +53,7 @@ const MOVEMENT_TYPE = Object.freeze({
     }
 });
 
-const OVERRIDE_TYPE = Object.freeze({
+export const OVERRIDE_TYPE = Object.freeze({
     MOVEMENT_TYPE: "attributes.movement",
     ATTRIBUTES: "attributes",
     contains(value) {
@@ -61,7 +61,7 @@ const OVERRIDE_TYPE = Object.freeze({
     }
 });
 
-const ATTRIBUTE = Object.freeze({
+export const ATTRIBUTE = Object.freeze({
     HEALT_POINTS: "hp.value",
     HEALT_POINTS_MAX: "hp.max",
     ROLLABLE: Object.freeze({
@@ -77,7 +77,7 @@ const ATTRIBUTE = Object.freeze({
     }
 });
 
-const TRANSFORMATIONS = Object.freeze({
+export const TRANSFORMATIONS = Object.freeze({
     ABERRANT_HORROR: "Aberrant Horror",
     FEY: "Fey",
     FIEND: "Fiend",

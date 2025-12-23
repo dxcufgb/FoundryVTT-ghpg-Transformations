@@ -1,4 +1,4 @@
-async function applyUnstableForm(actor, effectName) {
+export async function applyUnstableForm(actor, effectName) {
 	let effectDescription = '';
 	let iconFilePath = '';
 	let effects = [];

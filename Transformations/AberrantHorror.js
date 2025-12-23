@@ -1,11 +1,12 @@
-class AberrantHorror extends Transformation {
+export class AberrantHorror extends Transformation {
+
+    static id = "aberrant-horror";
+    static name = "Aberrant Horror";
+    static tablePrefix = "Unstable Form Stage";
+    static transformationLevelKey = "aberrant-transformation-level";
 
     constructor(actor) {
         super(actor);
-        this.id = "aberrant-horror";
-        this.name = "Aberrant Horror";
-        this.tablePrefix = "Unstable Form Stage";
-        this.transformationLevelKey = "aberrant-transformation-level";
         this.transformationLevel = super.getActorTransformationLevel(actor, this);
         this.initialized = true
     }
@@ -75,6 +76,8 @@ class AberrantHorror extends Transformation {
             console.log(actor.system.attributes.hp.value);
         }
     }
-}
 
-Transformations.transformations.set("aberrant-horror", this);
+    static {
+        this.register();
+    }
+}

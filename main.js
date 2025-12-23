@@ -1,7 +1,10 @@
 Hooks.once("init", async () => {
     console.log("Transformations | Init");
     globalThis.Transformations = {
-        transformations: new Map()
+        transformations: new Map(),
+        constants: new Map(),
+        supportFunctions: new Map(),
+        dialogs: new Map()
     };
 
     CONFIG.DND5E.featureTypes.transformation = {

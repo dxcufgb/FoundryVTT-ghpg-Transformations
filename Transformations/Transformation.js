@@ -1,4 +1,4 @@
-class Transformation {
+export class Transformation {
 
     id;
     name;
@@ -77,10 +77,10 @@ class Transformation {
 
     }
 
-    async rollResultFromRollTableTable(actor, tableName) {
-        await removeActiveTransformationEffect(actor);
-        const drawResult = await drawTableResult(actor, transformationTableName);
-        await applyRollTableResult(actor, drawResult.results[0].name, transformationTableName);
+    async rollResultFromRollTableTable() {
+        await removeActiveTransformationEffect(this.actor);
+        const drawResult = await drawTableResult(this.actor, transformationTableName);
+        await applyRollTableResult(this.actor, drawResult.results[0].name, transformationTableName);
     }
 
     getRollTableName(transformationObject) {
@@ -116,5 +116,13 @@ class Transformation {
                 effects.map(e => e.id)
             );
         }
+    }
+
+    static register() {
+        if (!this.id) {
+            throw new Error("Transformation subclass must define static id");
+        }
+
+        MyModule.transformations.set(this.id, this);
     }
 }

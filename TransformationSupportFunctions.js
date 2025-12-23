@@ -1,4 +1,4 @@
-function getActorTransformation(actor) {
+export function getActorTransformation(actor) {
 	let transformation;
 	Object.values(TRANSFORMATIONS).forEach(transformationInfo => {
 		if (actor.items.getName(transformationInfo.name)) {
@@ -8,7 +8,7 @@ function getActorTransformation(actor) {
 	return transformation;
 }
 
-function getCurrentActor(name = null) {
+export function getCurrentActor(name = null) {
 	let actor
 	if (!name) {
 		actor = game.user.character ?? canvas.tokens.controlled[0]?.actor ?? this.actor;
@@ -18,11 +18,11 @@ function getCurrentActor(name = null) {
 	return actor;
 }
 
-function actorIsBloodied(actor) {
+export function actorIsBloodied(actor) {
 	return (actor.system.attributes.hp.value <= (actor.system.attributes.hp.max / 2));
 }
 
-async function createActiveEffectOnActor(actor, effectName, description, icon, changes) {
+export async function createActiveEffectOnActor(actor, effectName, description, icon, changes) {
 	console.log(`creating activeEffect with effects:`)
 	console.log(changes)
 	await actor.createEmbeddedDocuments("ActiveEffect", [{
@@ -39,7 +39,7 @@ async function createActiveEffectOnActor(actor, effectName, description, icon, c
 	}]);
 }
 
-function getSystemEffectChange(identifier, value, changeType) {
+export function getSystemEffectChange(identifier, value, changeType) {
 	const overrideType = findOverrideType(identifier)
 	effects = [
 		{ key: `system.${overrideType}.${identifier}`, mode: changeType, value: value }
@@ -47,7 +47,7 @@ function getSystemEffectChange(identifier, value, changeType) {
 	return effects;
 }
 
-function getDisadvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
+export function getDisadvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
 	if (SKILL.contains(identifier)) {
 		return getSkillDisadvantageEffectChanges(identifier)
 	} else if (ABILITY.contains(identifier)) {
@@ -65,7 +65,7 @@ function getDisadvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK
 	}
 }
 
-function getAdvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
+export function getAdvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
 	if (SKILL.contains(identifier)) {
 		return getSkillAdvantageEffectChanges(identifier)
 	} else if (ABILITY.contains(identifier)) {
@@ -83,7 +83,7 @@ function getAdvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
 	}
 }
 
-function getSkillDisadvantageEffectChanges(skill) {
+export function getSkillDisadvantageEffectChanges(skill) {
 	effects = [
 		// { key: `system.skills.${skill}.check.bonuses.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 },
 		{ key: `system.skills.${skill}.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: -1 }
@@ -91,7 +91,7 @@ function getSkillDisadvantageEffectChanges(skill) {
 	return effects;
 }
 
-function getSkillAdvantageEffectChanges(skill) {
+export function getSkillAdvantageEffectChanges(skill) {
 	effects = [
 		// { key: `system.skills.${skill}.check.bonuses.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 },
 		{ key: `system.skills.${skill}.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 }
@@ -99,7 +99,7 @@ function getSkillAdvantageEffectChanges(skill) {
 	return effects;
 }
 
-function getAbilityCheckDisadvantageEffectChanges(ability) {
+export function getAbilityCheckDisadvantageEffectChanges(ability) {
 	effects = [
 		// { key: `system.abilities.${ability}.roll.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
 		{ key: `system.abilities.${ability}.check.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: -1 }
@@ -107,7 +107,7 @@ function getAbilityCheckDisadvantageEffectChanges(ability) {
 	return effects;
 }
 
-function getAbilitySaveDisadvantageEffectChanges(ability) {
+export function getAbilitySaveDisadvantageEffectChanges(ability) {
 	effects = [
 		// { key: `system.abilities.${ability}.roll.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
 		{ key: `system.abilities.${ability}.save.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: -1 }
@@ -115,7 +115,7 @@ function getAbilitySaveDisadvantageEffectChanges(ability) {
 	return effects;
 }
 
-function getAbilityCheckAdvantageEffectChanges(ability) {
+export function getAbilityCheckAdvantageEffectChanges(ability) {
 	effects = [
 		// { key: `system.abilities.${ability}.roll.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
 		{ key: `system.abilities.${ability}.check.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 }
@@ -123,7 +123,7 @@ function getAbilityCheckAdvantageEffectChanges(ability) {
 	return effects;
 }
 
-function getAbilitySaveAdvantageEffectChanges(ability) {
+export function getAbilitySaveAdvantageEffectChanges(ability) {
 	effects = [
 		// { key: `system.abilities.${ability}.roll.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
 		{ key: `system.abilities.${ability}.save.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 }
@@ -131,7 +131,7 @@ function getAbilitySaveAdvantageEffectChanges(ability) {
 	return effects;
 }
 
-function getAttributeAdvantageEffectChanges(attribute) {
+export function getAttributeAdvantageEffectChanges(attribute) {
 	effects = [
 		// { key: `system.attributes.${attribute}.roll.advantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
 		{ key: `system.attributes.${attribute}.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 },
@@ -140,7 +140,7 @@ function getAttributeAdvantageEffectChanges(attribute) {
 	return effects;
 }
 
-function getAttributeDisadvantageEffectChanges(attribute) {
+export function getAttributeDisadvantageEffectChanges(attribute) {
 	effects = [
 		// { key: `system.attributes.${attribute}.roll.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
 		{ key: `system.attributes.${attribute}.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: -1 },
@@ -149,7 +149,7 @@ function getAttributeDisadvantageEffectChanges(attribute) {
 	return effects;
 }
 
-function findOverrideType(identifier) {
+export function findOverrideType(identifier) {
 	if (MOVEMENT_TYPE.contains(identifier)) {
 		return OVERRIDE_TYPE.MOVEMENT_TYPE;
 	} else if (ATTRIBUTE.contains(identifier) || ATTRIBUTE.ROLLABLE.contains(identifier)) {
