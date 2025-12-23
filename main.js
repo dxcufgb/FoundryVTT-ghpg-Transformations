@@ -3,7 +3,7 @@ Hooks.once("init", async () => {
     globalThis.Transformations = {
         transformations: new Map(),
         constants: new Map(),
-        supportFunctions: new Map(),
+        transformationUtils: new Map(),
         dialogs: new Map()
     };
 
@@ -25,12 +25,16 @@ Hooks.once("init", async () => {
         }
     }
 
-    await import("./Constants.js");
+    const constants = await import("./Constants.js");
     await import("./Transformations/Transformation.js");
-    await import("./TransformationSupportFunctions.js");
-    await import("./TransformationDialogs.js");
+    const utils = await import("./TransformationSupportFunctions.js");
+    const dialogs = await import("./TransformationDialogs.js");
     await import("./Transformations/RollTables/unstable-form-roll-table-macros.js");
     await import("./Transformations/AberrantHorror.js");
+
+    Object.assign(Transformations.transformationUtils, utils);
+    Object.assign(Transformations.constants, constants);
+    Object.assign(Transformations.dialogs, dialogs);
 });
 
 Hooks.once("setup", () => {
@@ -39,4 +43,29 @@ Hooks.once("setup", () => {
 
 Hooks.once("ready", () => {
     console.log("Transformations | Ready");
+});
+
+Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {
+    let transformation = new Transformation(actor);
+    if (transformation.initialized) {
+        transformation.onDamage();
+    }
+});
+
+Hooks.on("dnd5e.restCompleted", async (actor, result) => {
+    let transformation = new Transformation(actor);
+    if (transformation.initialized) {
+        if (result.type == "short") {
+            transformation.onShortRest();
+        } else if (result.longRest) {
+            transformation.onLongRest();
+        }
+    }
+});
+
+Hooks.on("dnd5e.rollInitiative", (actor, combatant) => {
+    let transformation = new Transformation(actor);
+    if (transformation.initialized) {
+        transformation.onInitiative();
+    }
 });
