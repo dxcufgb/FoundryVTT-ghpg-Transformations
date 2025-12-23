@@ -14,51 +14,12 @@ export class Transformation {
 
     getTransformationType(actor) {
         let transformation;
-        Object.values(TRANSFORMATIONS).forEach(transformationName => {
-            if (actor.items.getName(transformationName)) {
-                transformation = transformationName;
+        Object.values(TransformationModule.transformation).forEach(transformationSubClass => {
+            if (actor.items.find(obj => obj.identifier === transformationSubClass.id)) {
+                return new transformationSubClass(actor);
             }
         });
-        switch (transformation) {
-            case TRANSFORMATIONS.ABERRANT_HORROR:
-                return new AberrantHorror(actor);
-            case TRANSFORMATIONS.FEY:
-                console.log(`${transformation} not yet implemented!`);
-                break;
-            case TRANSFORMATIONS.FIEND:
-                console.log(`${transformation} not yet implemented!`);
-                break;
-            case TRANSFORMATIONS.HAG:
-                console.log(`${transformation} not yet implemented!`);
-                break;
-            case TRANSFORMATIONS.LICH:
-                console.log(`${transformation} not yet implemented!`);
-                break;
-            case TRANSFORMATIONS.LYCANTHROPE:
-                console.log(`${transformation} not yet implemented!`);
-                break;
-            case TRANSFORMATIONS.OOZE:
-                console.log(`${transformation} not yet implemented!`);
-                break;
-            case TRANSFORMATIONS.PRIMORDIAL:
-                console.log(`${transformation} not yet implemented!`);
-                break;
-            case TRANSFORMATIONS.SERAPH:
-                console.log(`${transformation} not yet implemented!`);
-                break;
-            case TRANSFORMATIONS.SHADOWSTEEL_GHOUL:
-                console.log(`${transformation} not yet implemented!`);
-                break;
-            case TRANSFORMATIONS.SPECTER:
-                console.log(`${transformation} not yet implemented!`);
-                break;
-            case TRANSFORMATIONS.VAMPIRE:
-                console.log(`${transformation} not yet implemented!`);
-                break;
-            default:
-                console.log(`${transformation} is unknown?`);
-                break;
-        }
+        console.log(`${transformation} is unknown?`);
     }
 
     onDamage() {
