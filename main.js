@@ -25,8 +25,8 @@ Hooks.once("init", async () => {
     Object.assign(Transformations.constants, constants);
     console.log("Transformations | Constants loaded", Transformations.constants);
     const transformationMasterClass = await import("./Transformations/Transformation.js");
-    Transformations.Transformations = []
-    Transformations.Transformations.push(transformationMasterClass);
+    Transformations.Transformations = {}
+    Transformations.Transformations['master'] = transformationMasterClass;
     console.log("Transformations | Transformation Master class loaded", Transformations.Transformations);
     // const utils = await import("./TransformationSupportFunctions.js");
 
