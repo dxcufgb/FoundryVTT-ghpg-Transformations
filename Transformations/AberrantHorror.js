@@ -7,7 +7,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     constructor(actor) {
         super(actor);
-        this.transformationLevel = super.getActorTransformationLevel(actor, this);
+        this.transformationLevel = super.getActorTransformationLevel(this);
         this.initialized = true
     }
 
