@@ -4,7 +4,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     static id = "aberrant-horror";
     static name = "Aberrant Horror";
-    static tablePrefix = "Unstable Form Stage";
+    static tablePrefix = "Unstable Form";
     static transformationLevelKey = "aberrant-transformation-level";
     static rollTableEffectFunction = applyRollTableResult;
 
