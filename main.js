@@ -35,7 +35,7 @@ Hooks.once("init", async () => {
     TransformationModule.constants = {}
     TransformationModule.dialogs = {}
     TransformationModule.utils = {}
-    TransformationModul.TransformationParent = {}
+    TransformationModule.TransformationParent = {}
     TransformationModule.Transformations = new Map()
     Object.assign(TransformationModule.constants, await import("./Constants.js"));
     Object.assign(TransformationModule.TransformationParent, await import("./Transformations/Transformation.js"));
