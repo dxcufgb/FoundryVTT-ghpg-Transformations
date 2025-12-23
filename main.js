@@ -32,6 +32,7 @@ Hooks.once("init", async () => {
     const dialogs = await import("./TransformationDialogs.js");
     Transformations.dialogs = {}
     Object.assign(Transformations.dialogs, await import("./TransformationDialogs.js"))
+    await import("./Transformations/manifest.js")
     // await import("./Transformations/RollTables/unstable-form-roll-table-macros.js");
 
     // await import("./Transformations/AberrantHorror.js");
