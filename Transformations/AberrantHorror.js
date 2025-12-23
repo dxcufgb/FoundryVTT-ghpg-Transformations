@@ -1,4 +1,4 @@
-import { applyRollTableResult } from "./RollTables/UnstableFormRollTable.js";
+import { applyRollTableResult } from "./RollTables/unstableFormRollTable.js";
 
 export class AberrantHorror extends TransformationModule.TransformationParent.Transformation {
 

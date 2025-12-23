@@ -44,7 +44,7 @@ export class Transformation {
 
     }
 
-    async rollResultFromRollTableTable(transformation) {
+    async rollResultFromRollTable(transformation) {
         await removeActiveTransformationEffect(transformation.actor);
         const drawResult = await drawTableResult(transformation);
         await this.applyRollTableResult(drawResult.results[0].name);
