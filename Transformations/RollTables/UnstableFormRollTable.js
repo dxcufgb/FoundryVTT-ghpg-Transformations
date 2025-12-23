@@ -1,4 +1,4 @@
-export async function applyUnstableForm(actor, effectName) {
+export async function applyRollTableResult(actor, effectName) {
 	let effectDescription = '';
 	let iconFilePath = '';
 	let effects = [];
