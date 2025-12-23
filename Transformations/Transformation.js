@@ -14,7 +14,7 @@ export class Transformation {
 
     getTransformationType(actor) {
         let transformation;
-        Object.values(TransformationModule.transformation).forEach(transformationSubClass => {
+        TransformationModule.Transformations.forEach(transformationSubClass => {
             if (actor.items.find(obj => obj.identifier === transformationSubClass.id)) {
                 return new transformationSubClass(actor);
             }
