@@ -46,7 +46,6 @@ export class Transformation {
 
     async rollResultFromRollTable() {
         await this.removeActiveTransformationEffect();
-        console.log("effects have been remove from actor")
         const drawResult = await this.drawTableResult();
         console.log(drawResult);
         await this.applyRollTableResult(drawResult.results[0].name);
@@ -61,9 +60,10 @@ export class Transformation {
     }
 
     async drawTableResult() {
-        const table = game.tables.getName(this.tableName);
+        const tableName = this.getRollTableName()
+        const table = game.tables.getName(tableName);
         if (!table) {
-            ui.notifications.error(`Table "${this.tableName}" not found`);
+            ui.notifications.error(`Table "${tableName}" not found`);
             return;
         }
         return await table.draw({ speaker: this.actor, roll: true, displayChat: true });
