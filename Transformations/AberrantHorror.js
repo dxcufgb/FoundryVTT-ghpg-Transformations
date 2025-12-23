@@ -21,7 +21,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     onLongRest() {
-        rollResultFromRollTableTable(this.actor, super.getRollTableName(this));
+        rollResultFromRollTable(this.actor, super.getRollTableName(this));
     }
 
     onInitiative() {
@@ -34,8 +34,8 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         }
     }
 
-    async rollResultFromRollTableTable(actor, tableName) {
-        await super.rollResultFromRollTableTable(actor, tableName,);
+    async rollResultFromRollTable(actor, tableName) {
+        await super.rollResultFromRollTable(actor, tableName,);
     }
 
     async applyRollTableResult(resultName) {

@@ -6,13 +6,15 @@ export class Transformation {
     transformationLevelKey;
     transformationLevel = 0;
     initialized = false;
-    actor
+    actor;
+    rollTableEffectFunction;
 
     constructor(actor) {
         this.actor = actor;
         this.id = this.constructor.id
         this.name = this.constructor.name
         this.tablePrefix = this.constructor.tablePrefix
+        this.rollTableEffectFunction = this.constructor.rollTableEffectFunction
         this.transformationLevelKey = this.constructor.transformationLevelKey
     }
 
@@ -42,10 +44,9 @@ export class Transformation {
 
     }
 
-    async rollResultFromRollTableTable() {
+    async rollResultFromRollTable() {
         await removeActiveTransformationEffect(this.actor);
-        const drawResult = await drawTableResult(this.actor, transformationTableName);
-        await applyRollTableResult(this.actor, drawResult.results[0].name, transformationTableName);
+        const drawResult = await drawTableResult(this);
     }
 
     getRollTableName(transformationObject) {
@@ -57,17 +58,13 @@ export class Transformation {
     }
 
     async drawTableResult(transformation) {
-        const table = game.tables.getName(tableName);
+        const table = game.tables.getName(transformation.tableName);
         if (!table) {
-            ui.notifications.error(`Table "${tableName}" not found`);
+            ui.notifications.error(`Table "${transformation.tableName}" not found`);
             return;
         }
         const draw = await table.draw({ speaker: transformation.actor, roll: true, displayChat: true });
-        return draw;
-    }
-
-    async applyRollTableResult(transformation, resultName) {
-        console.log("should be implemented AND called at sub-class level!")
+        transformation.rollTableEffectFunction(transformation.actor, draw.results[0].name)
     }
 
     async removeActiveTransformationEffect(transformation) {
