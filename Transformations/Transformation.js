@@ -10,15 +10,20 @@ export class Transformation {
 
     constructor(actor) {
         this.actor = actor;
+        this.id = this.constructor.id
+        this.name = this.constructor.name
+        this.tablePrefix = this.constructor.tablePrefix
+        this.transformationLevelKey = this.constructor.transformationLevelKey
     }
 
     getTransformationType(actor) {
+        let transformation
         TransformationModule.Transformations.forEach(transformationSubClass => {
             if (actor.items.find(obj => obj.identifier === transformationSubClass.id)) {
-                return new transformationSubClass(actor);
-
+                transformation = new transformationSubClass(actor);
             }
         });
+        return transformation;
     }
 
     onDamage() {
