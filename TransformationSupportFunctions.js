@@ -165,5 +165,4 @@ function findOverrideType(identifier) {
 	} else {
 		console.log(`Uknown identifier: ${identifier} in findOverrideType!`);
 	}
-
 }
