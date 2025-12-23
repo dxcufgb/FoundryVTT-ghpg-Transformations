@@ -1,4 +1,3 @@
-import { getActorTransformation } from "./TransformationSupportFunctions.js";
 
 Hooks.once("init", async () => {
     console.log(`

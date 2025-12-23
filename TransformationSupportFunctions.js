@@ -1,13 +1,3 @@
-export function getActorTransformation(actor) {
-	let transformation;
-	Object.values(TRANSFORMATIONS).forEach(transformationInfo => {
-		if (actor.items.getName(transformationInfo.name)) {
-			transformation = transformationInfo;
-		}
-	});
-	return transformation;
-}
-
 export function getCurrentActor(name = null) {
 	let actor
 	if (!name) {
