@@ -45,7 +45,6 @@ export class Transformation {
     }
 
     async rollResultFromRollTable(transformation) {
-        console.log("rollResultFromRollTable")
         await this.removeActiveTransformationEffect(transformation);
         const drawResult = await this.drawTableResult(transformation);
         console.log(drawResult);
@@ -74,6 +73,8 @@ export class Transformation {
     }
 
     async removeActiveTransformationEffect(transformation) {
+        console.log(transformation);
+        console.log(this);
         const effects = transformation.actor.effects.filter(e =>
             e.flags["gh-transformation"]?.removeOnLongRest
         );
