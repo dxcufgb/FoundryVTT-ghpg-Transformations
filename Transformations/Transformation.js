@@ -44,29 +44,29 @@ export class Transformation {
         console.error("should be implemented AND called at sub-class level!");
     }
 
-    async rollResultFromRollTable(transformation) {
-        await this.removeActiveTransformationEffect(transformation);
+    async rollResultFromRollTable() {
+        await this.removeActiveTransformationEffect();
         console.log("effects have been remove from actor")
-        const drawResult = await this.drawTableResult(transformation);
+        const drawResult = await this.drawTableResult();
         console.log(drawResult);
         await this.applyRollTableResult(drawResult.results[0].name);
     }
 
-    getRollTableName(transformationObject) {
-        return (transformationObject.tablePrefix + " Stage " + transformationObject.transformationLevel)
+    getRollTableName() {
+        return (this.tablePrefix + " Stage " + this.transformationLevel)
     }
 
-    getActorTransformationLevel(transformation) {
-        return transformation.actor.system.scale[transformation.constructor.id][transformation.constructor.transformationLevelKey].value;
+    getActorTransformationLevel() {
+        return this.actor.system.scale[this.constructor.id][this.constructor.transformationLevelKey].value;
     }
 
-    async drawTableResult(transformation) {
-        const table = game.tables.getName(transformation.tableName);
+    async drawTableResult() {
+        const table = game.tables.getName(this.tableName);
         if (!table) {
-            ui.notifications.error(`Table "${transformation.tableName}" not found`);
+            ui.notifications.error(`Table "${this.tableName}" not found`);
             return;
         }
-        return await table.draw({ speaker: transformation.actor, roll: true, displayChat: true });
+        return await table.draw({ speaker: this.actor, roll: true, displayChat: true });
     }
 
     async applyRollTableResult(resultName) {
@@ -79,7 +79,7 @@ export class Transformation {
         );
 
         if (effects.length) {
-            await actor.deleteEmbeddedDocuments(
+            await this.actor.deleteEmbeddedDocuments(
                 "ActiveEffect",
                 effects.map(e => e.id)
             );
