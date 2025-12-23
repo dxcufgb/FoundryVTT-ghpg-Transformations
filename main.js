@@ -22,16 +22,16 @@ Hooks.once("init", async () => {
 
     const constants = await import("./Constants.js");
     Transformations.constants = {}
-    Object.assign(Transformations.constants, constants);
+    Object.assign(Transformations.constants, await import("./Constants.js"));
     const transformationMasterClass = await import("./Transformations/Transformation.js");
     Transformations.Transformations = {}
-    Transformations.Transformations['master'] = transformationMasterClass;
+    Transformations.Transformations['master'] = await import("./Transformations/Transformation.js");
     const utils = await import("./TransformationSupportFunctions.js");
     Transformations.utils = {}
-    Object.assign(Transformations.utils, utils)
+    Object.assign(Transformations.utils, await import("./TransformationSupportFunctions.js"))
     const dialogs = await import("./TransformationDialogs.js");
     Transformations.dialogs = {}
-    Object.assign(Transformations.dialogs, dialogs)
+    Object.assign(Transformations.dialogs, await import("./TransformationDialogs.js"))
     // await import("./Transformations/RollTables/unstable-form-roll-table-macros.js");
 
     // await import("./Transformations/AberrantHorror.js");
