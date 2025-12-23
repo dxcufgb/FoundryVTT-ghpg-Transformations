@@ -1,4 +1,4 @@
-export class AberrantHorror extends TransformationModule.Transformations.master.Transformation {
+export class AberrantHorror extends TransformationModule.TransformationParent.Transformation {
 
     static id = "aberrant-horror";
     static name = "Aberrant Horror";
