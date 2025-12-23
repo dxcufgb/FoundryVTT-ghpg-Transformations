@@ -13,13 +13,12 @@ export class Transformation {
     }
 
     getTransformationType(actor) {
-        let transformation;
         TransformationModule.Transformations.forEach(transformationSubClass => {
             if (actor.items.find(obj => obj.identifier === transformationSubClass.id)) {
                 return new transformationSubClass(actor);
+
             }
         });
-        console.log(`${transformation} is unknown?`);
     }
 
     onDamage() {

@@ -9,6 +9,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         super(actor);
         this.transformationLevel = super.getActorTransformationLevel(this);
         this.initialized = true
+        console.log(this)
     }
 
     onDamage() {
