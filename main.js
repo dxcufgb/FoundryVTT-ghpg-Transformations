@@ -32,17 +32,13 @@ Hooks.once("init", async () => {
         }
     }
 
-    const constants = await import("./Constants.js");
     TransformationModule.constants = {}
-    Object.assign(TransformationModule.constants, await import("./Constants.js"));
-    const transformationMasterClass = await import("./Transformations/Transformation.js");
-    TransformationModule.Transformations = {}
-    TransformationModule.Transformations['master'] = await import("./Transformations/Transformation.js");
-    const utils = await import("./TransformationSupportFunctions.js");
-    TransformationModule.utils = {}
-    Object.assign(TransformationModule.utils, await import("./TransformationSupportFunctions.js"))
-    const dialogs = await import("./TransformationDialogs.js");
     TransformationModule.dialogs = {}
+    TransformationModule.utils = {}
+    TransformationModule.Transformations = new Map()
+    Object.assign(TransformationModule.constants, await import("./Constants.js"));
+    TransformationModule.Transformations.set('master', await import("./Transformations/Transformation.js"));
+    Object.assign(TransformationModule.utils, await import("./TransformationSupportFunctions.js"))
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"))
     await import("./Transformations/manifest.js")
     // await import("./Transformations/RollTables/unstable-form-roll-table-macros.js");
