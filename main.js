@@ -1,3 +1,5 @@
+import { Transformation } from "./Transformations/Transformation.js";
+
 Hooks.once("init", async () => {
     console.log("Transformations | Init");
     globalThis.Transformations ??= {}
@@ -20,7 +22,10 @@ Hooks.once("init", async () => {
         }
     }
 
-    globalThis.Transformations.constants = await import("./Constants.js");
+    const constants = await import("./Constants.js");
+    Transformations.constants = {}
+    Object.assign(Transformations.constants, constants);
+    console.log("Transformations | Constants loaded", Transformations.constants);
     // await import("./Transformations/Transformation.js");
     // const utils = await import("./TransformationSupportFunctions.js");
     // console.log(utils);

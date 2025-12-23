@@ -123,6 +123,6 @@ export class Transformation {
             throw new Error("Transformation subclass must define static id");
         }
 
-        MyModule.transformations.set(this.id, this);
+        Transformations.transformations.set(this.id, this);
     }
 }
