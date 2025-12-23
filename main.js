@@ -1,6 +1,6 @@
 Hooks.once("init", async () => {
-    console.log("Transformations Init");
-    globalThis.MyModule = {
+    console.log("Transformations | Init");
+    globalThis.Transformations = {
         transformations: new Map()
     };
 
@@ -31,9 +31,9 @@ Hooks.once("init", async () => {
 });
 
 Hooks.once("setup", () => {
-    console.log("MyModule | Setup");
+    console.log("Transformations | Setup");
 });
 
 Hooks.once("ready", () => {
-    console.log("MyModule | Ready");
+    console.log("Transformations | Ready");
 });

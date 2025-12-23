@@ -1,8 +1,3 @@
-function getActorTransformationLevel(actor, transformation) {
-	const level = actor.system.scale[transformation.id][transformation.transformationLevelKey].value;
-	return level;
-}
-
 function getActorTransformation(actor) {
 	let transformation;
 	Object.values(TRANSFORMATIONS).forEach(transformationInfo => {
@@ -25,10 +20,6 @@ function getCurrentActor(name = null) {
 
 function actorIsBloodied(actor) {
 	return (actor.system.attributes.hp.value <= (actor.system.attributes.hp.max / 2));
-}
-
-function actorIsHidingHideousForm(actor) {
-	return (actor.system.concentration.ability == "Hide Hideous Form");
 }
 
 async function createActiveEffectOnActor(actor, effectName, description, icon, changes) {
@@ -140,14 +131,6 @@ function getAbilitySaveAdvantageEffectChanges(ability) {
 	return effects;
 }
 
-function getAbilityCheckAdvantageEffectChanges(ability) {
-	effects = [
-		// { key: `system.abilities.${ability}.roll.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
-		{ key: `system.abilities.${ability}.check.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 }
-	]
-	return effects;
-}
-
 function getAbilitySaveAdvantageEffectChanges(ability) {
 	effects = [
 		// { key: `system.abilities.${ability}.roll.advantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
@@ -175,9 +158,6 @@ function getAttributeDisadvantageEffectChanges(attribute) {
 }
 
 function findOverrideType(identifier) {
-	console.log(`is movement: ${MOVEMENT_TYPE.contains(identifier)}`)
-	console.log(`is attribute: ${ATTRIBUTE.contains(identifier)}`)
-	console.log(`is attribute rollable: ${ATTRIBUTE.ROLLABLE.contains(identifier)}`)
 	if (MOVEMENT_TYPE.contains(identifier)) {
 		return OVERRIDE_TYPE.MOVEMENT_TYPE;
 	} else if (ATTRIBUTE.contains(identifier) || ATTRIBUTE.ROLLABLE.contains(identifier)) {
@@ -186,52 +166,4 @@ function findOverrideType(identifier) {
 		console.log(`Uknown identifier: ${identifier} in findOverrideType!`);
 	}
 
-}
-
-function findTransformationTableName(actor, actorTransformation) {
-	const transformationLevel = getActorTransformationLevel(actor, actorTransformation)
-	switch (transformationLevel) {
-		case 1:
-			tableName = actorTransformation.tablePrefix + " 1";
-			break;
-		case 2:
-			tableName = actorTransformation.tablePrefix + " 2";
-			break;
-		case 3:
-			tableName = actorTransformation.tablePrefix + " 3";
-			break;
-		case 4:
-			tableName = actorTransformation.tablePrefix + " 4";
-			break;
-	}
-	return tableName;
-}
-
-async function drawTableResult(actor, tableName) {
-	const table = game.tables.getName(tableName);
-	if (!table) {
-		ui.notifications.error(`Table "${tableName}" not found`);
-		return;
-	}
-	const draw = await table.draw({ speaker: actor, roll: true, displayChat: true });
-	return draw;
-}
-
-async function applyRollTableResult(actor, resultName, transformationTableName) {
-	if (transformationTableName.startsWith("Unstable Form")) {
-		await applyUnstableForm(actor, resultName);
-	}
-}
-
-async function removeActiveTransformationEffect(actor) {
-	const effects = actor.effects.filter(e =>
-		e.flags["gh-transformation"]?.removeOnLongRest
-	);
-
-	if (effects.length) {
-		await actor.deleteEmbeddedDocuments(
-			"ActiveEffect",
-			effects.map(e => e.id)
-		);
-	}
 }
