@@ -1,4 +1,4 @@
-Hooks.once("init", function () {
+Hooks.once("init", async () => {
     console.log("Transformations | Init");
     globalThis.Transformations = {
         transformations: new Map(),
@@ -25,17 +25,17 @@ Hooks.once("init", function () {
         }
     }
 
-    const constants = import("./Constants.js");
+    const constants = await import("./Constants.js");
     console.log(constants);
-    import("./Transformations/Transformation.js");
-    const utils = import("./TransformationSupportFunctions.js");
+    await import("./Transformations/Transformation.js");
+    const utils = await import("./TransformationSupportFunctions.js");
     console.log(utils);
-    const dialogs = import("./TransformationDialogs.js");
+    const dialogs = await import("./TransformationDialogs.js");
     console.log(dialogs);
-    import("./Transformations/RollTables/unstable-form-roll-table-macros.js");
-    import("./Transformations/AberrantHorror.js");
+    await import("./Transformations/RollTables/unstable-form-roll-table-macros.js");
+    await import("./Transformations/AberrantHorror.js");
 
-    Transformations.set("constants", constants);
+    Transformations.constants = constants
 });
 
 Hooks.once("setup", () => {
