@@ -131,14 +131,6 @@ function getAbilitySaveAdvantageEffectChanges(ability) {
 	return effects;
 }
 
-function getAbilitySaveAdvantageEffectChanges(ability) {
-	effects = [
-		// { key: `system.abilities.${ability}.roll.advantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
-		{ key: `system.abilities.${ability}.save.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 }
-	]
-	return effects;
-}
-
 function getAttributeAdvantageEffectChanges(attribute) {
 	effects = [
 		// { key: `system.attributes.${attribute}.roll.advantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
@@ -165,4 +157,5 @@ function findOverrideType(identifier) {
 	} else {
 		console.log(`Uknown identifier: ${identifier} in findOverrideType!`);
 	}
+
 }
