@@ -1,1 +1,1 @@
-import("./AberrantHorror.js");
+import "./AberrantHorror.js";

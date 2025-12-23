@@ -119,10 +119,32 @@ export class Transformation {
     }
 
     static register() {
-        if (!this.id) {
-            throw new Error("Transformation subclass must define static id");
+        if (!globalThis.TransformationModule?.Transformations) {
+        throw new Error(
+            "Transformations is not initialized. " +
+            "Ensure it is created in the init hook before importing subclasses."
+        );
         }
 
-        Transformations.transformations[this.id] = this;
+        if (typeof this.id !== "string" || !this.id.length) {
+        throw new Error(
+            `Transformation subclass "${this.name}" must define a static id`
+        );
+        }
+
+        if (TransformationModule.Transformations.has(this.id)) {
+        console.warn(
+            `Transformation "${this.id}" already registered. Skipping.`,
+            this
+        );
+        return;
+        }
+
+        TransformationModule.Transformations.set(this.id, this);
+
+        console.debug(
+        `Transformations | Registered: ${this.id}`,
+        this
+        );
     }
 }

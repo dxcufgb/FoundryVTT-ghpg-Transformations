@@ -12,7 +12,7 @@ Hooks.once("init", async () => {
 ╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
 
-    globalThis.Transformations ??= {}
+    globalThis.TransformationModule ??= {}
 
     CONFIG.DND5E.featureTypes.transformation = {
         label: "Transformation Feature",
@@ -33,17 +33,17 @@ Hooks.once("init", async () => {
     }
 
     const constants = await import("./Constants.js");
-    Transformations.constants = {}
-    Object.assign(Transformations.constants, await import("./Constants.js"));
+    TransformationModule.constants = {}
+    Object.assign(TransformationModule.constants, await import("./Constants.js"));
     const transformationMasterClass = await import("./Transformations/Transformation.js");
-    Transformations.Transformations = {}
-    Transformations.Transformations['master'] = await import("./Transformations/Transformation.js");
+    TransformationModule.Transformations = {}
+    TransformationModule.Transformations['master'] = await import("./Transformations/Transformation.js");
     const utils = await import("./TransformationSupportFunctions.js");
-    Transformations.utils = {}
-    Object.assign(Transformations.utils, await import("./TransformationSupportFunctions.js"))
+    TransformationModule.utils = {}
+    Object.assign(TransformationModule.utils, await import("./TransformationSupportFunctions.js"))
     const dialogs = await import("./TransformationDialogs.js");
-    Transformations.dialogs = {}
-    Object.assign(Transformations.dialogs, await import("./TransformationDialogs.js"))
+    TransformationModule.dialogs = {}
+    Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"))
     await import("./Transformations/manifest.js")
     // await import("./Transformations/RollTables/unstable-form-roll-table-macros.js");
 
