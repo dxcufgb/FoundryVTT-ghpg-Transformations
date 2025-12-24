@@ -110,10 +110,10 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         if (item.system.uses.value > 0 && TransformationModule.utils.actorIsBloodied(this.actor)) {
             item.system.uses.value--;
             const regainedHitPoints = this.actor.system.attributes.prof + this.actorTransformationLevel
-            let chatMessage = `${actor.name}s Aberrant Form activates and gives ${regainedHitPoints} temporary hit points!`;
+            let chatMessage = `${this.actor.name}s Aberrant Form activates and gives ${regainedHitPoints} temporary hit points!`;
             ChatMessage.create({
                 user: game.user._id,
-                speaker: ChatMessage.getSpeaker({ actor: actor }),
+                speaker: ChatMessage.getSpeaker({ actor: this.actor }),
                 content: chatMessage
             });
             this.actor.system.attributes.hp.temp = regainedHitPoints
