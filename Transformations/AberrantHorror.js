@@ -109,7 +109,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         console.log(`Found item ${item.name}, and it has ${item.system.uses.value} uses left!`);
         if (item.system.uses.value > 0 && TransformationModule.utils.actorIsBloodied(this.actor)) {
             await item.update({
-                "system.uses.spent": Math.max(item.system.uses.value + 1, item.system.uses.max)
+                "system.uses.spent": Math.min(item.system.uses.value + 1, item.system.uses.max)
             });
             console.log(item.system.uses.value);
             console.log(this.actor.system.attributes.prof);
