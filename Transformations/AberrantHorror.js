@@ -109,6 +109,8 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         console.log(`Found item ${item.name}, and it has ${item.system.uses.value} uses left!`);
         if (item.system.uses.value > 0 && TransformationModule.utils.actorIsBloodied(this.actor)) {
             item.system.uses.value--;
+            console.log(this.actor.system.attributes.prof);
+            console.log(this.actorTransformationLevel);
             const regainedHitPoints = this.actor.system.attributes.prof + this.actorTransformationLevel
             let chatMessage = `${this.actor.name}s Aberrant Form activates and gives ${regainedHitPoints} temporary hit points!`;
             ChatMessage.create({
