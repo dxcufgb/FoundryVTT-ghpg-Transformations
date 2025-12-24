@@ -53,6 +53,9 @@ Hooks.once("ready", () => {
 });
 
 Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {
+    console.log(actor);
+    console.log(amount);
+    console.log(updates);
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
     if (transformation.initialized) {
         transformation.onDamage();
@@ -60,17 +63,21 @@ Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {
 });
 
 Hooks.on("dnd5e.restCompleted", async (actor, result) => {
+    console.log(actor);
+    console.log(result);
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
     if (transformation?.initialized) {
         if (result.type == "short") {
-            transformation.onShortRest();
+            transformation.onShortRest(result);
         } else if (result.longRest) {
-            transformation.onLongRest();
+            transformation.onLongRest(result);
         }
     }
 });
 
 Hooks.on("dnd5e.rollInitiative", (actor, combatant) => {
+    console.log(actor);
+    console.log(combatant);
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
     if (transformation.initialized) {
         transformation.onInitiative();
@@ -101,6 +108,6 @@ Hooks.on("createActiveEffect", (effect, options, userId) => {
   const actor = effect.parent;
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
     if (transformation.initialized) {
-        
+        transformation.onCreateaActiveEffect(effect)
     }
 });
