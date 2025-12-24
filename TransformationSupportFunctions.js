@@ -37,36 +37,36 @@ export function getSystemEffectChange(identifier, value, changeType) {
 	return effects;
 }
 
-export function getDisadvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
-	if (SKILL.contains(identifier)) {
+export function getDisadvantageEffectChanges(identifier, type = TransformationModule.constants.ROLL_TYPE.ABILITY_CHECK) {
+	if (TransformationModule.constants.SKILL.contains(identifier)) {
 		return getSkillDisadvantageEffectChanges(identifier)
-	} else if (ABILITY.contains(identifier)) {
-		if (type == ROLL_TYPE.ABILITY_CHECK) {
+	} else if (TransformationModule.constants.ABILITY.contains(identifier)) {
+		if (type == TransformationModule.constants.ROLL_TYPE.ABILITY_CHECK) {
 			return getAbilityCheckDisadvantageEffectChanges(identifier)
-		} else if (type == ROLL_TYPE.SAVING_THROW) {
+		} else if (type == TransformationModule.constants.ROLL_TYPE.SAVING_THROW) {
 			return getAbilitySaveDisadvantageEffectChanges(identifier)
 		} else {
 			console.log(`Unknown roll type "${type}" in getDisadvantageEffectChanges`)
 		}
-	} else if (ATTRIBUTE.ROLLABLE.contains(identifier)) {
+	} else if (TransformationModule.constants.ATTRIBUTE.ROLLABLE.contains(identifier)) {
 		return getAttributeDisadvantageEffectChanges(identifier)
 	} else {
 		console.log(`Unknown identifier "${identifier} in getDisadvantageEffectChanges"`)
 	}
 }
 
-export function getAdvantageEffectChanges(identifier, type = ROLL_TYPE.ABILITY_CHECK) {
-	if (SKILL.contains(identifier)) {
+export function getAdvantageEffectChanges(identifier, type = TransformationModule.constants.ROLL_TYPE.ABILITY_CHECK) {
+	if (TransformationModule.constants.SKILL.contains(identifier)) {
 		return getSkillAdvantageEffectChanges(identifier)
-	} else if (ABILITY.contains(identifier)) {
-		if (type == ROLL_TYPE.ABILITY_CHECK) {
+	} else if (TransformationModule.constants.ABILITY.contains(identifier)) {
+		if (type == TransformationModule.constants.ROLL_TYPE.ABILITY_CHECK) {
 			return getAbilityCheckAdvantageEffectChanges(identifier)
-		} else if (type == ROLL_TYPE.SAVING_THROW) {
+		} else if (type == TransformationModule.constants.ROLL_TYPE.SAVING_THROW) {
 			return getAbilitySaveAdvantageEffectChanges(identifier)
 		} else {
 			console.log(`Unknown roll type "${type}" in getAdvantageEffectChanges`)
 		}
-	} else if (ATTRIBUTE.ROLLABLE.contains(identifier)) {
+	} else if (TransformationModule.constants.ATTRIBUTE.ROLLABLE.contains(identifier)) {
 		return getAttributeAdvantageEffectChanges(identifier)
 	} else {
 		console.log(`Unknown identifier "${identifier} in getAdvantageEffectChanges"`)
@@ -140,10 +140,10 @@ export function getAttributeDisadvantageEffectChanges(attribute) {
 }
 
 export function findOverrideType(identifier) {
-	if (MOVEMENT_TYPE.contains(identifier)) {
-		return OVERRIDE_TYPE.MOVEMENT_TYPE;
-	} else if (ATTRIBUTE.contains(identifier) || ATTRIBUTE.ROLLABLE.contains(identifier)) {
-		return OVERRIDE_TYPE.ATTRIBUTES;
+	if (TransformationModule.constants.MOVEMENT_TYPE.contains(identifier)) {
+		return TransformationModule.constants.OVERRIDE_TYPE.MOVEMENT_TYPE;
+	} else if (TransformationModule.constants.ATTRIBUTE.contains(identifier) || TransformationModule.constants.ATTRIBUTE.ROLLABLE.contains(identifier)) {
+		return TransformationModule.constants.OVERRIDE_TYPE.ATTRIBUTES;
 	} else {
 		console.log(`Uknown identifier: ${identifier} in findOverrideType!`);
 	}
