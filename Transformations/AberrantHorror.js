@@ -100,7 +100,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         TransformationModule.utils.createActiveEffectOnActor(this.actor, "Hiding Hideous Form", "You concentrate on hiding your hideous form.", icon, changes);
     }
 
-    aberrantForm() {
+    async aberrantForm() {
         const item = this.actor.items.find(i => i.name === "Aberrant Form");
         if (!item) {
             ui.notifications.warn(`${actor.name} does not have an item named "${itemName}".`);
@@ -108,10 +108,13 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         }
         console.log(`Found item ${item.name}, and it has ${item.system.uses.value} uses left!`);
         if (item.system.uses.value > 0 && TransformationModule.utils.actorIsBloodied(this.actor)) {
-            item.system.uses.value--;
+            await item.update({
+                "system.uses.value": Math.max(uses.value - 1, 0)
+            });
+            console.log(item.system.uses.value);
             console.log(this.actor.system.attributes.prof);
-            console.log(this.actorTransformationLevel);
-            const regainedHitPoints = this.actor.system.attributes.prof + this.actorTransformationLevel
+            console.log(this.transformationLevel);
+            const regainedHitPoints = this.actor.system.attributes.prof + this.transformationLevel
             let chatMessage = `${this.actor.name}s Aberrant Form activates and gives ${regainedHitPoints} temporary hit points!`;
             ChatMessage.create({
                 user: game.user._id,
