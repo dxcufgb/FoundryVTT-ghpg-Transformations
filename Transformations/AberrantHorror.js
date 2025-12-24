@@ -125,14 +125,12 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         }
     }
 
-    aberrantLossofVitality(result) {
-        console.log(result);
+    async aberrantLossofVitality(result) {
         if (this.actor.statuses.has("AberrantLossofVitality") && result.dhd != 0) {
-            console.log(result.dhd);
-            console.log((result.dhd * -1));
-            console.log((result.dhd * -1) * actor.system.abilities.con.mod);
-            actor.system.attributes.hp.value -= ((result.dhd * -1) * actor.system.abilities.con.mod);
-            console.log(actor.system.attributes.hp.value);
+            await actor.update({
+                "system.attributes.hp.value": this.actor.system.attributes.hp.value -= ((result.dhd * -1) * this.actor.system.abilities.con.mod)
+            });
+            console.log(this.actor.system.attributes.hp.value);
         }
     }
 
