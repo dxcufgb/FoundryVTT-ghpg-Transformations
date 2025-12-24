@@ -64,7 +64,7 @@ export async function applyRollTableResult(actor, effectName) {
 			break;
 		case "Aberrant Temporary Vitality Boost":
 			const currentTempHp = actor.system.attributes.hp.temp ?? 0;
-			const newTempHp = currentTempHp + (actor.system.scale["aberrant-horror"]["transformation-level"].value * 4);
+			const newTempHp = currentTempHp + (actor.system.scale["aberrant-horror"]["aberrant-transformation-level"].value * 4);
 			actor.update({
 				"system.attributes.hp.temp": newTempHp
 			});

@@ -74,7 +74,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     async hideousFormConSave() {
-        const result = await Transformation.dialog.getRollDialog("Hideous Form Constitution Save", `<p>Roll a constitution save to see if you keep your hidden form</p>`);
+        const result = await TransformationModule.dialog.getRollDialog("Hideous Form Constitution Save", `<p>Roll a constitution save to see if you keep your hidden form</p>`);
         if (result === null) return;
         const dc = 0;
         switch (this.transformationLevel) {
@@ -107,7 +107,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             return;
         }
         console.log(`Found item ${item.name}, and it has ${item.system.uses.value} uses left!`);
-        if (item.system.uses.value > 0 && actorIsBloodied(this.actor)) {
+        if (item.system.uses.value > 0 && TransformationModule.utils.actorIsBloodied(this.actor)) {
             item.system.uses.value--;
             const regainedHitPoints = this.actor.system.attributes.prof + this.actorTransformationLevel
             let chatMessage = `${actor.name}s Aberrant Form activates and gives ${regainedHitPoints} temporary hit points!`;
