@@ -31,7 +31,7 @@ export async function createActiveEffectOnActor(actor, effectName, description, 
 
 export function getSystemEffectChange(identifier, value, changeType) {
 	const overrideType = findOverrideType(identifier)
-	effects = [
+	const effects = [
 		{ key: `system.${overrideType}.${identifier}`, mode: changeType, value: value }
 	]
 	return effects;
@@ -74,7 +74,7 @@ export function getAdvantageEffectChanges(identifier, type = TransformationModul
 }
 
 export function getSkillDisadvantageEffectChanges(skill) {
-	effects = [
+	const effects = [
 		// { key: `system.skills.${skill}.check.bonuses.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 },
 		{ key: `system.skills.${skill}.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: -1 }
 	]
@@ -82,7 +82,7 @@ export function getSkillDisadvantageEffectChanges(skill) {
 }
 
 export function getSkillAdvantageEffectChanges(skill) {
-	effects = [
+	const effects = [
 		// { key: `system.skills.${skill}.check.bonuses.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 },
 		{ key: `system.skills.${skill}.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 }
 	]
@@ -90,7 +90,7 @@ export function getSkillAdvantageEffectChanges(skill) {
 }
 
 export function getAbilityCheckDisadvantageEffectChanges(ability) {
-	effects = [
+	const effects = [
 		// { key: `system.abilities.${ability}.roll.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
 		{ key: `system.abilities.${ability}.check.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: -1 }
 	]
@@ -98,7 +98,7 @@ export function getAbilityCheckDisadvantageEffectChanges(ability) {
 }
 
 export function getAbilitySaveDisadvantageEffectChanges(ability) {
-	effects = [
+	const effects = [
 		// { key: `system.abilities.${ability}.roll.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
 		{ key: `system.abilities.${ability}.save.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: -1 }
 	]
@@ -106,7 +106,7 @@ export function getAbilitySaveDisadvantageEffectChanges(ability) {
 }
 
 export function getAbilityCheckAdvantageEffectChanges(ability) {
-	effects = [
+	const effects = [
 		// { key: `system.abilities.${ability}.roll.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
 		{ key: `system.abilities.${ability}.check.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 }
 	]
@@ -114,7 +114,7 @@ export function getAbilityCheckAdvantageEffectChanges(ability) {
 }
 
 export function getAbilitySaveAdvantageEffectChanges(ability) {
-	effects = [
+	const effects = [
 		// { key: `system.abilities.${ability}.roll.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
 		{ key: `system.abilities.${ability}.save.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 }
 	]
@@ -122,7 +122,7 @@ export function getAbilitySaveAdvantageEffectChanges(ability) {
 }
 
 export function getAttributeAdvantageEffectChanges(attribute) {
-	effects = [
+	const effects = [
 		// { key: `system.attributes.${attribute}.roll.advantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
 		{ key: `system.attributes.${attribute}.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 },
 		// { key: `system.attributes.${attribute}.save.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1 }
@@ -131,7 +131,7 @@ export function getAttributeAdvantageEffectChanges(attribute) {
 }
 
 export function getAttributeDisadvantageEffectChanges(attribute) {
-	effects = [
+	const effects = [
 		// { key: `system.attributes.${attribute}.roll.disadvantage`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: true },
 		{ key: `system.attributes.${attribute}.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: -1 },
 		// { key: `system.attributes.${attribute}.save.roll.mode`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: -1 }
