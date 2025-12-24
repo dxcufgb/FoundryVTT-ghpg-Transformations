@@ -17,6 +17,9 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     onDamage() {
         console.log("onDamage AberrantHorror");
         this.aberrantForm()
+        if (this.transformationLevel >= 2 && TransformationModule.utils.actorIsBloodied(this.actor)) {
+          this.hideousForm()  
+        }
     }
 
     onShortRest() {
@@ -40,6 +43,18 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         }
     }
 
+    onConcentration() {
+        if (this.transformationLevel >= 2) {
+            this.hideousForm()
+        }
+    }
+
+    onCreateaActiveEffect(effect) {
+        if (effect.label == "Unconcious") {
+            this.hideousForm()
+        }
+    }
+
     async rollResultFromRollTable(actor, tableName) {
         await super.rollResultFromRollTable(actor, tableName,);
     }
@@ -48,8 +63,41 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         this.constructor.rollTableEffectFunction(this.actor, resultName)
     }
 
-    actorIsHidingHideousForm(actor) {
-        return (actor.system.concentration.ability == "Hide Hideous Form");
+    async hideousForm(actor) {
+        const conSaveResult = this.hideousFormConSave()
+        if (!conSaveResult){
+            const effect = actor.effects.find(e => e.label === "Hiding Hideous Form");
+            if (effect) {
+                await effect.delete();
+            }
+        }
+    }
+
+    async hideousFormConSave() {
+        const result = await Transformation.dialog.getRollDialog("Hideous Form Constitution Save", `<p>Roll a constitution save to see if you keep your hidden form</p>`);
+        if (result === null) return;
+        const dc = 0;
+        switch (this.transformationLevel) {
+            case 1:
+            case 2:
+                dc = 13;
+                break;
+            case 3:
+                dc = 16;
+                break;
+            case 4:
+                dc = 20;
+                break
+        }
+        return (result >= dc)
+    }
+
+    hideHideousForm() {
+        const icon = "icons/svg/poison.svg";
+        const changes = [
+            { key: `actor.system.concentration.ability`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Hiding Hideous Form" }
+        ]
+        TransformationModule.utils.createActiveEffectOnActor(this.actor, "Hiding Hideous Form", "You concentrate on hiding your hideous form.", icon, changes);
     }
 
     aberrantForm() {

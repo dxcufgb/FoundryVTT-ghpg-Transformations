@@ -13,7 +13,7 @@ Hooks.once("init", async () => {
 ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
 
-    globalThis.TransformationModule ??= {}
+    globalThis.TransformationModule ??= {};
 
     CONFIG.DND5E.featureTypes.transformation = {
         label: "Transformation Feature",
@@ -33,20 +33,15 @@ Hooks.once("init", async () => {
         }
     }
 
-    TransformationModule.constants = {}
-    TransformationModule.dialogs = {}
-    TransformationModule.utils = {}
-    TransformationModule.Transformations = new Map()
-    Object.assign(TransformationModule.constants, await import("./Constants.js"));
+    TransformationModule.constants = {};
+    TransformationModule.dialogs = {};
+    TransformationModule.utils = {};
+    TransformationModule.Transformations = new Map();
+    Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
     TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
-    Object.assign(TransformationModule.utils, await import("./TransformationSupportFunctions.js"))
-    Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"))
-    await import("./Transformations/manifest.js")
-    // await import("./Transformations/RollTables/unstable-form-roll-table-macros.js");
-
-    // await import("./Transformations/AberrantHorror.js");
-
-    // Transformations.constants = constants
+    Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
+    Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
+    await import("./Transformations/manifest.js");
 });
 
 Hooks.once("setup", () => {
@@ -58,7 +53,7 @@ Hooks.once("ready", () => {
 });
 
 Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {
-    let transformation = new Transformation(actor);
+    let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
     if (transformation.initialized) {
         transformation.onDamage();
     }
@@ -66,11 +61,7 @@ Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {
 
 Hooks.on("dnd5e.restCompleted", async (actor, result) => {
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
-    console.log(transformation);
-    console.log(transformation.initialized);
     if (transformation?.initialized) {
-        console.log(result.type);
-        console.log(result.longRest);
         if (result.type == "short") {
             transformation.onShortRest();
         } else if (result.longRest) {
@@ -80,8 +71,36 @@ Hooks.on("dnd5e.restCompleted", async (actor, result) => {
 });
 
 Hooks.on("dnd5e.rollInitiative", (actor, combatant) => {
-    let transformation = new Transformation(actor);
+    let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
     if (transformation.initialized) {
         transformation.onInitiative();
+    }
+});
+
+Hooks.on("useItem", (item, config, options) => {
+    console.log(item);
+    console.log(config);
+    console.log(options);
+    const actor = TransformationModule.utils.getCurrentActor()
+    let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
+    if(transformation.initialized){
+        if (item.type === "spell") {
+            const isConcentration = item.system.components?.concentration;
+            if (isConcentration) {
+                console.log(`Concentration spell cast: ${item.name}`);
+                transformation.onConcentration()
+            }
+        }
+    }
+});
+
+Hooks.on("createActiveEffect", (effect, options, userId) => {
+    console.log(effect);
+    console.log(options);
+    console.log(userId);
+  const actor = effect.parent;
+    let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
+    if (transformation.initialized) {
+        
     }
 });
