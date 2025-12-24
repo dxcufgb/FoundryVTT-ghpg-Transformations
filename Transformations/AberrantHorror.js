@@ -127,7 +127,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     async aberrantLossofVitality(result) {
         if (this.actor.statuses.has("AberrantLossofVitality") && result.dhd != 0) {
-            await actor.update({
+            await this.actor.update({
                 "system.attributes.hp.value": this.actor.system.attributes.hp.value -= ((result.dhd * -1) * this.actor.system.abilities.con.mod)
             });
             console.log(this.actor.system.attributes.hp.value);
