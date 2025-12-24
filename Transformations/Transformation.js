@@ -32,15 +32,19 @@ export class Transformation {
         console.error("should be implemented AND called at sub-class level!");
     }
 
-    onShortRest() {
+    onShortRest(result) {
         console.error("should be implemented AND called at sub-class level!");
     }
 
-    onLongRest() {
+    onLongRest(result) {
         console.error("should be implemented AND called at sub-class level!");
     }
 
     onInitiative() {
+        console.error("should be implemented AND called at sub-class level!");
+    }
+
+    onConcentration() {
         console.error("should be implemented AND called at sub-class level!");
     }
 

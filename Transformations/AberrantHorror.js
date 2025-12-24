@@ -22,12 +22,12 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         }
     }
 
-    onShortRest() {
+    onShortRest(result) {
         console.log("onShortRest AberrantHorror");
-        this.aberrantLossofVitality()
+        this.aberrantLossofVitality(result)
     }
 
-    onLongRest() {
+    onLongRest(result) {
         console.log("onLongRest AberrantHorror");
         super.rollResultFromRollTable();
     }
@@ -125,7 +125,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         }
     }
 
-    aberrantLossofVitality() {
+    aberrantLossofVitality(result) {
         if (this.actor.statuses.has("AberrantLossofVitality") && result.dhd != 0) {
             console.log(result.dhd);
             console.log((result.dhd * -1));
