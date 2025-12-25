@@ -29,12 +29,12 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     onShortRest(result) {
         console.log("onShortRest AberrantHorror");
-        this.constructor.removeAberrantMutationEffects(transformation)
+        this.removeAberrantMutationEffects()
     }
 
     onLongRest(result) {
         console.log("onLongRest AberrantHorror");
-        this.constructor.removeAberrantMutationEffects(transformation)
+        this.removeAberrantMutationEffects()
         super.rollResultFromRollTable();
     }
 
@@ -145,17 +145,17 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     async chitinousShell() {
         console.log("Chitinous Shell called!");
-        this.constructor.removeAberrantMutationEffects(this, "Chitinous Shell");
+        this.removeAberrantMutationEffects("Chitinous Shell");
     }
 
     async slimyForm() {
         console.log("Slimy Form called!");
-        this.constructor.removeAberrantMutationEffects(this, "Slimy Form");
+        this.removeAberrantMutationEffects("Slimy Form");
     }
 
     async eldritchLimbs() {
         console.log("Eldritch Limbs called!");
-        this.constructor.removeAberrantMutationEffects(this, "Eldritch Limbs");
+        this.removeAberrantMutationEffects("Eldritch Limbs");
         console.log("Add weapons!");
         console.log(this.eldritchLimbsItemIds[this.transformationLevel]);
         const item = await fromUuid(this.eldritchLimbsItemIds[this.transformationLevel]);
@@ -169,12 +169,12 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         }
     }
 
-    static async removeAberrantMutationEffects(transformation, effectToExclude = null) {
+    async removeAberrantMutationEffects(effectToExclude = null) {
         let itemsToRemove = []
         for (itemId in this.constructor.eldritchLimbsItemIds) {
             const itemNameToLookFor = await fromUuid(itemId).name
             itemsToRemove.push(
-                transformation.actor.items.filter(i =>
+                this.actor.items.filter(i =>
                     i.name == itemNameToLookFor
                 )
             );
@@ -185,16 +185,16 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         } else {
             effectsToLookFor = this.aberrantMutationEffects;
         }
-        const effects = transformation.actor.effects.filter(effect => effectsToLookFor.includes(effect.name)).map(e => e.id);
+        const effects = this.actor.effects.filter(effect => effectsToLookFor.includes(effect.name)).map(e => e.id);
         if (effects.length === 0) {
             console.log("No matching effects found.");
             return;
         }
-        await transformation.actor.deleteEmbeddedDocuments(
+        await this.actor.deleteEmbeddedDocuments(
             "ActiveEffect",
             effects
         );
-        await transformation.actor.deleteEmbeddedDocuments(
+        await this.actor.deleteEmbeddedDocuments(
             "Item",
             itemsToRemove
         );
