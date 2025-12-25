@@ -1,4 +1,5 @@
 import { applyRollTableResult } from "./RollTables/UnstableFormRollTable.js";
+import { Transformation } from "./Transformation.js";
 
 export class AberrantHorror extends TransformationModule.TransformationParent.Transformation {
 
@@ -7,6 +8,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     static tablePrefix = "Unstable Form";
     static transformationLevelKey = "aberrant-transformation-level";
     static rollTableEffectFunction = applyRollTableResult;
+    static aberrantMutationEffects = ["Chitinous Shell", "Slimy Form", "Eldritch Limbs"];
 
     constructor(actor) {
         super(actor);
@@ -135,6 +137,34 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             context.rolls[0].parts[0] = roll.replace("+ @abilities.con.mod", "")
         }
         return context;
+    }
+
+    async chitinousShell() {
+        console.log("Chitinous Shell called!");
+        this.constructor.removeAberrantMutationEffects(this);
+    }
+
+    async slimyForm() {
+        console.log("Slimy Form called!");
+        this.constructor.removeAberrantMutationEffects(this);
+    }
+
+    async eldritchLimbs() {
+        console.log("Eldritch Limbs called!");
+        this.constructor.removeAberrantMutationEffects(this);
+        console.log("Add weapons!");
+    }
+
+    static async removeAberrantMutationEffects(transformation) {
+        const effects = transformation.actor.effects.filter(effect => aberrantMutationEffects.includes(effect.name));
+        if (effects.length === 0) {
+            console.log("No matching effects found.");
+            return;
+        }
+        await transformation.actor.deleteEmbeddedDocuments(
+            "ActiveEffect",
+            effects.map(e => e.id)
+        );
     }
 
     static {
