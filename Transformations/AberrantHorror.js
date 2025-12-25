@@ -196,7 +196,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         let itemsfound = [];
         for (let index = 1; index <= 2; index++) {
             const itemId = this.eldritchLimbsItemIds[index];
-            itemsToRmove.push(this.eldritchLimbsItemIds[index]);
+            itemsToRemove.push(this.eldritchLimbsItemIds[index]);
             // const itemNameToLookFor = (await fromUuid(itemId)).name
             // console.log("item to look for:");
             // console.log(itemNameToLookFor)
