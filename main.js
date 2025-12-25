@@ -116,7 +116,7 @@ Hooks.on("createChatMessage", (message) => {
     console.log("createChatMessage");
     console.log(message);
     const flavor = message.flavor ?? "";
-    if (flavor.includes("Roll Hit Die")) {
+    if (flavor == "Roll Hit Dice") {
         console.log("hit die roll");
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
         const rolls = message.rolls;
