@@ -125,7 +125,7 @@ Hooks.on("createChatMessage", (message) => {
 });
 
 libWrapper.register(
-  "gh-transformations",
+  "transformations",
   "CONFIG.Actor.documentClass.prototype.rollHitDie",
   async function (wrapped, ...args) {
     const result = await wrapped(...args);
