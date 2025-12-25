@@ -162,7 +162,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         if (item && this.actor) {
             console.log("adding items to actor:")
             console.log(item);
-            await actor.createEmbeddedDocuments('Item', [item.toObject()]);
+            await this.actor.createEmbeddedDocuments('Item', [item.toObject()]);
         } else {
             ui.notifications.error("Item from Compendium or Actor not found!");
         }
