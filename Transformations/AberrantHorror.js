@@ -185,21 +185,26 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             "ActiveEffect",
             effects
         );
-        if (effectToExclude != "Eldritch Limbs") {
-            
+        if (!effectToExclude || effectToExclude != "Eldritch Limbs") {
+            console.log("Removing Eldritch Limbs from actor");
+            this.removeEldritchLimbsItems();
         }
     }
 
     async removeEldritchLimbsItems() {
-        let itemsToRemove = []
+        let itemsToRemove = [];
         for (itemId in this.constructor.eldritchLimbsItemIds) {
             const itemNameToLookFor = await fromUuid(itemId).name
+            console.log("item to look for:");
+            console.log(itemNameToLookFor)
             itemsToRemove.push(
                 this.actor.items.filter(i =>
                     i.name == itemNameToLookFor
                 )
             );
         }
+        console.log("removing items:");
+        console.log(itemsToRemove);
         await this.actor.deleteEmbeddedDocuments(
             "Item",
             itemsToRemove
