@@ -9,7 +9,10 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     static transformationLevelKey = "aberrant-transformation-level";
     static rollTableEffectFunction = applyRollTableResult;
     static aberrantMutationEffects = ["Chitinous Shell", "Slimy Form", "Eldritch Limbs"];
-    static eldritchLimbsItemIds = { 1: 'Compendium.transformations.gh-transformations.Item.6WiJSiBbhYTH80Da', 2: 'Compendium.transformations.gh-transformations.Item.FVXkz256XPi1Uluv' };
+    static eldritchLimbsItemIds = {
+        1: { uuid: 'Compendium.transformations.gh-transformations.Item.6WiJSiBbhYTH80Da', id: "6WiJSiBbhYTH80Da" },
+        2: { uuid: 'Compendium.transformations.gh-transformations.Item.FVXkz256XPi1Uluv', id: "FVXkz256XPi1Uluv" }
+    };
 
     constructor(actor) {
         super(actor);
@@ -196,7 +199,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         let itemsfound = [];
         for (let index = 1; index <= 2; index++) {
             const itemId = this.eldritchLimbsItemIds[index];
-            itemsToRemove.push(this.eldritchLimbsItemIds[index]);
+            itemsToRemove.push(this.eldritchLimbsItemIds[index].id);
             // const itemNameToLookFor = (await fromUuid(itemId)).name
             // console.log("item to look for:");
             // console.log(itemNameToLookFor)
