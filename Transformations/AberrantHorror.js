@@ -8,7 +8,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     static tablePrefix = "Unstable Form";
     static transformationLevelKey = "aberrant-transformation-level";
     static rollTableEffectFunction = applyRollTableResult;
-    static aberrantMutationEffects = ["Chitinous Shell", "Slimy Form", "Eldritch Limbs"];
+    static aberrantMutationEffects = new List["Chitinous Shell", "Slimy Form", "Eldritch Limbs"];
 
     constructor(actor) {
         super(actor);
