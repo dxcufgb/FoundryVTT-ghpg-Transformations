@@ -193,7 +193,9 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     async removeEldritchLimbsItems() {
         let itemsToRemove = [];
-        for (const { index, itemId } in this.constructor.eldritchLimbsItemIds) {
+        for (let index = 1; index <= this.eldritchLimbsItemIds.length; index++) {
+            const itemId = this.eldritchLimbsItemIds[index];
+            console.log(`Index: ${index}`);
             console.log(`ItemId: ${itemId}`);
             const itemNameToLookFor = await fromUuid(itemId).name
             console.log("item to look for:");
@@ -210,6 +212,10 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             "Item",
             itemsToRemove
         );
+    }
+
+    register() {
+        this.register()
     }
 
     static {
