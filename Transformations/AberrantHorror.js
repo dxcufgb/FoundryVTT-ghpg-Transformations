@@ -9,7 +9,9 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     static transformationLevelKey = "aberrant-transformation-level";
     static rollTableEffectFunction = applyRollTableResult;
     static aberrantMutationEffects = ["Chitinous Shell", "Slimy Form", "Eldritch Limbs"];
-    static eldritchLimbsItemIds = {1: 'Compendium.transformations.gh-transformations.Item.6WiJSiBbhYTH80Da',  2: 'Compendium.transformations.gh-transformations.Item.FVXkz256XPi1Uluv'}
+    static eldritchLimbsItemIds = {
+        1: 'Compendium.transformations.gh-transformations.Item.6WiJSiBbhYTH80Da',
+        2: 'Compendium.transformations.gh-transformations.Item.FVXkz256XPi1Uluv'
     };
 
     constructor(actor) {
