@@ -194,6 +194,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     async removeEldritchLimbsItems() {
         let itemsToRemove = [];
         for (let index = 1; index <= this.eldritchLimbsItemIds.length; index++) {
+            console.log("loop start")
             const itemId = this.eldritchLimbsItemIds[index];
             console.log(`Index: ${index}`);
             console.log(`ItemId: ${itemId}`);
