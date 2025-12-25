@@ -131,7 +131,7 @@ Hooks.on("createActiveEffect", (effect, options, userId) => {
 Hooks.on("dnd5e.preRollHitDieV2", (context) => {
     console.log(context);
     console.log("hit die roll");
-    let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.actor);
+    let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject.actor);
     context = transformation.onHitDieRoll(context);
 });
 
