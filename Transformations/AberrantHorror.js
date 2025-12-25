@@ -9,14 +9,14 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     static transformationLevelKey = "aberrant-transformation-level";
     static rollTableEffectFunction = applyRollTableResult;
     static aberrantMutationEffects = ["Chitinous Shell", "Slimy Form", "Eldritch Limbs"];
-    static eldritchLimbsItems = { 1: 'Compendium.transformations.gh-transformations.Item.6WiJSiBbhYTH80Da', 2: 'Compendium.transformations.gh-transformations.Item.FVXkz256XPi1Uluv' };
+    static eldritchLimbsItemIds = { 1: 'Compendium.transformations.gh-transformations.Item.6WiJSiBbhYTH80Da', 2: 'Compendium.transformations.gh-transformations.Item.FVXkz256XPi1Uluv' };
 
     constructor(actor) {
         super(actor);
         this.transformationLevel = super.getActorTransformationLevel(this);
         this.initialized = true
         this.aberrantMutationEffects = this.constructor.aberrantMutationEffects;
-        this.eldritchLimbsItems = this.constructor.eldritchLimbsItems
+        this.eldritchLimbsItemIds = this.constructor.eldritchLimbsItemIds
     }
 
     onDamage() {
@@ -29,11 +29,12 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     onShortRest(result) {
         console.log("onShortRest AberrantHorror");
-        
+        this.constructor.removeAberrantMutationEffects(transformation)
     }
 
     onLongRest(result) {
         console.log("onLongRest AberrantHorror");
+        this.constructor.removeAberrantMutationEffects(transformation)
         super.rollResultFromRollTable();
     }
 
@@ -156,8 +157,8 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         console.log("Eldritch Limbs called!");
         this.constructor.removeAberrantMutationEffects(this, "Eldritch Limbs");
         console.log("Add weapons!");
-        console.log(this.eldritchLimbsItems[this.transformationLevel]);
-        const item = await fromUuid(this.eldritchLimbsItems[this.transformationLevel]);
+        console.log(this.eldritchLimbsItemIds[this.transformationLevel]);
+        const item = await fromUuid(this.eldritchLimbsItemIds[this.transformationLevel]);
 
         if (item && this.actor) {
             console.log("adding items to actor:")
@@ -168,12 +169,23 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         }
     }
 
-    static async removeAberrantMutationEffects(transformation, effectToExclude) {
-        const effectsToLookFor = this.aberrantMutationEffects.filter(effect => effect != effectToExclude);
-        console.log(effectsToLookFor);
-        effectsToLookFor.filter(effect => effect != effectToExclude);
+    static async removeAberrantMutationEffects(transformation, effectToExclude = null) {
+        let itemsToRemove = []
+        for (itemId in this.constructor.eldritchLimbsItemIds) {
+            const itemNameToLookFor = await fromUuid(itemId).name
+            itemsToRemove.push(
+                transformation.actor.items.filter(i =>
+                    i.name == itemNameToLookFor
+                )
+            );
+        }
+        let effectsToLookFor
+        if (effectToExclude){
+            effectsToLookFor = this.aberrantMutationEffects.filter(effect => effect != effectToExclude);
+        } else {
+            effectsToLookFor = this.aberrantMutationEffects;
+        }
         const effects = transformation.actor.effects.filter(effect => effectsToLookFor.includes(effect.name)).map(e => e.id);
-        console.log(effects);
         if (effects.length === 0) {
             console.log("No matching effects found.");
             return;
@@ -181,6 +193,10 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         await transformation.actor.deleteEmbeddedDocuments(
             "ActiveEffect",
             effects
+        );
+        await transformation.actor.deleteEmbeddedDocuments(
+            "Item",
+            itemsToRemove
         );
     }
 
