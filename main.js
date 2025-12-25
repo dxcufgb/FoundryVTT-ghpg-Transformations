@@ -12,7 +12,7 @@ Hooks.once("init", async () => {
 ║                                                                                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
-
+    CONFIG.debug.hooks = true;
     globalThis.TransformationModule ??= {};
 
     CONFIG.DND5E.featureTypes.transformation = {
@@ -126,7 +126,7 @@ Hooks.on("createChatMessage", (message) => {
 
 libWrapper.register(
     "transformations",
-    "CONFIG.Actor.documentClass.prototype.rollHitDie",
+    "game.dnd5e.entities.Actor5e.prototype.rollHitDie",
     async function (wrapped, ...args) {
         console.log("LibWrapper.onHitDieRoll");
         console.log(args);
