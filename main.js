@@ -132,7 +132,7 @@ Hooks.on("dnd5e.preRollHitDieV2", (context) => {
     console.log(context);
     console.log("hit die roll");
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.actor);
-    transformation.onHitDieRoll(context);
+    context = transformation.onHitDieRoll(context);
 });
 
 // Hooks.on("createChatMessage", (message) => {
