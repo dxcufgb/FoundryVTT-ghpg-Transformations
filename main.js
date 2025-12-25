@@ -55,17 +55,17 @@ Hooks.once("ready", () => {
         return;
     }
 
-    libWrapper.register(
-        "transformations",
-        "CONFIG.Actor.documentClass.prototype.rollHitDie",
-        async function (wrapped, ...args) {
-            console.log("LibWrapper.onHitDieRoll");
-            console.log(args);
-            return await wrapped(...args);
-        },
-        "WRAPPER",
-        {}
-    );
+    // libWrapper.register(
+    //     "transformations",
+    //     "CONFIG.Actor.documentClass.prototype.rollHitDie",
+    //     async function (wrapped, ...args) {
+    //         console.log("LibWrapper.onHitDieRoll");
+    //         console.log(args);
+    //         return await wrapped(...args);
+    //     },
+    //     "WRAPPER",
+    //     {}
+    // );
 });
 
 Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {
@@ -128,14 +128,21 @@ Hooks.on("createActiveEffect", (effect, options, userId) => {
     }
 });
 
-Hooks.on("createChatMessage", (message) => {
-    const flavor = message.flavor ?? "";
-    if (flavor == "Roll Hit Dice") {
-        console.log("hit die roll");
-        let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(message.speaker.actor);
-        const rolls = message.rolls;
-        if (rolls) {
-            transformation.onHitDieRoll(rolls);
-        }
-    }
+Hooks.on("dnd5e.preRollHitDieV2", (context) => {
+    console.log(context);
+    console.log("hit die roll");
+    let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.actor);
+    transformation.onHitDieRoll(context);
 });
+
+// Hooks.on("createChatMessage", (message) => {
+//     const flavor = message.flavor ?? "";
+//     if (flavor == "Roll Hit Dice") {
+//         console.log("hit die roll");
+//         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(message.speaker.actor);
+//         const rolls = message.rolls;
+//         if (rolls) {
+//             transformation.onHitDieRoll(rolls);
+//         }
+//     }
+// });

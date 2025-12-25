@@ -57,17 +57,10 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         }
     }
 
-    onHitDieRoll(rolls) {   
+    onHitDieRoll(context) {   
         console.log("onHitDieRoll AberrantHorror");
-        console.log(rolls);
-        for (roll in rolls) {
-            const total = roll.total;
-            const formula = roll.formula;
-            console.log("Hit Die rolled!");
-            console.log("Formula:", formula);
-            console.log("Total:", total);
-            // this.aberrantLossofVitality(result);
-        }
+        console.log(context);
+        this.aberrantLossofVitality(context);
     }
 
     async rollResultFromRollTable(actor, tableName) {
@@ -140,18 +133,10 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         }
     }
 
-    async aberrantLossofVitality(result) {
-        if (this.actor.statuses.has("AberrantLossofVitality") && result.dhd != 0) {
-            await this.actor.update({
-                "system.attributes.hp.value": this.actor.system.attributes.hp.value -= ((result.dhd * -1) * this.actor.system.abilities.con.mod)
-            });
-            console.log(this.actor.system.attributes.hp.value);
-            let chatMessage = `Due to ${this.actor.name}s Aberrant Loss of Vitality the constitution modifier is removed from the healing received from hit dices!`;
-            ChatMessage.create({
-                user: game.user._id,
-                speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-                content: chatMessage
-            });
+    async aberrantLossofVitality(context) {
+        if (this.actor.statuses.has("AberrantLossofVitality")) {
+            let formula = context.formula;
+            console.log(formula)
         }
     }
 
