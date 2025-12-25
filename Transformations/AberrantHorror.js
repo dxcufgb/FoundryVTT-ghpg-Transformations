@@ -199,12 +199,11 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             const itemNameToLookFor = (await fromUuid(itemId)).name
             console.log("item to look for:");
             console.log(itemNameToLookFor)
-            itemsfound.push(
+            itemsToRemove.push(
                 this.actor.items.filter(i =>
                     i.name == itemNameToLookFor
-                )
+                )._id
             );
-            console.log(itemsfound)
         }
         console.log("removing items:");
         console.log(itemsToRemove);
