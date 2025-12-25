@@ -123,3 +123,22 @@ Hooks.on("createChatMessage", (message) => {
         }
     }
 });
+
+libWrapper.register(
+  "gh-transformations",
+  "CONFIG.Actor.documentClass.prototype.rollHitDie",
+  async function (wrapped, ...args) {
+    const result = await wrapped(...args);
+
+    // The roll is sent to chat; extract it
+    const lastMessage = game.messages.contents.at(-1);
+    const roll = lastMessage?.rolls?.[0];
+
+    if (roll) {
+      console.log("Captured Hit Die roll:", roll.total);
+    }
+
+    return result;
+  },
+  "WRAPPER"
+);
