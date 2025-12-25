@@ -136,12 +136,10 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     async aberrantLossofVitality(context) {
         if (this.actor.statuses.has("AberrantLossofVitality")) {
-            console.log("has Aberrant Loss of Vitality");
-            roll = context.rolls[0].parts[0];
+            const roll = context.rolls[0].parts[0];
             context.rolls[0].parts[0] = roll.replace("+ @abilities.con.mod", "")
-        } else {
-            console.log("did not have Aberrant Loss of Vitality");
         }
+        console.log(context);
         return context;
     }
 
