@@ -113,15 +113,16 @@ Hooks.on("createActiveEffect", (effect, options, userId) => {
 });
 
 Hooks.on("createChatMessage", (message) => {
-    console.log(message)
+    console.log("createChatMessage");
+    console.log(message);
     const flavor = message.flavor ?? "";
     if (flavor.includes("Roll Hit Die")) {
-        console.log("hit die roll")
+        console.log("hit die roll");
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
         const rolls = message.rolls;
         if (rolls) {
-            console.log("call onHitDieRoll on transformation")
-            transformation.onHitDieRoll(rolls)
+            console.log("call onHitDieRoll on transformation");
+            transformation.onHitDieRoll(rolls);
         }
     }
 });

@@ -24,7 +24,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     onShortRest(result) {
         console.log("onShortRest AberrantHorror");
-        this.aberrantLossofVitality(result);
+        
     }
 
     onLongRest(result) {
@@ -58,14 +58,15 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     onHitDieRoll(rolls) {   
-        console.log("onHitDieRoll AberrantHorror")
-        console.log(rolls)
+        console.log("onHitDieRoll AberrantHorror");
+        console.log(rolls);
         for (roll in rolls) {
             const total = roll.total;
             const formula = roll.formula;
             console.log("Hit Die rolled!");
             console.log("Formula:", formula);
             console.log("Total:", total);
+            // this.aberrantLossofVitality(result);
         }
     }
 
