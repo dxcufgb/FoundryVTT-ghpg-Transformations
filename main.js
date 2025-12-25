@@ -36,12 +36,26 @@ Hooks.once("init", async () => {
     TransformationModule.dialogs = {};
     TransformationModule.utils = {};
     TransformationModule.Transformations = new Map();
+    TransformationModule.RegisteredTransformations = new Map();
     Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
     TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
     await import("./Transformations/manifest.js");
 });
+
+function reloadTransformations() {
+  console.warn("DEV | Reloading transformations");
+  Transformations.Transformations.clear();
+  for (const cls of Transformations.RegisteredTransformations) {
+    cls.register();
+  }
+
+  console.log(
+    "DEV | Reload complete",
+    [...Transformations.registry.keys()]
+  );
+}
 
 Hooks.once("setup", () => {
     console.log("Transformations | Setup");
