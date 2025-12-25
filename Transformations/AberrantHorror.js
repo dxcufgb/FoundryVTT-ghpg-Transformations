@@ -172,7 +172,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         const effectsToLookFor = this.aberrantMutationEffects.filter(effect => effect != effectToExclude);
         console.log(effectsToLookFor);
         effectsToLookFor.filter(effect => effect != effectToExclude);
-        const effects = transformation.actor.effects.filter(effect => effectsToLookFor.includes(effect.name));
+        const effects = transformation.actor.effects.filter(effect => effectsToLookFor.includes(effect.name)).map(e => e.id);
         console.log(effects);
         if (effects.length === 0) {
             console.log("No matching effects found.");
@@ -180,7 +180,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         }
         await transformation.actor.deleteEmbeddedDocuments(
             "ActiveEffect",
-            effects.map(e => e.id)
+            effects
         );
     }
 
