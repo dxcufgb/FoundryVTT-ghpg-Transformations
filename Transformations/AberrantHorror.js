@@ -144,17 +144,17 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     async chitinousShell() {
         console.log("Chitinous Shell called!");
-        this.constructor.removeAberrantMutationEffects(this);
+        this.constructor.removeAberrantMutationEffects(this, "Chitinous Shell");
     }
 
     async slimyForm() {
         console.log("Slimy Form called!");
-        this.constructor.removeAberrantMutationEffects(this);
+        this.constructor.removeAberrantMutationEffects(this, "Slimy Form");
     }
 
     async eldritchLimbs() {
         console.log("Eldritch Limbs called!");
-        this.constructor.removeAberrantMutationEffects(this);
+        this.constructor.removeAberrantMutationEffects(this, "Eldritch Limbs");
         console.log("Add weapons!");
         console.log(this.eldritchLimbsItems[this.transformationLevel]);
         const item = await fromUuid(this.eldritchLimbsItems[this.transformationLevel]);
@@ -166,13 +166,12 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         } else {
             ui.notifications.error("Item from Compendium or Actor not found!");
         }
-
     }
 
-    static async removeAberrantMutationEffects(transformation) {
+    static async removeAberrantMutationEffects(transformation, effectToExclude) {
         const effectsToLookFor = this.aberrantMutationEffects
         console.log(effectsToLookFor)
-        const effects = transformation.actor.effects.filter(effect => effectsToLookFor.includes(effect.name));
+        const effects = transformation.actor.effects.filter(effect => effectsToLookFor.includes(effect.name) && !effect.name == effectToExclude);
         if (effects.length === 0) {
             console.log("No matching effects found.");
             return;
