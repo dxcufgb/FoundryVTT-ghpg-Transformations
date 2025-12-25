@@ -156,7 +156,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     static async removeAberrantMutationEffects(transformation) {
-        const effects = transformation.actor.effects.filter(effect => aberrantMutationEffects.includes(effect.name));
+        const effects = transformation.actor.effects.filter(effect => this.constructor.aberrantMutationEffects.includes(effect.name));
         if (effects.length === 0) {
             console.log("No matching effects found.");
             return;
