@@ -60,7 +60,8 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     onHitDieRoll(context) {   
         console.log("onHitDieRoll AberrantHorror");
         console.log(context);
-        this.aberrantLossofVitality(context);
+        context = this.aberrantLossofVitality(context);
+        return context;
     }
 
     async rollResultFromRollTable(actor, tableName) {
@@ -135,9 +136,13 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     async aberrantLossofVitality(context) {
         if (this.actor.statuses.has("AberrantLossofVitality")) {
-            let formula = context.formula;
-            console.log(formula)
+            console.log("has Aberrant Loss of Vitality");
+            roll = context.rolls[0].parts[0];
+            context.rolls[0].parts[0] = roll.replace("+ @abilities.con.mod", "")
+        } else {
+            console.log("did not have Aberrant Loss of Vitality");
         }
+        return context;
     }
 
     static {
