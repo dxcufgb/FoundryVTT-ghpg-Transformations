@@ -50,6 +50,22 @@ Hooks.once("setup", () => {
 
 Hooks.once("ready", () => {
     console.log("Transformations | Ready");
+      if (!game.modules.get("lib-wrapper")?.active) {
+        ui.notifications.error("libWrapper is not active!");
+        return;
+    }
+
+    libWrapper.register(
+        "transformations",
+        "game.dnd5e.entities.Actor5e.prototype.rollHitDie",
+        async function (wrapped, ...args) {
+            console.log("LibWrapper.onHitDieRoll");
+            console.log(args);
+            return await wrapped(...args);
+        },
+        "WRAPPER",
+        {}
+    );
 });
 
 Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {
@@ -123,15 +139,3 @@ Hooks.on("createChatMessage", (message) => {
         }
     }
 });
-
-libWrapper.register(
-    "transformations",
-    "game.dnd5e.entities.Actor5e.prototype.rollHitDie",
-    async function (wrapped, ...args) {
-        console.log("LibWrapper.onHitDieRoll");
-        console.log(args);
-        return await wrapped(...args);
-    },
-    "WRAPPER",
-    {}
-);
