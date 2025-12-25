@@ -57,7 +57,7 @@ Hooks.once("ready", () => {
 
     libWrapper.register(
         "transformations",
-        "game.dnd5e.entities.Actor5e.prototype.rollHitDie",
+        "CONFIG.Actor.documentClass.prototype.rollHitDie",
         async function (wrapped, ...args) {
             console.log("LibWrapper.onHitDieRoll");
             console.log(args);
