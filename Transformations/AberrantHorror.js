@@ -59,7 +59,6 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     onHitDieRoll(context) {   
         console.log("onHitDieRoll AberrantHorror");
-        console.log(context);
         context = this.aberrantLossofVitality(context);
         return context;
     }
@@ -115,14 +114,10 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             ui.notifications.warn(`${actor.name} does not have an item named "${itemName}".`);
             return;
         }
-        console.log(`Found item ${item.name}, and it has ${item.system.uses.value} uses left!`);
         if (item.system.uses.value > 0 && TransformationModule.utils.actorIsBloodied(this.actor)) {
             await item.update({
                 "system.uses.spent": Math.min(item.system.uses.value + 1, item.system.uses.max)
             });
-            console.log(item.system.uses.value);
-            console.log(this.actor.system.attributes.prof);
-            console.log(this.transformationLevel);
             const regainedHitPoints = this.actor.system.attributes.prof + this.transformationLevel
             let chatMessage = `${this.actor.name}s Aberrant Form activates and gives ${regainedHitPoints} temporary hit points!`;
             ChatMessage.create({
@@ -139,7 +134,6 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             const roll = context.rolls[0].parts[0];
             context.rolls[0].parts[0] = roll.replace("+ @abilities.con.mod", "")
         }
-        console.log(context);
         return context;
     }
 
