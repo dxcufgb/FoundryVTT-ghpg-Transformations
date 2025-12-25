@@ -44,13 +44,13 @@ Hooks.once("init", async () => {
     await import("./Transformations/manifest.js");
     TransformationModule.reloadTransformations = function reloadTransformations() {
         console.warn("DEV | Reloading transformations");
-        Transformations.Transformations.clear();
-        for (const cls of Transformations.RegisteredTransformations) {
+        TransformationModule.Transformations.clear();
+        for (const cls of TransformationModule.RegisteredTransformations) {
             cls.register();
         }
         console.log(
             "DEV | Reload complete",
-            [...Transformations.registry.keys()]
+            [...TransformationModule.registry.keys()]
         );
     }
 });
