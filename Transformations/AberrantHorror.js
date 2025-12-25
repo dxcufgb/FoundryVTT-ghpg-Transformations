@@ -159,7 +159,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         console.log(this.eldritchLimbsItems[this.transformationLevel]);
         const item = await fromUuid(this.eldritchLimbsItems[this.transformationLevel]);
 
-        if (item && actor) {
+        if (item && this.actor) {
             console.log("adding items to actor:")
             console.log(item);
             await actor.createEmbeddedDocuments('Item', [item.toObject()]);
