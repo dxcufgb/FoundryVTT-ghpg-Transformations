@@ -53,24 +53,9 @@ Hooks.once("ready", () => {
         ui.notifications.error("libWrapper is not active!");
         return;
     }
-
-    // libWrapper.register(
-    //     "transformations",
-    //     "CONFIG.Actor.documentClass.prototype.rollHitDie",
-    //     async function (wrapped, ...args) {
-    //         console.log("LibWrapper.onHitDieRoll");
-    //         console.log(args);
-    //         return await wrapped(...args);
-    //     },
-    //     "WRAPPER",
-    //     {}
-    // );
 });
 
 Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {
-    console.log(actor);
-    console.log(amount);
-    console.log(updates);
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
     if (transformation.initialized) {
         transformation.onDamage();
@@ -78,8 +63,6 @@ Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {
 });
 
 Hooks.on("dnd5e.restCompleted", async (actor, result) => {
-    console.log(actor);
-    console.log(result);
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
     if (transformation?.initialized) {
         if (result.type == "short") {
@@ -91,8 +74,6 @@ Hooks.on("dnd5e.restCompleted", async (actor, result) => {
 });
 
 Hooks.on("dnd5e.rollInitiative", (actor, combatant) => {
-    console.log(actor);
-    console.log(combatant);
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
     if (transformation.initialized) {
         transformation.onInitiative();
@@ -100,9 +81,6 @@ Hooks.on("dnd5e.rollInitiative", (actor, combatant) => {
 });
 
 Hooks.on("useItem", (item, config, options) => {
-    console.log(item);
-    console.log(config);
-    console.log(options);
     const actor = TransformationModule.utils.getCurrentActor()
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
     if(transformation.initialized){
@@ -116,32 +94,15 @@ Hooks.on("useItem", (item, config, options) => {
     }
 });
 
-Hooks.on("createActiveEffect", (effect, options, userId) => {
-    console.log(effect);
-    console.log(options);
-    console.log(userId);
-  const actor = effect.parent;
-    let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
-    if (transformation.initialized) {
-        transformation.onCreateaActiveEffect(effect)
-    }
-});
+// Hooks.on("createActiveEffect", (effect, options, userId) => {
+//   const actor = effect.parent;
+//     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
+//     if (transformation.initialized) {
+//         transformation.onCreateaActiveEffect(effect)
+//     }
+// });
 
 Hooks.on("dnd5e.preRollHitDieV2", (context) => {
-    console.log(context);
-    console.log("hit die roll");
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
     context = transformation.onHitDieRoll(context);
 });
-
-// Hooks.on("createChatMessage", (message) => {
-//     const flavor = message.flavor ?? "";
-//     if (flavor == "Roll Hit Dice") {
-//         console.log("hit die roll");
-//         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(message.speaker.actor);
-//         const rolls = message.rolls;
-//         if (rolls) {
-//             transformation.onHitDieRoll(rolls);
-//         }
-//     }
-// });
