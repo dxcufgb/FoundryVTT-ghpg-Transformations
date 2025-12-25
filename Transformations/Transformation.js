@@ -125,6 +125,7 @@ export class Transformation {
         }
 
         TransformationModule.Transformations.set(this.id, this);
+        TransformationModule.RegisteredTransformations.set(this.id, this);
 
         console.debug(
         `Transformations | Registered: ${this.id}`,
