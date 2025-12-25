@@ -1,5 +1,3 @@
-import { getCurrentActor } from "./TransformationUtils.js";
-
 Hooks.once("init", async () => {
     console.log(`
 ╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
