@@ -49,25 +49,31 @@ Hooks.once("setup", () => {
 
 Hooks.once("ready", () => {
     console.log("Transformations | Ready");
-    if (!game.modules.get("lib-wrapper")?.active) {
+      if (!game.modules.get("lib-wrapper")?.active) {
         ui.notifications.error("libWrapper is not active!");
         return;
     }
-    
-    libWrapper.register(
-        "transformations",
-        "dnd5e.damageActor",
-        async (wrapped, actor, amount, updates) => {
-            console.log(actor);
-            console.log(amount);
-            console.log(updates);
-            let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
-            if (transformation.initialized) {
-                transformation.onDamage();
-            }
-        },
-        "WRAPPER",
-        {}
+
+    // libWrapper.register(
+    //     "transformations",
+    //     "CONFIG.Actor.documentClass.prototype.rollHitDie",
+    //     async function (wrapped, ...args) {
+    //         console.log("LibWrapper.onHitDieRoll");
+    //         console.log(args);
+    //         return await wrapped(...args);
+    //     },
+    //     "WRAPPER",
+    //     {}
+    // );
+});
+
+Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {
+    console.log(actor);
+    console.log(amount);
+    console.log(updates);
+    let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
+    if (transformation.initialized) {
+        transformation.onDamage();
     }
 });
 
@@ -127,15 +133,15 @@ Hooks.on("dnd5e.preRollHitDieV2", (context) => {
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
     context = transformation.onHitDieRoll(context);
 });
-    // libWrapper.register(
-    //     "transformations",
-    //     "CONFIG.Actor.documentClass.prototype.rollHitDie",
-    //     async function (wrapped, ...args) {
-    //         console.log("LibWrapper.onHitDieRoll");
-    //         console.log(args);
-    //         return await wrapped(...args);
-    //     },
-    //     "WRAPPER",
-    //     {}
-    // );
-});
+
+// Hooks.on("createChatMessage", (message) => {
+//     const flavor = message.flavor ?? "";
+//     if (flavor == "Roll Hit Dice") {
+//         console.log("hit die roll");
+//         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(message.speaker.actor);
+//         const rolls = message.rolls;
+//         if (rolls) {
+//             transformation.onHitDieRoll(rolls);
+//         }
+//     }
+// });
