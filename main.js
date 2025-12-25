@@ -53,11 +53,12 @@ Hooks.once("ready", () => {
         ui.notifications.error("libWrapper is not active!");
         return;
     }
-    
+
     libWrapper.register(
         "transformations",
         "dnd5e.damageActor",
         async (wrapped, actor, amount, updates) => {
+            let parentFunctionResult = wrapped(actor, amount, updates)
             console.log(actor);
             console.log(amount);
             console.log(updates);
@@ -65,11 +66,36 @@ Hooks.once("ready", () => {
             if (transformation.initialized) {
                 transformation.onDamage();
             }
+            return parentFunctionResult
         },
         "WRAPPER",
         {}
-    }
-});
+    );
+
+    libWrapper.register(
+         "transformations",
+         "dnd5e.preRollHitDieV2",
+         async function (wrapped, context) {
+            console.log(context);
+            console.log("hit die roll");
+            let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
+             context = transformation.onHitDieRoll(context);
+             return wrapped(context)
+        },
+        "WRAPPER",
+        {}
+    );
+}
+
+// Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {
+//     console.log(actor);
+//     console.log(amount);
+//     console.log(updates);
+//     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
+//     if (transformation.initialized) {
+//         transformation.onDamage();
+//     }
+// });
 
 Hooks.on("dnd5e.restCompleted", async (actor, result) => {
     console.log(actor);
@@ -121,21 +147,9 @@ Hooks.on("createActiveEffect", (effect, options, userId) => {
     }
 });
 
-Hooks.on("dnd5e.preRollHitDieV2", (context) => {
-    console.log(context);
-    console.log("hit die roll");
-    let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
-    context = transformation.onHitDieRoll(context);
-});
-    // libWrapper.register(
-    //     "transformations",
-    //     "CONFIG.Actor.documentClass.prototype.rollHitDie",
-    //     async function (wrapped, ...args) {
-    //         console.log("LibWrapper.onHitDieRoll");
-    //         console.log(args);
-    //         return await wrapped(...args);
-    //     },
-    //     "WRAPPER",
-    //     {}
-    // );
-});
+// Hooks.on("dnd5e.preRollHitDieV2", (context) => {
+//     console.log(context);
+//     console.log("hit die roll");
+//     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
+//     context = transformation.onHitDieRoll(context);
+// });
