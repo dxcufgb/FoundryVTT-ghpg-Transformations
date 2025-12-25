@@ -47,6 +47,10 @@ export class Transformation {
     onConcentration() {
         console.error("should be implemented AND called at sub-class level!");
     }
+    
+    onHitDieRoll(rolls) {
+        console.error("should be implemented AND called at sub-class level!");
+    }
 
     async rollResultFromRollTable() {
         await this.removeActiveTransformationEffect();

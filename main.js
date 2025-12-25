@@ -111,3 +111,15 @@ Hooks.on("createActiveEffect", (effect, options, userId) => {
         transformation.onCreateaActiveEffect(effect)
     }
 });
+
+Hooks.on("createChatMessage", (message) => {
+    console.log(message)
+    const flavor = message.flavor ?? "";
+    if (flavor.includes("Roll Hit Die")) {
+        let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
+        const rolls = message.rolls;
+        if (rolls) {
+            transformation.onHitDieRoll(rolls)
+        }
+    }
+});

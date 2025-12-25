@@ -44,14 +44,28 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     onConcentration() {
+        console.log("onConcentration AberrantHorror");
         if (this.transformationLevel >= 2) {
             this.hideousForm()
         }
     }
 
     onCreateaActiveEffect(effect) {
+        console.log("onCreateActiveEffect AberrantHorror");
         if (effect.label == "Unconcious") {
             this.hideousForm()
+        }
+    }
+
+    onHitDieRoll(rolls) {   
+        console.log("onHitDieRoll AberrantHorror")
+        console.log(rolls)
+        for (roll in rolls) {
+            const total = roll.total;
+            const formula = roll.formula;
+            console.log("Hit Die rolled!");
+            console.log("Formula:", formula);
+            console.log("Total:", total);
         }
     }
 
@@ -131,6 +145,12 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 "system.attributes.hp.value": this.actor.system.attributes.hp.value -= ((result.dhd * -1) * this.actor.system.abilities.con.mod)
             });
             console.log(this.actor.system.attributes.hp.value);
+            let chatMessage = `Due to ${this.actor.name}s Aberrant Loss of Vitality the constitution modifier is removed from the healing received from hit dices!`;
+            ChatMessage.create({
+                user: game.user._id,
+                speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+                content: chatMessage
+            });
         }
     }
 
