@@ -73,19 +73,19 @@ Hooks.once("ready", () => {
     );
 
     libWrapper.register(
-        "transformations",
-        "dnd5e.preRollHitDieV2",
-        async function (wrapped, context) {
+         "transformations",
+         "dnd5e.preRollHitDieV2",
+         async function (wrapped, context) {
             console.log(context);
             console.log("hit die roll");
             let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
-            context = transformation.onHitDieRoll(context);
-            return wrapped(context)
+             context = transformation.onHitDieRoll(context);
+             return wrapped(context)
         },
         "WRAPPER",
         {}
     );
-});
+}
 
 // Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {
 //     console.log(actor);
