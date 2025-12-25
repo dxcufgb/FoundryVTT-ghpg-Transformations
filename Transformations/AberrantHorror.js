@@ -215,10 +215,6 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         );
     }
 
-    register() {
-        this.register()
-    }
-
     static {
         this.register();
     }
