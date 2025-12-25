@@ -1,5 +1,6 @@
 import { applyRollTableResult } from "./RollTables/UnstableFormRollTable.js";
 
+
 export class AberrantHorror extends TransformationModule.TransformationParent.Transformation {
 
     static id = "aberrant-horror";
@@ -8,12 +9,14 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     static transformationLevelKey = "aberrant-transformation-level";
     static rollTableEffectFunction = applyRollTableResult;
     static aberrantMutationEffects = ["Chitinous Shell", "Slimy Form", "Eldritch Limbs"];
+    static eldritchLimbsItems = { 1: 'Compendium.transformations.gh-transformations.Item.6WiJSiBbhYTH80Da', 2: 'Compendium.transformations.gh-transformations.Item.FVXkz256XPi1Uluv' };
 
     constructor(actor) {
         super(actor);
         this.transformationLevel = super.getActorTransformationLevel(this);
         this.initialized = true
-        this.aberrantMutationEffects = this.constructor.aberrantMutationEffects
+        this.aberrantMutationEffects = this.constructor.aberrantMutationEffects;
+        this.eldritchLimbsItems = this.constructor.eldritchLimbsItems
     }
 
     onDamage() {
@@ -153,6 +156,17 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         console.log("Eldritch Limbs called!");
         this.constructor.removeAberrantMutationEffects(this);
         console.log("Add weapons!");
+        console.log(this.eldritchLimbsItems[this.transformationLevel]);
+        const item = await fromUuid(this.eldritchLimbsItems[this.transformationLevel]);
+
+        if (item && actor) {
+            console.log("adding items to actor:")
+            console.log(item);
+            await actor.createEmbeddedDocuments('Item', [item.toObject()]);
+        } else {
+            ui.notifications.error("Item from Compendium or Actor not found!");
+        }
+
     }
 
     static async removeAberrantMutationEffects(transformation) {

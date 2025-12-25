@@ -20,12 +20,20 @@ export class Transformation {
 
     getTransformationType(actor) {
         let transformation
-        TransformationModule.Transformations.forEach(transformationSubClass => {
-            if (actor.items.find(obj => obj.identifier === transformationSubClass.id)) {
-                transformation = new transformationSubClass(actor);
-            }
-        });
-        return transformation;
+        if (!actor) {
+            console.log("No actor was supplied.");
+            return
+        } else if (!actor.items) {
+            console.log(`${actor} has no items.`)
+            return
+        } else {
+            TransformationModule.Transformations.forEach(transformationSubClass => {
+                if (actor.items.find(obj => obj.identifier === transformationSubClass.id)) {
+                    transformation = new transformationSubClass(actor);
+                }
+            });
+            return transformation;
+        }
     }
 
     onDamage() {
@@ -48,7 +56,7 @@ export class Transformation {
         console.error("should be implemented AND called at sub-class level!");
     }
     
-    onHitDieRoll(rolls) {
+    onHitDieRoll(context) {
         console.error("should be implemented AND called at sub-class level!");
     }
 
