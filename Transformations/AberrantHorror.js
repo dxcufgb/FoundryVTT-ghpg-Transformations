@@ -1,5 +1,4 @@
 import { applyRollTableResult } from "./RollTables/UnstableFormRollTable.js";
-import { Transformation } from "./Transformation.js";
 
 export class AberrantHorror extends TransformationModule.TransformationParent.Transformation {
 
@@ -8,12 +7,13 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     static tablePrefix = "Unstable Form";
     static transformationLevelKey = "aberrant-transformation-level";
     static rollTableEffectFunction = applyRollTableResult;
-    static aberrantMutationEffects = new List["Chitinous Shell", "Slimy Form", "Eldritch Limbs"];
+    static aberrantMutationEffects = ["Chitinous Shell", "Slimy Form", "Eldritch Limbs"];
 
     constructor(actor) {
         super(actor);
         this.transformationLevel = super.getActorTransformationLevel(this);
         this.initialized = true
+        this.aberrantMutationEffects = this.constructor.aberrantMutationEffects
     }
 
     onDamage() {
@@ -156,7 +156,9 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     static async removeAberrantMutationEffects(transformation) {
-        const effects = transformation.actor.effects.filter(effect => this.constructor.aberrantMutationEffects.includes(effect.name));
+        const effectsToLookFor = this.aberrantMutationEffects
+        console.log(effectsToLookFor)
+        const effects = transformation.actor.effects.filter(effect => effectsToLookFor.includes(effect.name));
         if (effects.length === 0) {
             console.log("No matching effects found.");
             return;
