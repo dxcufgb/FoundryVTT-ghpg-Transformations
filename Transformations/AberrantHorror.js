@@ -170,15 +170,6 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     async removeAberrantMutationEffects(effectToExclude = null) {
-        let itemsToRemove = []
-        for (itemId in this.constructor.eldritchLimbsItemIds) {
-            const itemNameToLookFor = await fromUuid(itemId).name
-            itemsToRemove.push(
-                this.actor.items.filter(i =>
-                    i.name == itemNameToLookFor
-                )
-            );
-        }
         let effectsToLookFor
         if (effectToExclude){
             effectsToLookFor = this.aberrantMutationEffects.filter(effect => effect != effectToExclude);
@@ -194,6 +185,21 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             "ActiveEffect",
             effects
         );
+        if (effectToExclude != "Eldritch Limbs") {
+            
+        }
+    }
+
+    async removeEldritchLimbsItems() {
+        let itemsToRemove = []
+        for (itemId in this.constructor.eldritchLimbsItemIds) {
+            const itemNameToLookFor = await fromUuid(itemId).name
+            itemsToRemove.push(
+                this.actor.items.filter(i =>
+                    i.name == itemNameToLookFor
+                )
+            );
+        }
         await this.actor.deleteEmbeddedDocuments(
             "Item",
             itemsToRemove
