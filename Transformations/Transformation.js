@@ -64,7 +64,7 @@ export class Transformation {
         console.error("should be implemented AND called at sub-class level!");
     }
 
-    onUnconscious(){
+    onUnconscious() {
         console.error("should be implemented AND called at sub-class level!");
     }
 
@@ -136,8 +136,7 @@ export class Transformation {
         }
 
         TransformationModule.Transformations.set(this.id, this);
-        TransformationModule.RegisteredTransformations.set(this.id, this);
-
+        
         console.debug(
         `Transformations | Registered: ${this.id}`,
         this

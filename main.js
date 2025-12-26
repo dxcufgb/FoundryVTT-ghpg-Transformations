@@ -36,7 +36,6 @@ Hooks.once("init", async () => {
     TransformationModule.dialogs = {};
     TransformationModule.utils = {};
     TransformationModule.Transformations = new Map();
-    TransformationModule.RegisteredTransformations = new Map();
     Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
     TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
@@ -107,6 +106,12 @@ Hooks.on("createActiveEffect", (effect, options, userId) => {
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
         if (transformation.initialized) {
             transformation.onBloodied()
+        }
+    } else if (effect.name == "Unconscious") {
+        const actor = effect.parent;
+        let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
+        if (transformation.initialized) {
+            transformation.onUnconscious()
         }
     }
 });
