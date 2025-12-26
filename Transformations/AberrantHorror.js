@@ -80,10 +80,10 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         this.constructor.rollTableEffectFunction(this.actor, resultName)
     }
 
-    async hideousForm(actor) {
+    async hideousForm() {
         const conSaveResult = this.hideousFormConSave()
         if (!conSaveResult){
-            const effect = actor.effects.find(e => e.label === "Hiding Hideous Form");
+            const effect = this.actor.effects.find(e => e.label === "Hiding Hideous Form");
             if (effect) {
                 await effect.delete();
             }
@@ -91,8 +91,6 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     async hideousFormConSave() {
-        const result = await TransformationModule.dialog.getRollDialog("Hideous Form Constitution Save", `<p>Roll a constitution save to see if you keep your hidden form</p>`);
-        if (result === null) return;
         const dc = 0;
         switch (this.transformationLevel) {
             case 1:
@@ -106,6 +104,8 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 dc = 20;
                 break
         }
+        const result = await TransformationModule.dialogs.getD20RollDialog(this.actor, TransformationModule.constants.ABILITY.CONSTITUTION, TransformationModule.constants.ROLL_MODE.SAVING_THROW, dc);
+        if (result === null) return;
         return (result >= dc)
     }
 

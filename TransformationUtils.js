@@ -9,7 +9,7 @@ export function getCurrentActor(name = null) {
 }
 
 export function actorIsBloodied(actor) {
-	return (actor.system.attributes.hp.value <= (actor.system.attributes.hp.max / 2));
+	return actor.statuses.has("bloodied");
 }
 
 export async function createActiveEffectOnActor(actor, effectName, description, icon, changes) {
