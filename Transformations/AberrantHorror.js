@@ -30,7 +30,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     onBloodied() {
         this.aberrantForm()
         if (this.transformationLevel >= 2) {
-          this.hideousForm()  
+          this.hideousAppearance()  
         }
     }
 
@@ -59,13 +59,15 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     onConcentration() {
         console.log("onConcentration AberrantHorror");
         if (this.transformationLevel >= 2) {
-            this.hideousForm()
+            this.hideousAppearance()
         }
     }
 
     onUnconscious() {
         console.log("onUnconscious AberrantHorror");
-        this.hideousForm()
+        if (this.transformationLevel >= 2) {
+            this.hideousAppearance()
+        }
     }
 
     onHitDieRoll(context) {   
@@ -82,11 +84,11 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         this.constructor.rollTableEffectFunction(this.actor, resultName)
     }
 
-    async hideousForm() {
-        if (this.actor.effects.find(e => e.label === "Hiding Hideous Form")) {
-            const conSaveResult = this.hideousFormConSave()
+    async hideousAppearance() {
+        if (this.actor.effects.find(e => e.label === "Hiding Hideous Appearance")) {
+            const conSaveResult = this.hideousAppearanceConSave()
             if (!conSaveResult) {
-                const effect = this.actor.effects.find(e => e.label === "Hiding Hideous Form");
+                const effect = this.actor.effects.find(e => e.label === "Hiding Hideous Appearance");
                 if (effect) {
                     await effect.delete();
                 }
@@ -94,7 +96,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         }
     }
 
-    async hideousFormConSave() {
+    async hideousAppearanceConSave() {
         let dc = 0;
         switch (this.transformationLevel) {
             case 1:
@@ -113,7 +115,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         return (result >= dc)
     }
 
-    hideHideousForm() {
+    hidehideousAppearance() {
         const icon = "icons/svg/poison.svg";
         const changes = [
             { key: `actor.system.concentration.ability`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Hiding Hideous Form" }
