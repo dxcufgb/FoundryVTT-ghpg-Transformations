@@ -11,7 +11,7 @@ Hooks.once("init", async () => {
 ║                                                                                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
-    CONFIG.debug.hooks = true;
+    // CONFIG.debug.hooks = true;
     globalThis.TransformationModule ??= {};
 
     CONFIG.DND5E.featureTypes.transformation = {

@@ -87,7 +87,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     async hideousAppearance() {
         console.log(this.actor.effects)
         if (this.actor.effects.find(e => e.name === "Hiding Hideous Appearance")) {
-            const conSaveResult = this.hideousAppearanceConSave()
+            const conSaveResult = await this.hideousAppearanceConSave()
             if (!conSaveResult) {
                 const effect = this.actor.effects.find(e => e.name === "Hiding Hideous Appearance");
                 if (effect) {
