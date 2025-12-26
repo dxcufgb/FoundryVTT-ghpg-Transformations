@@ -1,36 +1,22 @@
-export function getSimpleDialog(title, content) {
-    return new Dialog({
-        title: title,
-        content: `<p>${content}</p>`,
-        buttons: {
-            ok: {
-                label: "Ok",
-            }
-        }
-    })
+export async function getRollDialogConfig(actor, savingThrowIdentifier, title = "Roll") {
+    const actor = canvas.tokens.controlled[0]?.actor;
+    if (!actor) return;
+
+    const config = await dnd5e.buildSavingThrowRollConfig(actor, savingThrowIdentifier, {
+        title: title
+    });
+
+    return config;
 }
 
-export function getRollDialog(title, content) {
-    return new Promise((resolve) => {
-        const dialog = new Dialog({
-            title: title,
-            content: content,
-            buttons: {
-                roll: {
-                    label: "Roll",
-                    callback: async () => {
-                        const roll = await new Roll("1d20").roll({ async: true });
-                        roll.toMessage({ flavor: "Custom Check" });
-                        resolve(roll.total);
-                    }
-                }
-            },
-            cancel: {
-                label: "Cancel",
-                callback: () => resolve(null)
-            },
-            default: "roll"
-        });
-        dialog.render(true);
-    });
-}
+// export function getSimpleDialog(title, content) {
+//     return new Dialog({
+//         title: title,
+//         content: `<p>${content}</p>`,
+//         buttons: {
+//             ok: {
+//                 label: "Ok",
+//             }
+//         }
+//     })
+// }
