@@ -202,6 +202,9 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             const itemNameToLookFor = (await fromUuid(itemId)).name
             console.log("item to look for:");
             console.log(itemNameToLookFor)
+            console.log(this.actor.items.filter(i =>
+                i.name == itemNameToLookFor
+            ));
             itemsToRemove.push(
                 this.actor.items.filter(i =>
                     i.name == itemNameToLookFor
@@ -211,10 +214,8 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         }
         console.log("removing items:");
         console.log(itemsToRemove);
-        await this.actor.deleteEmbeddedDocuments(
-            "Item",
-            itemsToRemove
-        );
+        itemsToRemove
+        await this.actor.deleteEmbeddedDocuments("Item", itemsToRemove);
     }
 
     static {
