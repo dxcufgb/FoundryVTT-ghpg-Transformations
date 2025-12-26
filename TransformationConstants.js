@@ -91,3 +91,9 @@ export const TRANSFORMATIONS = Object.freeze({
     SPECTER: "Specter",
     VAMPIRE: "Vampire"
 });
+
+export const ROLL_MODE = Object.freeze({
+    ADVANTAGE: "adv",
+    NORMAL: "nor",
+    DISADVANTAGE: "dis"
+})

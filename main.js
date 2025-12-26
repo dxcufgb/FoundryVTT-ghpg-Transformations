@@ -11,7 +11,7 @@ Hooks.once("init", async () => {
 ║                                                                                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
-    // CONFIG.debug.hooks = true;
+    CONFIG.debug.hooks = true;
     globalThis.TransformationModule ??= {};
 
     CONFIG.DND5E.featureTypes.transformation = {
@@ -40,7 +40,7 @@ Hooks.once("init", async () => {
     Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
     TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
-    Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
+    // Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
     await import("./Transformations/manifest.js");
 });
 
