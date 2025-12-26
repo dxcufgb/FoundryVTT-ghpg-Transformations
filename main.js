@@ -94,8 +94,8 @@ Hooks.on("dnd5e.beginConcentrating", (actor, item, activeEffect, midiUtilityActi
         if (item.type === "spell") {
             console.log(item.flags)
             console.log(item.flags.dnd5e)
-            console.log(item.flags.dnd5e?.concentration)
-            const isConcentration = item.flags.dnd5e?.concentration;
+            console.log(item.flags.dnd5e?.migratedProperties?.concentration)
+            const isConcentration = item.flags.dnd5e?.migratedProperties?.concentration;
             if (isConcentration) {
                 console.log(`Concentration spell cast: ${item.name}`);
                 transformation.onConcentration()
