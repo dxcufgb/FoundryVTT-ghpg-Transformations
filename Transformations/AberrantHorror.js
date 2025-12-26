@@ -91,7 +91,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     async hideousFormConSave() {
-        const dc = 0;
+        let dc = 0;
         switch (this.transformationLevel) {
             case 1:
             case 2:
