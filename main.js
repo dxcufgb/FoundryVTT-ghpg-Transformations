@@ -101,13 +101,15 @@ Hooks.on("dnd5e.beginConcentrating", (actor, item, activeEffect, midiUtilityActi
     }
 });
 
-// Hooks.on("createActiveEffect", (effect, options, userId) => {
-//   const actor = effect.parent;
-//     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
-//     if (transformation.initialized) {
-//         transformation.onCreateaActiveEffect(effect)
-//     }
-// });
+Hooks.on("createActiveEffect", (effect, options, userId) => {
+    if (effect.name == "Bloodied"){
+        const actor = effect.parent;
+        let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
+        if (transformation.initialized) {
+            transformation.onBloodied()
+        }
+    }
+});
 
 Hooks.on("dnd5e.preRollHitDieV2", (context) => {
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);

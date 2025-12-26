@@ -24,8 +24,12 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     onDamage() {
         console.log("onDamage AberrantHorror");
+        
+    }
+
+    onBloodied() {
         this.aberrantForm()
-        if (this.transformationLevel >= 2 && TransformationModule.utils.actorIsBloodied(this.actor)) {
+        if (this.transformationLevel >= 2) {
           this.hideousForm()  
         }
     }
@@ -59,11 +63,9 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         }
     }
 
-    onCreateaActiveEffect(effect) {
-        console.log("onCreateActiveEffect AberrantHorror");
-        if (effect.label == "Unconcious") {
-            this.hideousForm()
-        }
+    onUnconscious() {
+        console.log("onUnconscious AberrantHorror");
+        this.hideousForm()
     }
 
     onHitDieRoll(context) {   
@@ -81,11 +83,13 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     async hideousForm() {
-        const conSaveResult = this.hideousFormConSave()
-        if (!conSaveResult){
-            const effect = this.actor.effects.find(e => e.label === "Hiding Hideous Form");
-            if (effect) {
-                await effect.delete();
+        if (this.actor.effects.find(e => e.label === "Hiding Hideous Form")) {
+            const conSaveResult = this.hideousFormConSave()
+            if (!conSaveResult) {
+                const effect = this.actor.effects.find(e => e.label === "Hiding Hideous Form");
+                if (effect) {
+                    await effect.delete();
+                }
             }
         }
     }

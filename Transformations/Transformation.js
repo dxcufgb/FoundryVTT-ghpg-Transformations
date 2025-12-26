@@ -60,6 +60,14 @@ export class Transformation {
         console.error("should be implemented AND called at sub-class level!");
     }
 
+    onBloodied() {
+        console.error("should be implemented AND called at sub-class level!");
+    }
+
+    onUnconscious(){
+        console.error("should be implemented AND called at sub-class level!");
+    }
+
     async rollResultFromRollTable() {
         await this.removeActiveTransformationEffect();
         const drawResult = await this.drawTableResult();
