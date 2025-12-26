@@ -1,11 +1,11 @@
 export async function getRollDialogConfig(actor, savingThrowIdentifier, title = "Roll") {
+    let config;
     const actor = canvas.tokens.controlled[0]?.actor;
-    if (!actor) return;
-
-    const config = await dnd5e.buildSavingThrowRollConfig(actor, savingThrowIdentifier, {
+    if (actor){
+    config = await dnd5e.buildSavingThrowRollConfig(actor, savingThrowIdentifier, {
         title: title
     });
-
+    }
     return config;
 }
 
@@ -18,5 +18,5 @@ export function getSimpleDialog(title, content) {
                 label: "Ok",
             }
         }
-    })
+    });
 }
