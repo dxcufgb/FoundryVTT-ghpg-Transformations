@@ -93,7 +93,7 @@ export const TRANSFORMATIONS = Object.freeze({
 });
 
 export const ROLL_MODE = Object.freeze({
-    ADVANTAGE: "adv",
-    NORMAL: "nor",
-    DISADVANTAGE: "dis"
+    ADVANTAGE: { shortText: "adv", int: 1 },
+    NORMAL: { shortText: "nor", int: 0 },
+    DISADVANTAGE: { shortText: "dis", int: -1 }
 })
