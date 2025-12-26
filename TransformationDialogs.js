@@ -4,7 +4,7 @@ export async function getD20RollDialog(actor, identifier, rollType, dc = null, m
         return;
     }
 
-    let config;
+    let config = {};
     
     if (mode == TransformationModule.constants.ROLL_MODE.ADVANTAGE.int) {
         config.advantage = true
