@@ -16,12 +16,12 @@ export async function getD20RollDialog(actor, identifier, rollType, dc = null, m
     
     if (TransformationModule.constants.ABILITY.contains(identifier)) {
         config.ability = identifier;
-        if (rollType == TransformationModul.constant.ROLL_TYPE.SAVING_THROW) {
+        if (rollType == TransformationModule.constant.ROLL_TYPE.SAVING_THROW) {
             if (dc != null) {
                 config.target = dc
             }
             return actor.rollSavingThrow(config);
-        } else if (rollType == TransformationModul.constant.ROLL_TYPE.ABILITY_CHECK) {
+        } else if (rollType == TransformationModule.constant.ROLL_TYPE.ABILITY_CHECK) {
             return actor.rollAbilityCheck(config);
         }
     } else if (TransformationModule.constants.SKILL.contains(identifier)) {
