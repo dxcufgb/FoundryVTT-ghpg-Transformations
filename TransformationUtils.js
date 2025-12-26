@@ -149,14 +149,3 @@ export function findOverrideType(identifier) {
 	}
 
 }
-
-export async function getRollDialogConfig(actor, savingThrowIdentifier, title = "Roll") {
-    let config;
-    const actor = canvas.tokens.controlled[0]?.actor;
-    if (actor){
-    config = await dnd5e.buildSavingThrowRollConfig(actor, savingThrowIdentifier, {
-        title: title
-    });
-    }
-    return config;
-}

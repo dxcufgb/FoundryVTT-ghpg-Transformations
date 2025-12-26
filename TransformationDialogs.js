@@ -1,6 +1,5 @@
 export async function getRollDialogConfig(actor, savingThrowIdentifier, title = "Roll") {
-    let config;
-    const actor = canvas.tokens.controlled[0]?.actor;
+    let config;;
     if (actor){
     config = await dnd5e.buildSavingThrowRollConfig(actor, savingThrowIdentifier, {
         title: title
