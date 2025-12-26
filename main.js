@@ -81,10 +81,15 @@ Hooks.on("dnd5e.rollInitiative", (actor, combatant) => {
     }
 });
 
-Hooks.on("useItem", (item, config, options) => {
-    const actor = TransformationModule.utils.getCurrentActor()
+Hooks.on("dnd5e.beginConcentrating", (actor, item, activeEffect, midiUtilityActivity) => {
+    console.log(actor);
+    console.log(item);
+    console.log(activeEffect);
+    console.log(midiUtilityActivity);
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
-    if(transformation.initialized){
+    if (transformation.initialized) {
+        console.log("useItem");
+        console.log(item);
         if (item.type === "spell") {
             const isConcentration = item.system.components?.concentration;
             if (isConcentration) {
