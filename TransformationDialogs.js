@@ -1,4 +1,4 @@
-export async function getD20RollDialog(actor, identifier, rollType, dc = null, mode = dnd5e.dice.D20Roll.ADV_MODE.NORMAL) {
+export async function getD20RollDialog(actor, identifier, rollType, dc = null, mode = TransformationModule.constants.ROLL_MODE.NORMAL.int) {
     if (!actor) {
         ui.notifications.warn("Select a token.");
         return;
@@ -6,15 +6,15 @@ export async function getD20RollDialog(actor, identifier, rollType, dc = null, m
 
     let config;
     
-    if (mode == dnd5e.dice.D20Roll.ADV_MODE.ADVANTAGE) {
+    if (mode == TransformationModule.constants.ROLL_MODE.ADVANTAGE.int) {
         config.advantage = true
     }
     
-    if (mode == dnd5e.dice.D20Roll.ADV_MODE.DISADVANTAGE) {
+    if (mode == TransformationModule.constants.ROLL_MODE.DISADVANTAGE.int) {
         config.disadvantage = true
     }
     
-    if (CONFIG.DND5E.ABILITY[identifier]) {
+    if (TransformationModule.constants.ABILITY.contains(identifier)) {
         config.ability = identifier;
         if (rollType == TransformationModul.constant.ROLL_TYPE.SAVING_THROW) {
             if (dc != null) {
@@ -24,7 +24,7 @@ export async function getD20RollDialog(actor, identifier, rollType, dc = null, m
         } else if (rollType == TransformationModul.constant.ROLL_TYPE.ABILITY_CHECK) {
             return actor.rollAbilityCheck(config);
         }
-    } else if (CONFIG.DND5E.SKILL[identifier]) {
+    } else if (TransformationModule.constants.SKILL.contains(identifier)) {
         config.skill = identifier;
         return actor.rollSkill(config);
     } else {

@@ -104,7 +104,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 dc = 20;
                 break
         }
-        const result = await TransformationModule.dialogs.getD20RollDialog(this.actor, TransformationModule.constants.ABILITY.CONSTITUTION, TransformationModule.constants.ROLL_MODE.SAVING_THROW, dc);
+        const result = await TransformationModule.dialogs.getD20RollDialog(this.actor, TransformationModule.constants.ABILITY.CONSTITUTION, TransformationModule.constants.ROLL_TYPE.SAVING_THROW, dc);
         if (result === null) return;
         return (result >= dc)
     }
