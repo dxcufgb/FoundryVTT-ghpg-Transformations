@@ -77,7 +77,7 @@ export class Transformation {
 
     async drawTableResult() {
         const tableName = this.getRollTableName()
-        const table = game.tables.getName(tableName);
+        const table = game.packs.get("transformations.gh-roll-tables").index.getName(tableName);
         if (!table) {
             ui.notifications.error(`Table "${tableName}" not found`);
             return;
