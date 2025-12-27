@@ -86,9 +86,9 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         switch (type) {
             case "spellSave":
                 context.rolls[0].options.transformations = {
-                    [this.id]: {
-                        trigger: "spellSave"
-                    }
+                    [this.id]: [
+                        "spellSave"
+                    ]
                 }
                 break;
         }
