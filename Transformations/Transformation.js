@@ -8,8 +8,10 @@ export class Transformation {
     initialized = false;
     actor;
     rollTableEffectFunction;
+    MODULE_ID = "transformations";
 
     constructor(actor) {
+        this.MODULE_ID = MODULE_ID = "transformations";
         this.actor = actor;
         this.id = this.constructor.id
         this.name = this.constructor.name
@@ -76,11 +78,15 @@ export class Transformation {
         console.error("should be implemented AND called at sub-class level!");
     }
 
-    async rollResultFromRollTable() {
-        await this.removeActiveTransformationEffect();
+    async rollResultFromRollTable(onlyApplyLowerResult = false) {
+        const table = this.getRollTable()
         const drawResult = await this.drawTableResult();
         console.log(drawResult);
-        await this.applyRollTableResult(drawResult.results[0].name);
+        if (!this.getActorEffectFlag() || (onlyApplyLowerResult && drawResult.roll._total < this.getActorEffectFlag())){
+            await this.removeActiveTransformationEffect();
+            await this.applyRollTableResult(drawResult.results[0].name);
+            await this.setActorEffectFlag(drawResult.results[0].range[0])
+        }
     }
 
     getRollTableName() {
@@ -91,7 +97,7 @@ export class Transformation {
         return this.actor.system.scale[this.constructor.id][this.constructor.transformationLevelKey].value;
     }
 
-    async drawTableResult() {
+    async getRollTable() {
         const tableName = this.getRollTableName()
         const pack = game.packs.get("transformations.gh-roll-tables");
         const index = await pack.getIndex();
@@ -101,6 +107,10 @@ export class Transformation {
             ui.notifications.error(`Table "${tableName}" not found`);
             return;
         }
+        return table;
+    }
+
+    async drawTableResult(table) {
         return await table.draw({ speaker: this.actor, roll: true, displayChat: true });
     }
 
@@ -119,6 +129,21 @@ export class Transformation {
                 effects.map(e => e.id)
             );
         }
+    }
+
+    getActorEffectFlag(currentEffectRangeLow) {
+        const data = foundry.utils.deepClone(
+            actor.getFlag(MODULE_ID, this.id) ?? {}
+        );
+        return data.currentEffectRangeLow
+    }
+
+    async setActorEffectFlag(currentEffectRangeLow) {
+        const data = foundry.utils.deepClone(
+            actor.getFlag(MODULE_ID, this.id) ?? {}
+        );
+        data.currentEffectRangeLow ??= currentEffectRangeLow;
+        await actor.setFlag(MODULE_ID, this.id, data);
     }
 
     static register() {

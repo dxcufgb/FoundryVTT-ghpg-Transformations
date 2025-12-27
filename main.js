@@ -125,20 +125,15 @@ Hooks.on("dnd5e.preRollSavingThrow", (context, options, data) => {
 });
 
 Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
-    console.log(rolls);
-    console.log(context);
     const roll = rolls[0]
     const transformationOptions = roll.options.transformations;
     if (transformationOptions) {
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
         if (transformation.initialized) {
             const triggers = transformationOptions[transformation.id];
-            console.log(triggers);
             for (const trigger in triggers) {
-                console.log(triggers[trigger]);
                 switch (triggers[trigger]) {
                     case "spellSave":
-                        console.log("spellSave case!")
                         transformation.onSpellSavingThrow(roll);
                         break;
                     default:
@@ -147,9 +142,4 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
             }
         }
     }
-    console.log(rolls.size);
-    console.log(rolls.len);
-    console.log(rolls.len());
-    console.log(rolls.length);
-    console.log(rolls.length());
 });

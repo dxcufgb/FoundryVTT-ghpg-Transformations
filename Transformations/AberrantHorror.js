@@ -78,8 +78,8 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     onSpellSavingThrow(roll) {
         console.log("onSpellSavingThrow AberrantHorror")
-        context = this.unstableExistence(roll);
-        return context
+        roll = this.unstableExistence(roll);
+        return roll
     }
 
     getTriggerFlag(context, type) {
@@ -93,10 +93,6 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 break;
         }
         return context;
-    }
-
-    async rollResultFromRollTable(actor, tableName) {
-        await super.rollResultFromRollTable(actor, tableName,);
     }
 
     async applyRollTableResult(resultName) {
@@ -173,7 +169,10 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     async unstableExistence(roll) {
         console.log(roll)
-        
+        const natRoll = (roll._total - roll.data.mod)
+        if (natRoll < 3) {
+          await this.rollResultFromRollTable(true)
+        }
     }
 
     async chitinousShell() {
