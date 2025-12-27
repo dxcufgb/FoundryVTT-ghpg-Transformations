@@ -11,7 +11,7 @@ Hooks.once("init", async () => {
 ║                                                                                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
-    // CONFIG.debug.hooks = true;
+    CONFIG.debug.hooks = true;
     globalThis.TransformationModule ??= {};
 
     CONFIG.DND5E.featureTypes.transformation = {
@@ -118,7 +118,9 @@ Hooks.on("createActiveEffect", (effect, options, userId) => {
 
 Hooks.on("dnd5e.preRollHitDieV2", (context) => {
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
-    context = transformation.onHitDieRoll(context);
+    if (transformation.initialized) {
+        context = transformation.onHitDieRoll(context);
+    }
 });
 
 Hooks.on("dnd5e.preRollSavingThrow", (event, workflow, ability, target) => {
