@@ -116,9 +116,6 @@ Hooks.on("dnd5e.preRollHitDieV2", (context) => {
 });
 
 Hooks.on("dnd5e.preRollSavingThrow", (context, options, data) => {
-    console.log(context)
-    console.log(options)
-    console.log(data);
     if (context.workflow.item.type == "spell") {
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
         if (transformation.initialized) {
@@ -128,8 +125,19 @@ Hooks.on("dnd5e.preRollSavingThrow", (context, options, data) => {
     console.log(context);
 });
 
-Hooks.on("dnd5e.rollSavingThrow", (actor, roll, context) => {
-    console.log(actor)
-    console.log(roll)
-    console.log(context)
+Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
+    console.log(rolls[0]);
+    for (let roll in rolls) {
+        const transformationOptions = roll.options.transformations;
+        if (transformationOptions) {
+            console.log(transformationOptions);
+            let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
+            if (transformation.initialized) {
+                switch (transformationOptions) {
+                    case "spellSave":
+                        transformation.onSpellSavingThrow(roll)
+                }
+            }
+        }
+    }
 });
