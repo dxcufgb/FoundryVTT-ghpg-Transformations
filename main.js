@@ -117,13 +117,12 @@ Hooks.on("dnd5e.preRollHitDieV2", (context) => {
 
 Hooks.on("dnd5e.preRollSavingThrow", (context, options, data) => {
     console.log(context)
-    console.log(arg2)
-    console.log(arg3)
-    console.log(arg4)
+    console.log(options)
+    console.log(data);
     if (context.workflow.item.type == "spell") {
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
         if (transformation.initialized) {
-            (context, options, data) = transformation.getTriggerFlag(data, "spellSave");
+            ({ context, options, data } = transformation.getTriggerFlag(data, "spellSave"));
         }   
     }
 });
