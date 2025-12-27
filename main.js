@@ -120,3 +120,9 @@ Hooks.on("dnd5e.preRollHitDieV2", (context) => {
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
     context = transformation.onHitDieRoll(context);
 });
+
+Hooks.on("midi-qol.preSave", (workflow) => {
+    console.log("About to roll saves for", workflow.item.name);
+    console.log(workflow.item);
+    console.log(workflow.item.type)
+});
