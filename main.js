@@ -126,3 +126,9 @@ Hooks.on("midi-qol.preSave", (workflow) => {
     console.log(workflow.item);
     console.log(workflow.item.type)
 });
+
+Hooks.on("dnd5e.preRollSavingThrow", (workflow) => {
+    console.log("non midi save logic", workflow.item.name);
+    console.log(workflow.item);
+    console.log(workflow.item.type)
+});
