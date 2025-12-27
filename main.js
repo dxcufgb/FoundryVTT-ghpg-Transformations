@@ -122,12 +122,13 @@ Hooks.on("dnd5e.preRollSavingThrow", (context, options, data) => {
             context = transformation.getTriggerFlag(context, "spellSave");
         }
     }
-    console.log(context);
 });
 
 Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
     console.log(rolls[0]);
     for (let roll in rolls) {
+        console.log(roll.options)
+        console.log(roll.options.transformations)
         const transformationOptions = roll.options.transformations;
         if (transformationOptions) {
             console.log(transformationOptions);
