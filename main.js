@@ -123,7 +123,7 @@ Hooks.on("dnd5e.preRollHitDieV2", (context) => {
     }
 });
 
-Hooks.on("dnd5e.postRollSavingThrow", (context, arg2, arg3, arg4) => {
+Hooks.on("dnd5e.pretRollSavingThrow", (context, arg2, arg3, arg4) => {
     console.log(context)
     console.log(arg2)
     console.log(arg3)
@@ -131,7 +131,7 @@ Hooks.on("dnd5e.postRollSavingThrow", (context, arg2, arg3, arg4) => {
     if (context.workflow.item.type == "spell") {
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
         if (transformation.initialized) {
-            context = transformation.onSpellSavingThrow(context);
+            // context = transformation.getTriggerFlag(context);
         }   
     }
     // if (!event.item && event.options?.origin) {
