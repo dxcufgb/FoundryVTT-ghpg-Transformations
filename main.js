@@ -135,8 +135,8 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
             const triggers = transformationOptions[transformation.id];
             console.log(triggers);
             for (const trigger in triggers) {
-                console.log(trigger);
-                switch (trigger) {
+                console.log(triggers[trigger]);
+                switch (triggers[trigger]) {
                     case "spellSave":
                         console.log("spellSave case!")
                         transformation.onSpellSavingThrow(roll);
