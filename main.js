@@ -123,7 +123,11 @@ Hooks.on("dnd5e.preRollHitDieV2", (context) => {
     }
 });
 
-Hooks.on("dnd5e.postRollSavingThrow", (context) => {
+Hooks.on("dnd5e.postRollSavingThrow", (arg1, arg2, arg3,arg4) => {
+    console.log(arg1)
+    console.log(arg2)
+    console.log(arg3)
+    console.log(arg4)
     if (context.workflow.item.type == "spell") {
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
         if (transformation.initialized) {
