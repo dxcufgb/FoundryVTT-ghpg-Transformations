@@ -142,3 +142,15 @@ Hooks.on("dnd5e.postRollSavingThrow", (arg1, arg2, arg3,arg4) => {
     // console.log(event.item)
 });
 
+Hooks.on("midi-qol.postSave", (workflow) => {
+    console.log("midi-qol.postSave was triggered")
+    const item = workflow.item;
+    if (!item) return;
+
+    console.log("Save was against:", {
+        name: item.name,
+        type: item.type,
+        uuid: item.uuid
+    });
+});
+
