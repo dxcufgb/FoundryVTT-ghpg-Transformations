@@ -126,21 +126,22 @@ Hooks.on("dnd5e.preRollSavingThrow", (context, options, data) => {
 
 Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
     const roll = rolls[0]
-    console.log(roll.options)
-    console.log(roll.options.transformations)
     const transformationOptions = roll.options.transformations;
     if (transformationOptions) {
-        console.log(transformationOptions);
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
         if (transformation.initialized) {
+            console.log("pre switch!")
             switch (transformationOptions) {
                 case "spellSave":
-                    transformation.onSpellSavingThrow(roll)
+                    console.log("spellSave case!")
+                    transformation.onSpellSavingThrow(roll);
+                    break;
             }
         }
     }
-    console.log(rolls.size());
+    console.log(rolls.size);
     console.log(rolls.len);
+    console.log(rolls.len());
     console.log(rolls.length);
     console.log(rolls.length());
 });
