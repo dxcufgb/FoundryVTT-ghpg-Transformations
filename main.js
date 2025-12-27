@@ -132,11 +132,8 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
     if (transformationOptions) {
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
         if (transformation.initialized) {
-            console.log(transformation.id)
-            console.log(transformationOptions)
-            console.log(transformationOptions[transformation.id])
-            console.log(`pre switch: ${transformationOptions[transformation.construct.id]}`)
-            switch (transformationOptions[transformation.construct.id]) {
+            console.log(`pre switch: ${transformationOptions[transformation.id]}`)
+            switch (transformationOptions[transformation.id]) {
                 case "spellSave":
                     console.log("spellSave case!")
                     transformation.onSpellSavingThrow(roll);
