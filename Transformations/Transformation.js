@@ -59,12 +59,20 @@ export class Transformation {
     onHitDieRoll(context) {
         console.error("should be implemented AND called at sub-class level!");
     }
+    
+    onSpellSavingThrow(context) {
+        console.error("should be implemented AND called at sub-class level!");
+    }
 
     onBloodied() {
         console.error("should be implemented AND called at sub-class level!");
     }
 
     onUnconscious() {
+        console.error("should be implemented AND called at sub-class level!");
+    }
+
+    getTriggerFlag(context, type) {
         console.error("should be implemented AND called at sub-class level!");
     }
 
@@ -136,7 +144,7 @@ export class Transformation {
         }
 
         TransformationModule.Transformations.set(this.id, this);
-        
+
         console.debug(
         `Transformations | Registered: ${this.id}`,
         this

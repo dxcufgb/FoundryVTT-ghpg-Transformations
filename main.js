@@ -11,7 +11,7 @@ Hooks.once("init", async () => {
 ║                                                                                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
-    CONFIG.debug.hooks = true;
+    // CONFIG.debug.hooks = true;
     globalThis.TransformationModule ??= {};
 
     CONFIG.DND5E.featureTypes.transformation = {
@@ -123,8 +123,8 @@ Hooks.on("dnd5e.preRollHitDieV2", (context) => {
     }
 });
 
-Hooks.on("dnd5e.postRollSavingThrow", (arg1, arg2, arg3,arg4) => {
-    console.log(arg1)
+Hooks.on("dnd5e.postRollSavingThrow", (context, arg2, arg3, arg4) => {
+    console.log(context)
     console.log(arg2)
     console.log(arg3)
     console.log(arg4)
@@ -140,17 +140,5 @@ Hooks.on("dnd5e.postRollSavingThrow", (arg1, arg2, arg3,arg4) => {
     //     });
     // }
     // console.log(event.item)
-});
-
-Hooks.on("midi-qol.postSave", (workflow) => {
-    console.log("midi-qol.postSave was triggered")
-    const item = workflow.item;
-    if (!item) return;
-
-    console.log("Save was against:", {
-        name: item.name,
-        type: item.type,
-        uuid: item.uuid
-    });
 });
 
