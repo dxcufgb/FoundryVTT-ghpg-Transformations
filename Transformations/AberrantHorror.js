@@ -82,14 +82,15 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         return context
     }
 
-    getTriggerFlag(context, options, data, type) {
+    getTriggerFlag(context) {
         switch (type) {
             case "spellSave":
-                data.data.flags.aberrantHorror = {};
-                data.data.flags.aberrantHorror.savingThrowItem = context.workflow.item
+                context.options.transformations = {};
+                context.options.transformations.aberrantHorror = {};
+                context.options.transformations.aberrantHorror.savingThrowItem = context.workflow.item
                 break;
         }
-        return {context, options, data}
+        return context
     }
 
     async rollResultFromRollTable(actor, tableName) {

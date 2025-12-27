@@ -122,7 +122,7 @@ Hooks.on("dnd5e.preRollSavingThrow", (context, options, data) => {
     if (context.workflow.item.type == "spell") {
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
         if (transformation.initialized) {
-            ({ context, options, data } = transformation.getTriggerFlag(data, "spellSave"));
+            context = transformation.getTriggerFlag(context, "spellSave"));
         }   
     }
 });
