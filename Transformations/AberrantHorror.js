@@ -82,7 +82,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         return context
     }
 
-    getTriggerFlag(context) {
+    getTriggerFlag(context, type) {
         switch (type) {
             case "spellSave":
                 context.options.transformations = {};
@@ -90,7 +90,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 context.options.transformations.aberrantHorror.savingThrowItem = context.workflow.item
                 break;
         }
-        return context
+        return context;
     }
 
     async rollResultFromRollTable(actor, tableName) {
