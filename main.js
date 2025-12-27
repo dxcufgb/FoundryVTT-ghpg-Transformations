@@ -121,14 +121,9 @@ Hooks.on("dnd5e.preRollHitDieV2", (context) => {
     context = transformation.onHitDieRoll(context);
 });
 
-Hooks.on("midi-qol.preSave", (workflow) => {
-    console.log("About to roll saves for", workflow.item.name);
-    console.log(workflow.item);
-    console.log(workflow.item.type)
-});
-
-Hooks.on("dnd5e.preRollSavingThrow", (workflow) => {
-    console.log("non midi save logic", workflow.item.name);
-    console.log(workflow.item);
-    console.log(workflow.item.type)
+Hooks.on("dnd5e.preRollSavingThrow", (event, workflow, ability, target) => {
+    console.log(event);
+    console.log(workflow);
+    console.log(ability);
+    console.log(target);
 });
