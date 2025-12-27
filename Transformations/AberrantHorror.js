@@ -76,9 +76,9 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         return context;
     }
 
-    onSpellSavingThrow(context) {
-        console.log("onSpellSavingThrowAberrantHorror")
-        context = this.unstableExistence(context);
+    onSpellSavingThrow(roll) {
+        console.log("onSpellSavingThrow AberrantHorror")
+        context = this.unstableExistence(roll);
         return context
     }
 
@@ -171,12 +171,9 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         return context;
     }
 
-    async unstableExistence(context) {
-        if (this.actor.statuses.has("AberrantLossofVitality")) {
-            const roll = context.rolls[0].parts[0];
-            context.rolls[0].parts[0] = roll.replace("+ @abilities.con.mod", "")
-        }
-        return context;
+    async unstableExistence(roll) {
+        console.log(roll)
+        
     }
 
     async chitinousShell() {
