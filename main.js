@@ -11,7 +11,7 @@ Hooks.once("init", async () => {
 ║                                                                                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
-    CONFIG.debug.hooks = true;
+    // CONFIG.debug.hooks = true;
     globalThis.TransformationModule ??= {};
 
     CONFIG.DND5E.featureTypes.transformation = {
@@ -123,15 +123,16 @@ Hooks.on("dnd5e.preRollHitDieV2", (context) => {
     }
 });
 
-Hooks.on("dnd5e.preRollSavingThrow", (event, workflow, ability, target) => {
-    console.log(event);
-    console.log(workflow);
-    console.log(ability);
-    console.log(target);
-    if (!event.item && event.options?.origin) {
-        fromUuid(context.options.origin).then(doc => {
-            event.item = doc;
-        });
-    }
-    console.log(event.item)
+Hooks.on("dnd5e.preRollSavingThrow", (context) => {
+    console.log(context);
+    console.log(context.workflow);
+    console.log(context.workflow.item);
+    console.log(context.workflow.item.type);
+    // if (!event.item && event.options?.origin) {
+    //     fromUuid(context.options.origin).then(doc => {
+    //         event.item = doc;
+    //     });
+    // }
+    // console.log(event.item)
 });
+
