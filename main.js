@@ -125,15 +125,11 @@ Hooks.on("dnd5e.preRollSavingThrow", (context, options, data) => {
             context = transformation.getTriggerFlag(context, "spellSave");
         }
     }
+    console.log(context);
 });
 
 Hooks.on("dnd5e.rollSavingThrow", (actor, roll, context) => {
-    console.log(actor, roll, context)
-    console.log("Save rolled:", {
-        actor: actor.name,
-        total: roll.total,
-        ability: context.ability,
-        dc: context.dc,
-        item: context.item?.name
-    });
+    console.log(actor)
+    console.log(roll)
+    console.log(context)
 });
