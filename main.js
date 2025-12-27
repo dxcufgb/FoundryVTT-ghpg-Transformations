@@ -123,7 +123,7 @@ Hooks.on("dnd5e.preRollHitDieV2", (context) => {
     }
 });
 
-Hooks.on("dnd5e.pretRollSavingThrow", (context, arg2, arg3, arg4) => {
+Hooks.on("dnd5e.preRollSavingThrow", (context, arg2, arg3, arg4) => {
     console.log(context)
     console.log(arg2)
     console.log(arg3)
