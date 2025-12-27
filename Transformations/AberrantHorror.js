@@ -76,6 +76,22 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         return context;
     }
 
+    onSpellSavingThrow(context) {
+        console.log("onSpellSavingThrowAberrantHorror")
+        context = this.unstableExistence(context);
+        return context
+    }
+
+    getTriggerFlag(context, options, data, type) {
+        switch (type) {
+            case "spellSave":
+                data.data.flags.aberrantHorror = {};
+                data.data.flags.aberrantHorror.savingThrowItem = context.workflow.item
+                break;
+        }
+        return (context, options, data)
+    }
+
     async rollResultFromRollTable(actor, tableName) {
         await super.rollResultFromRollTable(actor, tableName,);
     }
@@ -145,6 +161,14 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     async aberrantLossofVitality(context) {
+        if (this.actor.statuses.has("AberrantLossofVitality")) {
+            const roll = context.rolls[0].parts[0];
+            context.rolls[0].parts[0] = roll.replace("+ @abilities.con.mod", "")
+        }
+        return context;
+    }
+
+    async unstableExistence(context) {
         if (this.actor.statuses.has("AberrantLossofVitality")) {
             const roll = context.rolls[0].parts[0];
             context.rolls[0].parts[0] = roll.replace("+ @abilities.con.mod", "")

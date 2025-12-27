@@ -81,19 +81,11 @@ Hooks.on("dnd5e.rollInitiative", (actor, combatant) => {
 });
 
 Hooks.on("dnd5e.beginConcentrating", (actor, item, activeEffect, midiUtilityActivity) => {
-    console.log(actor);
-    console.log(item);
-    console.log(activeEffect);
-    console.log(midiUtilityActivity);
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
     if (transformation.initialized) {
         if (item.type === "spell") {
-            console.log(item.system)
-            console.log(item.system.duration)
-            console.log(item.system.duration.concentration)
             const isConcentration = item.system.duration.concentration;
             if (isConcentration) {
-                console.log(`Concentration spell cast: ${item.name}`);
                 transformation.onConcentration()
             }
         }
@@ -123,7 +115,7 @@ Hooks.on("dnd5e.preRollHitDieV2", (context) => {
     }
 });
 
-Hooks.on("dnd5e.preRollSavingThrow", (context, arg2, arg3, arg4) => {
+Hooks.on("dnd5e.preRollSavingThrow", (context, options, data) => {
     console.log(context)
     console.log(arg2)
     console.log(arg3)
@@ -131,14 +123,18 @@ Hooks.on("dnd5e.preRollSavingThrow", (context, arg2, arg3, arg4) => {
     if (context.workflow.item.type == "spell") {
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
         if (transformation.initialized) {
-            // context = transformation.getTriggerFlag(context);
+            (context, options, data) = transformation.getTriggerFlag(data, "spellSave");
         }   
     }
-    // if (!event.item && event.options?.origin) {
-    //     fromUuid(context.options.origin).then(doc => {
-    //         event.item = doc;
-    //     });
-    // }
-    // console.log(event.item)
 });
 
+Hooks.on("dnd5e.rollSavingThrow", (actor, roll, context) => {
+    console.log(actor, roll, context)
+    console.log("Save rolled:", {
+        actor: actor.name,
+        total: roll.total,
+        ability: context.ability,
+        dc: context.dc,
+        item: context.item?.name
+    });
+});
