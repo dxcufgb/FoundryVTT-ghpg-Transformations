@@ -85,6 +85,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     getTriggerFlag(context, type) {
         switch (type) {
             case "spellSave":
+                context.options = context.options ?? {};
                 context.options.transformations = {
                     aberrantHorror: {
                         trigger: "spellSave"
