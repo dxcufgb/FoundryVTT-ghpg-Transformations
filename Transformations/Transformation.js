@@ -11,7 +11,7 @@ export class Transformation {
     MODULE_ID = "transformations";
 
     constructor(actor) {
-        this.MODULE_ID = MODULE_ID = "transformations";
+        this.MODULE_ID = this.constructor.MODULE_ID = "transformations";
         this.actor = actor;
         this.id = this.constructor.id
         this.name = this.constructor.name
