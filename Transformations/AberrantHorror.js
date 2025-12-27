@@ -89,7 +89,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 data.data.flags.aberrantHorror.savingThrowItem = context.workflow.item
                 break;
         }
-        return (context, options, data)
+        return {context, options, data}
     }
 
     async rollResultFromRollTable(actor, tableName) {
