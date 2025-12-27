@@ -128,4 +128,10 @@ Hooks.on("dnd5e.preRollSavingThrow", (event, workflow, ability, target) => {
     console.log(workflow);
     console.log(ability);
     console.log(target);
+    if (!event.item && event.options?.origin) {
+        fromUuid(context.options.origin).then(doc => {
+            event.item = doc;
+        });
+    }
+    console.log(event.item)
 });
