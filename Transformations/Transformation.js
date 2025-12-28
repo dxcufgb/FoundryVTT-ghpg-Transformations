@@ -134,17 +134,17 @@ export class Transformation {
 
     getActorEffectFlag(currentEffectRangeLow) {
         const data = foundry.utils.deepClone(
-            actor.getFlag(this.MODULE_ID, this.id) ?? {}
+            this.actor.getFlag(this.MODULE_ID, this.id) ?? {}
         );
         return data.currentEffectRangeLow
     }
 
     async setActorEffectFlag(currentEffectRangeLow) {
         const data = foundry.utils.deepClone(
-            actor.getFlag(this.MODULE_ID, this.id) ?? {}
+            this.actor.getFlag(this.MODULE_ID, this.id) ?? {}
         );
         data.currentEffectRangeLow ??= currentEffectRangeLow;
-        await actor.setFlag(this.MODULE_ID, this.id, data);
+        await this.actor.setFlag(this.MODULE_ID, this.id, data);
     }
 
     static register() {
