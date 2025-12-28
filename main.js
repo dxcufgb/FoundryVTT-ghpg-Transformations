@@ -13,6 +13,7 @@ Hooks.once("init", async () => {
 `);
     // CONFIG.debug.hooks = true;
     let logger = await import("./logger.js");
+    console.log(logger);
     globalThis.TransformationModule ??= {};
     TransformationModule.Logger = logger.getLogger(5)
     TransformationModule.constants = {};
