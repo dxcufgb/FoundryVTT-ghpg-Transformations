@@ -8,17 +8,28 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     static tablePrefix = "Unstable Form";
     static transformationLevelKey = "aberrant-transformation-level";
     static rollTableEffectFunction = applyRollTableResult;
-    static aberrantMutationEffects = ["Chitinous Shell", "Slimy Form", "Eldritch Limbs"];
     static eldritchLimbsItemIds = {
         1: 'Compendium.transformations.gh-transformations.Item.6WiJSiBbhYTH80Da',
         2: 'Compendium.transformations.gh-transformations.Item.FVXkz256XPi1Uluv'
     };
+    static subClassConstants = {
+        ABERRANT_CONFUSION: "AberrantConfusion",
+        ABERRANT_FORM: "aberrantForm",
+        ABERRANT_LOSS_OF_VITALITY: "AberrantLossofVitality",
+        ABERRANT_MUTATION_EFFECTS = {
+            CHITINOUS_SHELL: "Chitinous Shell",
+            SLIMY_FORM: "Slimy Form",
+            ELDRITCH_LIMBS: "Eldritch Limbs"
+        },
+        HIDING_HIDEOUS_APPEARANCE: "Hiding Hideous Appearance"
+    }
 
     constructor(actor) {
         super(actor);
+        this.constants = { ...this.constants, ...this.constructor.subClassConstants }
         this.transformationLevel = super.getActorTransformationLevel(this);
         this.initialized = true
-        this.aberrantMutationEffects = this.constructor.aberrantMutationEffects;
+        this.aberrantMutationEffects = this.constructor.constants.ABERRANT_MUTATION_EFFECTS;
         this.eldritchLimbsItemIds = this.constructor.eldritchLimbsItemIds
     }
 
@@ -31,6 +42,9 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         this.aberrantForm()
         if (this.transformationLevel >= 2) {
           this.hideousAppearance()  
+        }
+        if (this.transformationLevel > 3) {
+            this.entropicAbomination(this.globalConstants.CONDITION.BLOODIED)
         }
     }
 
@@ -47,12 +61,9 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     onInitiative() {
         console.log("onInitiative AberrantHorror");
-        if (this.actor.statuses.has("AberrantConfusion")) {
-            this.actor.toggleStatusEffect("stunned", { active: true });
-            ChatMessage.create({
-                speaker: ChatMessage.getSpeaker({ actor }),
-                content: `Due to Aberrant Confusion ${this.actor.name} is stunned for the first round!`
-            });
+        if (this.actor.statuses.has(this.constants.ABERRANT_CONFUSION)) {
+            this.actor.toggleStatusEffect(globalConstants.CONDITION.STUNNED, { active: true });
+            super.sendChatMessage(this.getChatMessage(this.constants.ABERRANT_CONFUSION))
         }
     }
 
@@ -78,48 +89,57 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     onSpellSavingThrow(roll) {
         console.log("onSpellSavingThrow AberrantHorror")
-        roll = this.unstableExistence(roll);
+        if (this.transformationLevel >= 3) {
+            roll = this.unstableExistence(roll);
+        }
+        return roll
+    }
+
+    onSavingThrow(roll) {
+        console.log("onSavingThrow AberrantHorror")
+        if (this.transformationLevel > 3){
+            roll = this.entropicAbomination(this.globalConstants.ROLL_TYPE.SAVING_THROW, roll);
+        }
         return roll
     }
 
     getTriggerFlag(context, type) {
         switch (type) {
-            case "spellSave":
-                context.rolls[0].options.transformations = {
-                    [this.id]: [
-                        "spellSave"
-                    ]
+            case globalConstants.TRIGGER_FLAG.SPELL_SAVE:
+                if (this.transformationLevel > 3){
+                    context.rolls[0].options.transformations = {
+                        [this.id]: [
+                            globalConstants.TRIGGER_FLAG.SPELL_SAVE
+                        ]
+                    }
                 }
                 break;
         }
         return context;
     }
 
-    sendChatMessage(type) {
-        let chatMessage;
+    getChatMessage(type) {
+        let chatMessage = super.getChatMessage(type);
         switch (type) {
-            case "onlyApplyLowerResult":
-                chatMessage = `${this.actor.name}s Unstable Existence causes the Unstable form to shift!`;
-                break;
-            case "aberrantForm":
+            case this.constants.ABERRANT_FORM:
                 chatMessage = `${this.actor.name}s Aberrant Form activates and gives ${regainedHitPoints} temporary hit points!`;
-            }
-            ChatMessage.create({
-                user: game.user._id,
-                speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-                content: chatMessage
-            });
+                break;
+            case this.constants.ABERRANT_CONFUSION:
+                chatMessage = `Due to Aberrant Confusion ${this.actor.name} is stunned for the first round!`
+                break;
         }
+        return chatMessage;
+    }
 
     async applyRollTableResult(resultName) {
         this.constructor.rollTableEffectFunction(this.actor, resultName)
     }
 
     async hideousAppearance() {
-        if (this.actor.effects.find(e => e.name === "Hiding Hideous Appearance")) {
+        if (this.actor.effects.find(e => e.name === this.constants.HIDING_HIDEOUS_APPEARANCE)) {
             const conSaveResult = await this.hideousAppearanceConSave()
             if (!conSaveResult) {
-                const effect = this.actor.effects.find(e => e.name === "Hiding Hideous Appearance");
+                const effect = this.actor.effects.find(e => e.name === this.constants.HIDING_HIDEOUS_APPEARANCE);
                 if (effect) {
                     await effect.delete();
                 }
@@ -141,7 +161,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 dc = 20;
                 break
         }
-        const result = await TransformationModule.dialogs.getD20RollDialog(this.actor, TransformationModule.constants.ABILITY.CONSTITUTION, TransformationModule.constants.ROLL_TYPE.SAVING_THROW, dc);
+        const result = await TransformationModule.dialogs.getD20RollDialog(this.actor, this.globalConstants.ABILITY.CONSTITUTION, this.globalConstants.ROLL_TYPE.SAVING_THROW, dc);
         if (result === null) return;
         return (result >= dc)
     }
@@ -149,13 +169,13 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     hidehideousAppearance() {
         const icon = "icons/svg/poison.svg";
         const changes = [
-            { key: `actor.system.concentration.ability`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Hiding Hideous Form" }
+            { key: `actor.system.concentration.ability`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: this.constants.HIDING_HIDEOUS_APPEARANCE }
         ]
-        TransformationModule.utils.createActiveEffectOnActor(this.actor, "Hiding Hideous Form", "You concentrate on hiding your hideous form.", icon, changes);
+        TransformationModule.utils.createActiveEffectOnActor(this.actor, this.constants.HIDING_HIDEOUS_APPEARANCE, "You concentrate on hiding your hideous form.", icon, changes);
     }
 
     async aberrantForm() {
-        const item = this.actor.items.find(i => i.name === "Aberrant Form");
+        const item = this.actor.items.find(i => i.name === this.constants.ABERRANT_FORM);
         if (!item) {
             ui.notifications.warn(`${actor.name} does not have an item named "${itemName}".`);
             return;
@@ -165,13 +185,13 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 "system.uses.spent": Math.min(item.system.uses.value + 1, item.system.uses.max)
             });
             const regainedHitPoints = this.actor.system.attributes.prof + this.transformationLevel
-            this.sendChatMessage("aberrantForm");
+            super.sendChatMessage(this.getChatMessage(this.constants.ABERRANT_FORM));
             this.actor.system.attributes.hp.temp = regainedHitPoints
         }
     }
 
     async aberrantLossofVitality(context) {
-        if (this.actor.statuses.has("AberrantLossofVitality")) {
+        if (this.actor.statuses.has(this.constants.ABERRANT_LOSS_OF_VITALITY)) {
             const roll = context.rolls[0].parts[0];
             context.rolls[0].parts[0] = roll.replace("+ @abilities.con.mod", "")
         }
@@ -185,27 +205,39 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
           await this.rollResultFromRollTable(true)
         }
     }
+    
+    async entropicAbomination(type, data = null) {
+        if (type == this.globalConstants.ROLL_TYPE.SAVING_THROW) {
+            roll = data
+            console.log(roll)
+            const rollResult = (roll._total - roll.data.mod)
+            if (natRoll < 3) {
+                await this.rollResultFromRollTable(true)
+            }
+        } else if (type == this.globalConstants.CONDITION.BLOODIED) {
+            if (!super.getActorFlag(this.constants.HAS_BEEN_BLOODIED_SINCE_LONG_REST)) {
+                super.setActorFlag(this.constants.HAS_BEEN_BLOODIED_SINCE_LONG_REST, true);
+                await this.rollResultFromRollTable(true)
+            }
+        }
+    }
 
     async chitinousShell() {
         console.log("Chitinous Shell called!");
-        this.removeAberrantMutationEffects("Chitinous Shell");
+        this.removeAberrantMutationEffects(this.aberrantMutationEffects.CHITINOUS_SHELL);
     }
 
     async slimyForm() {
         console.log("Slimy Form called!");
-        this.removeAberrantMutationEffects("Slimy Form");
+        this.removeAberrantMutationEffects(this.aberrantMutationEffects.SLIMY_FORM);
     }
 
     async eldritchLimbs() {
         console.log("Eldritch Limbs called!");
-        this.removeAberrantMutationEffects("Eldritch Limbs");
-        console.log("Add weapons!");
+        this.removeAberrantMutationEffects(this.aberrantMutationEffects.ELDRITCH_LIMBS);
         console.log(this.eldritchLimbsItemIds[this.transformationLevel]);
         const item = await fromUuid(this.eldritchLimbsItemIds[this.transformationLevel]);
-
         if (item && this.actor) {
-            console.log("adding items to actor:")
-            console.log(item);
             await this.actor.createEmbeddedDocuments('Item', [item.toObject()]);
         } else {
             ui.notifications.error("Item from Compendium or Actor not found!");
@@ -218,8 +250,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 "ActiveEffect",
                 effects
             );
-            if (!effectToExclude || effectToExclude != "Eldritch Limbs") {
-                console.log("Removing Eldritch Limbs from actor");
+            if (!effectToExclude || effectToExclude != this.aberrantMutationEffects.ELDRITCH_LIMBS) {
                 this.removeEldritchLimbsItems();
             }
         }
@@ -247,11 +278,6 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         for (let index = 1; index <= 2; index++) {
             const itemId = this.eldritchLimbsItemIds[index];
             const itemNameToLookFor = (await fromUuid(itemId)).name
-            console.log("item to look for:");
-            console.log(itemNameToLookFor)
-            console.log(this.actor.items.filter(i =>
-                i.name == itemNameToLookFor
-            ));
             for (foundItem in this.actor.items.filter(i =>
                 i.name == itemNameToLookFor
             )) {
@@ -261,14 +287,8 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             }
             console.log(itemsToRemove);
         }
-        console.log("removing items:");
-        console.log(itemsToRemove);
         itemsToRemove
         await this.actor.deleteEmbeddedDocuments("Item", itemsToRemove);
-    }
-
-    eldritchAberration(arg) {
-        
     }
 
     static {

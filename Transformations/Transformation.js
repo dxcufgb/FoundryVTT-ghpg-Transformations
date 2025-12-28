@@ -8,10 +8,16 @@ export class Transformation {
     initialized = false;
     actor;
     rollTableEffectFunction;
-    MODULE_ID = "transformations";
+    constants = {
+        APPLY_LOWER_RESULT: "onlyApplyLowerResult",
+        CURRENT_EFFECT_RANGE_LOW: "currentEffectRangeLow",
+        MODULE_ID: "transformations",
+        SHUOLD_BE_IN_SUBCLASS_LOG: "should be implemented AND called at sub-class level!"
+    };
 
     constructor(actor) {
-        this.MODULE_ID = this.constructor.MODULE_ID = "transformations";
+        this.constants = this.constructor.constants;
+        this.globalConstants = TransformationModule.constants;
         this.actor = actor;
         this.id = this.constructor.id
         this.name = this.constructor.name
@@ -39,63 +45,67 @@ export class Transformation {
     }
 
     onDamage() {
-        console.error("should be implemented AND called at sub-class level!");
+        console.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     onShortRest(result) {
-        console.error("should be implemented AND called at sub-class level!");
+        console.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     onLongRest(result) {
-        console.error("should be implemented AND called at sub-class level!");
+        console.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     onInitiative() {
-        console.error("should be implemented AND called at sub-class level!");
+        console.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     onConcentration() {
-        console.error("should be implemented AND called at sub-class level!");
+        console.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
     
     onHitDieRoll(context) {
-        console.error("should be implemented AND called at sub-class level!");
+        console.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
     
     onSpellSavingThrow(context) {
-        console.error("should be implemented AND called at sub-class level!");
+        console.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
+    }
+    
+    onSavingThrow(context) {
+        console.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     onBloodied() {
-        console.error("should be implemented AND called at sub-class level!");
+        console.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     onUnconscious() {
-        console.error("should be implemented AND called at sub-class level!");
+        console.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     getTriggerFlag(context, type) {
-        console.error("should be implemented AND called at sub-class level!");
+        console.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
     
     sendChatMessage(type) {
-        console.error("should be implemented AND called at sub-class level!");
+        console.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     async rollResultFromRollTable(onlyApplyLowerResult = false) {
         let table = await this.getRollTable()
         const drawResult = await this.drawTableResult(table);
         console.log(drawResult);
-        if (!onlyApplyLowerResult || !this.getActorEffectFlag() || (onlyApplyLowerResult && drawResult.roll._total < this.getActorEffectFlag())) {
+        if (!onlyApplyLowerResult || !this.getActorFlag() || (onlyApplyLowerResult && drawResult.roll._total < this.getActorFlag())) {
             if (onlyApplyLowerResult) {
-                this.sendChatMessage("onlyApplyLowerResult");
+                this.sendChatMessage(this.constants.APPLY_LOWER_RESULT);
             }
             await this.removeActiveTransformationEffect();
             await this.applyRollTableResult(drawResult.results[0].name);
             console.log(drawResult.results[0])
             console.log(drawResult.results[0].range)
             console.log(drawResult.results[0].range[0])
-            await this.setActorEffectFlag(drawResult.results[0].range[0])
+            await this.setActorFlag(this.constants.CURRENT_EFFECT_RANGE_LOW, drawResult.results[0].range[0])
         }
     }
 
@@ -126,7 +136,7 @@ export class Transformation {
     }
 
     async applyRollTableResult(resultName) {
-        console.error("should be implemented AND called at sub-class level!");
+        console.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     async removeActiveTransformationEffect() {
@@ -142,19 +152,37 @@ export class Transformation {
         }
     }
 
-    getActorEffectFlag(currentEffectRangeLow) {
+    getActorFlag(flag) {
         const data = foundry.utils.deepClone(
             this.actor.getFlag(this.MODULE_ID, this.id) ?? {}
         );
-        return data.currentEffectRangeLow
+        return data.flag
     }
 
-    async setActorEffectFlag(currentEffectRangeLow) {
+    async setActorFlag(flag, value) {
         const data = foundry.utils.deepClone(
             this.actor.getFlag(this.MODULE_ID, this.id) ?? {}
         );
-        data.currentEffectRangeLow = currentEffectRangeLow;
+        data[flag] = value;
         await this.actor.setFlag(this.MODULE_ID, this.id, data);
+    }
+
+    getChatMessage(type) {
+        let chatMessage = ''
+        switch (type) {
+            case this.constants.APPLY_LOWER_RESULT:
+                chatMessage = `${this.actor.name}s Unstable Existence causes the Unstable form to shift!`;
+                break;
+        }
+        return chatMessage;
+    }
+
+    sendChatMessage(chatMessage) {
+        ChatMessage.create({
+            user: game.user._id,
+            speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+            content: chatMessage
+        });
     }
 
     static register() {

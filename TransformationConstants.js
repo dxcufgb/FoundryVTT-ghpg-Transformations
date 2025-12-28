@@ -97,3 +97,13 @@ export const ROLL_MODE = Object.freeze({
     NORMAL: { shortText: "nor", int: 0 },
     DISADVANTAGE: { shortText: "dis", int: -1 }
 })
+
+export const CONDITION = Object.freeze({
+    BLOODIED: "bloodied",
+    PRONE: "prone",
+    STUNNED: "stunned"
+})
+
+export const TRIGGER_FLAGS = Object.freeze({
+    SPELL_SAVE: "spellSave"
+})
