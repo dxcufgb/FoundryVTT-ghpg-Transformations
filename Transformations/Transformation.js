@@ -79,7 +79,7 @@ export class Transformation {
     }
 
     async rollResultFromRollTable(onlyApplyLowerResult = false) {
-        const table = this.getRollTable()
+        let table = this.getRollTable()
         const drawResult = await this.drawTableResult(table);
         console.log(drawResult);
         if (!this.getActorEffectFlag() || (onlyApplyLowerResult && drawResult.roll._total < this.getActorEffectFlag())){
@@ -111,6 +111,7 @@ export class Transformation {
     }
 
     async drawTableResult(table) {
+        console.log(table);
         return await table.draw({ speaker: this.actor, roll: true, displayChat: true });
     }
 
