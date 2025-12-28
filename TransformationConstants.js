@@ -104,7 +104,8 @@ export const ROLL_MODE = Object.freeze({
 export const CONDITION = Object.freeze({
     BLOODIED: "bloodied",
     PRONE: "prone",
-    STUNNED: "stunned"
+    STUNNED: "stunned",
+    UNCONSCIOUS: "unconscious"
 })
 
 export const TRIGGER_FLAG = Object.freeze({
