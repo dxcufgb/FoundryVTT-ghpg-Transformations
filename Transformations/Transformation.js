@@ -21,7 +21,7 @@ export class Transformation {
     }
 
     getTransformationType(actor) {
-        let transformation
+        let transformation = this;
         if (!actor) {
             console.log("No actor was supplied.");
             return
@@ -34,8 +34,8 @@ export class Transformation {
                     transformation = new transformationSubClass(actor);
                 }
             });
-            return transformation;
         }
+        return transformation;
     }
 
     onDamage() {
@@ -77,12 +77,19 @@ export class Transformation {
     getTriggerFlag(context, type) {
         console.error("should be implemented AND called at sub-class level!");
     }
+    
+    sendChatMessage(type) {
+        console.error("should be implemented AND called at sub-class level!");
+    }
 
     async rollResultFromRollTable(onlyApplyLowerResult = false) {
         let table = await this.getRollTable()
         const drawResult = await this.drawTableResult(table);
         console.log(drawResult);
-        if (!onlyApplyLowerResult || !this.getActorEffectFlag() || (onlyApplyLowerResult && drawResult.roll._total < this.getActorEffectFlag())){
+        if (!onlyApplyLowerResult || !this.getActorEffectFlag() || (onlyApplyLowerResult && drawResult.roll._total < this.getActorEffectFlag())) {
+            if (onlyApplyLowerResult) {
+                this.sendChatMessage("onlyApplyLowerResult");
+            }
             await this.removeActiveTransformationEffect();
             await this.applyRollTableResult(drawResult.results[0].name);
             console.log(drawResult.results[0])

@@ -95,6 +95,22 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         return context;
     }
 
+    sendChatMessage(type) {
+        let chatMessage;
+        switch (type) {
+            case "onlyApplyLowerResult":
+                chatMessage = `${this.actor.name}s Unstable Existence causes the Unstable form to shift!`;
+                break;
+            case "aberrantForm":
+                chatMessage = `${this.actor.name}s Aberrant Form activates and gives ${regainedHitPoints} temporary hit points!`;
+            }
+            ChatMessage.create({
+                user: game.user._id,
+                speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+                content: chatMessage
+            });
+        }
+
     async applyRollTableResult(resultName) {
         this.constructor.rollTableEffectFunction(this.actor, resultName)
     }
@@ -149,12 +165,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 "system.uses.spent": Math.min(item.system.uses.value + 1, item.system.uses.max)
             });
             const regainedHitPoints = this.actor.system.attributes.prof + this.transformationLevel
-            let chatMessage = `${this.actor.name}s Aberrant Form activates and gives ${regainedHitPoints} temporary hit points!`;
-            ChatMessage.create({
-                user: game.user._id,
-                speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-                content: chatMessage
-            });
+            this.sendChatMessage("aberrantForm");
             this.actor.system.attributes.hp.temp = regainedHitPoints
         }
     }
