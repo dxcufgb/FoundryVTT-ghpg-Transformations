@@ -1,6 +1,6 @@
 export const EFFECT_FLAG_MODULE_NAME = "transformation";
 export const TRANSFORMATION_FEATURE = "Transformation Feature";
-export const LOG_SEVERITY = Object.freeze({ INFO: 0, LOG: 1, WARN: 2, ERROR: 3, DEBUG: 4 });
+export const LOG_SEVERITY = Object.freeze({ LOG_INFO: 0, LOG_LOG: 1, LOG_WARN: 2, LOG_ERROR: 3, LOG_DEBUG: 4 });
 
 export const SKILL = Object.freeze({
     ACROBATICS: "acr",
