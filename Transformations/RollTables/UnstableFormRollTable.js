@@ -1,12 +1,10 @@
-export async function applyRollTableResult(actor, effectName, onlyApplyLowerEffectThanCurrent = false) {
+export async function applyRollTableResult(actor, effectName) {
 	let effectDescription = '';
 	let iconFilePath = '';
 	let effects = [];
 	let runEffectsFunction = true;
-	let newEffect;
 	switch (effectName) {
 		case "Aberrant Exhaustion":
-			newEffect = 4;
 			const currentExhaustion = actor.system.attributes.exhaustion ?? 0;
 			const newExhaustion = Math.clamp(currentExhaustion + 2, 0, 6);
 			actor.update({
@@ -15,12 +13,10 @@ export async function applyRollTableResult(actor, effectName, onlyApplyLowerEffe
 			runEffectsFunction = false;
 			break;
 		case "Aberrant Confusion":
-			newEffect = 5;
 			effectDescription = "After rolling Initiative, you have the Stunned condition until the end of your first turn";
 			iconFilePath = "icons/svg/poison.svg";
 			break;
 		case "Aberrant Slowness":
-			newEffect = 6;
 			effectDescription = "After rolling Initiative, you have the Stunned condition until the end of your first turn";
 			iconFilePath = "icons/svg/poison.svg";
 			Object.values(TransformationModule.constants.MOVEMENT_TYPE).forEach(movementType => {
@@ -30,41 +26,34 @@ export async function applyRollTableResult(actor, effectName, onlyApplyLowerEffe
 			});
 			break;
 		case "Aberrant Slugginess":
-			newEffect = 7;
 			effectDescription = "Your body does not react quickly to mental commands. You cannot take Reactions.";
 			iconFilePath = "icons/svg/poison.svg";
 			break;
 		case "Aberrant Distraction":
-			newEffect = 8;
 			effectDescription = "Imposes disadvantage on dexterity saving throws";
 			iconFilePath = "icons/svg/poison.svg";
 			effects = effects.concat(TransformationModule.utils.getDisadvantageEffectChanges(TransformationModule.constants.SKILL.PERCEPTION, TransformationModule.constants.ROLL_TYPE.SAVING_THROW));
 			break;
 		case "Aberrant Defenseless":
-			newEffect = 9;
 			effectDescription = "Imposes disadvantage on constitution saving throws";
 			iconFilePath = "icons/svg/poison.svg";
 			effects = effects.concat(TransformationModule.utils.getDisadvantageEffectChanges(TransformationModule.constants.ABILITY.CONSTITUTION, TransformationModule.constants.ROLL_TYPE.SAVING_THROW));
 			break;
 		case "Aberrant Clumsiness":
-			newEffect = 10;
 			effectDescription = "Imposes disadvantage on constitution ability checks and saving throws";
 			iconFilePath = "icons/svg/poison.svg";
 			effects = effects.concat(TransformationModule.utils.getDisadvantageEffectChanges(TransformationModule.constants.ABILITY.DEXTERITY, TransformationModule.constants.ROLL_TYPE.ABILITY_CHECK));
 			effects = effects.concat(TransformationModule.utils.getDisadvantageEffectChanges(TransformationModule.constants.ABILITY.DEXTERITY, TransformationModule.constants.ROLL_TYPE.SAVING_THROW));
 			break;
 		case "Aberrant Loss of Vitality":
-			newEffect = 11;
 			effectDescription = "Imposes disadvantage on constitution ability checks and saving throws";
 			iconFilePath = "icons/svg/poison.svg";
 			break;
 		case "Aberrant Slow Speech":
-			newEffect = 12;
 			effectDescription = "Speaking is difficult. You can only utter one word during each turn. This does not hamper spellcasting";
 			iconFilePath = "icons/svg/poison.svg";
 			break;
 		case "Aberrant Powerfull Lower Limbs":
-			newEffect = 13;
 			effectDescription = "Your lower limbs become more powerful. Your Speed increases by 5 feet";
 			iconFilePath = "icons/svg/poison.svg";
 			Object.values(TransformationModule.constants.MOVEMENT_TYPE).forEach(movementType => {
@@ -74,7 +63,6 @@ export async function applyRollTableResult(actor, effectName, onlyApplyLowerEffe
 			});
 			break;
 		case "Aberrant Temporary Vitality Boost":
-			newEffect = 14;
 			const currentTempHp = actor.system.attributes.hp.temp ?? 0;
 			const newTempHp = currentTempHp + (actor.system.scale["aberrant-horror"]["aberrant-transformation-level"].value * 4);
 			actor.update({
@@ -83,7 +71,6 @@ export async function applyRollTableResult(actor, effectName, onlyApplyLowerEffe
 			runEffectsFunction = false;
 			break;
 		case "Aberrant Resilience":
-			newEffect = 15;
 			effectDescription = "Your body’s systems are enhanced. You have Advantage on Death Saving Throws";
 			iconFilePath = "icons/svg/poison.svg";
 			effects = effects.concat([{
@@ -93,7 +80,6 @@ export async function applyRollTableResult(actor, effectName, onlyApplyLowerEffe
 			}]);
 			break;
 		case "Aberrant Overload":
-			newEffect = 1;
 			effectDescription = "The stress of your Transformation becomes too much. You die. You cannot be restored to life by any spell below level 5";
 			actor.update({
 				"system.attributes.hp.temp": 0
@@ -112,14 +98,12 @@ export async function applyRollTableResult(actor, effectName, onlyApplyLowerEffe
 			runEffectsFunction = false
 			break;
 		case "Aberrant Weakness":
-			newEffect = 2;
 			effectDescription = "Your form becomes fragile. Your Hit Point Maximum is half your normal maximum";
 			iconFilePath = "icons/svg/poison.svg";
 			const newMaxHp = (actor.system.attributes.hp.max / 2);
 			effects = effects.concat(TransformationModule.utils.getSystemEffectChange(TransformationModule.constants.ATTRIBUTE.HEALT_POINTS_MAX, newMaxHp, CONST.ACTIVE_EFFECT_MODES.OVERRIDE));
 			break;
 		case "Aberrant Weakness":
-			newEffect = 3;
 			effectDescription = "Your body starts to lose cohesion. You have Disadvantage on all D20 Tests.";
 			iconFilePath = "icons/svg/poison.svg";
 			Object.values(TransformationModule.constants.SKILL).forEach(skill => {
@@ -141,12 +125,5 @@ export async function applyRollTableResult(actor, effectName, onlyApplyLowerEffe
 	}
 	if (runEffectsFunction) {
 		await TransformationModule.utils.createActiveEffectOnActor(actor, effectName, effectDescription, iconFilePath, effects);
-		let flags = actor?.flags
-		if (flags && flags.transformations && flags.transformations.currentEffect) {
-			flags.transformations.previousEffect = flags.transformations.currentEffect
-			flags.transformations.currentEffect = newEffect
-		} else {
-			actor.flags.transformations = { currentEffect: newEffect }
-		}
 	}
 }
