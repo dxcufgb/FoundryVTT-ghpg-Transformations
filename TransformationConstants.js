@@ -81,38 +81,23 @@ export const ATTRIBUTE = Object.freeze({
     }
 });
 
-export const TRANSFORMATIONS = Object.freeze({
-    ABERRANT_HORROR: "Aberrant Horror",
-    FEY: "Fey",
-    FIEND: "Fiend",
-    HAG: "Hag",
-    LICH: "Lich",
-    LYCANTHROPE: "Lycanthrope",
-    OOZE: "Ooze",
-    PRIMORDIAL: "Primordial",
-    SERAPH: "Seraph",
-    SHADOWSTEEL_GHOUL: "Shadowsteel Ghoul",
-    SPECTER: "Specter",
-    VAMPIRE: "Vampire"
-});
-
 export const ROLL_MODE = Object.freeze({
     ADVANTAGE: { shortText: "adv", int: 1 },
     NORMAL: { shortText: "nor", int: 0 },
     DISADVANTAGE: { shortText: "dis", int: -1 }
-})
+});
 
 export const CONDITION = Object.freeze({
     BLOODIED: "bloodied",
     PRONE: "prone",
     STUNNED: "stunned",
     UNCONSCIOUS: "unconscious"
-})
+});
 
 export const TRIGGER_FLAG = Object.freeze({
     SPELL_SAVE: "spellSave"
-})
+});
 
 export const ITEM_TYPE = Object.freeze({
     SPELL: "spell"
-})
+});

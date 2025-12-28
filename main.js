@@ -19,9 +19,9 @@ Hooks.once("init", async () => {
     TransformationModule.utils = {};
     TransformationModule.Transformations = new Map();
     Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
-    TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
+    TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
     await import("./Transformations/manifest.js");
 
     let transformationSubTypes = {};
@@ -37,11 +37,11 @@ Hooks.once("init", async () => {
 });
 
 Hooks.once("setup", () => {
-    TransformationModule.utils.createLog("Setup", TransformationModule.constants.LOG_SEVERITY.INFO);
+    // TransformationModule.utils.createLog("Setup", TransformationModule.constants.LOG_SEVERITY.INFO);
 });
 
 Hooks.once("ready", () => {
-    TransformationModule.utils.createLog("Ready", TransformationModule.constants.LOG_SEVERITY.INFO);
+    // TransformationModule.utils.createLog("Ready", TransformationModule.constants.LOG_SEVERITY.INFO);
 });
 
 Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {

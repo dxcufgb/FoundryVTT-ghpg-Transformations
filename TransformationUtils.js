@@ -1,5 +1,3 @@
-import { LOG_SEVERITY } from "./TransformationConstants";
-
 export function getCurrentActor(name = null) {
 	let actor
 	if (!name) {
@@ -150,24 +148,24 @@ export function findOverrideType(identifier) {
 
 }
 
-export function createLog(message, severity = LOG_SEVERITY.INFO) {
-	switch (severity) {
-		case LOG_SEVERITY.INFO:
-			console.info("Transformations | ",message);
-			break;
-		case LOG_SEVERITY.LOG:
-			console.info("Transformations | ",message);
-			break;
-		case LOG_SEVERITY.WARN:
-			console.info("Transformations | ",message);
-			break;
-		case LOG_SEVERITY.ERROR:
-			console.info("Transformations | ",message);
-			break;
-		case LOG_SEVERITY.DEBUG:
-			if (CONFIG.debug.Transformations){
-				console.debug("Transformations | " , message)
-			}
-			break;
-	}
-}
+// export function createLog(message, severity = LOG_SEVERITY.INFO) {
+// 	switch (severity) {
+// 		case LOG_SEVERITY.INFO:
+// 			console.info("Transformations | ",message);
+// 			break;
+// 		case LOG_SEVERITY.LOG:
+// 			console.info("Transformations | ",message);
+// 			break;
+// 		case LOG_SEVERITY.WARN:
+// 			console.info("Transformations | ",message);
+// 			break;
+// 		case LOG_SEVERITY.ERROR:
+// 			console.info("Transformations | ",message);
+// 			break;
+// 		case LOG_SEVERITY.DEBUG:
+// 			if (CONFIG.debug.Transformations){
+// 				console.debug("Transformations | " , message)
+// 			}
+// 			break;
+// 	}
+// }
