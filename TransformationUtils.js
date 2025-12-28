@@ -44,12 +44,12 @@ export function getDisadvantageEffectChanges(identifier, type = TransformationMo
 		} else if (type == TransformationModule.constants.ROLL_TYPE.SAVING_THROW) {
 			return getAbilitySaveDisadvantageEffectChanges(identifier)
 		} else {
-			console.warn(`Unknown roll type "${type}" in getDisadvantageEffectChanges`)
+			logger.warn(`Unknown roll type "${type}" in getDisadvantageEffectChanges`)
 		}
 	} else if (TransformationModule.constants.ATTRIBUTE.ROLLABLE.contains(identifier)) {
 		return getAttributeDisadvantageEffectChanges(identifier)
 	} else {
-		console.warn(`Unknown identifier "${identifier} in getDisadvantageEffectChanges"`)
+		logger.warn(`Unknown identifier "${identifier} in getDisadvantageEffectChanges"`)
 	}
 }
 
@@ -62,12 +62,12 @@ export function getAdvantageEffectChanges(identifier, type = TransformationModul
 		} else if (type == TransformationModule.constants.ROLL_TYPE.SAVING_THROW) {
 			return getAbilitySaveAdvantageEffectChanges(identifier)
 		} else {
-			console.warn(`Unknown roll type "${type}" in getAdvantageEffectChanges`)
+			logger.warn(`Unknown roll type "${type}" in getAdvantageEffectChanges`)
 		}
 	} else if (TransformationModule.constants.ATTRIBUTE.ROLLABLE.contains(identifier)) {
 		return getAttributeAdvantageEffectChanges(identifier)
 	} else {
-		console.warn(`Unknown identifier "${identifier} in getAdvantageEffectChanges"`)
+		logger.warn(`Unknown identifier "${identifier} in getAdvantageEffectChanges"`)
 	}
 }
 
@@ -143,29 +143,7 @@ export function findOverrideType(identifier) {
 	} else if (TransformationModule.constants.ATTRIBUTE.contains(identifier) || TransformationModule.constants.ATTRIBUTE.ROLLABLE.contains(identifier)) {
 		return TransformationModule.constants.OVERRIDE_TYPE.ATTRIBUTES;
 	} else {
-		console.warn(`Uknown identifier: ${identifier} in findOverrideType!`);
+		logger.warn(`Uknown identifier: ${identifier} in findOverrideType!`);
 	}
 
-}
-
-export function createLog(message, severity = TransformationModule.constants.LOG_SEVERITY.INFO) {
-	switch (severity) {
-		case TransformationModule.constants.LOG_SEVERITY.INFO:
-			console.info("Transformations | ",message);
-			break;
-		case TransformationModule.constants.LOG_SEVERITY.LOG:
-			console.info("Transformations | ",message);
-			break;
-		case TransformationModule.constants.LOG_SEVERITY.WARN:
-			console.info("Transformations | ",message);
-			break;
-		case TransformationModule.constants.LOG_SEVERITY.ERROR:
-			console.info("Transformations | ",message);
-			break;
-		case TransformationModule.constants.LOG_SEVERITY.DEBUG:
-			if (CONFIG.debug.Transformations){
-				console.debug("Transformations | " , message)
-			}
-			break;
-	}
 }

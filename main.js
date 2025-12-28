@@ -1,3 +1,6 @@
+import { Logger } from "./logger.js";
+const logger = new Logger(5);
+
 Hooks.once("init", async () => {
     console.log(`
 ╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
@@ -12,16 +15,15 @@ Hooks.once("init", async () => {
 ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
     // CONFIG.debug.hooks = true;
-    CONFIG.debug.transformations = true;
     globalThis.TransformationModule ??= {};
     TransformationModule.constants = {};
     TransformationModule.dialogs = {};
     TransformationModule.utils = {};
     TransformationModule.Transformations = new Map();
     Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
+    TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
-    TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
     await import("./Transformations/manifest.js");
 
     let transformationSubTypes = {};
@@ -37,11 +39,11 @@ Hooks.once("init", async () => {
 });
 
 Hooks.once("setup", () => {
-    TransformationModule.utils.createLog("Setup", TransformationModule.constants.LOG_SEVERITY.INFO);
+    console.log("Transformations | Setup");
 });
 
 Hooks.once("ready", () => {
-    // TransformationModule.utils.createLog("Ready", TransformationModule.constants.LOG_SEVERITY.INFO);
+    console.log("Transformations | Ready");
 });
 
 Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {
