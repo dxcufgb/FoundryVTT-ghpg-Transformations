@@ -9,31 +9,31 @@ export class Logger{
     
     debug(...args) {
         if (this.logLevel = 5) {
-            console.debug(prefix, ...args);
+            console.debug(this.prefix, ...args);
         }
     }
     
     info(...args) {
         if (this.logLevel = 4) {
-            console.info(prefix, ...args);
+            console.info(this.prefix, ...args);
         }
     }
     
     log(...args) {
         if (this.logLevel = 3) {
-            console.log(prefix, ...args);
+            console.log(this.prefix, ...args);
         }
     }
     
     warn(...args) {
         if (this.logLevel = 2) {
-            console.warn(prefix, ...args);
+            console.warn(this.prefix, ...args);
         }
     }
     
     error(...args) {
         if (this.logLevel = 1) {
-            console.error(prefix, ...args);
+            console.error(this.prefix, ...args);
         }
     }
 }
