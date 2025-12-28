@@ -37,7 +37,7 @@ Hooks.once("init", async () => {
 });
 
 Hooks.once("setup", () => {
-    // TransformationModule.utils.createLog("Setup", TransformationModule.constants.LOG_SEVERITY.INFO);
+    TransformationModule.utils.createLog("Setup", TransformationModule.constants.LOG_SEVERITY.INFO);
 });
 
 Hooks.once("ready", () => {
