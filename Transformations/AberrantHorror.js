@@ -34,7 +34,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     onDamage() {
-        console.log("onDamage AberrantHorror");
+        TransformationModule.logger.log("onDamage AberrantHorror");
         
     }
 
@@ -49,19 +49,19 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     onShortRest(result) {
-        console.log("onShortRest AberrantHorror");
+        TransformationModule.logger.log("onShortRest AberrantHorror");
         this.removeAberrantMutationEffects()
     }
 
     onLongRest(result) {
-        console.log("onLongRest AberrantHorror");
+        TransformationModule.logger.log("onLongRest AberrantHorror");
         this.removeAberrantMutationEffects()
         super.setActorFlag(this.constants.HAS_BEEN_BLOODIED_SINCE_LONG_REST, false);
         super.rollResultFromRollTable();
     }
 
     onInitiative() {
-        console.log("onInitiative AberrantHorror");
+        TransformationModule.logger.log("onInitiative AberrantHorror");
         if (this.actor.statuses.has(this.constants.ABERRANT_CONFUSION)) {
             this.actor.toggleStatusEffect(globalConstants.CONDITION.STUNNED, { active: true });
             super.sendChatMessage(this.getChatMessage(this.constants.ABERRANT_CONFUSION))
@@ -69,27 +69,27 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     onConcentration() {
-        console.log("onConcentration AberrantHorror");
+        TransformationModule.logger.log("onConcentration AberrantHorror");
         if (this.transformationLevel >= 2) {
             this.hideousAppearance()
         }
     }
 
     onUnconscious() {
-        console.log("onUnconscious AberrantHorror");
+        TransformationModule.logger.log("onUnconscious AberrantHorror");
         if (this.transformationLevel >= 2) {
             this.hideousAppearance()
         }
     }
 
     onHitDieRoll(context) {   
-        console.log("onHitDieRoll AberrantHorror");
+        TransformationModule.logger.log("onHitDieRoll AberrantHorror");
         context = this.aberrantLossofVitality(context);
         return context;
     }
 
     onSpellSavingThrow(roll) {
-        console.log("onSpellSavingThrow AberrantHorror")
+        TransformationModule.logger.log("onSpellSavingThrow AberrantHorror")
         if (this.transformationLevel >= 3) {
             roll = this.unstableExistence(roll);
         }
@@ -97,7 +97,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     onSavingThrow(roll) {
-        console.log("onSavingThrow AberrantHorror")
+        TransformationModule.logger.log("onSavingThrow AberrantHorror")
         if (this.transformationLevel > 3){
             roll = this.entropicAbomination(this.globalConstants.ROLL_TYPE.SAVING_THROW, roll);
         }
@@ -200,7 +200,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     async unstableExistence(roll) {
-        console.log(roll)
+        TransformationModule.logger.log(roll)
         const natRoll = (roll._total - roll.data.mod)
         if (natRoll < 3) {
           await this.rollResultFromRollTable(true)
@@ -210,7 +210,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     async entropicAbomination(type, data = null) {
         if (type == this.globalConstants.ROLL_TYPE.SAVING_THROW) {
             roll = data
-            console.log(roll)
+            TransformationModule.logger.log(roll)
             const rollResult = (roll._total - roll.data.mod)
             if (natRoll < 3) {
                 await this.rollResultFromRollTable(true)
@@ -224,19 +224,19 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     async chitinousShell() {
-        console.log("Chitinous Shell called!");
+        TransformationModule.logger.log("Chitinous Shell called!");
         this.removeAberrantMutationEffects(this.aberrantMutationEffects.CHITINOUS_SHELL);
     }
 
     async slimyForm() {
-        console.log("Slimy Form called!");
+        TransformationModule.logger.log("Slimy Form called!");
         this.removeAberrantMutationEffects(this.aberrantMutationEffects.SLIMY_FORM);
     }
 
     async eldritchLimbs() {
-        console.log("Eldritch Limbs called!");
+        TransformationModule.logger.log("Eldritch Limbs called!");
         this.removeAberrantMutationEffects(this.aberrantMutationEffects.ELDRITCH_LIMBS);
-        console.log(this.eldritchLimbsItemIds[this.transformationLevel]);
+        TransformationModule.logger.log(this.eldritchLimbsItemIds[this.transformationLevel]);
         const item = await fromUuid(this.eldritchLimbsItemIds[this.transformationLevel]);
         if (item && this.actor) {
             await this.actor.createEmbeddedDocuments('Item', [item.toObject()]);
@@ -266,7 +266,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         }
         const effects = this.actor.effects.filter(effect => effectsToLookFor.includes(effect.name)).map(e => e.id);
         if (effects.length === 0) {
-            console.log("No matching effects found.");
+            TransformationModule.logger.log("No matching effects found.");
             return false;
         } else {
             return true
@@ -286,7 +286,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                     foundItem.id
                 );
             }
-            console.log(itemsToRemove);
+            TransformationModule.logger.log(itemsToRemove);
         }
         itemsToRemove
         await this.actor.deleteEmbeddedDocuments("Item", itemsToRemove);

@@ -44,12 +44,12 @@ export function getDisadvantageEffectChanges(identifier, type = TransformationMo
 		} else if (type == TransformationModule.constants.ROLL_TYPE.SAVING_THROW) {
 			return getAbilitySaveDisadvantageEffectChanges(identifier)
 		} else {
-			logger.warn(`Unknown roll type "${type}" in getDisadvantageEffectChanges`)
+			TransformationModule.logger.warn(`Unknown roll type "${type}" in getDisadvantageEffectChanges`)
 		}
 	} else if (TransformationModule.constants.ATTRIBUTE.ROLLABLE.contains(identifier)) {
 		return getAttributeDisadvantageEffectChanges(identifier)
 	} else {
-		logger.warn(`Unknown identifier "${identifier} in getDisadvantageEffectChanges"`)
+		TransformationModule.logger.warn(`Unknown identifier "${identifier} in getDisadvantageEffectChanges"`)
 	}
 }
 
@@ -62,12 +62,12 @@ export function getAdvantageEffectChanges(identifier, type = TransformationModul
 		} else if (type == TransformationModule.constants.ROLL_TYPE.SAVING_THROW) {
 			return getAbilitySaveAdvantageEffectChanges(identifier)
 		} else {
-			logger.warn(`Unknown roll type "${type}" in getAdvantageEffectChanges`)
+			TransformationModule.logger.warn(`Unknown roll type "${type}" in getAdvantageEffectChanges`)
 		}
 	} else if (TransformationModule.constants.ATTRIBUTE.ROLLABLE.contains(identifier)) {
 		return getAttributeAdvantageEffectChanges(identifier)
 	} else {
-		logger.warn(`Unknown identifier "${identifier} in getAdvantageEffectChanges"`)
+		TransformationModule.logger.warn(`Unknown identifier "${identifier} in getAdvantageEffectChanges"`)
 	}
 }
 
@@ -143,7 +143,7 @@ export function findOverrideType(identifier) {
 	} else if (TransformationModule.constants.ATTRIBUTE.contains(identifier) || TransformationModule.constants.ATTRIBUTE.ROLLABLE.contains(identifier)) {
 		return TransformationModule.constants.OVERRIDE_TYPE.ATTRIBUTES;
 	} else {
-		logger.warn(`Uknown identifier: ${identifier} in findOverrideType!`);
+		TransformationModule.logger.warn(`Uknown identifier: ${identifier} in findOverrideType!`);
 	}
 
 }

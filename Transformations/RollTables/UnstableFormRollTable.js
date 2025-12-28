@@ -1,6 +1,6 @@
-export async function applyRollTableResult(actor, effectName) {
+export async function applyRollTableResult(actor, effectName, iconBaseFilePath) {
 	let effectDescription = '';
-	let iconFilePath = '';
+	let iconFilePath = iconBaseFilePath;
 	let effects = [];
 	let runEffectsFunction = true;
 	switch (effectName) {
