@@ -43,7 +43,6 @@ let instance;
 export function getLogger(logLevel) {
   if (!instance) {
     instance = new Logger(logLevel);
-    globalThis.transformationModule.logger ??= instance;
   }
   return instance;
 }
