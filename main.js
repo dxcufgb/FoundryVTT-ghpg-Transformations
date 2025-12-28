@@ -34,20 +34,21 @@ Hooks.once("init", async () => {
 
     CONFIG.DND5E.featureTypes.transformation = {
         label: TransformationModule.constants.TRANSFORMATION_FEATURE,
-        subtypes: {
-            aberrantHorror: "Aberrant Horror",
-            fey: "Fey",
-            fiend: "Fiend",
-            hag: "Hag",
-            lich: "Lich",
-            lycanthrope: "Lycanthrope",
-            ooze: "Ooze",
-            primordial: "Primordial",
-            seraph: "Seraph",
-            shadowsteelGhoul: "Shadowsteel Ghoul",
-            specter: "Specter",
-            vampire: "Vampire"
-        }
+        subtypes: transformationSubTypes
+        // {
+        //     aberrantHorror: "Aberrant Horror",
+        //     fey: "Fey",
+        //     fiend: "Fiend",
+        //     hag: "Hag",
+        //     lich: "Lich",
+        //     lycanthrope: "Lycanthrope",
+        //     ooze: "Ooze",
+        //     primordial: "Primordial",
+        //     seraph: "Seraph",
+        //     shadowsteelGhoul: "Shadowsteel Ghoul",
+        //     specter: "Specter",
+        //     vampire: "Vampire"
+        // }
     }
 });
 
