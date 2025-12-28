@@ -213,6 +213,19 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     async removeAberrantMutationEffects(effectToExclude = null) {
+        if (this.hasAberrantMutationEffects(effectToExclude)){
+            await this.actor.deleteEmbeddedDocuments(
+                "ActiveEffect",
+                effects
+            );
+            if (!effectToExclude || effectToExclude != "Eldritch Limbs") {
+                console.log("Removing Eldritch Limbs from actor");
+                this.removeEldritchLimbsItems();
+            }
+        }
+    }
+
+    hasAberrantMutationEffects(effectToExclude = null) {
         let effectsToLookFor
         if (effectToExclude){
             effectsToLookFor = this.aberrantMutationEffects.filter(effect => effect != effectToExclude);
@@ -222,15 +235,9 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         const effects = this.actor.effects.filter(effect => effectsToLookFor.includes(effect.name)).map(e => e.id);
         if (effects.length === 0) {
             console.log("No matching effects found.");
-            return;
-        }
-        await this.actor.deleteEmbeddedDocuments(
-            "ActiveEffect",
-            effects
-        );
-        if (!effectToExclude || effectToExclude != "Eldritch Limbs") {
-            console.log("Removing Eldritch Limbs from actor");
-            this.removeEldritchLimbsItems();
+            return false;
+        } else {
+            return true
         }
     }
 
@@ -258,6 +265,10 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         console.log(itemsToRemove);
         itemsToRemove
         await this.actor.deleteEmbeddedDocuments("Item", itemsToRemove);
+    }
+
+    eldritchAberration(arg) {
+        
     }
 
     static {
