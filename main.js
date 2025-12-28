@@ -15,7 +15,7 @@ Hooks.once("init", async () => {
     let logger = await import("./logger.js");
     console.log(logger);
     globalThis.TransformationModule ??= {};
-    TransformationModule.Logger = logger.getLogger(5)
+    TransformationModule.logger = logger.getLogger(5)
     TransformationModule.constants = {};
     TransformationModule.dialogs = {};
     TransformationModule.utils = {};
