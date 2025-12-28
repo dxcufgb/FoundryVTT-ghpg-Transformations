@@ -146,7 +146,7 @@ export class Transformation {
         const data = foundry.utils.deepClone(
             this.actor.getFlag(this.MODULE_ID, this.id) ?? {}
         );
-        data.currentEffectRangeLow ??= currentEffectRangeLow;
+        data.currentEffectRangeLow = currentEffectRangeLow;
         await this.actor.setFlag(this.MODULE_ID, this.id, data);
     }
 
