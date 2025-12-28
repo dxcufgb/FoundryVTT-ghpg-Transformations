@@ -79,7 +79,7 @@ export class Transformation {
     }
 
     async rollResultFromRollTable(onlyApplyLowerResult = false) {
-        let table = this.getRollTable()
+        let table = await this.getRollTable()
         const drawResult = await this.drawTableResult(table);
         console.log(drawResult);
         if (!this.getActorEffectFlag() || (onlyApplyLowerResult && drawResult.roll._total < this.getActorEffectFlag())){
