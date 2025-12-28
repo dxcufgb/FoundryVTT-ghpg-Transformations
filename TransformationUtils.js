@@ -1,3 +1,5 @@
+import { LOG_SEVERITY } from "./TransformationConstants";
+
 export function getCurrentActor(name = null) {
 	let actor
 	if (!name) {
@@ -13,8 +15,6 @@ export function actorIsBloodied(actor) {
 }
 
 export async function createActiveEffectOnActor(actor, effectName, description, icon, changes) {
-	console.log(`creating activeEffect with effects:`)
-	console.log(changes)
 	await actor.createEmbeddedDocuments("ActiveEffect", [{
 		label: effectName,
 		name: effectName,
@@ -24,7 +24,7 @@ export async function createActiveEffectOnActor(actor, effectName, description, 
 		changes: changes,
 		origin: actor.uuid,
 		flags: {
-			["gh-transformation"]: { removeOnLongRest: true }
+			[TransformationModule.constants.EFFECT_FLAG_MODULE_NAME]: { removeOnLongRest: true }
 		},
 	}]);
 }
@@ -46,12 +46,12 @@ export function getDisadvantageEffectChanges(identifier, type = TransformationMo
 		} else if (type == TransformationModule.constants.ROLL_TYPE.SAVING_THROW) {
 			return getAbilitySaveDisadvantageEffectChanges(identifier)
 		} else {
-			console.log(`Unknown roll type "${type}" in getDisadvantageEffectChanges`)
+			console.warn(`Unknown roll type "${type}" in getDisadvantageEffectChanges`)
 		}
 	} else if (TransformationModule.constants.ATTRIBUTE.ROLLABLE.contains(identifier)) {
 		return getAttributeDisadvantageEffectChanges(identifier)
 	} else {
-		console.log(`Unknown identifier "${identifier} in getDisadvantageEffectChanges"`)
+		console.warn(`Unknown identifier "${identifier} in getDisadvantageEffectChanges"`)
 	}
 }
 
@@ -64,12 +64,12 @@ export function getAdvantageEffectChanges(identifier, type = TransformationModul
 		} else if (type == TransformationModule.constants.ROLL_TYPE.SAVING_THROW) {
 			return getAbilitySaveAdvantageEffectChanges(identifier)
 		} else {
-			console.log(`Unknown roll type "${type}" in getAdvantageEffectChanges`)
+			console.warn(`Unknown roll type "${type}" in getAdvantageEffectChanges`)
 		}
 	} else if (TransformationModule.constants.ATTRIBUTE.ROLLABLE.contains(identifier)) {
 		return getAttributeAdvantageEffectChanges(identifier)
 	} else {
-		console.log(`Unknown identifier "${identifier} in getAdvantageEffectChanges"`)
+		console.warn(`Unknown identifier "${identifier} in getAdvantageEffectChanges"`)
 	}
 }
 
@@ -145,7 +145,29 @@ export function findOverrideType(identifier) {
 	} else if (TransformationModule.constants.ATTRIBUTE.contains(identifier) || TransformationModule.constants.ATTRIBUTE.ROLLABLE.contains(identifier)) {
 		return TransformationModule.constants.OVERRIDE_TYPE.ATTRIBUTES;
 	} else {
-		console.log(`Uknown identifier: ${identifier} in findOverrideType!`);
+		console.warn(`Uknown identifier: ${identifier} in findOverrideType!`);
 	}
 
+}
+
+export function createLog(message, severity = LOG_SEVERITY.INFO) {
+	switch (severity) {
+		case LOG_SEVERITY.INFO:
+			console.info("Transformations | ",message);
+			break;
+		case LOG_SEVERITY.LOG:
+			console.info("Transformations | ",message);
+			break;
+		case LOG_SEVERITY.WARN:
+			console.info("Transformations | ",message);
+			break;
+		case LOG_SEVERITY.ERROR:
+			console.info("Transformations | ",message);
+			break;
+		case LOG_SEVERITY.DEBUG:
+			if (CONFIG.debug.Transformations){
+				console.debug("Transformations | " , message)
+			}
+			break;
+	}
 }

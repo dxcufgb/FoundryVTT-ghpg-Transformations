@@ -12,6 +12,7 @@ Hooks.once("init", async () => {
 ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
     // CONFIG.debug.hooks = true;
+    CONFIG.debug.transformations = true;
     globalThis.TransformationModule ??= {};
     TransformationModule.constants = {};
     TransformationModule.dialogs = {};
@@ -22,33 +23,18 @@ Hooks.once("init", async () => {
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
     await import("./Transformations/manifest.js");
+    TransformationModule.utils.createLog(`global module initialised with data: `, TransformationModule.constants.LOG_SEVERITY.DEBUG);
+    TransformationModule.utils.createLog(TransformationModule, TransformationModule.constants.LOG_SEVERITY.DEBUG);
 
     let transformationSubTypes = {};
 
     for (const transformationSubClass of TransformationModule.Transformations.values()) {
         transformationSubTypes[transformationSubClass.id] = transformationSubClass.name;
     }
-    console.log(transformationSubTypes);
-
-    console.log("Transformation dynamic load of sub types:", transformationSubTypes);
 
     CONFIG.DND5E.featureTypes.transformation = {
         label: TransformationModule.constants.TRANSFORMATION_FEATURE,
         subtypes: transformationSubTypes
-        // {
-        //     aberrantHorror: "Aberrant Horror",
-        //     fey: "Fey",
-        //     fiend: "Fiend",
-        //     hag: "Hag",
-        //     lich: "Lich",
-        //     lycanthrope: "Lycanthrope",
-        //     ooze: "Ooze",
-        //     primordial: "Primordial",
-        //     seraph: "Seraph",
-        //     shadowsteelGhoul: "Shadowsteel Ghoul",
-        //     specter: "Specter",
-        //     vampire: "Vampire"
-        // }
     }
 });
 
