@@ -38,8 +38,12 @@ export class Logger{
     }
 }
 
-export const errorOnlyLogger = new Logger(1);
-export const warningLogger = new Logger(2);
-export const logLogger = new Logger(3);
-export const infoLogger = new Logger(4);
-export const debugLogger = new Logger(5);
+let instance;
+
+export function getLogger(logLevel) {
+  if (!instance) {
+    instance = new Logger(logLevel);
+    globalThis.transformationLogger ??= instance;
+  }
+  return instance;
+}
