@@ -1,6 +1,3 @@
-import { Logger } from "./logger.js";
-const logger = new Logger(5);
-
 Hooks.once("init", async () => {
     console.log(`
 ╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
@@ -15,7 +12,9 @@ Hooks.once("init", async () => {
 ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
     // CONFIG.debug.hooks = true;
+    const loggerImport = await import ("./logger.js");
     globalThis.TransformationModule ??= {};
+    globalThis.logger = new loggerImport(5);
     TransformationModule.constants = {};
     TransformationModule.dialogs = {};
     TransformationModule.utils = {};
@@ -39,11 +38,11 @@ Hooks.once("init", async () => {
 });
 
 Hooks.once("setup", () => {
-    console.log("Transformations | Setup");
+    logger.log("Transformations | Setup");
 });
 
 Hooks.once("ready", () => {
-    console.log("Transformations | Ready");
+    logger.log("Transformations | Ready");
 });
 
 Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {
@@ -128,7 +127,7 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
                         transformation.onSpellSavingThrow(roll);
                         break;
                     default:
-                        console.warn(`Uknown transformationOptions ${trigger}`);
+                        logger.warn(`Uknown transformationOptions ${trigger}`);
                 }
             }
             transformation.onSavingThrow(roll);
