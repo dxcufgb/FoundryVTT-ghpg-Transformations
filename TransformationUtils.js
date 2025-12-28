@@ -148,24 +148,24 @@ export function findOverrideType(identifier) {
 
 }
 
-// export function createLog(message, severity = LOG_SEVERITY.INFO) {
-// 	switch (severity) {
-// 		case LOG_SEVERITY.INFO:
-// 			console.info("Transformations | ",message);
-// 			break;
-// 		case LOG_SEVERITY.LOG:
-// 			console.info("Transformations | ",message);
-// 			break;
-// 		case LOG_SEVERITY.WARN:
-// 			console.info("Transformations | ",message);
-// 			break;
-// 		case LOG_SEVERITY.ERROR:
-// 			console.info("Transformations | ",message);
-// 			break;
-// 		case LOG_SEVERITY.DEBUG:
-// 			if (CONFIG.debug.Transformations){
-// 				console.debug("Transformations | " , message)
-// 			}
-// 			break;
-// 	}
-// }
+export function createLog(message, severity = TransformationModule.constants.LOG_SEVERITY.INFO) {
+	switch (severity) {
+		case TransformationModule.constants.LOG_SEVERITY.INFO:
+			console.info("Transformations | ",message);
+			break;
+		case TransformationModule.constants.LOG_SEVERITY.LOG:
+			console.info("Transformations | ",message);
+			break;
+		case TransformationModule.constants.LOG_SEVERITY.WARN:
+			console.info("Transformations | ",message);
+			break;
+		case TransformationModule.constants.LOG_SEVERITY.ERROR:
+			console.info("Transformations | ",message);
+			break;
+		case TransformationModule.constants.LOG_SEVERITY.DEBUG:
+			if (CONFIG.debug.Transformations){
+				console.debug("Transformations | " , message)
+			}
+			break;
+	}
+}
