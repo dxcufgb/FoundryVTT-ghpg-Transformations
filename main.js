@@ -26,7 +26,7 @@ Hooks.once("init", async () => {
     let transformationSubTypes = {};
 
     for (const transformationSubClass of TransformationModule.Transformations.values()) {
-        transformationSubTypes[obj.id] = obj.name;
+        transformationSubTypes[transformationSubClass.id] = transformationSubClass.name;
     }
     console.log(transformationSubTypes);
 
