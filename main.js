@@ -23,8 +23,6 @@ Hooks.once("init", async () => {
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
     await import("./Transformations/manifest.js");
-    TransformationModule.utils.createLog(`global module initialised with data: `, TransformationModule.constants.LOG_SEVERITY.DEBUG);
-    TransformationModule.utils.createLog(TransformationModule, TransformationModule.constants.LOG_SEVERITY.DEBUG);
 
     let transformationSubTypes = {};
 
@@ -39,11 +37,11 @@ Hooks.once("init", async () => {
 });
 
 Hooks.once("setup", () => {
-    console.log("Transformations | Setup");
+    TransformationModule.utils.createLog("Setup", TransformationModule.constants.LOG_SEVERITY.INFO);
 });
 
 Hooks.once("ready", () => {
-    console.log("Transformations | Ready");
+    TransformationModule.utils.createLog("Ready", TransformationModule.constants.LOG_SEVERITY.INFO);
 });
 
 Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {
