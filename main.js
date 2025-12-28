@@ -13,9 +13,24 @@ Hooks.once("init", async () => {
 `);
     // CONFIG.debug.hooks = true;
     globalThis.TransformationModule ??= {};
+    TransformationModule.constants = {};
+    TransformationModule.dialogs = {};
+    TransformationModule.utils = {};
+    TransformationModule.Transformations = new Map();
+    Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
+    TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
+    Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
+    Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
+    await import("./Transformations/manifest.js");
+
+    const transformationSubTypes = Object.fromEntries(
+        TransformationModule.transformations.map(o => [o.id, o.name])
+    );
+
+    console.log("Transformation dynamic load of sub types:", transformationSubTypes);
 
     CONFIG.DND5E.featureTypes.transformation = {
-        label: "Transformation Feature",
+        label: TransformationModule.constants.TRANSFORMATION_FEATURE,
         subtypes: {
             aberrantHorror: "Aberrant Horror",
             fey: "Fey",
@@ -31,16 +46,6 @@ Hooks.once("init", async () => {
             vampire: "Vampire"
         }
     }
-
-    TransformationModule.constants = {};
-    TransformationModule.dialogs = {};
-    TransformationModule.utils = {};
-    TransformationModule.Transformations = new Map();
-    Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
-    TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
-    Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
-    Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
-    await import("./Transformations/manifest.js");
 });
 
 Hooks.once("setup", () => {
@@ -49,10 +54,6 @@ Hooks.once("setup", () => {
 
 Hooks.once("ready", () => {
     console.log("Transformations | Ready");
-      if (!game.modules.get("lib-wrapper")?.active) {
-        ui.notifications.error("libWrapper is not active!");
-        return;
-    }
 });
 
 Hooks.on("dnd5e.damageActor", async (actor, amount, updates) => {
@@ -83,7 +84,7 @@ Hooks.on("dnd5e.rollInitiative", (actor, combatant) => {
 Hooks.on("dnd5e.beginConcentrating", (actor, item, activeEffect, midiUtilityActivity) => {
     let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
     if (transformation.initialized) {
-        if (item.type === "spell") {
+        if (item.type === TransformationModule.constants.ITEM_TYPE.SPELL) {
             const isConcentration = item.system.duration.concentration;
             if (isConcentration) {
                 transformation.onConcentration()
@@ -93,13 +94,13 @@ Hooks.on("dnd5e.beginConcentrating", (actor, item, activeEffect, midiUtilityActi
 });
 
 Hooks.on("createActiveEffect", (effect, options, userId) => {
-    if (effect.name == "Bloodied"){
+    if (effect.name.toLowerCase() == TransformationModule.constants.CONDITION.BLOODIED){
         const actor = effect.parent;
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
         if (transformation.initialized) {
             transformation.onBloodied()
         }
-    } else if (effect.name == "Unconscious") {
+    } else if (effect.name.toLowerCase() == TransformationModule.constants.CONDITION.UNCONSCIOUS) {
         const actor = effect.parent;
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
         if (transformation.initialized) {
@@ -116,10 +117,10 @@ Hooks.on("dnd5e.preRollHitDieV2", (context) => {
 });
 
 Hooks.on("dnd5e.preRollSavingThrow", (context, options, data) => {
-    if (context.workflow.item.type == "spell") {
+    if (context.workflow.item.type == TransformationModule.constants.ITEM_TYPE.SPELL) {
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
         if (transformation.initialized) {
-            context = transformation.getTriggerFlag(context, "spellSave");
+            context = transformation.getTriggerFlag(context, TransformationModule.constants.TRIGGER_FLAG.SPELL_SAVE);
         }
     }
 });
@@ -133,13 +134,14 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
             const triggers = transformationOptions[transformation.id];
             for (const trigger in triggers) {
                 switch (triggers[trigger]) {
-                    case "spellSave":
+                    case TransformationModule.constants.TRIGGER_FLAG.SPELL_SAVE:
                         transformation.onSpellSavingThrow(roll);
                         break;
                     default:
                         console.warn(`Uknown transformationOptions ${trigger}`);
                 }
             }
+            transformation.onSavingThrow(roll);
         }
     }
 });

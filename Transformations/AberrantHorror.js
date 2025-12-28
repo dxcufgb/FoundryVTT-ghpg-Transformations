@@ -1,6 +1,5 @@
 import { applyRollTableResult } from "./RollTables/UnstableFormRollTable.js";
 
-
 export class AberrantHorror extends TransformationModule.TransformationParent.Transformation {
 
     static id = "aberrant-horror";
@@ -16,12 +15,13 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         ABERRANT_CONFUSION: "AberrantConfusion",
         ABERRANT_FORM: "aberrantForm",
         ABERRANT_LOSS_OF_VITALITY: "AberrantLossofVitality",
-        ABERRANT_MUTATION_EFFECTS = {
+        ABERRANT_MUTATION_EFFECTS: {
             CHITINOUS_SHELL: "Chitinous Shell",
             SLIMY_FORM: "Slimy Form",
             ELDRITCH_LIMBS: "Eldritch Limbs"
         },
-        HIDING_HIDEOUS_APPEARANCE: "Hiding Hideous Appearance"
+        HIDING_HIDEOUS_APPEARANCE: "Hiding Hideous Appearance",
+        HIDE_HIDEOUS_FORM_STATUS_TEXT: "You concentrate on hiding your hideous form"
     }
 
     constructor(actor) {
@@ -56,6 +56,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     onLongRest(result) {
         console.log("onLongRest AberrantHorror");
         this.removeAberrantMutationEffects()
+        super.setActorFlag(this.constants.HAS_BEEN_BLOODIED_SINCE_LONG_REST, false);
         super.rollResultFromRollTable();
     }
 
@@ -132,7 +133,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     async applyRollTableResult(resultName) {
-        this.constructor.rollTableEffectFunction(this.actor, resultName)
+        this.constructor.rollTableEffectFunction(this.actor, resultName, this.iconFolder)
     }
 
     async hideousAppearance() {
@@ -167,11 +168,11 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     hidehideousAppearance() {
-        const icon = "icons/svg/poison.svg";
+        const icon = `${iconFolder}/Hideous_Appearance.png`;
         const changes = [
             { key: `actor.system.concentration.ability`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: this.constants.HIDING_HIDEOUS_APPEARANCE }
         ]
-        TransformationModule.utils.createActiveEffectOnActor(this.actor, this.constants.HIDING_HIDEOUS_APPEARANCE, "You concentrate on hiding your hideous form.", icon, changes);
+        TransformationModule.utils.createActiveEffectOnActor(this.actor, this.constants.HIDING_HIDEOUS_APPEARANCE, this.constants.HIDE_HIDEOUS_FORM_STATUS_TEXT, icon, changes);
     }
 
     async aberrantForm() {

@@ -1,3 +1,6 @@
+export const EFFECT_FLAG_MODULE_NAME = "transformation";
+export const TRANSFORMATION_FEATURE = "Transformation Feature";
+
 export const SKILL = Object.freeze({
     ACROBATICS: "acr",
     ANIMAL_HANDLING: "ani",
@@ -104,6 +107,10 @@ export const CONDITION = Object.freeze({
     STUNNED: "stunned"
 })
 
-export const TRIGGER_FLAGS = Object.freeze({
+export const TRIGGER_FLAG = Object.freeze({
     SPELL_SAVE: "spellSave"
+})
+
+export const ITEM_TYPE = Object.freeze({
+    SPELL: "spell"
 })

@@ -8,11 +8,13 @@ export class Transformation {
     initialized = false;
     actor;
     rollTableEffectFunction;
+    iconFolder = "modules/transformations/Icons/Transformations/";
     constants = {
         APPLY_LOWER_RESULT: "onlyApplyLowerResult",
         CURRENT_EFFECT_RANGE_LOW: "currentEffectRangeLow",
         MODULE_ID: "transformations",
-        SHUOLD_BE_IN_SUBCLASS_LOG: "should be implemented AND called at sub-class level!"
+        SHUOLD_BE_IN_SUBCLASS_LOG: "should be implemented AND called at sub-class level!",
+        HAS_BEEN_BLOODIED_SINCE_LONG_REST: "hasBeenBloodiedSinceLongRest"
     };
 
     constructor(actor) {
@@ -24,6 +26,7 @@ export class Transformation {
         this.tablePrefix = this.constructor.tablePrefix
         this.rollTableEffectFunction = this.constructor.rollTableEffectFunction
         this.transformationLevelKey = this.constructor.transformationLevelKey
+        this.iconFolder = this.constructor.iconFolder + this.name + "/";
     }
 
     getTransformationType(actor) {
@@ -141,7 +144,7 @@ export class Transformation {
 
     async removeActiveTransformationEffect() {
         const effects = this.actor.effects.filter(e =>
-            e.flags["gh-transformation"]?.removeOnLongRest
+            e.flags[this.globalConstants.EFFECT_FLAG_MODULE_NAME]?.removeOnLongRest
         );
 
         if (effects.length) {
@@ -193,25 +196,41 @@ export class Transformation {
         );
         }
 
+        if (typeof this.name !== "string" || !this.name.length) {
+            throw new Error(
+                `Transformation subclass must define a static name`
+            );
+        }
+
         if (typeof this.id !== "string" || !this.id.length) {
-        throw new Error(
-            `Transformation subclass "${this.name}" must define a static id`
-        );
+            throw new Error(
+                `Transformation subclass "${this.name}" must define a static id`
+            );
+        }
+
+        if (typeof this.tablePrefix !== "string" || !this.tablePrefix.length) {
+            throw new Error(
+                `Transformation subclass "${this.name}" must define a static tablePrefix`
+            );
+        }
+
+        if (typeof this.transformationLevelKey !== "string" || !this.transformationLevelKey.length) {
+            throw new Error(
+                `Transformation subclass "${this.name}" must define a static transformationLevelKey`
+            );
         }
 
         if (TransformationModule.Transformations.has(this.id)) {
-        console.warn(
-            `Transformation "${this.id}" already registered. Skipping.`,
-            this
-        );
-        return;
+            console.warn(
+                `Transformation "${this.id}" already registered. Skipping.`,
+                this
+            );
+            return;
         }
-
         TransformationModule.Transformations.set(this.id, this);
-
         console.debug(
-        `Transformations | Registered: ${this.id}`,
-        this
+            `Transformations | Registered: ${this.id}`,
+            this
         );
     }
 }
