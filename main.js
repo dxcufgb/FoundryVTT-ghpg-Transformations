@@ -23,9 +23,12 @@ Hooks.once("init", async () => {
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
     await import("./Transformations/manifest.js");
 
-    const transformationSubTypes = Object.fromEntries(
-        TransformationModule.transformations.map(o => [o.id, o.name])
-    );
+    let transformationSubTypes = {};
+
+    for (const transformationSubClass of TransformationModule.Transformations.values()) {
+        transformationSubTypes[obj.id] = obj.name;
+    }
+    console.log(transformationSubTypes);
 
     console.log("Transformation dynamic load of sub types:", transformationSubTypes);
 
