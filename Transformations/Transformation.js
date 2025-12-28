@@ -85,6 +85,9 @@ export class Transformation {
         if (!this.getActorEffectFlag() || (onlyApplyLowerResult && drawResult.roll._total < this.getActorEffectFlag())){
             await this.removeActiveTransformationEffect();
             await this.applyRollTableResult(drawResult.results[0].name);
+            console.log(drawResult.results[0])
+            console.log(drawResult.results[0].range)
+            console.log(drawResult.results[0].range[0])
             await this.setActorEffectFlag(drawResult.results[0].range[0])
         }
     }
