@@ -1,3 +1,5 @@
+import { Logger } from "./logger.js";
+
 Hooks.once("init", async () => {
     console.log(`
 ╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
@@ -12,8 +14,6 @@ Hooks.once("init", async () => {
 ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
     // CONFIG.debug.hooks = true;
-    let Logger = await import("./logger.js");
-    console.log(Logger);
     globalThis.TransformationModule ??= {};
     TransformationModule.Logger = new Logger(5);
     TransformationModule.constants = {};
