@@ -32,10 +32,10 @@ export class Transformation {
     getTransformationType(actor) {
         let transformation = this;
         if (!actor) {
-            logger.warn("No actor was supplied.");
+            TransformationModule.logger.warn("No actor was supplied.");
             return
         } else if (!actor.items) {
-            logger.warn(`${actor} has no items.`)
+            TransformationModule.logger.warn(`${actor} has no items.`)
             return
         } else {
             TransformationModule.Transformations.forEach(transformationSubClass => {
@@ -48,66 +48,66 @@ export class Transformation {
     }
 
     onDamage() {
-        logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
+        TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     onShortRest(result) {
-        logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
+        TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     onLongRest(result) {
-        logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
+        TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     onInitiative() {
-        logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
+        TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     onConcentration() {
-        logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
+        TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
     
     onHitDieRoll(context) {
-        logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
+        TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
     
     onSpellSavingThrow(context) {
-        logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
+        TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
     
     onSavingThrow(context) {
-        logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
+        TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     onBloodied() {
-        logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
+        TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     onUnconscious() {
-        logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
+        TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     getTriggerFlag(context, type) {
-        logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
+        TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
     
     sendChatMessage(type) {
-        logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
+        TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     async rollResultFromRollTable(onlyApplyLowerResult = false) {
         let table = await this.getRollTable()
         const drawResult = await this.drawTableResult(table);
-        logger.debug(drawResult);
+        TransformationModule.logger.debug(drawResult);
         if (!onlyApplyLowerResult || !this.getActorFlag() || (onlyApplyLowerResult && drawResult.roll._total < this.getActorFlag())) {
             if (onlyApplyLowerResult) {
                 this.sendChatMessage(this.constants.APPLY_LOWER_RESULT);
             }
             await this.removeActiveTransformationEffect();
             await this.applyRollTableResult(drawResult.results[0].name);
-            logger.debug(drawResult.results[0])
-            logger.debug(drawResult.results[0].range)
-            logger.debug(drawResult.results[0].range[0])
+            TransformationModule.logger.debug(drawResult.results[0])
+            TransformationModule.logger.debug(drawResult.results[0].range)
+            TransformationModule.logger.debug(drawResult.results[0].range[0])
             await this.setActorFlag(this.constants.CURRENT_EFFECT_RANGE_LOW, drawResult.results[0].range[0])
         }
     }
@@ -134,12 +134,12 @@ export class Transformation {
     }
 
     async drawTableResult(table) {
-        logger.debug(table);
+        TransformationModule.logger.debug(table);
         return await table.draw({ speaker: this.actor, roll: true, displayChat: true });
     }
 
     async applyRollTableResult(resultName) {
-        logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
+        TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
     async removeActiveTransformationEffect() {
@@ -221,14 +221,14 @@ export class Transformation {
         }
 
         if (TransformationModule.Transformations.has(this.id)) {
-            logger.warn(
+            TransformationModule.logger.warn(
                 `Transformation "${this.id}" already registered. Skipping.`,
                 this
             );
             return;
         }
         TransformationModule.Transformations.set(this.id, this);
-        console.debug(
+        TransformationModule.logger.debug(
             `Registered: ${this.id}`,
             this
         );

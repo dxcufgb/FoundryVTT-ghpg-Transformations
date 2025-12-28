@@ -29,7 +29,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         this.constants = { ...this.constants, ...this.constructor.subClassConstants }
         this.transformationLevel = super.getActorTransformationLevel(this);
         this.initialized = true
-        this.aberrantMutationEffects = this.constructor.constants.ABERRANT_MUTATION_EFFECTS;
+        this.aberrantMutationEffects = this.constructor.subClassConstants.ABERRANT_MUTATION_EFFECTS;
         this.eldritchLimbsItemIds = this.constructor.eldritchLimbsItemIds
     }
 
