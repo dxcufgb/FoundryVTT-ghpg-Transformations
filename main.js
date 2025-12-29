@@ -1,5 +1,3 @@
-import { Transformation } from "./Transformations/Transformation.js";
-
 Hooks.once("init", async () => {
     console.log(`
 ╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
@@ -39,7 +37,7 @@ Hooks.once("init", async () => {
         subtypes: transformationSubTypes
     }
     globalThis.dnd5e.config.characterFlags["Transformation"] = {
-        type: Transformation,
+        type: TransformationModule.Transformations,
         name: "Transformation",
         hint: "Transformation active on the character",
         section: "Transformations"
