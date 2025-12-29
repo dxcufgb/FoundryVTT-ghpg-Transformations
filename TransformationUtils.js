@@ -149,7 +149,7 @@ export function findOverrideType(identifier) {
 
 export async function renderTransformationTemplate(templateName, data) {
 	TransformationModule.logger.debug("renderTemplate: ",templateName, data)
-	const html = await renderTemplate(
+	const html = await foundry.applications.handlebars.renderTemplate(
 		`./Templates/${templateName}.hbs`,
 		data
 	);

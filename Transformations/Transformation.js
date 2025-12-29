@@ -204,6 +204,23 @@ export class Transformation {
         return entry;
     }
 
+    getPillsData() {
+        const pillsData = {
+            transformation: this,
+            // {
+            //     id: this.id,
+            //     uuid: this.uuid,
+            //     img: this.img,
+            //     name: this.name,
+            //     transformationLevel: this.transformationLevel,
+            // },
+            actor: this.actor,
+            DND5E: DND5E,
+            editable: false
+        }
+        return pillsData;
+    }
+
     async getCompendiumIndexByName(compendiumName) {
         const pack = game.packs.get(compendiumName);
         const index = await pack.getIndex();
