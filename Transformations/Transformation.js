@@ -31,9 +31,9 @@ export class Transformation {
         this.tablePrefix = this.constructor.tablePrefix
         this.rollTableEffectFunction = this.constructor.rollTableEffectFunction
         this.transformationLevelKey = this.constructor.transformationLevelKey
-        TransformationModule.logger.debug("icon folder Transformation constructor", this.constructor.iconFolder)
-        this.iconFolder = this.constructor.iconFolder + this.name + "/";
-        TransformationModule.logger.debug("icon folder Transformation constructor", this.iconFolder)
+        TransformationModule.logger.debug("icon folder Transformation constructor 1", this.constructor.iconFolder)
+        this.iconFolder = this.constructor.iconFolder;
+        TransformationModule.logger.debug("icon folder Transformation constructor 2", this.iconFolder)
         const compendiumTransformation = this.getTransformationByName(this.name);
         this.uuid = compendiumTransformation.uuid;
         this.id = compendiumTransformation._id
@@ -221,6 +221,7 @@ export class Transformation {
     }
 
     async getCompendiumIndexByName(compendiumName) {
+        TransformationModule.logger.log("compendium name: ", compendiumName)
         const pack = game.packs.get(compendiumName);
         TransformationModule.logger.log("compendium pack: ", pack)
         const index = await pack.getIndex();

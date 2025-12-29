@@ -32,6 +32,8 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         this.initialized = true
         this.aberrantMutationEffects = this.constructor.subClassConstants.ABERRANT_MUTATION_EFFECTS;
         this.eldritchLimbsItemIds = this.constructor.eldritchLimbsItemIds
+        this.iconFolder.concat(this.name)
+        TransformationModule.logger.debug("icon folder Transformation constructor 3", this.iconFolder)
     }
 
     onDamage() {
