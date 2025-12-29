@@ -209,14 +209,13 @@ export class Transformation {
 
     getPillsData() {
         const pillsData = {
-            transformation: this,
-            // {
-            //     id: this.id,
-            //     uuid: this.uuid,
-            //     img: this.img,
-            //     name: this.name,
-            //     transformationLevel: this.transformationLevel,
-            // },
+            transformation: {
+                id: this.id,
+                uuid: this.uuid,
+                img: this.img,
+                name: this.name,
+                transformationLevel: this.transformationLevel,
+            },
             actor: this.actor,
             DND5E: dnd5e,
             editable: false
