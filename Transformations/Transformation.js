@@ -224,9 +224,9 @@ export class Transformation {
             );
         }
 
-        if (typeof this.id !== "string" || !this.id.length) {
+        if (typeof this.itemId !== "string" || !this.itemId.length) {
             throw new Error(
-                `Transformation subclass "${this.name}" must define a static id`
+                `Transformation subclass "${this.name}" must define a static itemId`
             );
         }
 
