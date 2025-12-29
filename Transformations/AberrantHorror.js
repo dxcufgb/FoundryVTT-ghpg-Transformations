@@ -295,6 +295,23 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         await this.actor.deleteEmbeddedDocuments("Item", itemsToRemove);
     }
 
+    getPillsData() {
+        const pillsData = {
+            transformation: {
+                id: this.id,
+                uuid: this.uuid,
+                img: this.img,
+                name: this.name,
+                transformationLevel: this.transformationLevel,
+            },
+            actor: this.actor,
+            DND5E: dnd5e,
+            editable: false
+        }
+        TransformationModule.logger.warn("getPillsData: ", pillsData);
+        return pillsData;
+    }
+
     static {
         this.register();
     }

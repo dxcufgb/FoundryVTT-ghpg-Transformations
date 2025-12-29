@@ -107,6 +107,10 @@ export class Transformation {
     sendChatMessage(type) {
         TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
+    
+    getPillsData() {
+        TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
+    }
 
     async rollResultFromRollTable(onlyApplyLowerResult = false) {
         let table = await this.getRollTable()
@@ -205,23 +209,6 @@ export class Transformation {
         TransformationModule.logger.debug("index found:", index)
         const entry = index.find(e => e.name === name);
         return entry;
-    }
-
-    getPillsData() {
-        const pillsData = {
-            transformation: {
-                id: this.id,
-                uuid: this.uuid,
-                img: this.img,
-                name: this.name,
-                transformationLevel: this.transformationLevel,
-            },
-            actor: this.actor,
-            DND5E: dnd5e,
-            editable: false
-        }
-        TransformationModule.logger.warn("getPillsData: ", pillsData);
-        return pillsData;
     }
 
     async getCompendiumIndexByName(compendiumName) {
