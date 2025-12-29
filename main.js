@@ -36,6 +36,7 @@ Hooks.once("init", async () => {
         label: TransformationModule.constants.TRANSFORMATION_FEATURE,
         subtypes: transformationSubTypes
     }
+    let choices = {};
     TransformationModule.Transformations.forEach(transformation => {
         choices[transformation.id] = transformation.name;
     });
