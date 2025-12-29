@@ -38,9 +38,9 @@ Hooks.once("init", async () => {
     }
     let choices = {};
     TransformationModule.Transformations.forEach(transformation => {
-        choices[transformation.id] = transformation.name;
+        choices[transformation.itemId] = transformation.name;
     });
-    globalThis.dnd5e.config.characterFlags["Transformation"] = {
+    globalThis.dnd5e.config.characterFlags["transformation"] = {
         type: "string",
         choices: choices,
         name: "Transformation",
@@ -48,7 +48,7 @@ Hooks.once("init", async () => {
         section: "Transformations"
     };
 
-    globalThis.dnd5e.config.characterFlags["Transformation-level"] = {
+    globalThis.dnd5e.config.characterFlags["transformation-level"] = {
         type: Number,
         name: "Transformation Level",
         hint: "Level of active transformation on the character",
@@ -140,7 +140,7 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
     if (transformationOptions) {
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
         if (transformation.initialized) {
-            const triggers = transformationOptions[transformation.id];
+            const triggers = transformationOptions[transformation.itemId];
             triggers.forEach(trigger => {
                 switch (triggers[trigger]) {
                     case TransformationModule.constants.TRIGGER_FLAG.SPELL_SAVE:
@@ -152,5 +152,17 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
             });
             transformation.onSavingThrow(roll);
         }
+    }
+});
+
+Hooks.on("renderActorSheetV2", (actorSheet, html) => {
+    TransformationModule.logger.debug(html);
+  const target = html.find(".pills-lg");
+    if (!target.length) return;
+    if (actorSheet.document.flags.dnd5e.transformation) {
+        const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actorSheet.document);
+        TransformationModule.utils.renderTemplate("pill", {transformation:transformation})
+        TransformationModule.logger.debug(htmlToInject);
+        target.append(htmlToInject);
     }
 });

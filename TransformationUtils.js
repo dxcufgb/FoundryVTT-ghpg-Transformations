@@ -145,5 +145,12 @@ export function findOverrideType(identifier) {
 	} else {
 		TransformationModule.logger.warn(`Uknown identifier: ${identifier} in findOverrideType!`);
 	}
+}
 
+export async function renderTemplate(templateName, data) {
+	const html = await renderTemplate(
+		`./Templates/${templateName}.hbs`,
+		data
+	);
+	return html;
 }

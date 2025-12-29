@@ -1,6 +1,9 @@
 export class Transformation {
 
     id;
+    itemId;
+    uuid;
+    img;
     name;
     tablePrefix;
     transformationLevelKey;
@@ -14,14 +17,16 @@ export class Transformation {
         CURRENT_EFFECT_RANGE_LOW: "currentEffectRangeLow",
         MODULE_ID: "transformations",
         SHUOLD_BE_IN_SUBCLASS_LOG: "should be implemented AND called at sub-class level!",
-        HAS_BEEN_BLOODIED_SINCE_LONG_REST: "hasBeenBloodiedSinceLongRest"
+        HAS_BEEN_BLOODIED_SINCE_LONG_REST: "hasBeenBloodiedSinceLongRest",
+        ROLL_TABLE_COMPENDIUM: "transformations.gh-roll-tables",
+        TRANSFORMATIONS_COMPENDIUM: "transformations.gh-transformations"
     };
 
     constructor(actor) {
         this.constants = this.constructor.constants;
         this.globalConstants = TransformationModule.constants;
         this.actor = actor;
-        this.id = this.constructor.id
+        this.itemId = this.constructor.itemId
         this.name = this.constructor.name
         this.tablePrefix = this.constructor.tablePrefix
         this.rollTableEffectFunction = this.constructor.rollTableEffectFunction
@@ -29,6 +34,10 @@ export class Transformation {
         TransformationModule.logger.debug("icon folder Transformation constructor", this.constructor.iconFolder)
         this.iconFolder = this.constructor.iconFolder + this.name + "/";
         TransformationModule.logger.debug("icon folder Transformation constructor", this.iconFolder)
+        const compendiumTransformation = this.getTransformationByName(this.name);
+        this.uuid = compendiumTransformation.uuid;
+        this.id = compendiumTransformation._id
+        this.img = compendiumTransformation.img;
     }
 
     getTransformationType(actor) {
@@ -124,8 +133,7 @@ export class Transformation {
 
     async getRollTable() {
         const tableName = this.getRollTableName()
-        const pack = game.packs.get("transformations.gh-roll-tables");
-        const index = await pack.getIndex();
+        const index = getCompendiumIndexByName(this.globalConstants.ROLL_TABLE_COMPENDIUM);
         const entry = index.find(e => e.name === tableName);
         const table = await pack.getDocument(entry._id);
         if (!table) {
@@ -188,6 +196,18 @@ export class Transformation {
             speaker: ChatMessage.getSpeaker({ actor: this.actor }),
             content: chatMessage
         });
+    }
+
+    getTransformationByName(name) {
+        const index = this.getCompendiumIndexByName(this.globalConstants.TRANSFORMATIONS_COMPENDIUM);
+        const entry = index.find(e => e.name === name);
+        return entry;
+    }
+
+    async getCompendiumIndexByName(compendiumName) {
+        const pack = game.packs.get(compendiumName);
+        const index = await pack.getIndex();
+        return index
     }
 
     static register() {

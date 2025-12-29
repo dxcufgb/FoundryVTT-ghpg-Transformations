@@ -1,8 +1,9 @@
+// @ts-expect-error for some reason vscode thinks this doesn't exist
 import { applyRollTableResult } from "./RollTables/UnstableFormRollTable.js";
 
 export class AberrantHorror extends TransformationModule.TransformationParent.Transformation {
 
-    static id = "aberrant-horror";
+    static itemId = "aberrant-horror";
     static name = "Aberrant Horror";
     static tablePrefix = "Unstable Form";
     static transformationLevelKey = "aberrant-transformation-level";
