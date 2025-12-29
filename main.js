@@ -164,7 +164,7 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
 Hooks.on("renderActorSheetV2", (actorSheet, originalHtml) => {
     if (actorSheet.document.flags.dnd5e.transformation) {
         const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actorSheet.document);
-        const html = TransformationModule.utils.renderTransformationTemplate("pill", {transformation:transformation})
+        const html = TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData())
         TransformationModule.logger.debug("new pill: ",html);
 
         originalHtml.querySelector(".pills-lg").append(html);
