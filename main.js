@@ -36,13 +36,13 @@ Hooks.once("init", async () => {
         label: TransformationModule.constants.TRANSFORMATION_FEATURE,
         subtypes: transformationSubTypes
     }
-    let choices = [none: "none"];
-    choices.push(...Array.from(TransformationModule.Transformations.values()))
+    let choices = { none: "none" };
+    TransformationModule.Transformations.forEach(transformation => {
+        choices[transformation.id] = transformation.name;
+    });
     globalThis.dnd5e.config.characterFlags["Transformation"] = {
         type: "string",
-        choices: {
-            choices
-        },
+        choices: choices,
         name: "Transformation",
         hint: "Transformation active on the character",
         section: "Transformations"
