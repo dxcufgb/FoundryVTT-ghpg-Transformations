@@ -50,6 +50,7 @@ Hooks.once("init", async () => {
 
     globalThis.dnd5e.config.characterFlags["transformation-level"] = {
         type: Number,
+        choices: [1,2,3,4],
         name: "Transformation Level",
         hint: "Level of active transformation on the character",
         section: "Transformations"
@@ -157,8 +158,10 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
 
 Hooks.on("renderActorSheetV2", (actorSheet, originalHtml) => {
     TransformationModule.logger.debug(originalHtml);
+    TransformationModule.logger.debug(actorSheet);
     if (actorSheet.document.flags.dnd5e.transformation) {
         const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actorSheet.document);
+        TransformationModule.logger.debug(transformation);
         const html = TransformationModule.utils.renderTemplate("pill", {transformation:transformation})
         TransformationModule.logger.debug(html);
 
