@@ -26,7 +26,9 @@ export class Transformation {
         this.tablePrefix = this.constructor.tablePrefix
         this.rollTableEffectFunction = this.constructor.rollTableEffectFunction
         this.transformationLevelKey = this.constructor.transformationLevelKey
+        TransformationModule.logger.debug("icon folder Transformation constructor", this.constructor.iconFolder)
         this.iconFolder = this.constructor.iconFolder + this.name + "/";
+        TransformationModule.logger.debug("icon folder Transformation constructor", this.iconFolder)
     }
 
     getTransformationType(actor) {
@@ -138,7 +140,7 @@ export class Transformation {
         return await table.draw({ speaker: this.actor, roll: true, displayChat: true });
     }
 
-    async applyRollTableResult(resultName) {
+    async applyRollTableResult(effectName) {
         TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 

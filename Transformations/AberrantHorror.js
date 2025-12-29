@@ -34,8 +34,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     onDamage() {
-        TransformationModule.logger.log("onDamage AberrantHorror");
-        
+        TransformationModule.logger.log("onDamage AberrantHorror");        
     }
 
     onBloodied() {
@@ -279,13 +278,13 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         for (let index = 1; index <= 2; index++) {
             const itemId = this.eldritchLimbsItemIds[index];
             const itemNameToLookFor = (await fromUuid(itemId)).name
-            for (foundItem in this.actor.items.filter(i =>
+            this.actor.items.filter(i =>
                 i.name == itemNameToLookFor
-            )) {
+            ).forEach(foundItem => {
                 itemsToRemove.push(
                     foundItem.id
                 );
-            }
+            });
             TransformationModule.logger.log(itemsToRemove);
         }
         itemsToRemove

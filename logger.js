@@ -1,39 +1,37 @@
 export class Logger{
-    prefix = "Transformations |";
     logLevel;
 
     constructor(logLevel = 1) {
-        this.prefix = this.constructor.prefix;
         this.logLevel = logLevel;
     }
     
     debug(...args) {
         if (this.logLevel = 5) {
-            console.debug(this.prefix, ...args);
+            console.debug("Transformations |", ...args);
         }
     }
     
     info(...args) {
         if (this.logLevel = 4) {
-            console.info(this.prefix, ...args);
+            console.info("Transformations |", ...args);
         }
     }
     
     log(...args) {
         if (this.logLevel = 3) {
-            console.log(this.prefix, ...args);
+            console.log("Transformations |", ...args);
         }
     }
     
     warn(...args) {
         if (this.logLevel = 2) {
-            console.warn(this.prefix, ...args);
+            console.warn("Transformations |", ...args);
         }
     }
     
     error(...args) {
         if (this.logLevel = 1) {
-            console.error(this.prefix, ...args);
+            console.error("Transformations |", ...args);
         }
     }
 }

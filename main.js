@@ -36,6 +36,20 @@ Hooks.once("init", async () => {
         label: TransformationModule.constants.TRANSFORMATION_FEATURE,
         subtypes: transformationSubTypes
     }
+    globalThis.dnd5e.config.characterFlags["Transformation"] = {
+        type: String,
+        name: "Transformation",
+        hint: "Transformation active on the character",
+        section: "Transformations"
+    };
+
+    globalThis.dnd5e.config.characterFlags["Transformation-level"] = {
+        type: String,
+        name: "Transformation Level",
+        hint: "Level of active transformation on the character",
+        section: "Transformations"
+    };
+
 });
 
 Hooks.once("setup", () => {
@@ -122,7 +136,7 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
         if (transformation.initialized) {
             const triggers = transformationOptions[transformation.id];
-            for (const trigger in triggers) {
+            triggers.forEach(trigger => {
                 switch (triggers[trigger]) {
                     case TransformationModule.constants.TRIGGER_FLAG.SPELL_SAVE:
                         transformation.onSpellSavingThrow(roll);
@@ -130,7 +144,7 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
                     default:
                         console.warn(`Uknown transformationOptions ${trigger}`);
                 }
-            }
+            });
             transformation.onSavingThrow(roll);
         }
     }
