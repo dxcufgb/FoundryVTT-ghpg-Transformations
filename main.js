@@ -155,14 +155,13 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
     }
 });
 
-Hooks.on("renderActorSheetV2", (actorSheet, html) => {
-    TransformationModule.logger.debug(html);
-  const target = html.find(".pills-lg");
-    if (!target.length) return;
+Hooks.on("renderActorSheetV2", (actorSheet, originalHtml) => {
+    TransformationModule.logger.debug(originalHtml);
     if (actorSheet.document.flags.dnd5e.transformation) {
         const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actorSheet.document);
-        TransformationModule.utils.renderTemplate("pill", {transformation:transformation})
-        TransformationModule.logger.debug(htmlToInject);
-        target.append(htmlToInject);
+        const html = TransformationModule.utils.renderTemplate("pill", {transformation:transformation})
+        TransformationModule.logger.debug(html);
+
+        originalHtml.querySelector(".pills-lg").innerHTMLinsertAdjacentHTML("beforeend", html);
     }
 });
