@@ -200,10 +200,10 @@ export class Transformation {
         });
     }
 
-    getTransformationByName(name) {
-        const index = this.getCompendiumIndexByName(this.constants.TRANSFORMATIONS_COMPENDIUM);
+    async getTransformationByName(name) {
+        const index = await this.getCompendiumIndexByName(this.constants.TRANSFORMATIONS_COMPENDIUM);
         TransformationModule.logger.debug("index found:", index)
-        const entry = index.getName(name);
+        const entry = index.find(e => e.name === name);
         return entry;
     }
 
