@@ -11,8 +11,9 @@ export class Transformation {
     initialized = false;
     actor;
     rollTableEffectFunction;
-    iconFolder = "modules/transformations/Icons/Transformations/";
-    constants = {
+    
+    static iconFolder = "modules/transformations/Icons/Transformations/";
+    static constants = {
         APPLY_LOWER_RESULT: "onlyApplyLowerResult",
         CURRENT_EFFECT_RANGE_LOW: "currentEffectRangeLow",
         MODULE_ID: "transformations",
