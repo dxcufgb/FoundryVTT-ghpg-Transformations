@@ -109,7 +109,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             case globalConstants.TRIGGER_FLAG.SPELL_SAVE:
                 if (this.transformationLevel > 3){
                     context.rolls[0].options.transformations = {
-                        [this.id]: [
+                        [this.itemId]: [
                             globalConstants.TRIGGER_FLAG.SPELL_SAVE
                         ]
                     }
