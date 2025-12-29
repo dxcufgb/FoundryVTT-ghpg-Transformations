@@ -48,15 +48,15 @@ export class Transformation {
             return
         } else {
             const actorTransformation = actor.flags.dnd5e.transformation
-            TransformationModule.logger.log("actorTransformation: ", actorTransformation);
+            TransformationModule.logger.debug("actorTransformation: ", actorTransformation);
             TransformationModule.Transformations.forEach(transformationSubClass => {
-                TransformationModule.logger.log("Transformation sub class itemId: ", transformationSubClass.itemId);
+                TransformationModule.logger.debug("Transformation sub class itemId: ", transformationSubClass.itemId);
                 if (actorTransformation == transformationSubClass.itemId) {
                     transformation = new transformationSubClass(actor);
                 }
             });
         }
-        TransformationModule.logger.log("actorTransformation that was returned: ", actorTransformation);
+        TransformationModule.logger.debug("actorTransformation that was returned: ", actorTransformation);
         return transformation;
     }
 
@@ -202,8 +202,8 @@ export class Transformation {
 
     getTransformationByName(name) {
         const index = this.getCompendiumIndexByName(this.constants.TRANSFORMATIONS_COMPENDIUM);
-        TransformationModule.logger.log("index found:", index)
-        const entry = index.find(e => e.name === name);
+        TransformationModule.logger.debug("index found:", index)
+        const entry = index.getName(name);
         return entry;
     }
 
@@ -226,11 +226,11 @@ export class Transformation {
     }
 
     async getCompendiumIndexByName(compendiumName) {
-        TransformationModule.logger.log("compendium name: ", compendiumName)
+        TransformationModule.logger.debug("compendium name: ", compendiumName)
         const pack = game.packs.get(compendiumName);
-        TransformationModule.logger.log("compendium pack: ", pack)
+        TransformationModule.logger.debug("compendium pack: ", pack)
         const index = await pack.getIndex();
-        TransformationModule.logger.log("index: ", index)
+        TransformationModule.logger.debug("index: ", index)
         return index
     }
 
