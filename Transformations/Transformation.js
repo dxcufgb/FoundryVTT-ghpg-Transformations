@@ -126,7 +126,7 @@ export class Transformation {
     }
 
     getActorTransformationLevel() {
-        return this.actor.system.scale[this.constructor.id][this.constructor.transformationLevelKey].value;
+        return this.actor.flags.dnd5e.transformationLevel;
     }
 
     async getRollTable() {
@@ -165,17 +165,17 @@ export class Transformation {
 
     getActorFlag(flag) {
         const data = foundry.utils.deepClone(
-            this.actor.getFlag(this.MODULE_ID, this.id) ?? {}
+            this.actor.getFlag(this.MODULE_ID, this.itemId) ?? {}
         );
         return data.flag
     }
 
     async setActorFlag(flag, value) {
         const data = foundry.utils.deepClone(
-            this.actor.getFlag(this.MODULE_ID, this.id) ?? {}
+            this.actor.getFlag(this.MODULE_ID, this.itemId) ?? {}
         );
         data[flag] = value;
-        await this.actor.setFlag(this.MODULE_ID, this.id, data);
+        await this.actor.setFlag(this.MODULE_ID, this.itemId, data);
     }
 
     getChatMessage(type) {
@@ -258,16 +258,16 @@ export class Transformation {
             );
         }
 
-        if (TransformationModule.Transformations.has(this.id)) {
+        if (TransformationModule.Transformations.has(this.itemId)) {
             TransformationModule.logger.warn(
-                `Transformation "${this.id}" already registered. Skipping.`,
+                `Transformation "${this.itemId}" already registered. Skipping.`,
                 this
             );
             return;
         }
-        TransformationModule.Transformations.set(this.id, this);
+        TransformationModule.Transformations.set(this.itemId, this);
         TransformationModule.logger.debug(
-            `Registered: ${this.id}`,
+            `Registered: ${this.itemId}`,
             this
         );
     }
