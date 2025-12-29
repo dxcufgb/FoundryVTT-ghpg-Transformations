@@ -11,7 +11,7 @@ export class Transformation {
     initialized = false;
     actor;
     rollTableEffectFunction;
-    
+
     static iconFolder = "modules/transformations/Icons/Transformations/";
     static constants = {
         APPLY_LOWER_RESULT: "onlyApplyLowerResult",
@@ -48,6 +48,7 @@ export class Transformation {
             return
         } else {
             const actorTransformation = actor.flags.dnd5e.transformation
+            TransformationModule.logger.log("actorTransformation: ", actorTransformation);
             TransformationModule.Transformations.forEach(transformationSubClass => {
                 if (actorTransformation === transformationSubClass.itemId) {
                     transformation = new transformationSubClass(actor);
