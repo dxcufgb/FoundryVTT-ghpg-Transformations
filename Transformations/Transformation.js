@@ -218,6 +218,7 @@ export class Transformation {
             DND5E: dnd5e,
             editable: false
         }
+        TransformationModule.logger.warn("getPillsData: ", pillsData);
         return pillsData;
     }
 
