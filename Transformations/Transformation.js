@@ -45,12 +45,10 @@ export class Transformation {
         if (!actor) {
             TransformationModule.logger.warn("No actor was supplied.");
             return
-        } else if (!actor.items) {
-            TransformationModule.logger.warn(`${actor} has no items.`)
-            return
         } else {
+            const actorTransformation = actor.flag.dnd5e.transformation
             TransformationModule.Transformations.forEach(transformationSubClass => {
-                if (actor.items.find(obj => obj.identifier === transformationSubClass.id)) {
+                if (actorTransformation === transformationSubClass.itemId) {
                     transformation = new transformationSubClass(actor);
                 }
             });
