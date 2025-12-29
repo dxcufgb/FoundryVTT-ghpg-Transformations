@@ -50,7 +50,12 @@ Hooks.once("init", async () => {
 
     globalThis.dnd5e.config.characterFlags["transformation-level"] = {
         type: Number,
-        choices: [1,2,3,4],
+        choices: {
+            1: 1,
+            2: 2,
+            3: 3,
+            4: 4
+        },
         name: "Transformation Level",
         hint: "Level of active transformation on the character",
         section: "Transformations"
