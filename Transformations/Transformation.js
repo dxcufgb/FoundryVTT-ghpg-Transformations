@@ -202,6 +202,7 @@ export class Transformation {
 
     getTransformationByName(name) {
         const index = this.getCompendiumIndexByName(this.constants.TRANSFORMATIONS_COMPENDIUM);
+        TransformationModule.logger.log("index found:", index)
         const entry = index.find(e => e.name === name);
         return entry;
     }
