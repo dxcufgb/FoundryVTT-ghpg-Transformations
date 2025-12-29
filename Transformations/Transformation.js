@@ -32,10 +32,10 @@ export class Transformation {
         this.tablePrefix = this.constructor.tablePrefix
         this.rollTableEffectFunction = this.constructor.rollTableEffectFunction
         this.transformationLevelKey = this.constructor.transformationLevelKey
-        TransformationModule.logger.debug("icon folder Transformation constructor 1", this.constructor.iconFolder)
         this.iconFolder = this.constructor.iconFolder;
-        TransformationModule.logger.debug("icon folder Transformation constructor 2", this.iconFolder)
+        TransformationModule.logger.debug("transformation name:", this.name);
         const compendiumTransformation = this.getTransformationByName(this.name);
+        TransformationModule.logger.debug("compendium transformation:", compendiumTransformation);
         this.uuid = compendiumTransformation.uuid;
         this.id = compendiumTransformation._id
         this.img = compendiumTransformation.img;
@@ -201,7 +201,7 @@ export class Transformation {
     }
 
     getTransformationByName(name) {
-        const index = this.getCompendiumIndexByName(this.globalConstants.TRANSFORMATIONS_COMPENDIUM);
+        const index = this.getCompendiumIndexByName(this.constants.TRANSFORMATIONS_COMPENDIUM);
         const entry = index.find(e => e.name === name);
         return entry;
     }

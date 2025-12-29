@@ -27,6 +27,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     constructor(actor) {
         super(actor);
+        TransformationModule.logger.debug("Aberrant horror constructor start")
         this.constants = { ...this.constants, ...this.constructor.subClassConstants }
         this.transformationLevel = super.getActorTransformationLevel(this);
         this.initialized = true
