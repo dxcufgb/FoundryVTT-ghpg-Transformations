@@ -56,7 +56,7 @@ export class Transformation {
                 }
             });
         }
-        TransformationModule.logger.debug("actorTransformation that was returned: ", actorTransformation);
+        TransformationModule.logger.debug("actorTransformation that was returned: ", transformation);
         return transformation;
     }
 
