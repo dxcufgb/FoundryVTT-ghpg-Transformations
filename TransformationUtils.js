@@ -147,7 +147,8 @@ export function findOverrideType(identifier) {
 	}
 }
 
-export async function renderTemplate(templateName, data) {
+export async function renderTransformationTemplate(templateName, data) {
+	TransformationModule.logger.debug("renderTemplate: ",templateName, data)
 	const html = await renderTemplate(
 		`./Templates/${templateName}.hbs`,
 		data

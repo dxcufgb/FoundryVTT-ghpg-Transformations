@@ -162,12 +162,9 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
 });
 
 Hooks.on("renderActorSheetV2", (actorSheet, originalHtml) => {
-    TransformationModule.logger.debug(originalHtml);
-    TransformationModule.logger.debug(actorSheet);
     if (actorSheet.document.flags.dnd5e.transformation) {
         const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actorSheet.document);
-        TransformationModule.logger.debug(transformation);
-        const html = TransformationModule.utils.renderTemplate("pill", {transformation:transformation})
+        const html = TransformationModule.utils.renderTransformationTemplate("pill", {transformation:transformation})
         TransformationModule.logger.debug(html);
 
         originalHtml.querySelector(".pills-lg").innerHTMLinsertAdjacentHTML("beforeend", html);
