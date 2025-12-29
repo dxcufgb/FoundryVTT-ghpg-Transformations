@@ -33,7 +33,6 @@ export async function getD20RollDialog(actor, identifier, rollType, dc = null, m
 }
 
 export async function getDropDownChoiceDialog(title, choices) {
-    // choices = Array.from(TransformationModule.Transformations.values())
     await new foundry.applications.api.DialogV2({
         window: { title: title },
         content: `

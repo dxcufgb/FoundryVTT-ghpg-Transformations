@@ -36,15 +36,20 @@ Hooks.once("init", async () => {
         label: TransformationModule.constants.TRANSFORMATION_FEATURE,
         subtypes: transformationSubTypes
     }
+    let choices = [none: "none"];
+    choices.push(...Array.from(TransformationModule.Transformations.values()))
     globalThis.dnd5e.config.characterFlags["Transformation"] = {
-        type: TransformationModule.Transformations,
+        type: "string",
+        choices: {
+            choices
+        },
         name: "Transformation",
         hint: "Transformation active on the character",
         section: "Transformations"
     };
 
     globalThis.dnd5e.config.characterFlags["Transformation-level"] = {
-        type: int,
+        type: Number,
         name: "Transformation Level",
         hint: "Level of active transformation on the character",
         section: "Transformations"
