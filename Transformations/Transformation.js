@@ -215,7 +215,7 @@ export class Transformation {
             //     transformationLevel: this.transformationLevel,
             // },
             actor: this.actor,
-            DND5E: DND5E,
+            DND5E: dnd5e,
             editable: false
         }
         return pillsData;
