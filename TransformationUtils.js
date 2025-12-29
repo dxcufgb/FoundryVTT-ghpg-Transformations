@@ -152,5 +152,6 @@ export async function renderTemplate(templateName, data) {
 		`./Templates/${templateName}.hbs`,
 		data
 	);
+	TransformationModule.logger.debug(html);
 	return html;
 }
