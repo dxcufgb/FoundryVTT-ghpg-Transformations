@@ -1,23 +1,17 @@
 <div class="draggable pill-lg texture background item-tooltip" data-action="showDocument"
-            data-item-id="{{ transformation.id }}" data-uuid="{{ transformation.uuid }}"
-            aria-label="{{ localize (ifThen actor.isOwner DND5E.ItemEdit DND5E.ItemView) }}">
-        {{#if transformation.img}}
-        <img class="gold-icon" src="{{ transformation.img }}" alt="{{ transformation.name }}">
-        {{/if}}
-        <div class="name name-stacked">
-            <span class="title">{{ transformation.name }}({{transformation.transformationLevel }})</span>
-        </div>
-        {{#if editable}}
-        <button type="button" class="config-button unbutton" data-action="deleteDocument"
-                data-tooltip="DND5E.ItemDelete" aria-label="{{ localize 'DND5E.ItemDelete' }}"
-                data-tooltip-class data-tooltip-direction>
-            <i class="fas fa-trash" inert></i>
-        </button>
-        {{/if}}
+        data-item-id="{{ transformation.id }}" data-uuid="{{ transformation.uuid }}"
+        aria-label="{{ localize (ifThen actor.isOwner DND5E.ItemEdit DND5E.ItemView) }}">
+    {{#if transformation.img}}
+    <img class="gold-icon" src="{{ transformation.img }}" alt="{{ transformation.name }}">
+    {{/if}}
+    <div class="name name-stacked">
+        <span class="title">{{ transformation.name }}({{transformation.transformationLevel }})</span>
     </div>
-    {{else if actor.isOwner}}
-    <div class="pill-lg empty roboto-upper" data-action="findItem" data-item-type="transformation">
-        {{ localize "DND5E.transformationAdd" }}
-    </div>
+    {{#if editable}}
+    <button type="button" class="config-button unbutton" data-action="deleteDocument"
+            data-tooltip="DND5E.ItemDelete" aria-label="{{ localize 'DND5E.ItemDelete' }}"
+            data-tooltip-class data-tooltip-direction>
+        <i class="fas fa-trash" inert></i>
+    </button>
     {{/if}}
 </div>
