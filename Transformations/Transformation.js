@@ -131,7 +131,7 @@ export class Transformation {
 
     async getRollTable() {
         const tableName = this.getRollTableName()
-        const index = getCompendiumIndexByName(this.globalConstants.ROLL_TABLE_COMPENDIUM);
+        const index = getCompendiumIndexByName(this.constants.ROLL_TABLE_COMPENDIUM);
         const entry = index.find(e => e.name === tableName);
         const table = await pack.getDocument(entry._id);
         if (!table) {
@@ -222,7 +222,9 @@ export class Transformation {
 
     async getCompendiumIndexByName(compendiumName) {
         const pack = game.packs.get(compendiumName);
+        TransformationModule.logger.log("compendium pack: ", pack)
         const index = await pack.getIndex();
+        TransformationModule.logger.log("index: ", index)
         return index
     }
 
