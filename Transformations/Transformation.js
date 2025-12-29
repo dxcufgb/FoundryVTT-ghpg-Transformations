@@ -50,11 +50,13 @@ export class Transformation {
             const actorTransformation = actor.flags.dnd5e.transformation
             TransformationModule.logger.log("actorTransformation: ", actorTransformation);
             TransformationModule.Transformations.forEach(transformationSubClass => {
-                if (actorTransformation === transformationSubClass.itemId) {
+                TransformationModule.logger.log("Transformation sub class itemId: ", transformationSubClass.itemId);
+                if (actorTransformation == transformationSubClass.itemId) {
                     transformation = new transformationSubClass(actor);
                 }
             });
         }
+        TransformationModule.logger.log("actorTransformation that was returned: ", actorTransformation);
         return transformation;
     }
 
