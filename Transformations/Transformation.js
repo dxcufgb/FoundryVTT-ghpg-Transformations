@@ -6,7 +6,6 @@ export class Transformation {
     img;
     name;
     tablePrefix;
-    transformationLevelKey;
     transformationLevel = 0;
     initialized = false;
     actor;
@@ -27,18 +26,11 @@ export class Transformation {
         this.constants = this.constructor.constants;
         this.globalConstants = TransformationModule.constants;
         this.actor = actor;
-        this.itemId = this.constructor.itemId
-        this.name = this.constructor.name
-        this.tablePrefix = this.constructor.tablePrefix
-        this.rollTableEffectFunction = this.constructor.rollTableEffectFunction
-        this.transformationLevelKey = this.constructor.transformationLevelKey
+        this.itemId = this.constructor.itemId;
+        this.name = this.constructor.name;
+        this.tablePrefix = this.constructor.tablePrefix;
+        this.rollTableEffectFunction = this.constructor.rollTableEffectFunction;
         this.iconFolder = this.constructor.iconFolder;
-        TransformationModule.logger.debug("transformation name:", this.name);
-        const compendiumTransformation = this.getTransformationByName(this.name);
-        TransformationModule.logger.debug("compendium transformation:", compendiumTransformation);
-        this.uuid = compendiumTransformation.uuid;
-        this.id = compendiumTransformation._id
-        this.img = compendiumTransformation.img;
     }
 
     getTransformationType(actor) {
@@ -79,15 +71,15 @@ export class Transformation {
     onConcentration() {
         TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
-    
+
     onHitDieRoll(context) {
         TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
-    
+
     onSpellSavingThrow(context) {
         TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
-    
+
     onSavingThrow(context) {
         TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
@@ -103,11 +95,11 @@ export class Transformation {
     getTriggerFlag(context, type) {
         TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
-    
+
     sendChatMessage(type) {
         TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
-    
+
     getPillsData() {
         TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
@@ -220,12 +212,21 @@ export class Transformation {
         return index
     }
 
+    async init() {
+        const compendiumTransformation = await this.getTransformationByName(this.name);
+        TransformationModule.logger.debug("compendium transformation:", compendiumTransformation);
+        this.uuid = compendiumTransformation.uuid;
+        this.id = compendiumTransformation._id
+        this.img = compendiumTransformation.img;
+        this.initialized = true
+    }
+
     static register() {
         if (!globalThis.TransformationModule?.Transformations) {
-        throw new Error(
-            "Transformations is not initialized. " +
-            "Ensure it is created in the init hook before importing subclasses."
-        );
+            throw new Error(
+                "Transformations is not initialized. " +
+                "Ensure it is created in the init hook before importing subclasses."
+            );
         }
 
         if (typeof this.name !== "string" || !this.name.length) {
@@ -243,12 +244,6 @@ export class Transformation {
         if (typeof this.tablePrefix !== "string" || !this.tablePrefix.length) {
             throw new Error(
                 `Transformation subclass "${this.name}" must define a static tablePrefix`
-            );
-        }
-
-        if (typeof this.transformationLevelKey !== "string" || !this.transformationLevelKey.length) {
-            throw new Error(
-                `Transformation subclass "${this.name}" must define a static transformationLevelKey`
             );
         }
 

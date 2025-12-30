@@ -6,7 +6,6 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     static itemId = "aberrant-horror";
     static name = "Aberrant Horror";
     static tablePrefix = "Unstable Form";
-    static transformationLevelKey = "aberrant-transformation-level";
     static rollTableEffectFunction = applyRollTableResult;
     static eldritchLimbsItemIds = {
         1: 'Compendium.transformations.gh-transformations.Item.6WiJSiBbhYTH80Da',
@@ -30,21 +29,21 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         TransformationModule.logger.debug("Aberrant horror constructor start")
         this.constants = { ...this.constants, ...this.constructor.subClassConstants }
         this.transformationLevel = super.getActorTransformationLevel(this);
-        this.initialized = true
         this.aberrantMutationEffects = this.constructor.subClassConstants.ABERRANT_MUTATION_EFFECTS;
         this.eldritchLimbsItemIds = this.constructor.eldritchLimbsItemIds
-        this.iconFolder.concat(this.name)
+        this.iconFolder += this.name
         TransformationModule.logger.debug("icon folder Transformation constructor 3", this.iconFolder)
+        super.init();
     }
 
     onDamage() {
-        TransformationModule.logger.log("onDamage AberrantHorror");        
+        TransformationModule.logger.log("onDamage AberrantHorror");
     }
 
     onBloodied() {
         this.aberrantForm()
         if (this.transformationLevel >= 2) {
-          this.hideousAppearance()  
+            this.hideousAppearance()
         }
         if (this.transformationLevel > 3) {
             this.entropicAbomination(this.globalConstants.CONDITION.BLOODIED)
@@ -85,7 +84,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         }
     }
 
-    onHitDieRoll(context) {   
+    onHitDieRoll(context) {
         TransformationModule.logger.log("onHitDieRoll AberrantHorror");
         context = this.aberrantLossofVitality(context);
         return context;
@@ -101,7 +100,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     onSavingThrow(roll) {
         TransformationModule.logger.log("onSavingThrow AberrantHorror")
-        if (this.transformationLevel > 3){
+        if (this.transformationLevel > 3) {
             roll = this.entropicAbomination(this.globalConstants.ROLL_TYPE.SAVING_THROW, roll);
         }
         return roll
@@ -110,7 +109,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     getTriggerFlag(context, type) {
         switch (type) {
             case globalConstants.TRIGGER_FLAG.SPELL_SAVE:
-                if (this.transformationLevel > 3){
+                if (this.transformationLevel > 3) {
                     context.rolls[0].options.transformations = {
                         [this.itemId]: [
                             globalConstants.TRIGGER_FLAG.SPELL_SAVE
@@ -206,10 +205,10 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         TransformationModule.logger.log(roll)
         const natRoll = (roll._total - roll.data.mod)
         if (natRoll < 3) {
-          await this.rollResultFromRollTable(true)
+            await this.rollResultFromRollTable(true)
         }
     }
-    
+
     async entropicAbomination(type, data = null) {
         if (type == this.globalConstants.ROLL_TYPE.SAVING_THROW) {
             roll = data
@@ -249,7 +248,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     async removeAberrantMutationEffects(effectToExclude = null) {
-        if (this.hasAberrantMutationEffects(effectToExclude)){
+        if (this.hasAberrantMutationEffects(effectToExclude)) {
             await this.actor.deleteEmbeddedDocuments(
                 "ActiveEffect",
                 effects
@@ -262,7 +261,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     hasAberrantMutationEffects(effectToExclude = null) {
         let effectsToLookFor
-        if (effectToExclude){
+        if (effectToExclude) {
             effectsToLookFor = this.aberrantMutationEffects.filter(effect => effect != effectToExclude);
         } else {
             effectsToLookFor = this.aberrantMutationEffects;
