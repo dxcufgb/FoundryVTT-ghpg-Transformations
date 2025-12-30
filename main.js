@@ -26,10 +26,6 @@ Hooks.once("init", async () => {
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
     await import("./Transformations/manifest.js");
-    const rollTables = await TransformationModule.utils.importCompendiumPack("transformations.gh-roll-tables");
-    const transformations = await TransformationModule.utils.importCompendiumPack("transformations.gh-transformations");
-    let cachedCompendiums = { rollTables: rollTables, transformations: transformations };
-    Object.assign(TransformationModule.compendiums, cachedCompendiums)
 
     let transformationSubTypes = {};
 
@@ -68,8 +64,12 @@ Hooks.once("init", async () => {
 
 });
 
-Hooks.once("setup", () => {
+Hooks.once("setup", async () => {
     console.log("Transformations | Setup");
+    const rollTables = await TransformationModule.utils.importCompendiumPack("transformations.gh-roll-tables");
+    const transformations = await TransformationModule.utils.importCompendiumPack("transformations.gh-transformations");
+    let cachedCompendiums = { rollTables: rollTables, transformations: transformations };
+    Object.assign(TransformationModule.compendiums, cachedCompendiums)
 });
 
 Hooks.once("ready", () => {
