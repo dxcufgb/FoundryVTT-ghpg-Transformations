@@ -29,6 +29,7 @@ export class Transformation {
         this.actor = actor;
         this.itemId = this.constructor.itemId;
         this.name = this.constructor.name;
+        this.transformationLevel = this.getActorTransformationLevel();
         this.tablePrefix = this.constructor.tablePrefix;
         this.rollTableEffectFunction = this.constructor.rollTableEffectFunction;
         this.iconFolder = this.constructor.iconFolder;
