@@ -109,7 +109,7 @@ Hooks.on("dnd5e.beginConcentrating", (actor, item, activeEffect, midiUtilityActi
 });
 
 Hooks.on("createActiveEffect", (effect, options, userId) => {
-    if (effect.name.toLowerCase() == TransformationModule.constants.CONDITION.BLOODIED){
+    if (effect.name.toLowerCase() == TransformationModule.constants.CONDITION.BLOODIED) {
         const actor = effect.parent;
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
         if (transformation.initialized) {
@@ -164,7 +164,7 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
 Hooks.on("renderActorSheetV2", (actorSheet, originalHtml) => {
     if (actorSheet.document.flags.dnd5e.transformation) {
         TransformationModule.logger.log("actor: ", actorSheet.actor)
-        const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actorSheet.actor);
+        const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actorSheet.actor).init();
         if (transformation.initialized) {
             const html = TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData())
             TransformationModule.logger.debug("new pill: ", html);

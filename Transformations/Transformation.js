@@ -11,6 +11,7 @@ export class Transformation {
     actor;
     rollTableEffectFunction;
 
+    static compendiumTransformation;
     static iconFolder = "modules/transformations/Icons/Transformations/";
     static constants = {
         APPLY_LOWER_RESULT: "onlyApplyLowerResult",
@@ -31,6 +32,12 @@ export class Transformation {
         this.tablePrefix = this.constructor.tablePrefix;
         this.rollTableEffectFunction = this.constructor.rollTableEffectFunction;
         this.iconFolder = this.constructor.iconFolder;
+        this.compendiumTransformation = this.getTransformationByName(this.name);
+        TransformationModule.logger.debug("compendium transformation:", compendiumTransformation);
+        this.uuid = compendiumTransformation.uuid;
+        this.id = compendiumTransformation._id
+        this.img = compendiumTransformation.img;
+        this.initialized = true
     }
 
     getTransformationType(actor) {
@@ -197,7 +204,7 @@ export class Transformation {
     }
 
     async getTransformationByName(name) {
-        const index = await this.getCompendiumIndexByName(this.constants.TRANSFORMATIONS_COMPENDIUM);
+        const index = this.getCompendiumIndexByName(this.constants.TRANSFORMATIONS_COMPENDIUM);
         TransformationModule.logger.debug("index found:", index)
         const entry = index.find(e => e.name === name);
         return entry;
@@ -205,20 +212,11 @@ export class Transformation {
 
     async getCompendiumIndexByName(compendiumName) {
         TransformationModule.logger.debug("compendium name: ", compendiumName)
-        const pack = game.packs.get(compendiumName);
+        const pack = TransformationModule.compendiums.getName(compendiumName);
         TransformationModule.logger.debug("compendium pack: ", pack)
-        const index = await pack.getIndex();
+        const index = pack.index;
         TransformationModule.logger.debug("index: ", index)
         return index
-    }
-
-    async init() {
-        const compendiumTransformation = await this.getTransformationByName(this.name);
-        TransformationModule.logger.debug("compendium transformation:", compendiumTransformation);
-        this.uuid = compendiumTransformation.uuid;
-        this.id = compendiumTransformation._id
-        this.img = compendiumTransformation.img;
-        this.initialized = true
     }
 
     static register() {
