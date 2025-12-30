@@ -1,11 +1,11 @@
-<div class="draggable pill-lg texture background item-tooltip" data-action="showDocument"
+<div class="draggable pill-lg texture transformation item-tooltip" data-action="showDocument"
         data-item-id="{{ transformation.id }}" data-uuid="{{ transformation.uuid }}"
         aria-label="{{ localize (ifThen actor.isOwner DND5E.ItemEdit DND5E.ItemView) }}">
     {{#if transformation.img}}
     <img class="gold-icon" src="{{ transformation.img }}" alt="{{ transformation.name }}">
     {{/if}}
     <div class="name name-stacked">
-        <span class="title">{{ transformation.name }}({{transformation.transformationLevel }})</span>
+        <span class="title">{{ transformation.name }} (stage {{ transformation.transformationLevel }})</span>
     </div>
     {{#if editable}}
     <button type="button" class="config-button unbutton" data-action="deleteDocument"
