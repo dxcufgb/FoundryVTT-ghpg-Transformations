@@ -19,12 +19,17 @@ Hooks.once("init", async () => {
     TransformationModule.constants = {};
     TransformationModule.dialogs = {};
     TransformationModule.utils = {};
+    TransformationModule.compendiums = {};
     TransformationModule.Transformations = new Map();
     Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
     TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
     await import("./Transformations/manifest.js");
+    const rollTables = await TransformationModule.utils.importCompendiumPack("transformations.gh-roll-tables");
+    const transformations = await TransformationModule.utils.importCompendiumPack("transformations.gh-transformations");
+    let cachedCompendiums = { rollTables: rollTables, transformations: transformations };
+    Object.assign(TransformationModule.compendiums, cachedCompendiums)
 
     let transformationSubTypes = {};
 
