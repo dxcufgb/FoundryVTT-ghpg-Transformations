@@ -175,7 +175,7 @@ Hooks.on("renderActorSheetV2", (actorSheet, originalHtml) => {
                 const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData())
                 TransformationModule.logger.debug("new pill: ", html);
                 originalHtml.querySelector(".pills-lg").append(html);
-            });
+            })();
         }
     }
 });
