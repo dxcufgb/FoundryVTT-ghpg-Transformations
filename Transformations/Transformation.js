@@ -212,7 +212,7 @@ export class Transformation {
 
     async getCompendiumIndexByName(compendiumName) {
         TransformationModule.logger.debug("compendium name: ", compendiumName)
-        const pack = TransformationModule.compendiums.getName(compendiumName);
+        const pack = TransformationModule.compendiums[compendiumName];
         TransformationModule.logger.debug("compendium pack: ", pack)
         const index = pack.index;
         TransformationModule.logger.debug("index: ", index)
