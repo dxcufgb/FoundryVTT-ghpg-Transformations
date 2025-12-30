@@ -32,7 +32,7 @@ export class Transformation {
         this.tablePrefix = this.constructor.tablePrefix;
         this.rollTableEffectFunction = this.constructor.rollTableEffectFunction;
         this.iconFolder = this.constructor.iconFolder;
-        this.compendiumTransformation = this.getTransformationByName(this.name);
+        const compendiumTransformation = this.getTransformationByName(this.name);
         TransformationModule.logger.debug("compendium transformation:", compendiumTransformation);
         this.uuid = compendiumTransformation.uuid;
         this.id = compendiumTransformation._id
