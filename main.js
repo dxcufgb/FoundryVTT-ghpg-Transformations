@@ -171,9 +171,11 @@ Hooks.on("renderActorSheetV2", (actorSheet, originalHtml) => {
         TransformationModule.logger.log("actor: ", actorSheet.actor)
         const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actorSheet.actor);
         if (transformation.initialized) {
-            const html = TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData())
-            TransformationModule.logger.debug("new pill: ", html);
-            originalHtml.querySelector(".pills-lg").append(html);
+            (async () => {
+                const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData())
+                TransformationModule.logger.debug("new pill: ", html);
+                originalHtml.querySelector(".pills-lg").append(html);
+            });
         }
     }
 });

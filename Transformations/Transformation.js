@@ -134,7 +134,8 @@ export class Transformation {
     }
 
     getActorTransformationLevel() {
-        return this.actor.flags.dnd5e.transformationLevel;
+        TransformationModule.logger.debug("Transformation level:", this.actor.flags.dnd5e["transformation-level"])
+        return this.actor.flags.dnd5e["transformation-level"];
     }
 
     async getRollTable() {
