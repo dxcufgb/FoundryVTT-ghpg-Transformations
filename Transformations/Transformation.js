@@ -19,8 +19,8 @@ export class Transformation {
         MODULE_ID: "transformations",
         SHUOLD_BE_IN_SUBCLASS_LOG: "should be implemented AND called at sub-class level!",
         HAS_BEEN_BLOODIED_SINCE_LONG_REST: "hasBeenBloodiedSinceLongRest",
-        ROLL_TABLE_COMPENDIUM: "transformations.gh-roll-tables",
-        TRANSFORMATIONS_COMPENDIUM: "transformations.gh-transformations"
+        ROLL_TABLE_COMPENDIUM: "rollTables",
+        TRANSFORMATIONS_COMPENDIUM: "transformations"
     };
 
     constructor(actor) {
