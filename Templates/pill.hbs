@@ -9,10 +9,8 @@
         <span class="subtitle">stage {{ transformation.transformationLevel }}</span>
     </div>
     {{#if editable}}
-    <button type="button" class="config-button unbutton" data-action="deleteDocument"
-            data-tooltip="DND5E.ItemDelete" aria-label="{{ localize 'DND5E.ItemDelete' }}"
-            data-tooltip-class data-tooltip-direction>
-        <i class="fas fa-trash" inert></i>
+    <button type="button" class="config-button unbutton" data-action="showConfiguration" data-config="tansformation" data-tooltip="DND5E.CreatureTypeConfig" aria-label="Configure Transformation">
+        <i class="fas fa-cog" inert=""></i>
     </button>
     {{/if}}
 </div>
