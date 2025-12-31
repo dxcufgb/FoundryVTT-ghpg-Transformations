@@ -293,7 +293,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         await this.actor.deleteEmbeddedDocuments("Item", itemsToRemove);
     }
 
-    getPillsData() {
+    getPillsData(isEditable) {
         const pillsData = {
             transformation: {
                 id: this.id,
@@ -304,7 +304,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             },
             actor: this.actor,
             DND5E: dnd5e,
-            editable: false
+            editable: isEditable
         }
         TransformationModule.logger.warn("getPillsData: ", pillsData);
         return pillsData;
