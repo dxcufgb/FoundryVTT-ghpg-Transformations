@@ -5,7 +5,8 @@
     <img class="gold-icon" src="{{ transformation.img }}" alt="{{ transformation.name }}">
     {{/if}}
     <div class="name name-stacked">
-        <span class="title">{{ transformation.name }} (stage {{ transformation.transformationLevel }})</span>
+        <span class="title">{{ transformation.name }}</span>
+        <span class="subtitle">stage {{ transformation.transformationLevel }}</span>
     </div>
     {{#if editable}}
     <button type="button" class="config-button unbutton" data-action="deleteDocument"

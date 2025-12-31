@@ -174,7 +174,8 @@ Hooks.on("renderActorSheetV2", (actorSheet, originalHtml) => {
             (async () => {
                 const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData())
                 TransformationModule.logger.debug("new pill: ", html);
-                originalHtml.querySelector(".pills-lg").append(html);
+                const fragment = document.createRange().createContextualFragment(html);
+                originalHtml.querySelector(".pills-lg").append(fragment);
             })();
         }
     }
