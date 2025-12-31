@@ -29,7 +29,10 @@ Hooks.once("init", async () => {
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
     await import("./Transformations/manifest.js");
+});
 
+Hooks.once("setup", async () => {
+    console.log("Transformations | Setup");
     let transformationSubTypes = {};
 
     for (const transformationSubClass of TransformationModule.Transformations.values()) {
@@ -64,11 +67,6 @@ Hooks.once("init", async () => {
         hint: "Level of active transformation on the character",
         section: "Transformations"
     };
-
-});
-
-Hooks.once("setup", async () => {
-    console.log("Transformations | Setup");
     const rollTables = await TransformationModule.utils.importCompendiumPack("transformations.gh-roll-tables");
     const transformations = await TransformationModule.utils.importCompendiumPack("transformations.gh-transformations");
     let cachedCompendiums = { rollTables: rollTables, transformations: transformations };
