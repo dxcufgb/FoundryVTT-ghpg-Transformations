@@ -33,11 +33,6 @@ export class Transformation {
         this.tablePrefix = this.constructor.tablePrefix;
         this.rollTableEffectFunction = this.constructor.rollTableEffectFunction;
         this.iconFolder = this.constructor.iconFolder;
-        const compendiumTransformation = this.getTransformationByName(this.name);
-        TransformationModule.logger.debug("compendium transformation:", compendiumTransformation);
-        this.uuid = compendiumTransformation.uuid;
-        this.id = compendiumTransformation._id
-        this.img = compendiumTransformation.img;
     }
 
     getTransformationType(actor) {
@@ -253,6 +248,11 @@ export class Transformation {
             );
             return;
         }
+        const compendiumTransformation = this.getTransformationByName(this.name);
+        TransformationModule.logger.debug("compendium transformation:", compendiumTransformation);
+        this.uuid = compendiumTransformation.uuid;
+        this.id = compendiumTransformation._id
+        this.img = compendiumTransformation.img;
         TransformationModule.Transformations.set(this.itemId, this);
         TransformationModule.logger.debug(
             `Registered: ${this.itemId}`,

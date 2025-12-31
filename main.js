@@ -29,11 +29,7 @@ Hooks.once("init", async () => {
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
     await import("./Transformations/manifest.js");
-    TransformationModule.logger.warn("Transformations:", TransformationModule.Transformations);
-});
 
-Hooks.once("setup", async () => {
-    console.log("Transformations | Setup");
     let transformationSubTypes = {};
 
     for (const transformationSubClass of TransformationModule.Transformations.values()) {
@@ -68,6 +64,11 @@ Hooks.once("setup", async () => {
         hint: "Level of active transformation on the character",
         section: "Transformations"
     };
+
+});
+
+Hooks.once("setup", async () => {
+    console.log("Transformations | Setup");
     const rollTables = await TransformationModule.utils.importCompendiumPack("transformations.gh-roll-tables");
     const transformations = await TransformationModule.utils.importCompendiumPack("transformations.gh-transformations");
     let cachedCompendiums = { rollTables: rollTables, transformations: transformations };
@@ -185,7 +186,7 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
 
                     new showConfiguration.TransformationConfig(
                         app.actor,
-                        TransformationModule.transformations
+                        TransformationModule.compendiums.transformations
                     ).render(true);
                 }
             });
