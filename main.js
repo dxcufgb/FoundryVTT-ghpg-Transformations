@@ -167,6 +167,8 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
 });
 
 Hooks.on("renderActorSheetV2", (actorSheet, originalHtml) => {
+    TransformationModule.logger("sheetConfig:", actorSheet.options.sheetConfig)
+    TransformationModule.logger("editPermission:", actorSheet.options.editPermission)
     if (actorSheet.document.flags.dnd5e.transformation) {
         TransformationModule.logger.log("actor: ", actorSheet.actor)
         const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actorSheet.actor);
