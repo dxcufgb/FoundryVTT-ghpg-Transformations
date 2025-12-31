@@ -1,4 +1,6 @@
-export class TransformationConfig extends foundry.applications.api.ApplicationV2 {
+export class TransformationConfig extends foundry.applications.api.HandlebarsApplicationMixin(
+    foundry.applications.api.ApplicationV2
+  ) {
     static DEFAULT_OPTIONS = {
         id: "transformation-config",
         tag: "form",
@@ -21,6 +23,12 @@ export class TransformationConfig extends foundry.applications.api.ApplicationV2
     get isEditable() {
         return this.actor.isOwner || game.user.isGM;
     }
+
+    static PARTS = {
+        content: {
+            template: "modules/my-module/templates/transformation-config.hbs"
+        }
+    };
 
     async _prepareContext() {
         if (!this.pack) throw new Error("Invalid compendium pack");
