@@ -34,7 +34,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         if (!this.transformations) throw new Error("Invalid transformations");
         const selectedUUID = this.actor.getFlag("dnd5e", "transformation")
         const valueMap = [];
-        for (const transformationSubClass of TransformationModule.Transformations.values()) {
+        for (const transformation of TransformationModule.Transformations.values()) {
             valueMap.push({
                 uuid: transformation.uuid,
                 name: transformation.name,
