@@ -171,28 +171,12 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
         TransformationModule.logger.log("actor: ", app.actor)
         const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
         if (transformation.initialized) {
-            const original = app._onAction.bind(app);
-            app._onAction = function (event, target) {
-                const action = target.dataset.action;
-                const id = target.dataset.id;
-
-                // Intercept only your case
-                if (action === "showConfiguration" && id === "transformation") {
-                    if (!this.isEditable) return;
-                    new TransformationConfig(
-                        this.actor,
-                        TransformationModule.compendiums.transformations
-                    ).render(true);
-                    return;
-                }
-                (async () => {
-                    const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData(config.editable))
-                    TransformationModule.logger.debug("new pill: ", html);
-                    const fragment = document.createRange().createContextualFragment(html);
-                    originalHtml.querySelector(".pills-lg").append(fragment);
-                })();
-                return original(event, target)
-            }
+            (async () => {
+                const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData(config.editable))
+                TransformationModule.logger.debug("new pill: ", html);
+                const fragment = document.createRange().createContextualFragment(html);
+                originalHtml.querySelector(".pills-lg").append(fragment);
+            })();
         }
     }
 });
