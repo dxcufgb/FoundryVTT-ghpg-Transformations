@@ -17,11 +17,14 @@ Hooks.once("init", async () => {
     globalThis.TransformationModule ??= {};
     TransformationModule.logger = logger.getLogger(5)
     TransformationModule.constants = {};
+    TransformationModule.dialogConfigs = {};
     TransformationModule.dialogs = {};
     TransformationModule.utils = {};
     TransformationModule.compendiums = {};
     TransformationModule.Transformations = new Map();
     Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
+    TransformationModule.dialogConfigs["showConfiguration"] = {}
+    TransformationModule.dialogConfigs.showConfiguration = await import("./TransformationDialogs.js")
     TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
@@ -181,8 +184,9 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
                 TransformationModule.logger.debug("config:", config);
                 if (action === "showConfiguration" && config === "transformation") {
                     if (!app.isEditable) return;
+                    const showConfiguration = TransformationModule.dialogConfigs.showConfiguration;
 
-                    new TransformationConfig(
+                    new showConfiguration.TransformationConfig(
                         app.actor,
                         TransformationModule.compendiums.transformations
                     ).render(true);
