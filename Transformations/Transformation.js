@@ -33,7 +33,7 @@ export class Transformation {
         this.tablePrefix = this.constructor.tablePrefix;
         this.rollTableEffectFunction = this.constructor.rollTableEffectFunction;
         this.iconFolder = this.constructor.iconFolder;
-        this.setCompendiumValues()
+        this.constructor.setCompendiumValues()
     }
 
     getTransformationType(actor) {
