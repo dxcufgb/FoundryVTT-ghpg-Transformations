@@ -194,4 +194,5 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
                 return original(event, target)
             }
         }
-    });
+    }
+});
