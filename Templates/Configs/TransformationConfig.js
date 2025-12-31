@@ -31,7 +31,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
     };
 
     async _prepareContext() {
-        if (!this.pack) throw new Error("Invalid compendium pack");
+        if (!this.transformations) throw new Error("Invalid transformations");
         const selectedUUID = this.actor.getFlag("dnd5e", "transformation")
 
         return {
