@@ -29,6 +29,7 @@ Hooks.once("init", async () => {
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
     await import("./Transformations/manifest.js");
+    TransformationModule.logger.warn("Transformations:", TransformationModule.Transformations);
 });
 
 Hooks.once("setup", async () => {
