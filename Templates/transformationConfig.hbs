@@ -1,0 +1,29 @@
+<section class="transformation-config">
+    {{#each transformations as |t|}}
+      <label class="pill pill-lg texture transformation">
+        <input
+          type="radio"
+          name="transformation"
+          value="{{t.uuid}}"
+          {{#if t.selected}}checked{{/if}}
+          {{#unless ../editable}}disabled{{/unless}}
+        >
+  
+        {{#if t.img}}
+          <img class="gold-icon" src="{{t.img}}" alt="{{t.name}}">
+        {{/if}}
+  
+        <span class="name">{{t.name}}</span>
+      </label>
+    {{/each}}
+  </section>
+  
+  <footer class="sheet-footer">
+    {{#if editable}}
+      <button type="submit" data-action="save">
+        Apply
+      </button>
+    {{else}}
+      <p class="notes">You do not have permission to edit this.</p>
+    {{/if}}
+  </footer>
