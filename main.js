@@ -167,14 +167,14 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
 });
 
 Hooks.on("renderActorSheetV2", (actorSheet, originalHtml, config) => {
-    TransformationModule.logger.debug("isEditable:", config.isEditable)
+    TransformationModule.logger.debug("isEditable:", config.editable)
     TransformationModule.logger.debug("editPermission:", actorSheet.options.editPermission)
     if (actorSheet.document.flags.dnd5e.transformation) {
         TransformationModule.logger.log("actor: ", actorSheet.actor)
         const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actorSheet.actor);
         if (transformation.initialized) {
             (async () => {
-                const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData(config.isEditable))
+                const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData(config.editable))
                 TransformationModule.logger.debug("new pill: ", html);
                 const fragment = document.createRange().createContextualFragment(html);
                 originalHtml.querySelector(".pills-lg").append(fragment);
