@@ -1,6 +1,7 @@
 .dnd5e2.sheet.actor.character .sheet-body .pill-lg.texture.transformation {
     background: url("Templates/img/transformation.png") no-repeat right, var(--pill-background-color);
     background-size: contain;
+    transition: box-shadow 200ms ease;
 }
 
 .dnd5e2.sheet.actor.character .sheet-body .pill-lg.transformation:hover:not(:has(a:hover)) {
