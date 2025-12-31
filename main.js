@@ -40,6 +40,9 @@ Hooks.once("setup", async () => {
     let transformationSubTypes = {};
 
     for (const transformationSubClass of TransformationModule.Transformations.values()) {
+        if (!transformationSubClass.uuid) {
+            await transformationSubClass.init()
+        }
         transformationSubTypes[transformationSubClass.id] = transformationSubClass.name;
     }
 

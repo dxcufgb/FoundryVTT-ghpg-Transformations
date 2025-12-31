@@ -36,6 +36,10 @@ export class Transformation {
         Transformation.setCompendiumValues(this)
     }
 
+    init() {
+        Transformation.setCompendiumValues(this)
+    }
+
     getTransformationType(actor) {
         let transformation = this;
         if (!actor) {
@@ -258,6 +262,7 @@ export class Transformation {
             return;
         }
         Transformation.setCompendiumValues(this)
+        TransformationModule.Transformations.set(this.itemId, this);
         TransformationModule.logger.debug(
             `Registered: ${this.itemId}`,
             this
