@@ -5,5 +5,5 @@
 }
 
 .dnd5e2.sheet.actor.character .sheet-body .pill-lg.transformation:hover:not(:has(a:hover)) {
-    box-shadow: 0 0 12 px var(--dnd5e-color-gold);
+    box-shadow: 0 0 12px 0 var(--dnd5e-color-gold);
 }
