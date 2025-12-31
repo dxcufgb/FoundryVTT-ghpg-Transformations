@@ -179,7 +179,7 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
                 const config = button.dataset.config;
                 TransformationModule.logger.debug("action:", action);
                 TransformationModule.logger.debug("config:", config);
-                if (action === "showConfiguration" && id === "transformation") {
+                if (action === "showConfiguration" && config === "transformation") {
                     if (!app.isEditable) return;
 
                     new TransformationConfig(
