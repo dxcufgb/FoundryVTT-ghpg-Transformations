@@ -26,7 +26,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
 
     static PARTS = {
         content: {
-            template: "modules/my-module/templates/transformation-config.hbs"
+            template: "modules/transformations/scripts/Templates/transformationConfig.hbs"
         }
     };
 
