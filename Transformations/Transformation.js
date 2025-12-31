@@ -257,7 +257,7 @@ export class Transformation {
             );
             return;
         }
-        this.setCompendiumValues()
+        this.construct.setCompendiumValues()
         TransformationModule.logger.debug(
             `Registered: ${this.itemId}`,
             this
