@@ -167,6 +167,8 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
 });
 
 Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
+    TransformationModule.logger.debug("app:", app);
+    TransformationModule.logger.debug("app._onAction:", app._onAction);
     if (app.document.flags.dnd5e.transformation) {
         TransformationModule.logger.log("actor: ", app.actor)
         const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
