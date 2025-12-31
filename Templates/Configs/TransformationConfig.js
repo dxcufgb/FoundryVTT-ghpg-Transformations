@@ -6,7 +6,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         tag: "form",
         window: {
             title: "Transformation",
-            width: 420,
+            width: 600,
             resizable: false
         },
         actions: {
@@ -14,10 +14,10 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         }
     };
 
-    constructor(actor, pack, options = {}) {
+    constructor(actor, transformations, options = {}) {
         super(options);
         this.actor = actor;
-        this.pack = pack;
+        this.transformations = transformations;
     }
 
     get isEditable() {
@@ -36,12 +36,14 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
 
         return {
             editable: this.isEditable,
-            transformations: this.pack.index.map(e => ({
-                uuid: e.uuid,
-                name: e.name,
-                img: e.img,
-                selected: e.uuid === selectedUUID
-            }))
+            transformations: this.transformations.forEach(transformation => {
+                const returnObject= {
+                    uuid: transformation.uuid,
+                    name: transformation.name,
+                    img: transformation.img,
+                    selected: transformation.uuid === selectedUUID
+                }
+            })
         };
     }
 

@@ -32,6 +32,11 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         this.eldritchLimbsItemIds = this.constructor.eldritchLimbsItemIds;
         this.iconFolder += this.name + "/";
         TransformationModule.logger.debug("icon folder Transformation constructor 3", this.iconFolder);
+        const compendiumTransformation = this.getTransformationByName(this.name);
+        TransformationModule.logger.debug("compendium transformation:", compendiumTransformation);
+        this.uuid = compendiumTransformation.uuid;
+        this.id = compendiumTransformation._id
+        this.img = compendiumTransformation.img;
         this.initialized = true
     }
 
