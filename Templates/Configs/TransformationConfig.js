@@ -33,17 +33,19 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
     async _prepareContext() {
         if (!this.transformations) throw new Error("Invalid transformations");
         const selectedUUID = this.actor.getFlag("dnd5e", "transformation")
+        const valueMap = [];
+        for (const transformationSubClass of TransformationModule.Transformations.values()) {
+            valueMap.push({
+                uuid: transformation.uuid,
+                name: transformation.name,
+                img: transformation.img,
+                selected: transformation.uuid === selectedUUID
+            });
+        }
 
         return {
             editable: this.isEditable,
-            transformations: this.transformations.forEach(transformation => {
-                const returnObject= {
-                    uuid: transformation.uuid,
-                    name: transformation.name,
-                    img: transformation.img,
-                    selected: transformation.uuid === selectedUUID
-                }
-            })
+            transformations: valueMap
         };
     }
 

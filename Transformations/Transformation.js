@@ -36,10 +36,6 @@ export class Transformation {
         Transformation.setCompendiumValues(this)
     }
 
-    init() {
-        Transformation.setCompendiumValues(this)
-    }
-
     getTransformationType(actor) {
         let transformation = this;
         if (!actor) {
