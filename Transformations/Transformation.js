@@ -38,7 +38,6 @@ export class Transformation {
         this.uuid = compendiumTransformation.uuid;
         this.id = compendiumTransformation._id
         this.img = compendiumTransformation.img;
-        this.initialized = true
     }
 
     getTransformationType(actor) {
