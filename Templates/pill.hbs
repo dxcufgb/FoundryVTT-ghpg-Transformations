@@ -6,7 +6,13 @@
     {{/if}}
     <div class="name name-stacked">
         <span class="title">{{ transformation.name }}</span>
-        <span class="subtitle">stage {{ transformation.transformationLevel }}</span>
+        {{#if editable}}
+            <select class="transformation-level unselect" name="actor.flags.tranformation.transformation-level">
+                {{ selectOptions dnd5e.config.characterFlags.transformation-level selected=transformation.transformationLevel labelAttr="label" }}
+            </select>
+        {{else}}
+            <span class="subtitle">stage {{ transformation.transformationLevel }}</span>
+        {{/if}}
     </div>
     {{#if editable}}
     <button type="button" class="config-button unbutton" data-action="showConfiguration" data-config="tansformation" data-tooltip="transformationConfig" aria-label="Configure Transformation">

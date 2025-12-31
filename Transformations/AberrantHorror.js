@@ -304,6 +304,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             },
             actor: this.actor,
             DND5E: dnd5e,
+            transformationConfig: "Configure Transformation",
             editable: isEditable
         }
         TransformationModule.logger.warn("getPillsData: ", pillsData);
