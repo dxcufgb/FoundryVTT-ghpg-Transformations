@@ -173,7 +173,7 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
         TransformationModule.logger.log("actor: ", app.actor)
         const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
         if (transformation.initialized) {
-            html.addEventListener("click", event => {
+            originalHtml.addEventListener("click", event => {
                 const button = event.target.closest("[data-action]");
                 if (!button) return;
 
