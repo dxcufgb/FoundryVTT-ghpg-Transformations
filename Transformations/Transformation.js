@@ -199,14 +199,14 @@ export class Transformation {
         });
     }
 
-    getTransformationByName(name) {
+    static getTransformationByName(name) {
         const index = this.getCompendiumIndexByName(this.constants.TRANSFORMATIONS_COMPENDIUM);
         TransformationModule.logger.debug("index found:", index)
         const entry = index.find(e => e.name === name);
         return entry;
     }
 
-    getCompendiumIndexByName(compendiumName) {
+    static getCompendiumIndexByName(compendiumName) {
         TransformationModule.logger.debug("compendium name: ", compendiumName)
         const pack = TransformationModule.compendiums[compendiumName];
         TransformationModule.logger.debug("compendium pack: ", pack)
