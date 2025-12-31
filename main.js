@@ -186,7 +186,7 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
 
                     new showConfiguration.TransformationConfig(
                         app.actor,
-                        TransformationModule.compendiums.transformations
+                        TransformationModule.transformations
                     ).render(true);
                 }
             });
