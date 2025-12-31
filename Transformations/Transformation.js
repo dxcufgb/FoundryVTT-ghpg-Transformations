@@ -33,6 +33,7 @@ export class Transformation {
         this.tablePrefix = this.constructor.tablePrefix;
         this.rollTableEffectFunction = this.constructor.rollTableEffectFunction;
         this.iconFolder = this.constructor.iconFolder;
+        this.setCompendiumValues()
     }
 
     getTransformationType(actor) {
@@ -215,6 +216,14 @@ export class Transformation {
         return index
     }
 
+    static setCompendiumValues() {
+        const compendiumTransformation = this.getTransformationByName(this.name);
+        TransformationModule.logger.debug("compendium transformation:", compendiumTransformation);
+        this.uuid = compendiumTransformation.uuid;
+        this.id = compendiumTransformation._id
+        this.img = compendiumTransformation.img;
+    }
+
     static register() {
         if (!globalThis.TransformationModule?.Transformations) {
             throw new Error(
@@ -248,12 +257,7 @@ export class Transformation {
             );
             return;
         }
-        const compendiumTransformation = this.getTransformationByName(this.name);
-        TransformationModule.logger.debug("compendium transformation:", compendiumTransformation);
-        this.uuid = compendiumTransformation.uuid;
-        this.id = compendiumTransformation._id
-        this.img = compendiumTransformation.img;
-        TransformationModule.Transformations.set(this.itemId, this);
+        this.setCompendiumValues()
         TransformationModule.logger.debug(
             `Registered: ${this.itemId}`,
             this
