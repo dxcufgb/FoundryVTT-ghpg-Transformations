@@ -222,7 +222,6 @@ export class Transformation {
         transformation.uuid = compendiumTransformation.uuid;
         transformation.id = compendiumTransformation._id
         transformation.img = compendiumTransformation.img;
-        return transformation;
     }
 
     static register() {
@@ -258,7 +257,7 @@ export class Transformation {
             );
             return;
         }
-        this = Transformation.setCompendiumValues(this)
+        Transformation.setCompendiumValues(this)
         TransformationModule.logger.debug(
             `Registered: ${this.itemId}`,
             this
