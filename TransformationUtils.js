@@ -167,14 +167,3 @@ export async function importCompendiumPack(compendiumName) {
 	TransformationModule.logger.debug("imported pack:", pack)
 	return pack;
 }
-
-export function showTransformationConfiguration(event, target) {
-	TransformationModule.logger.debug("event:", event);
-	TransformationModule.logger.debug("target:", target);
-	if (!target.dataset.editable) return;
-	new TransformationConfig(
-		target.dataset.actor,
-		TransformationModule.compendiums.transformations
-	).render(true);
-	return;
-}

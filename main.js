@@ -173,6 +173,22 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
         TransformationModule.logger.log("actor: ", app.actor)
         const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
         if (transformation.initialized) {
+            html.addEventListener("click", event => {
+                const button = event.target.closest("[data-action]");
+                if (!button) return;
+
+                const action = button.dataset.action;
+                const id = button.dataset.id;
+
+                if (action === "showConfiguration" && id === "transformation") {
+                    if (!app.isEditable) return;
+
+                    new TransformationConfig(
+                        app.actor,
+                        TransformationModule.compendiums.transformations
+                    ).render(true);
+                }
+            });
             (async () => {
                 const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData(config.editable))
                 TransformationModule.logger.debug("new pill: ", html);
