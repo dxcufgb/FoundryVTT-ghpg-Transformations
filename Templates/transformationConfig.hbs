@@ -1,22 +1,23 @@
 <div class="transformation-config-wrapper">
-    <section class="transformation-config">
-        {{#each transformations as |t|}}
-        <label class="pill pill-lg texture transformation">
-            <input
-            type="radio"
-            name="transformation"
-            value="{{t.uuid}}"
-            {{#if t.selected}}checked{{/if}}
-            {{#unless ../editable}}disabled{{/unless}}
-            >
-    
-            {{#if t.img}}
-            <img class="gold-icon" src="{{t.img}}" alt="{{t.name}}">
-            {{/if}}
-    
-            <span class="name">{{t.name}}</span>
-        </label>
-        {{/each}}
+    <section class="flexcol transformation-config">
+        <div class="final-value">{{ preview }}</div>
+        <fieldset class="card">
+            <ol class="unlist form-grid form-grid-50 types-list" style="--type-rows: {{ rows }};">
+                {{#each transformations as |t|}}
+                <li class="type-row">
+                    <label>
+                        <span>{{t.name}}</span>
+                        <input type="radio" name="transformation value="{{t.uuid}}" {{#if t.selected}}checked{{/if}} {{#unless ../editable}}disabled{{/unless}}>
+                    </label>
+                </li>
+                {{/each}}
+                <li class="type-row none">
+                    <label for="transformation-type-none">
+                        <input type="radio" name="transformation" value="" id="">
+                    </label>
+                </li>
+            </ol>
+        </fieldset>
     </section>
     
     <footer class="sheet-footer">
