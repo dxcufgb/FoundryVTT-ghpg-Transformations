@@ -95,6 +95,13 @@ export class Transformation {
         TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
+    onTransformationUpdate() {
+        this.constructor.removeAllTransformationThings(this.actor);
+        if (this.initialized) {
+            this.applyTransformationStage();
+        }
+    }
+
     getTriggerFlag(context, type) {
         TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
@@ -209,6 +216,24 @@ export class Transformation {
             editable: isEditable
         }
         return pillsData;
+    }
+
+    applyTransformationStage() {
+        this.constants.TRANSFORMATION_STAGES[this.transformationLevel - 1].flatMap(stage => Object.values(stage)).forEach(async (itemName) => {
+            TransformationModule.logger.debug("Applying transformation item: ", stage, itemName);
+            const itemData = await TransformationModule.Utils.getItemDataByName(itemName);
+            itemData.flags.transformations?.grantedByTransformation = true;
+            if (itemData) {
+                TransformationModule.logger.debug("Creating item on actor: ", itemData);
+                //await this.actor.createEmbeddedDocuments("Item", [itemData]);
+            }
+        });
+    }
+
+    static removeAllTransformationThings(actor) {
+        actor.items.filter(i => i.flags.transformations?.grantedByTransformation).forEach(async (item) => {
+            await actor.deleteEmbeddedDocuments("Item", [item.id]);
+        });
     }
 
     static getTransformationByName(name) {

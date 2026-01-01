@@ -37,6 +37,8 @@ Hooks.once("setup", async () => {
     Object.assign(TransformationModule.compendiums, cachedCompendiums)
     await import("./Transformations/manifest.js");
 
+    Hooks.call("transformations.preTransformationsConfigSetup", TransformationModule.Transformations);
+
     let transformationSubTypes = {};
 
     for (const transformationSubClass of TransformationModule.Transformations.values()) {
@@ -192,4 +194,33 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
         const fragment = document.createRange().createContextualFragment(html);
         originalHtml.querySelector(".pills-lg").append(fragment);
     })();
+});
+
+// Listen for actor updates and detect when transformation or transformation-level change
+Hooks.on("updateActor", async (actor, diff, options, userId) => {
+    const flags = diff?.flags?.dnd5e;
+    const transformationWasUpdated = flags && ("transformation" in flags);
+    const transformationLevelWasUpdated = flags && ("transformation-level" in flags);
+
+    if (!transformationWasUpdated && !transformationLevelWasUpdated) return;
+
+    TransformationModule.logger.debug("Actor update affecting transformations", { actor: actor, diff: diff, transformationWasUpdated, transformationLevelWasUpdated });
+
+    // Resolve the current transformation for the actor after the update
+    const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
+    TransformationModule.logger.debug("Resolved transformation after update:", transformation);
+    transformation.onTransformationUpdate();
+
+    // Re-render any open actor sheets for this actor so pills/update UI reflect the change
+    try {
+        for (const appWindow of Object.values(ui.windows)) {
+            if (appWindow?.document?.id === actor.id && appWindow.constructor?.name?.startsWith("ActorSheet")) {
+                try { appWindow.render(true); } catch (err) { TransformationModule.logger.error("Failed to re-render actor sheet:", err); }
+            }
+        }
+    } catch (err) {
+        TransformationModule.logger.error("Error while attempting to re-render actor sheets:", err);
+    }
+
+    Hooks.call("transformations.actorUpdated", actor, { transformationWasUpdated, transformationLevelWasUpdated });
 });

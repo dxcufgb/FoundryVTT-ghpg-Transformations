@@ -21,7 +21,43 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             ELDRITCH_LIMBS: "Eldritch Limbs"
         },
         HIDING_HIDEOUS_APPEARANCE: "Hiding Hideous Appearance",
-        HIDE_HIDEOUS_FORM_STATUS_TEXT: "You concentrate on hiding your hideous form"
+        HIDE_HIDEOUS_FORM_STATUS_TEXT: "You concentrate on hiding your hideous form",
+        TRANSFORMATION_STAGES: {
+            1: {
+                ITEMS: {
+                    ABERRANT_MUTATION: "Aberrant Mutation",
+                    ABBERANT_FORM: "Aberrant Form",
+                    UNSTABLE_FORM: "Unstable Form"
+                }
+            },
+            2: {
+                ITEMS: {
+                    EFFICIENT_KILLER: "Eldritch Limbs (Efficient Killer)",
+                    WRITHING_TENDRILS: "Writhing Tendrils",
+                    HIDEOUSE_APPEARANCE: "Hideous Appearance",
+                },
+            },
+            3: {
+                ITEMS: {
+                    CONSTRICTING_TENDRILS: "Constricting Tendrils",
+                    TERRIFYING_VISAGE: "Terrifying Visage",
+                    UNSTABLE_EXISTENCE: "Unstable Existence",
+                }
+            },
+            4: {
+                ITEMS: {
+                    ELDRITCH_ABERRATION: "Eldritch Aberration",
+                    ENTROPIC_ABOMINATION: "Entropic Abomination",
+                    POISONOUS_MUTATIONS: "Poisonous Mutations"
+                },
+                DAMAGE_RESISTANCES: {
+                    POISONOUS_RESISTANCE: "Poisonous Resistance"
+                },
+                DAMAGE_IMMUNITIES: {
+                    POISONED_IMMUNITY: "Poisoned Immunity"
+                }
+            }
+        }
     }
 
     constructor(actor) {
