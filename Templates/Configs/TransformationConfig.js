@@ -56,7 +56,9 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         if (!app.isEditable) return;
 
         const formData = new FormData(target.form);
+        TransformationModule.logger.debug("formData: ", formData);
         const uuid = formData.get("transformation");
+        TransformationModule.logger.debug("Selected transformation uuid: ", uuid);
 
         await app.actor.setFlag("dnd5e", "transformation", uuid);
         app.close();
