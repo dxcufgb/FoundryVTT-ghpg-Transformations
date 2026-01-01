@@ -31,14 +31,14 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
 
     async _prepareContext() {
         if (!this.transformations) throw new Error("Invalid transformations");
-        const selectedUUID = this.actor.getFlag("dnd5e", "transformation")
+        const selectedId = this.actor.getFlag("dnd5e", "transformation");
         const valueMap = [];
         for (const transformation of TransformationModule.Transformations.values()) {
             valueMap.push({
-                uuid: transformation.uuid,
+                id: transformation.itemId,
                 name: transformation.name,
                 img: transformation.img,
-                selected: transformation.uuid === selectedUUID
+                selected: transformation.itemId === selectedId
             });
         }
 
@@ -47,20 +47,25 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         return {
             editable: this.isEditable,
             transformations: valueMap,
-            rows: rows
+            rows: rows,
+            noneSelected: !selectedId
         };
     }
 
     static async _onSave(event, target) {
         const app = this;
         if (!app.isEditable) return;
-        TransformationModule.logger.debug("Saving transformation config...", event, target);
+
         const formData = new FormData(target.form);
         TransformationModule.logger.debug("formData: ", formData);
-        const uuid = formData.get("transformation");
-        TransformationModule.logger.debug("Selected transformation uuid: ", uuid);
+        const id = formData.get("transformation");
+        TransformationModule.logger.debug("Selected transformation id: ", id);
 
-        await app.actor.setFlag("dnd5e", "transformation", uuid);
+        if (id && id !== "None") {
+            await app.actor.setFlag("dnd5e", "transformation", id);
+        } else {
+            await app.actor.unsetFlag("dnd5e", "transformation");
+        }
         app.close();
     }
 }

@@ -14,7 +14,7 @@
                 <li style="display: flex; justify-content: right;" class="type-row none">
                     <label for="transformation-type-none">
                         <span>None</span>
-                        <input type="radio" name="transformation" value="None" id="">
+                        <input type="radio" name="transformation" value="None" id="transformation-type-none" {{#if noneSelected}}checked{{/if}} {{#unless ../editable}}disabled{{/unless}}>
                     </label>
                 </li>
             </ol>
