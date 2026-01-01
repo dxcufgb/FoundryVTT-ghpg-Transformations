@@ -189,6 +189,21 @@ export class Transformation {
         await this.actor.setFlag(this.MODULE_ID, this.itemId, data);
     }
 
+    getItemFlag(item, flag) {
+        const data = foundry.utils.deepClone(
+            item.getFlag(this.MODULE_ID, this.itemId) ?? {}
+        );
+        return data.flag
+    }
+
+    async setItemFlag(item, flag, value) {
+        const data = foundry.utils.deepClone(
+            item.getFlag(this.MODULE_ID, this.itemId) ?? {}
+        );
+        data[flag] = value;
+        await item.setFlag(this.MODULE_ID, this.itemId, data);
+    }
+
     getChatMessage(type) {
         let chatMessage = ''
         switch (type) {
@@ -222,7 +237,7 @@ export class Transformation {
         this.constants.TRANSFORMATION_STAGES[this.transformationLevel - 1].flatMap(stage => Object.values(stage)).forEach(async (itemName) => {
             TransformationModule.logger.debug("Applying transformation item: ", stage, itemName);
             const itemData = await TransformationModule.Utils.getItemDataByName(itemName);
-            itemData.flags.transformations?.grantedByTransformation = true;
+            this.setItemFlag(itemData, "grantedByTransformation", true);
             if (itemData) {
                 TransformationModule.logger.debug("Creating item on actor: ", itemData);
                 //await this.actor.createEmbeddedDocuments("Item", [itemData]);
