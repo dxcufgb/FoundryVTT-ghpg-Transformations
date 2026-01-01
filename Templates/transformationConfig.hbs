@@ -4,14 +4,14 @@
         <fieldset class="card">
             <ol class="unlist form-grid form-grid-50 types-list" style="--type-rows: {{ rows }};">
                 {{#each transformations as |t|}}
-                <li class="type-row">
+                <li style="display: flex; justify-content: right;" class="type-row">
                     <label>
                         <span>{{t.name}}</span>
-                        <input type="radio" name="transformation" value="{{t.uuid}}" {{#if t.selected}}checked{{/if}} {{#unless ../editable}}disabled{{/unless}}>
+                        <input type="radio" name="transformation" value="{{t.id}}" {{#if t.selected}}checked{{/if}} {{#unless ../editable}}disabled{{/unless}}>
                     </label>
                 </li>
                 {{/each}}
-                <li class="type-row none">
+                <li style="display: flex; justify-content: right;" class="type-row none">
                     <label for="transformation-type-none">
                         <span>None</span>
                         <input type="radio" name="transformation" value="None" id="">
@@ -21,7 +21,7 @@
         </fieldset>
     </section>
     
-    <footer style="margin-top:10px display: flex; justify-content: center;" class="sheet-footer">
+    <footer style="margin-top:10px; display: flex; justify-content: center;" class="sheet-footer">
         {{#if editable}}
         <button type="submit" data-action="save">
             Apply

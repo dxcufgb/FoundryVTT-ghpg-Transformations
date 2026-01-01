@@ -171,29 +171,28 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
     if (app.document.flags.dnd5e.transformation) {
         TransformationModule.logger.log("actor: ", app.actor)
         const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
-        if (transformation.initialized) {
-            originalHtml.addEventListener("click", event => {
-                const button = event.target.closest("[data-action]");
-                if (!button) return;
+        originalHtml.addEventListener("click", event => {
+            const button = event.target.closest("[data-action]");
+            if (!button) return;
 
-                const action = button.dataset.action;
-                const config = button.dataset.config;
-                if (action === "showConfiguration" && config === "transformation") {
-                    if (!app.isEditable) return;
-                    const showConfiguration = TransformationModule.dialogConfigs.showConfiguration;
+            const action = button.dataset.action;
+            const config = button.dataset.config;
+            if (action === "showConfiguration" && config === "transformation") {
+                if (!app.isEditable) return;
+                const showConfiguration = TransformationModule.dialogConfigs.showConfiguration;
 
-                    new showConfiguration.TransformationConfig(
-                        app.actor,
-                        TransformationModule.Transformations
-                    ).render(true);
-                }
-            });
-            (async () => {
-                const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData(config.editable))
-                TransformationModule.logger.debug("new pill: ", html);
-                const fragment = document.createRange().createContextualFragment(html);
-                originalHtml.querySelector(".pills-lg").append(fragment);
-            })();
-        }
+                new showConfiguration.TransformationConfig(
+                    app.actor,
+                    TransformationModule.Transformations
+                ).render(true);
+            }
+        });
+        (async () => {
+            const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData(config.editable))
+            TransformationModule.logger.debug("new pill: ", html);
+            const fragment = document.createRange().createContextualFragment(html);
+            originalHtml.querySelector(".pills-lg").append(fragment);
+        })();
+
     }
 });

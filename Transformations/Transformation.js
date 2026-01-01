@@ -200,6 +200,17 @@ export class Transformation {
         });
     }
 
+    getPillsData(isEditable) {
+        const pillsData = {
+            transformation: "None",
+            actor: this.actor,
+            DND5E: dnd5e,
+            transformationConfig: "Configure Transformation",
+            editable: isEditable
+        }
+        return pillsData;
+    }
+
     static getTransformationByName(name) {
         const index = this.getCompendiumIndexByName(this.constants.TRANSFORMATIONS_COMPENDIUM);
         TransformationModule.logger.debug("index found:", index)

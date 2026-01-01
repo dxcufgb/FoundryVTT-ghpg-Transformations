@@ -1,22 +1,28 @@
-<div class="draggable pill-lg texture transformation item-tooltip" data-action="showDocument"
+{{#if (eq transformation "None")}}
+    <div class="pill-lg empty roboto-upper" data-action="showConfiguration" data-config="transformation">
+        Add Transformation
+    </div>
+{{else}}
+    <div class="draggable pill-lg texture transformation item-tooltip" data-action="showDocument"
         data-item-id="{{ transformation.id }}" data-uuid="{{ transformation.uuid }}"
         aria-label="{{ localize (ifThen actor.isOwner DND5E.ItemEdit DND5E.ItemView) }}">
-    {{#if transformation.img}}
-    <img class="gold-icon" src="{{ transformation.img }}" alt="{{ transformation.name }}">
-    {{/if}}
-    <div class="name name-stacked">
-        <span class="title">{{ transformation.name }}</span>
+        {{#if transformation.img}}
+        <img class="gold-icon" src="{{ transformation.img }}" alt="{{ transformation.name }}">
+        {{/if}}
+        <div class="name name-stacked">
+            <span class="title">{{ transformation.name }}</span>
+            {{#if editable}}
+                <select class="transformation-level unselect" name="actor.flags.tranformation.transformation-level">
+                    {{ selectOptions DND5E.config.characterFlags.transformation-level.choices selected=transformation.transformationLevel labelAttr="label" }}
+                </select>
+            {{else}}
+                <span class="subtitle">stage {{ transformation.transformationLevel }}</span>
+            {{/if}}
+        </div>
         {{#if editable}}
-            <select class="transformation-level unselect" name="actor.flags.tranformation.transformation-level">
-                {{ selectOptions DND5E.config.characterFlags.transformation-level.choices selected=transformation.transformationLevel labelAttr="label" }}
-            </select>
-        {{else}}
-            <span class="subtitle">stage {{ transformation.transformationLevel }}</span>
+        <button type="button" class="config-button unbutton" data-action="showConfiguration" data-config="transformation" data-tooltip="{{transformationConfig}}" aria-label="Configure Transformation">
+            <i class="fas fa-cog" inert=""></i>
+        </button>
         {{/if}}
     </div>
-    {{#if editable}}
-    <button type="button" class="config-button unbutton" data-action="showConfiguration" data-config="transformation" data-tooltip="{{transformationConfig}}" aria-label="Configure Transformation">
-        <i class="fas fa-cog" inert=""></i>
-    </button>
-    {{/if}}
-</div>
+{{/if}}
