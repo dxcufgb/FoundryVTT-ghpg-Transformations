@@ -6,6 +6,7 @@
                 {{#each transformations as |t|}}
                 <li class="type-row">
                     <label>
+                        <img style="height:40px" class="gold-icon" src="{{t.img}}" alt="{{t.name}}">
                         <span>{{t.name}}</span>
                         <input type="radio" name="transformation value="{{t.uuid}}" {{#if t.selected}}checked{{/if}} {{#unless ../editable}}disabled{{/unless}}>
                     </label>
@@ -13,7 +14,7 @@
                 {{/each}}
                 <li class="type-row none">
                     <label for="transformation-type-none">
-                        <input type="radio" name="transformation" value="" id="">
+                        <input type="radio" name="transformation" value="None" id="">
                     </label>
                 </li>
             </ol>

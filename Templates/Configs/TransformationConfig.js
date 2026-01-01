@@ -4,6 +4,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
     static DEFAULT_OPTIONS = {
         id: "transformation-config",
         tag: "form",
+        classes: ["sheet", "dnd5e2", "standard-form"]
         window: {
             title: "Transformation",
             width: 600,
@@ -43,9 +44,12 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
             });
         }
 
+        const rows = Math.ceil((TransformationModule.Transformations.length + 1) / 2);
+
         return {
             editable: this.isEditable,
-            transformations: valueMap
+            transformations: valueMap,
+            rows: rows
         };
     }
 
