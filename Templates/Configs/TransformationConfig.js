@@ -1,6 +1,4 @@
-export class TransformationConfig extends foundry.applications.api.HandlebarsApplicationMixin(
-    foundry.applications.api.ApplicationV2
-  ) {
+export class TransformationConfig extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
     static DEFAULT_OPTIONS = {
         id: "transformation-config",
         tag: "form",

@@ -2,22 +2,12 @@
     <section class="flexcol transformation-config">
         <div class="final-value">{{ preview }}</div>
         <fieldset class="card">
-            <ol class="unlist form-grid form-grid-50 types-list" style="--type-rows: {{ rows }};">
+            <select name="transformation" style="padding: 0.2em 2.5em 0.2em 0.75em; min-width: 28ch; line-height: 1.4; margin: 0em 1em 0em 2em;">
+                <option {{#unless ../editable}}disabled{{/unless}} value="">none</option>
                 {{#each transformations as |t|}}
-                <li class="type-row">
-                    <label>
-                        <img style="height:40px" class="gold-icon" src="{{t.img}}" alt="{{t.name}}">
-                        <span>{{t.name}}</span>
-                        <input type="radio" name="transformation value="{{t.uuid}}" {{#if t.selected}}checked{{/if}} {{#unless ../editable}}disabled{{/unless}}>
-                    </label>
-                </li>
+                    <option {{#if t.selected}}selected{{/if}} {{#unless ../editable}}disabled{{/unless}} value="{{t.uuid}}">{{t.name}}</option>
                 {{/each}}
-                <li class="type-row none">
-                    <label for="transformation-type-none">
-                        <input type="radio" name="transformation" value="None" id="">
-                    </label>
-                </li>
-            </ol>
+            </select>
         </fieldset>
     </section>
     
