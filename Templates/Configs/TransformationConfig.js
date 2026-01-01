@@ -54,7 +54,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
     static async _onSave(event, target) {
         const app = this;
         if (!app.isEditable) return;
-
+        TransformationModule.logger.debug("Saving transformation config...", event, target);
         const formData = new FormData(target.form);
         TransformationModule.logger.debug("formData: ", formData);
         const uuid = formData.get("transformation");
