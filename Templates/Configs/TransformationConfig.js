@@ -4,7 +4,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
     static DEFAULT_OPTIONS = {
         id: "transformation-config",
         tag: "form",
-        classes: ["sheet", "dnd5e2", "standard-form"]
+        classes: ["sheet", "dnd5e2", "standard-form"],
         window: {
             title: "Transformation",
             width: 600,
