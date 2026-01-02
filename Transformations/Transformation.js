@@ -246,10 +246,12 @@ export class Transformation {
             Object.values(stages.ITEMS).forEach(async (itemName) => {
                 TransformationModule.logger.debug("Applying transformation item: ", itemName);
                 const itemData = await Transformation.getCompendiumEntryByName(itemName);
-                this.setItemFlag(itemData, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
-                if (itemData) {
-                    TransformationModule.logger.debug("Creating item on actor: ", itemData);
-                    await this.actor.createEmbeddedDocuments("Item", [itemData]);
+                let itemInstance = TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(itemData._id).toObject();
+                delete itemInstance._id;
+                this.setItemFlag(itemInstance, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
+                if (itemInstance) {
+                    TransformationModule.logger.debug("Creating item on actor: ", itemInstance);
+                    await this.actor.createEmbeddedDocuments("Item", [itemInstance]);
                 }
             });
         }
@@ -302,6 +304,7 @@ export class Transformation {
         const index = this.getCompendiumIndexByName(this.constants.TRANSFORMATIONS_COMPENDIUM);
         TransformationModule.logger.debug("index found:", index)
         const entry = index.find(e => e.name === name);
+        const doc = TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(entry._id);
         return entry;
     }
 
