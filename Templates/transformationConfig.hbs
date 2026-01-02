@@ -2,10 +2,11 @@
     <section class="flexcol transformation-config">
         <div class="final-value">{{ preview }}</div>
         <fieldset class="card">
+            <legend>Transformation</legend>
             <ol class="unlist form-grid form-grid-50 types-list" style="--type-rows: {{ rows }};">
                 {{#each transformations as |t|}}
                 <li style="display: flex; justify-content: right;" class="type-row">
-                    <label>
+                    <label for="transformation-type-{{t.id}}">
                         <span>{{t.name}}</span>
                         <input type="radio" name="transformation" value="{{t.id}}" {{#if t.selected}}checked{{/if}} {{#unless ../editable}}disabled{{/unless}}>
                     </label>
