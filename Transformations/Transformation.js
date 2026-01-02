@@ -240,7 +240,8 @@ export class Transformation {
         TransformationModule.logger.debug("Transformation stages:", this.constants.TRANSFORMATION_STAGES);
         TransformationModule.logger.debug("Transformation stage items:", this.constants.TRANSFORMATION_STAGES[this.transformationStage]);
         this.getTransformationStages().forEach(async (itemName, stage) => {
-            TransformationModule.logger.debug("Applying transformation item: ", stage, itemName);
+            TransformationModule.logger.debug("Applying transformation stage: ", stage);
+            TransformationModule.logger.debug("Applying transformation item: ", itemName);
             const itemData = await Transformation.getCompendiumEntryByName(itemName);
             this.setItemFlag(itemData, globalConstants.TRANSFORMATION_ITEM_FLAG, true);
             if (itemData) {
