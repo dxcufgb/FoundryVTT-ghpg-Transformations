@@ -10,13 +10,13 @@ export class Transformation {
     initialized = false;
     actor;
     rollTableEffectFunction;
+    static MODULE_ID = "transformations"
 
     static compendiumTransformation;
     static iconFolder = "modules/transformations/Icons/Transformations/";
     static constants = {
         APPLY_LOWER_RESULT: "onlyApplyLowerResult",
         CURRENT_EFFECT_RANGE_LOW: "currentEffectRangeLow",
-        MODULE_ID: "transformations",
         SHUOLD_BE_IN_SUBCLASS_LOG: "should be implemented AND called at sub-class level!",
         HAS_BEEN_BLOODIED_SINCE_LONG_REST: "hasBeenBloodiedSinceLongRest",
         ROLL_TABLE_COMPENDIUM: "rollTables",
