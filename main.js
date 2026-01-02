@@ -56,45 +56,30 @@ Hooks.once("setup", async () => {
         choices[transformation.itemId] = transformation.name;
     });
 
-    // globalThis.dnd5e.config.characterFlags["transformation"] = {
-    //     type: "string",
-    //     choices: choices,
-    //     name: "Transformation",
-    //     hint: "Transformation active on the character",
-    //     section: "Transformations"
-    // };
-
-    // globalThis.dnd5e.config.characterFlags["transformationStage"] = {
-    //     type: Number,
-    //     choices: {
-    //         "1": "1",
-    //         "2": "2",
-    //         "3": "3",
-    //         "4": "4"
-    //     },
-    //     name: "Transformation Stage",
-    //     hint: "Stage of active transformation on the character",
-    //     section: "Transformations"
-    // };
-
-    CONFIG.DND5E.characterFlags.transformationStage = {
-        type: Number,
-        choices: {
-            "1": "1",
-            "2": "2",
-            "3": "3",
-            "4": "4"
-        },
-        name: "Transformation Stage",
-        hint: "Stage of active transformation on the character",
-        section: "Transformations"
-    };
-    CONFIG.DND5E.characterFlags.transformation = {
-        type: "string",
-        choices: choices,
-        name: "Transformation",
-        hint: "Transformation active on the character",
-        section: "Transformations"
+    CONFIG.DND5E.characterFlags.transformations = {
+        label: "Transformations",
+        hint: "Configuration options for the Transformations module",
+        flags: {
+            transformation: {
+                type: "string",
+                choices: choices,
+                name: "Transformation",
+                hint: "Transformation active on the character",
+                section: "Transformations"
+            },
+            transformationStage = {
+                type: Number,
+                choices: {
+                    "1": "1",
+                    "2": "2",
+                    "3": "3",
+                    "4": "4"
+                },
+                name: "Transformation Stage",
+                hint: "Stage of active transformation on the character",
+                section: "Transformations"
+            }
+        }
     };
 });
 
@@ -204,9 +189,9 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
 });
 
 Hooks.on("updateActor", async (actor, diff, options, userId) => {
-    const flags = diff?.flags;
-    const transformationWasUpdated = flags && ("transformation" in flags.dnd5e);
-    const transformationStageWasUpdated = flags && ("transformationStage" in flags.transformation);
+    const flags = diff?.flags?.dnd5e;
+    const transformationWasUpdated = flags && ("transformation" in flags);
+    const transformationStageWasUpdated = flags && ("transformationStage" in flags);
 
     if (!transformationWasUpdated && !transformationStageWasUpdated) return;
 
