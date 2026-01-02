@@ -293,11 +293,13 @@ export class Transformation {
     }
 
     static setCompendiumValues(transformation) {
-        const compendiumTransformation = this.getTransformationByName(transformation.name);
-        TransformationModule.logger.debug("compendium transformation:", compendiumTransformation);
-        transformation.uuid = compendiumTransformation.uuid;
-        transformation.id = compendiumTransformation._id
-        transformation.img = compendiumTransformation.img;
+        if (transformation.name) {
+            const compendiumTransformation = this.getTransformationByName(transformation.name);
+            TransformationModule.logger.debug("compendium transformation:", compendiumTransformation);
+            transformation.uuid = compendiumTransformation.uuid;
+            transformation.id = compendiumTransformation._id
+            transformation.img = compendiumTransformation.img;
+        }
     }
 
     static register() {
