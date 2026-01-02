@@ -241,7 +241,7 @@ export class Transformation {
         TransformationModule.logger.debug("Transformation stage items:", this.constants.TRANSFORMATION_STAGES[this.transformationStage]);
         this.getTransformationStages().forEach(async (itemName, stage) => {
             TransformationModule.logger.debug("Applying transformation item: ", stage, itemName);
-            const itemData = await TransformationModule.Utils.getItemDataByName(itemName);
+            const itemData = await Transformation.getCompendiumEntryByName(itemName);
             this.setItemFlag(itemData, globalConstants.TRANSFORMATION_ITEM_FLAG, true);
             if (itemData) {
                 TransformationModule.logger.debug("Creating item on actor: ", itemData);
@@ -280,7 +280,7 @@ export class Transformation {
         });
     }
 
-    static getTransformationByName(name) {
+    static getCompendiumEntryByName(name) {
         const index = this.getCompendiumIndexByName(this.constants.TRANSFORMATIONS_COMPENDIUM);
         TransformationModule.logger.debug("index found:", index)
         const entry = index.find(e => e.name === name);
@@ -298,7 +298,7 @@ export class Transformation {
 
     static setCompendiumValues(transformation) {
         if (transformation.name != "Transformation") {
-            const compendiumTransformation = this.getTransformationByName(transformation.name);
+            const compendiumTransformation = this.getCompendiumEntryByName(transformation.name);
             TransformationModule.logger.debug("compendium transformation:", compendiumTransformation);
             transformation.uuid = compendiumTransformation.uuid;
             transformation.id = compendiumTransformation._id
