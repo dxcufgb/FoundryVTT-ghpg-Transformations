@@ -200,7 +200,7 @@ export class Transformation {
 
     async setItemFlag(item, flag, value) {
         TransformationModule.logger.debug("setting item flag:", item, flag, value);
-        await item.setFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, flag, data);
+        await item.setFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, flag, value);
     }
 
     getChatMessage(type) {
