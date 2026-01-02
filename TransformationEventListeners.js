@@ -1,5 +1,3 @@
-import { Transformation } from "./Transformations/Transformation";
-
 export function registerTransformationStageChangeListener(app, html, data) {
     const select = html.querySelector('.transformation-stage-select');
     TransformationModule.logger.debug("Registering transformation stage change listener for select: ", select);

@@ -172,7 +172,7 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
 });
 
 Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
-    TransformationModule.logger.log("actor: ", app.actor)
+    TransformationModule.logger.debug("actor: ", app.actor)
     const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
     TransformationModule.EventListeners.registerTransformationConfigurationEventListeners(app, originalHtml, config);
     (async () => {
@@ -192,8 +192,6 @@ Hooks.on("updateActor", async (actor, diff, options, userId) => {
     if (!transformationWasUpdated && !transformationLevelWasUpdated) return;
 
     TransformationModule.logger.debug("Actor update affecting transformations", { actor: actor, diff: diff, transformationWasUpdated, transformationLevelWasUpdated });
-
-    // Resolve the current transformation for the actor after the update
     const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
     TransformationModule.logger.debug("Resolved transformation after update:", transformation);
     transformation.onTransformationUpdate();
