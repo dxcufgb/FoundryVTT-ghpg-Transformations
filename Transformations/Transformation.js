@@ -262,7 +262,7 @@ export class Transformation {
                 });
                 const choiceKey = `stage${this.transformationStage}ChoiceMade`;
                 if (!(this.actor.getFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, choiceKey))) {
-                    const choice = await TransformationModule.utils.renderTransformationTemplate("ChoiceDialog", choices);
+                    const choice = await TransformationModule.utils.renderTransformationTemplate("choiceDialog", choices);
                     await this.actor.setFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, choiceKey, choice.name);
                     await this.addItemToActor(choice);
                 } else {
