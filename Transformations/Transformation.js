@@ -270,6 +270,7 @@ export class Transformation {
     }
 
     static removeAllTransformationThings(actor) {
+        TransformationModule.logger.debug("Removing all transformation items from actor:", actor);
         actor.items.filter(i => this.getItemFlag(i, TransformationModule.constants.TRANSFORMATION_ITEM_FLAG)).forEach(async (item) => {
             await actor.deleteEmbeddedDocuments("Item", [item.id]);
         });
