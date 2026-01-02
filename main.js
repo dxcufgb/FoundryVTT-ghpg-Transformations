@@ -184,11 +184,12 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
 });
 
 Hooks.on("updateActor", async (actor, diff, options, userId) => {
-    const flags = diff?.flags;
-    const transformationWasUpdated = flags && ("transformation" in flags.dnd5e);
-    const transformationStageWasUpdated = flags && ("transformationStage" in flags.transformation);
+    const flags = diff?.flags?.dnd5e;
+    const transformationWasUpdated = flags && ("transformation" in flags);
+    const transformationStageWasUpdated = flags && ("transformationStage" in flags);
 
     if (!transformationWasUpdated && !transformationStageWasUpdated) return;
+
     const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
     TransformationModule.logger.debug("Resolved transformation after update:", transformation);
     transformation.onTransformationUpdate();

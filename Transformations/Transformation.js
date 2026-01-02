@@ -260,8 +260,8 @@ export class Transformation {
 
     getTransformationStages() {
         let stages = {};
-        const stage = this.getActorTransformationStage();
-        switch () {
+        const highestStage = this.getActorTransformationStage();
+        switch (highestStage) {
             case 4:
                 TransformationModule.logger.debug("Getting transformation stages for level 4");
                 stages = this.constants.TRANSFORMATION_STAGES[4];
