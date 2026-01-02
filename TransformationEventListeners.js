@@ -3,7 +3,7 @@ export function registerTransformationStageChangeListener(app, html, data) {
     TransformationModule.logger.debug("Registering transformation stage change listener for select: ", select);
     if (!select) return;
 
-    select.addEventListener("change", event => {
+    select.addEventListener("click", event => {
         event.preventDefault();
         const value = event.target.value;
         TransformationModule.logger.debug("Transformation stage changed to: ", value);
