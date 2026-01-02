@@ -80,12 +80,10 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     constructor(actor) {
         super(actor);
-        TransformationModule.logger.debug("Aberrant horror constructor start");
         this.constants = { ...this.constants, ...this.constructor.subClassConstants };
         this.aberrantMutationEffects = this.constructor.subClassConstants.ABERRANT_MUTATION_EFFECTS;
         this.eldritchLimbsItemIds = this.constructor.eldritchLimbsItemIds;
         this.iconFolder += this.name + "/";
-        TransformationModule.logger.debug("icon folder Transformation constructor 3", this.iconFolder);
         this.initialized = true
     }
 
@@ -291,7 +289,6 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     async eldritchLimbs() {
         TransformationModule.logger.log("Eldritch Limbs called!");
         await this.removeAberrantMutationEffects(this.aberrantMutationEffects.ELDRITCH_LIMBS);
-        TransformationModule.logger.log(this.eldritchLimbsItemIds[this.transformationStage]);
         const item = await fromUuid(this.eldritchLimbsItemIds[this.transformationStage]);
         if (item && this.actor) {
             await this.actor.createEmbeddedDocuments('Item', [item.toObject()]);

@@ -174,7 +174,6 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
 });
 
 Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
-    TransformationModule.logger.debug("actor: ", app.actor)
     const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
     TransformationModule.EventListeners.registerTransformationConfigurationEventListeners(app, originalHtml, config);
     (async () => {
@@ -232,6 +231,6 @@ Hooks.on("updateActor", async (actor, diff, options, userId) => {
                 }
             );
 
-        }, 100) // microtask debounce
+        }, 100)
     );
 });

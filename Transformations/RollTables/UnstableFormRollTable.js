@@ -3,7 +3,6 @@ export async function applyRollTableResult(actor, effectName, iconBaseFilePath) 
 	let iconFilePath = iconBaseFilePath;
 	let effects = [];
 	let runEffectsFunction = true;
-	TransformationModule.logger.debug("applyRollTableResult: ", iconBaseFilePath);
 	switch (effectName) {
 		case "Aberrant Exhaustion":
 			const currentExhaustion = actor.system.attributes.exhaustion ?? 0;
@@ -125,7 +124,6 @@ export async function applyRollTableResult(actor, effectName, iconBaseFilePath) 
 			break;
 	}
 	if (runEffectsFunction) {
-		TransformationModule.logger.debug("Unstable form effects that will be created with objects: ", actor, effectName, effectDescription, iconFilePath, effects);
 		await TransformationModule.utils.createActiveEffectOnActor(actor, effectName, effectDescription, iconFilePath, effects);
 	}
 }

@@ -148,22 +148,16 @@ export function findOverrideType(identifier) {
 }
 
 export async function renderTransformationTemplate(templateName, data) {
-	TransformationModule.logger.debug("renderTemplate: ", templateName, data)
 	const html = await foundry.applications.handlebars.renderTemplate(
 		`modules/transformations/scripts/Templates/${templateName}.hbs`,
 		data
 	);
-	TransformationModule.logger.debug("new pill:", html);
 	return html;
 }
 
 export async function importCompendiumPack(compendiumName) {
-	TransformationModule.logger.debug("compendium name:", compendiumName)
 	const pack = game.packs.get(compendiumName);
-	TransformationModule.logger.debug("compendium pack:", pack)
 	const index = await pack.getIndex();
-	TransformationModule.logger.debug("index:", index)
 	pack.index = index;
-	TransformationModule.logger.debug("imported pack:", pack)
 	return pack;
 }

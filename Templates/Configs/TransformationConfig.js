@@ -60,12 +60,8 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
     static async _onSave(event, target) {
         const app = this;
         if (!app.isEditable) return;
-
         const formData = new FormData(target.form);
-        TransformationModule.logger.debug("formData: ", formData);
         const id = formData.get("transformation");
-        TransformationModule.logger.debug("Selected transformation id: ", id);
-
         if (id !== app._initialTransformation) {
             if (id && id !== "None") {
                 await app.actor.setFlag("dnd5e", "transformation", id, { transformationsInternal: true });

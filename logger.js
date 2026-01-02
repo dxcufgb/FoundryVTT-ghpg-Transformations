@@ -35,13 +35,6 @@ export class Logger {
         }
     }
 
-    trace(label, data = {}) {
-        console.groupCollapsed(`🧭 ${label}`);
-        console.trace();
-        console.log(data);
-        console.groupEnd();
-    }
-
 }
 
 let instance;

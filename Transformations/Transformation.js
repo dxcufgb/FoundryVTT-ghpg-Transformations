@@ -42,15 +42,12 @@ export class Transformation {
             return
         } else {
             const actorTransformation = actor.flags.dnd5e.transformation
-            TransformationModule.logger.debug("actorTransformation: ", actorTransformation);
             TransformationModule.Transformations.forEach(transformationSubClass => {
-                TransformationModule.logger.debug("Transformation sub class itemId: ", transformationSubClass.itemId);
                 if (actorTransformation == transformationSubClass.itemId) {
                     transformation = new transformationSubClass(actor);
                 }
             });
         }
-        TransformationModule.logger.debug("actorTransformation that was returned: ", transformation);
         return transformation;
     }
 
@@ -116,16 +113,12 @@ export class Transformation {
     async rollResultFromRollTable(onlyApplyLowerResult = false) {
         let table = await this.getRollTable()
         const drawResult = await this.drawTableResult(table);
-        TransformationModule.logger.debug(drawResult);
         if (!onlyApplyLowerResult || !this.getActorFlag() || (onlyApplyLowerResult && drawResult.roll._total < this.getActorFlag())) {
             if (onlyApplyLowerResult) {
                 this.sendChatMessage(this.getChatMessage(this.constants.APPLY_LOWER_RESULT));
             }
             await this.removeActiveTransformationEffect();
             await this.applyRollTableResult(drawResult.results[0].name);
-            TransformationModule.logger.debug(drawResult.results[0])
-            TransformationModule.logger.debug(drawResult.results[0].range)
-            TransformationModule.logger.debug(drawResult.results[0].range[0])
             await this.setActorFlag(this.constants.CURRENT_EFFECT_RANGE_LOW, drawResult.results[0].range[0])
         }
     }
@@ -135,7 +128,6 @@ export class Transformation {
     }
 
     getActorTransformationStage() {
-        TransformationModule.logger.debug("Transformation stage:", this.actor.flags.dnd5e.transformationStage)
         return this.actor.flags.dnd5e.transformationStage;
     }
 
@@ -152,7 +144,6 @@ export class Transformation {
     }
 
     async drawTableResult(table) {
-        TransformationModule.logger.debug(table);
         return await table.draw({ speaker: this.actor, roll: true, displayChat: true });
     }
 
@@ -191,7 +182,6 @@ export class Transformation {
     static getItemFlag(item, flag) {
         if (!item) return {};
         if (!flag) return {};
-        TransformationModule.logger.debug("Getting item flag:", item, flag);
         return item.getFlag(
             TransformationModule.constants.EFFECT_FLAG_MODULE_NAME,
             flag
@@ -199,7 +189,6 @@ export class Transformation {
     }
 
     async setItemFlag(item, flag, value) {
-        TransformationModule.logger.debug("setting item flag:", item, flag, value);
         await item.setFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, flag, value);
     }
 
@@ -253,19 +242,16 @@ export class Transformation {
     }
 
     async applyTransformationStage() {
-        TransformationModule.logger.debug("Applying transformation stage:", this.transformationStage);
-        TransformationModule.logger.debug("Transformation stages:", this.constants.TRANSFORMATION_STAGES);
-        TransformationModule.logger.debug("Transformation stage items:", this.constants.TRANSFORMATION_STAGES[this.transformationStage]);
         const stages = this.getTransformationStages();
-        TransformationModule.logger.debug("Final stages to apply:", stages);
         if (stages.ITEMS != null) {
             Object.values(stages.ITEMS).forEach(async (itemName) => {
-                TransformationModule.logger.debug("Applying transformation item: ", itemName);
                 const itemData = await Transformation.getCompendiumEntryByName(itemName);
                 let itemInstance = await TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(itemData._id);
                 delete itemInstance._id;
+                // const item = await fromUuid(this.eldritchLimbsItemIds[this.transformationStage]);
+                // if (item && this.actor) {
+                //     await this.actor.createEmbeddedDocuments('Item', [item.toObject()]);
                 if (itemInstance) {
-                    TransformationModule.logger.debug("Creating item on actor: ", itemInstance);
                     if (!this.actorHasTransformationItem(itemName)) {
                         let [createdItem] = await this.actor.createEmbeddedDocuments("Item", [itemInstance]);
                         await this.setItemFlag(createdItem, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
@@ -276,7 +262,6 @@ export class Transformation {
         if (stages.DAMAGE_RESISTANCES != null) {
             Object.values(stages.DAMAGE_RESISTANCES).forEach(async (resistance) => {
                 if (!this.actorHasTransformationEffect(resistance.label)) {
-                    TransformationModule.logger.debug("Applying transformation resistance: ", resistance);
                     let [createdResistance] = await this.actor.createEmbeddedDocuments("ActiveEffect", [resistance]);
                     this.setItemFlag(createdResistance, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
                 }
@@ -285,7 +270,6 @@ export class Transformation {
         if (stages.DAMAGE_IMMUNITIES != null) {
             Object.values(stages.DAMAGE_IMMUNITIES).forEach(async (immunity) => {
                 if (!this.actorHasTransformationEffect(immunity.label)) {
-                    TransformationModule.logger.debug("Applying transformation immunity: ", immunity);
                     let [createdImmunity] = await this.actor.createEmbeddedDocuments("ActiveEffect", [immunity]);
                     this.setItemFlag(createdImmunity, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
                 }
@@ -298,28 +282,23 @@ export class Transformation {
         const highestStage = this.getActorTransformationStage();
         switch (Number(highestStage)) {
             case 4:
-                TransformationModule.logger.debug("Getting transformation stages for level 4");
                 stages.ITEMS = this.constants.TRANSFORMATION_STAGES[4].ITEMS;
                 stages.DAMAGE_RESISTANCES = this.constants.TRANSFORMATION_STAGES[4].DAMAGE_RESISTANCES;
                 stages.DAMAGE_IMMUNITIES = this.constants.TRANSFORMATION_STAGES[4].DAMAGE_IMMUNITIES;
             case 3:
-                TransformationModule.logger.debug("Getting transformation stages for level 3");
                 stages.ITEMS = { ...stages.ITEMS, ...this.constants.TRANSFORMATION_STAGES[3].ITEMS };
                 stages.DAMAGE_RESISTANCES = { ...stages.DAMAGE_RESISTANCES, ...this.constants.TRANSFORMATION_STAGES[3].DAMAGE_RESISTANCES };
                 stages.DAMAGE_IMMUNITIES = { ...stages.DAMAGE_IMMUNITIES, ...this.constants.TRANSFORMATION_STAGES[3].DAMAGE_IMMUNITIES };
             case 2:
-                TransformationModule.logger.debug("Getting transformation stages for level 2");
                 stages.ITEMS = { ...stages.ITEMS, ...this.constants.TRANSFORMATION_STAGES[2].ITEMS };
                 stages.DAMAGE_RESISTANCES = { ...stages.DAMAGE_RESISTANCES, ...this.constants.TRANSFORMATION_STAGES[2].DAMAGE_RESISTANCES };
                 stages.DAMAGE_IMMUNITIES = { ...stages.DAMAGE_IMMUNITIES, ...this.constants.TRANSFORMATION_STAGES[2].DAMAGE_IMMUNITIES };
             case 1:
-                TransformationModule.logger.debug("Getting transformation stages for level 1");
                 stages.ITEMS = { ...stages.ITEMS, ...this.constants.TRANSFORMATION_STAGES[1].ITEMS };
                 stages.DAMAGE_RESISTANCES = { ...stages.DAMAGE_RESISTANCES, ...this.constants.TRANSFORMATION_STAGES[1].DAMAGE_RESISTANCES };
                 stages.DAMAGE_IMMUNITIES = { ...stages.DAMAGE_IMMUNITIES, ...this.constants.TRANSFORMATION_STAGES[1].DAMAGE_IMMUNITIES };
                 break;
         }
-        TransformationModule.logger.debug("Final transformation stages: ", stages);
         return stages;
     }
 
@@ -352,25 +331,20 @@ export class Transformation {
 
     static getCompendiumEntryByName(name) {
         const index = Transformation.getCompendiumIndexByName(this.constants.TRANSFORMATIONS_COMPENDIUM);
-        TransformationModule.logger.debug("index found:", index)
         const entry = index.find(e => e.name === name);
         const doc = TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(entry._id);
         return entry;
     }
 
     static getCompendiumIndexByName(compendiumName) {
-        TransformationModule.logger.debug("compendium name: ", compendiumName)
         const pack = TransformationModule.compendiums[compendiumName];
-        TransformationModule.logger.debug("compendium pack: ", pack)
         const index = pack.index;
-        TransformationModule.logger.debug("index: ", index)
         return index
     }
 
     static setCompendiumValues(transformation) {
         if (transformation.name != "Transformation") {
             const compendiumTransformation = Transformation.getCompendiumEntryByName(transformation.name);
-            TransformationModule.logger.debug("compendium transformation:", compendiumTransformation);
             transformation.uuid = compendiumTransformation.uuid;
             transformation.id = compendiumTransformation._id
             transformation.img = compendiumTransformation.img;
