@@ -10,7 +10,6 @@ export class Transformation {
     initialized = false;
     actor;
     rollTableEffectFunction;
-    static MODULE_ID = "transformations"
 
     static compendiumTransformation;
     static iconFolder = "modules/transformations/Icons/Transformations/";
@@ -176,23 +175,23 @@ export class Transformation {
 
     getActorFlag(flag) {
         const data = foundry.utils.deepClone(
-            this.actor.getFlag(this.MODULE_ID, this.itemId) ?? {}
+            this.actor.getFlag(this.globalConstants.EFFECT_FLAG_MODULE_NAME, this.itemId) ?? {}
         );
         return data[flag]
     }
 
     async setActorFlag(flag, value) {
         const data = foundry.utils.deepClone(
-            this.actor.getFlag(this.MODULE_ID, this.itemId) ?? {}
+            this.actor.getFlag(this.globalConstants.EFFECT_FLAG_MODULE_NAME, this.itemId) ?? {}
         );
         data[flag] = value;
-        await this.actor.setFlag(this.MODULE_ID, this.itemId, data);
+        await this.actor.setFlag(this.globalConstants.EFFECT_FLAG_MODULE_NAME, this.itemId, data);
     }
 
     static getItemFlag(item, flag) {
         TransformationModule.logger.debug("Getting item flag:", item, flag);
         const data = foundry.utils.deepClone(
-            item.getFlag(this.MODULE_ID, flag) ?? {}
+            item.getFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, flag) ?? {}
         );
         return data[flag]
     }
@@ -200,10 +199,10 @@ export class Transformation {
     async setItemFlag(item, flag, value) {
         TransformationModule.logger.debug("setting item flag:", item, flag, value);
         const data = foundry.utils.deepClone(
-            item.getFlag(this.MODULE_ID, flag) ?? {}
+            item.getFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, flag) ?? {}
         );
         data = value;
-        await item.setFlag(this.MODULE_ID, flag, data);
+        await item.setFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, flag, data);
     }
 
     getChatMessage(type) {
