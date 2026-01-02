@@ -239,7 +239,7 @@ export class Transformation {
         TransformationModule.logger.debug("Applying transformation stage:", this.transformationStage);
         TransformationModule.logger.debug("Transformation stages:", this.constants.TRANSFORMATION_STAGES);
         TransformationModule.logger.debug("Transformation stage items:", this.constants.TRANSFORMATION_STAGES[this.transformationStage]);
-        this.getTransformationStages().forEach(async (stageCategories) => {
+        Object.values(this.getTransformationStages()).forEach(async (stageCategories) => {
             TransformationModule.logger.debug("Applying transformation stage category: ", stageCategories);
             TransformationModule.logger.debug("Applying transformation stage category ITEMS: ", stageCategories.ITEMS);
             stageCategories.ITEMS.forEach(async (itemName) => {
@@ -261,7 +261,7 @@ export class Transformation {
     }
 
     getTransformationStages() {
-        let stages = [];
+        let stages = {};
         switch (this.getActorTransformationStage()) {
             case 4:
                 TransformationModule.logger.debug("Getting transformation stages for level 4");
