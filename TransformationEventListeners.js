@@ -1,23 +1,3 @@
-export function registerTransformationStageChangeListener(app, html, data) {
-    const select = html.querySelector('.transformation-stage-select');
-    TransformationModule.logger.debug("Registering transformation stage change listener for select: ", select);
-    if (!select) return;
-
-    select.addEventListener("click", event => {
-        event.preventDefault();
-        const value = event.target.value;
-        TransformationModule.logger.debug("Transformation stage changed to: ", value);
-        const pillConfig = TransformationModule.dialogConfigs.pillConfig;
-
-        new pillConfig.TransformationStageConfig(
-            app.actor
-        ).render(true);
-        // app.actor.setFlag("dnd5e", "transformationStage", value);
-        // const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
-        // transformation.onTransformationUpdate();
-    });
-}
-
 export function registerTransformationConfigurationEventListeners(app, html, data) {
     html.addEventListener("click", event => {
         const button = event.target.closest("[data-action]");
