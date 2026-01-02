@@ -17,6 +17,8 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         super(options);
         this.actor = actor;
         this.transformations = transformations;
+        this._initialStage = actor.getFlag("dnd5e", "transformationStage") ?? null;
+        this._initialTransformation = actor.getFlag("dnd5e", "transformation") ?? null;
     }
 
     get isEditable() {
@@ -64,12 +66,16 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         const id = formData.get("transformation");
         TransformationModule.logger.debug("Selected transformation id: ", id);
 
-        if (id && id !== "None") {
-            await app.actor.setFlag("dnd5e", "transformation", id);
-        } else {
-            await app.actor.unsetFlag("dnd5e", "transformation");
+        if (id !== app._initialTransformation) {
+            if (id && id !== "None") {
+                await app.actor.setFlag("dnd5e", "transformation", id);
+            } else {
+                await app.actor.unsetFlag("dnd5e", "transformation");
+            }
         }
-        await app.actor.setFlag("dnd5e", "transformationStage", formData.get("transformationStage"));
+        if (formData.get("transformationStage") != app._initialStage) {
+            await app.actor.setFlag("dnd5e", "transformationStage", formData.get("transformationStage"));
+        }
         // const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
         // TransformationModule.logger.debug("Resolved transformation after config save:", transformation);
         // await transformation.onTransformationUpdate();
