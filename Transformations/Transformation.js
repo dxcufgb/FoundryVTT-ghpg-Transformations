@@ -191,17 +191,17 @@ export class Transformation {
 
     static getItemFlag(item, flag) {
         const data = foundry.utils.deepClone(
-            item.getFlag(this.MODULE_ID, this.itemId) ?? {}
+            item.getFlag(this.MODULE_ID, flag) ?? {}
         );
-        return data[flag]
+        return data
     }
 
     async setItemFlag(item, flag, value) {
         const data = foundry.utils.deepClone(
-            item.getFlag(this.MODULE_ID, this.itemId) ?? {}
+            item.getFlag(this.MODULE_ID, flag) ?? {}
         );
-        data[flag] = value;
-        await item.setFlag(this.MODULE_ID, this.itemId, data);
+        data = value;
+        await item.setFlag(this.MODULE_ID, flag, data);
     }
 
     getChatMessage(type) {
