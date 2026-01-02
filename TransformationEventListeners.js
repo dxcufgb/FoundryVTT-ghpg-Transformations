@@ -1,7 +1,7 @@
 export function registerTransformationStageChangeListener(app, html, data) {
     const select = html.querySelector('.transformation-stage-select');
     TransformationModule.logger.debug("Registering transformation stage change listener for select: ", select);
-    // if (!select.options.length) return;
+    if (!select) return;
 
     select.addEventListener("change", event => {
         event.preventDefault();

@@ -8,7 +8,7 @@
     box-shadow: 0 0 12px 0 var(--dnd5e-color-gold);
 }
 
-.dnd5e2.sheet.actor.character .sheet-body .pill-lg .transformationStage {
+.dnd5e2.sheet.actor.character .sheet-body .pill-lg .transformation-stage-select {
     width: fit-content;
     height: unset;
     font-size: var(--font-size-11);
