@@ -190,7 +190,7 @@ Hooks.on("updateActor", async (actor, diff, options, userId) => {
     if (!transformationWasUpdated && !transformationStageWasUpdated) return;
 
     if (transformationStageWasUpdated) {
-        await actor.setFlag("dnd5e", "transformationStage", flags.transformationStage);
+        await actor.setFlag("dnd5e", "transformationStage", flags.transformationStage[0]);
     }
     const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
     TransformationModule.logger.debug("Resolved transformation after update:", transformation);
