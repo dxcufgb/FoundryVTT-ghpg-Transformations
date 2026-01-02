@@ -295,12 +295,25 @@ export class Transformation {
                 TransformationModule.constants.TRANSFORMATION_ITEM_FLAG)
         );
 
-        if (!toRemove.length) return;
-
-        await this.actor.deleteEmbeddedDocuments(
-            "Item",
-            toRemove.map(i => i.id)
+        const effectsToRemove = this.actor.effects.filter(e =>
+            e.getFlag(this.globalConstants.EFFECT_FLAG_MODULE_NAME,
+                TransformationModule.constants.TRANSFORMATION_ITEM_FLAG)
         );
+
+        if (toRemove.length) {
+
+            await this.actor.deleteEmbeddedDocuments(
+                "Item",
+                toRemove.map(i => i.id)
+            );
+        }
+
+        if (effectsToRemove.length) {
+            await this.actor.deleteEmbeddedDocuments(
+                "ActiveEffect",
+                effectsToRemove.map(e => e.id)
+            );
+        }
     }
 
     static getCompendiumEntryByName(name) {
