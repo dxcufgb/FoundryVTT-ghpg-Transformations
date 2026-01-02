@@ -260,13 +260,13 @@ export class Transformation {
         TransformationModule.logger.debug("Final stages to apply:", stages);
         if (stages.ITEMS != null) {
             Object.values(stages.ITEMS).forEach(async (itemName) => {
-                if (!this.actorHasTransformationItem(itemName)) {
-                    TransformationModule.logger.debug("Applying transformation item: ", itemName);
-                    const itemData = await Transformation.getCompendiumEntryByName(itemName);
-                    let itemInstance = await TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(itemData._id);
-                    delete itemInstance._id;
-                    if (itemInstance) {
-                        TransformationModule.logger.debug("Creating item on actor: ", itemInstance);
+                TransformationModule.logger.debug("Applying transformation item: ", itemName);
+                const itemData = await Transformation.getCompendiumEntryByName(itemName);
+                let itemInstance = await TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(itemData._id);
+                delete itemInstance._id;
+                if (itemInstance) {
+                    TransformationModule.logger.debug("Creating item on actor: ", itemInstance);
+                    if (!this.actorHasTransformationItem(itemName)) {
                         let [createdItem] = await this.actor.createEmbeddedDocuments("Item", [itemInstance]);
                         await this.setItemFlag(createdItem, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
                     }

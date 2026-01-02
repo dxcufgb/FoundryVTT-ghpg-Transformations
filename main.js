@@ -185,12 +185,6 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
 });
 
 Hooks.on("updateActor", async (actor, diff, options, userId) => {
-    TransformationModule.logger.trace("updateActor()", {
-        actorId: actor.id,
-        diff,
-        options
-    });
-    if (options?.transformationsInternal) return;
     const flags = diff?.flags?.dnd5e;
     if (!flags) return;
 
@@ -207,6 +201,7 @@ Hooks.on("updateActor", async (actor, diff, options, userId) => {
             TransformationModule.pending.delete(actor.id);
             const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
             TransformationModule.logger.debug("Resolved transformation after update:", transformation);
+            TransformationModule.logger.warn("Should just fire once in a short timeperiod!");
             if (!transformation) return;
             TransformationModule.logger.debug(
                 "Applying debounced transformation update:",
@@ -237,6 +232,6 @@ Hooks.on("updateActor", async (actor, diff, options, userId) => {
                 }
             );
 
-        }, 0) // microtask debounce
+        }, 100) // microtask debounce
     );
 });
