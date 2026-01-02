@@ -274,7 +274,7 @@ export class Transformation {
     static removeAllTransformationThings(actor) {
         TransformationModule.logger.debug("Removing all transformation items from actor:", actor);
         TransformationModule.logger.debug("Actor items:", actor.items);
-        actor.items.filter(i => this.constructor.getItemFlag(i, TransformationModule.constants.TRANSFORMATION_ITEM_FLAG)).forEach(async (item) => {
+        actor.items.filter(i => Transformation.getItemFlag(i, TransformationModule.constants.TRANSFORMATION_ITEM_FLAG)).forEach(async (item) => {
             TransformationModule.logger.debug("Removing transformation item: ", item);
             // await actor.deleteEmbeddedDocuments("Item", [item.id]);
         });
