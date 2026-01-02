@@ -4,12 +4,6 @@ export class TransformationStageConfig extends foundry.applications.api.Handleba
         this.actor = actor;
     }
 
-    async _prepareContext() {
-        return {
-            flags: this.actor.flags.dnd5e.transformationStage ?? {}
-        };
-    }
-
     static DEFAULT_OPTIONS = {
         id: "my-pill-config",
         tag: "form",
