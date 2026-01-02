@@ -200,7 +200,7 @@ export class Transformation {
 
     async setItemFlag(item, flag, value) {
         TransformationModule.logger.debug({
-            itemInstance,
+            item,
             isArray: Array.isArray(item),
             isItem: item instanceof Item,
             documentName: item?.documentName
