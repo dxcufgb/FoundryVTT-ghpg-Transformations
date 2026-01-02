@@ -242,25 +242,31 @@ export class Transformation {
         TransformationModule.logger.debug("Transformation stage items:", this.constants.TRANSFORMATION_STAGES[this.transformationStage]);
         const stages = this.getTransformationStages();
         TransformationModule.logger.debug("Final stages to apply:", stages);
-        Object.values(stages.ITEMS).forEach(async (itemName) => {
-            TransformationModule.logger.debug("Applying transformation item: ", itemName);
-            const itemData = await Transformation.getCompendiumEntryByName(itemName);
-            this.setItemFlag(itemData, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
-            if (itemData) {
-                TransformationModule.logger.debug("Creating item on actor: ", itemData);
-                //await this.actor.createEmbeddedDocuments("Item", [itemData]);
-            }
-        });
-        Object.values(stages.DAMAGE_RESISTANCES).forEach(async (resistance) => {
-            TransformationModule.logger.debug("Applying transformation resistance: ", resistance);
-            this.setItemFlag(resistance, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
-            await actor.createEmbeddedDocuments("ActiveEffect", [resistance]);
-        });
-        Object.values(stages.DAMAGE_IMMUNITIES).forEach(async (immunity) => {
-            TransformationModule.logger.debug("Applying transformation immunity: ", immunity);
-            this.setItemFlag(immunity, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
-            await actor.createEmbeddedDocuments("ActiveEffect", [immunity]);
-        });
+        if (stages.items != null) {
+            Object.values(stages.ITEMS).forEach(async (itemName) => {
+                TransformationModule.logger.debug("Applying transformation item: ", itemName);
+                const itemData = await Transformation.getCompendiumEntryByName(itemName);
+                this.setItemFlag(itemData, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
+                if (itemData) {
+                    TransformationModule.logger.debug("Creating item on actor: ", itemData);
+                    await this.actor.createEmbeddedDocuments("Item", [itemData]);
+                }
+            });
+        }
+        if (stages.DAMAGE_RESISTANCES != null) {
+            Object.values(stages.DAMAGE_RESISTANCES).forEach(async (resistance) => {
+                TransformationModule.logger.debug("Applying transformation resistance: ", resistance);
+                this.setItemFlag(resistance, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
+                await actor.createEmbeddedDocuments("ActiveEffect", [resistance]);
+            });
+        }
+        if (stages.DAMAGE_IMMUNITIES != null) {
+            Object.values(stages.DAMAGE_IMMUNITIES).forEach(async (immunity) => {
+                TransformationModule.logger.debug("Applying transformation immunity: ", immunity);
+                this.setItemFlag(immunity, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
+                await actor.createEmbeddedDocuments("ActiveEffect", [immunity]);
+            });
+        }
     }
 
     getTransformationStages() {
