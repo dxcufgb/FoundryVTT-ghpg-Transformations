@@ -96,7 +96,7 @@ export class Transformation {
     }
 
     onTransformationUpdate() {
-        this.constructor.removeAllTransformationThings(this.actor);
+        this.removeAllTransformationThings();
         if (this.initialized) {
             this.applyTransformationStage();
         }
