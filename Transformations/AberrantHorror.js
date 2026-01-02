@@ -13,7 +13,6 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     };
     static subClassConstants = {
         ABERRANT_CONFUSION: "AberrantConfusion",
-        ABERRANT_FORM: "aberrantForm",
         ABERRANT_LOSS_OF_VITALITY: "AberrantLossofVitality",
         ABERRANT_MUTATION_EFFECTS: {
             CHITINOUS_SHELL: "Chitinous Shell",
@@ -26,7 +25,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             1: {
                 ITEMS: {
                     ABERRANT_MUTATION: "Aberrant Mutation",
-                    ABBERANT_FORM: "Aberrant Form",
+                    ABERRANT_FORM: "Aberrant Form",
                     UNSTABLE_FORM: "Unstable Form"
                 }
             },
@@ -179,7 +178,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     getChatMessage(type) {
         let chatMessage = super.getChatMessage(type);
         switch (type) {
-            case this.constants.ABERRANT_FORM:
+            case this.constants.TRANSFORMATION_STAGES[1].ABERRANT_FORM:
                 chatMessage = `${this.actor.name}s Aberrant Form activates and gives ${regainedHitPoints} temporary hit points!`;
                 break;
             case this.constants.ABERRANT_CONFUSION:
@@ -233,9 +232,9 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     async aberrantForm() {
-        const item = this.actor.items.find(i => i.name === this.constants.ABERRANT_FORM);
+        const item = this.actor.items.find(i => i.name === this.constants.TRANSFORMATION_STAGES[1].ABERRANT_FORM);
         if (!item) {
-            ui.notifications.warn(`${actor.name} does not have an item named "${itemName}".`);
+            ui.notifications.warn(`${this.actor.name} does not have an item named "${itemName}".`);
             return;
         }
         if (item.system.uses.value > 0 && TransformationModule.utils.actorIsBloodied(this.actor)) {
@@ -243,7 +242,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 "system.uses.spent": Math.min(item.system.uses.value + 1, item.system.uses.max)
             });
             const regainedHitPoints = this.actor.system.attributes.prof + this.TransformationStage
-            super.sendChatMessage(this.getChatMessage(this.constants.ABERRANT_FORM));
+            super.sendChatMessage(this.getChatMessage(this.constants.TRANSFORMATION_STAGES[1].ABERRANT_FORM));
             this.actor.system.attributes.hp.temp = regainedHitPoints
         }
     }
