@@ -11,20 +11,12 @@ export class TransformationStageConfig extends foundry.applications.api.Handleba
         form: {
             submitOnChange: true,
             closeOnSubmit: false
-        },
-        window: {
-            title: "Transformation Stage",
-            resizable: false
-        },
-        position: {
-            width: 300,
-            height: "auto"
         }
     };
 
-    async _onSave(event, formData) {
+    async _onChange(event, formData) {
         await this.actor.update(formData);
-        const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
+        const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(this.actor);
         transformation.onTransformationUpdate();
     }
 }
