@@ -185,6 +185,7 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
 });
 
 Hooks.on("updateActor", async (actor, diff, options, userId) => {
+    TransformationModule.logger.warn("updateActor hook called:", actor, diff, options, userId);
     if (options?.transformationsInternal) return;
     const flags = diff?.flags?.dnd5e;
     if (!flags) return;

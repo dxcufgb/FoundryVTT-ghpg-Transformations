@@ -68,17 +68,14 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
 
         if (id !== app._initialTransformation) {
             if (id && id !== "None") {
-                await app.actor.setFlag("dnd5e", "transformation", id);
+                await app.actor.setFlag("dnd5e", "transformation", id, { transformationsInternal: true });
             } else {
-                await app.actor.unsetFlag("dnd5e", "transformation");
+                await app.actor.unsetFlag("dnd5e", "transformation" , { transformationsInternal: true });
             }
         }
         if (formData.get("transformationStage") != app._initialStage) {
-            await app.actor.setFlag("dnd5e", "transformationStage", formData.get("transformationStage"));
+            await app.actor.setFlag("dnd5e", "transformationStage", formData.get("transformationStage"), { transformationsInternal: true });
         }
-        // const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
-        // TransformationModule.logger.debug("Resolved transformation after config save:", transformation);
-        // await transformation.onTransformationUpdate();
         app.close();
     }
 }
