@@ -94,10 +94,10 @@ export class Transformation {
         TransformationModule.logger.error(this.constants.SHUOLD_BE_IN_SUBCLASS_LOG);
     }
 
-    onTransformationUpdate() {
+    async onTransformationUpdate() {
         this.removeAllTransformationThings();
         if (this.initialized) {
-            this.applyTransformationStage();
+            await this.applyTransformationStage();
         }
     }
 
