@@ -95,7 +95,7 @@ export class Transformation {
     }
 
     async onTransformationUpdate() {
-        this.removeAllTransformationThings();
+        await this.removeAllTransformationThings();
         if (this.initialized) {
             await this.applyTransformationStage();
         }
@@ -291,10 +291,10 @@ export class Transformation {
         return stages;
     }
 
-    removeAllTransformationThings() {
+    async removeAllTransformationThings() {
         this.actor.items.filter(i => Transformation.getItemFlag(i, TransformationModule.constants.TRANSFORMATION_ITEM_FLAG)).forEach(async (item) => {
             TransformationModule.logger.debug("Removing transformation item: ", item);
-            // await actor.deleteEmbeddedDocuments("Item", [item.id]);
+            await actor.deleteEmbeddedDocuments("Item", [item.id]);
         });
     }
 
