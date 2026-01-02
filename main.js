@@ -188,7 +188,7 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
 Hooks.on("updateActor", async (actor, diff, options, userId) => {
     const flags = diff?.flags?.dnd5e;
     const transformationWasUpdated = flags && ("transformation" in flags);
-    const transformationLevelWasUpdated = flags && ("TransformationStage" in flags);
+    const transformationLevelWasUpdated = flags && ("transformationStage" in flags);
 
     if (!transformationWasUpdated && !transformationLevelWasUpdated) return;
 
