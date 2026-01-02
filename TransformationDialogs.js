@@ -31,3 +31,12 @@ export async function getD20RollDialog(actor, identifier, rollType, dc = null, m
         ui.notifications.warn("Uknown roll type");
     }
 }
+
+export async function getTransformationChoiceDialog(transformation, choices) {
+    if (!actor) {
+        ui.notifications.warn("Select a token.");
+        return;
+    }
+
+    let config = {};
+}

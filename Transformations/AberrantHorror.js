@@ -31,49 +31,30 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             },
             2: {
                 ITEMS: {
-                    WRITHING_TENDRILS: "Writhing Tendrils",
+                    CHOICES: {
+                        EFFICIENT_KILLER: "Efficient Killer",
+                        WRITHING_TENDRILS: "Writhing Tendrils",
+                    },
                     HIDEOUSE_APPEARANCE: "Hideous Appearance",
                 },
             },
             3: {
                 ITEMS: {
-                    CONSTRICTING_TENDRILS: "Constricting Tendrils",
-                    TERRIFYING_VISAGE: "Terrifying Visage",
+                    CHOICES: {
+                        CONSTRICTING_TENDRILS: "Constricting Tendrils",
+                        TERRIFYING_VISAGE: "Terrifying Visage",
+                    },
                     UNSTABLE_EXISTENCE: "Unstable Existence",
                 }
             },
             4: {
                 ITEMS: {
-                    ELDRITCH_ABERRATION: "Eldritch Aberration",
-                    ENTROPIC_ABOMINATION: "Entropic Abomination",
-                    POISONOUS_MUTATIONS: "Poisonous Mutations"
+                    CHOICES: {
+                        ELDRITCH_ABERRATION: "Eldritch Aberration",
+                        POISONOUS_MUTATIONS: "Poisonous Mutations"
+                    },
+                    ENTROPIC_ABOMINATION: "Entropic Abomination"
                 },
-                DAMAGE_RESISTANCES: {
-                    POISONOUS_RESISTANCE: {
-                        name: "Poisonous Resistance",
-                        label: "Poisonous Resistance",
-                        description: "Resistance to Poison Damage",
-                        icon: "modules/transformations/Icons/Transformations/Aberrant%20Horror/Poison_Resistance.png",
-                        changes: [{
-                            key: "system.traits.dr.value",
-                            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-                            value: "poison"
-                        }]
-                    }
-                },
-                DAMAGE_IMMUNITIES: {
-                    POISONED_IMMUNITY: {
-                        name: "Poisoned Condition Immunity",
-                        label: "Poisoned Condition Immunity",
-                        description: "Immunity to the Poisoned Condition",
-                        icon: "modules/transformations/Icons/Transformations/Aberrant%20Horror/Poisoned_immunity.png",
-                        changes: [{
-                            key: "system.traits.ci.value",
-                            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-                            value: "poisoned"
-                        }]
-                    }
-                }
             }
         }
     };
