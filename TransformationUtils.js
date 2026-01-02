@@ -153,7 +153,7 @@ export async function renderTransformationTemplate(templateName, data) {
 		`modules/transformations/scripts/Templates/${templateName}.hbs`,
 		data
 	);
-	TransformationModule.logger.debug(html);
+	TransformationModule.logger.debug("new pill:", html);
 	return html;
 }
 

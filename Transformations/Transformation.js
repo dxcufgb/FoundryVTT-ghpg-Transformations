@@ -178,7 +178,7 @@ export class Transformation {
         const data = foundry.utils.deepClone(
             this.actor.getFlag(this.MODULE_ID, this.itemId) ?? {}
         );
-        return data.flag
+        return data[flag]
     }
 
     async setActorFlag(flag, value) {
@@ -189,11 +189,11 @@ export class Transformation {
         await this.actor.setFlag(this.MODULE_ID, this.itemId, data);
     }
 
-    getItemFlag(item, flag) {
+    static getItemFlag(item, flag) {
         const data = foundry.utils.deepClone(
             item.getFlag(this.MODULE_ID, this.itemId) ?? {}
         );
-        return data.flag
+        return data[flag]
     }
 
     async setItemFlag(item, flag, value) {
@@ -270,7 +270,7 @@ export class Transformation {
     }
 
     static removeAllTransformationThings(actor) {
-        actor.items.filter(i => getItemFlag(i, globalConstants.TRANSFORMATION_ITEM_FLAG)).forEach(async (item) => {
+        actor.items.filter(i => this.getItemFlag(i, globalConstants.TRANSFORMATION_ITEM_FLAG)).forEach(async (item) => {
             await actor.deleteEmbeddedDocuments("Item", [item.id]);
         });
     }

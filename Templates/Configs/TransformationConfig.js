@@ -66,6 +66,9 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         } else {
             await app.actor.unsetFlag("dnd5e", "transformation");
         }
+        const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
+        TransformationModule.logger.debug("Resolved transformation after config save:", transformation);
+        transformation.onTransformationUpdate();
         app.close();
     }
 }

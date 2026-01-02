@@ -21,12 +21,14 @@ Hooks.once("init", async () => {
     TransformationModule.utils = {};
     TransformationModule.compendiums = {};
     TransformationModule.Transformations = new Map();
+    TransformationModule.EventListeners = {};
     Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
     TransformationModule.dialogConfigs["showConfiguration"] = {}
     TransformationModule.dialogConfigs.showConfiguration = await import("./Templates/Configs/TransformationConfig.js")
     TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
+    Object.assign(TransformationModule.EventListeners, await import("./TransformationEventListeners.js"));
 });
 
 Hooks.once("setup", async () => {
@@ -172,27 +174,12 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
 Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
     TransformationModule.logger.log("actor: ", app.actor)
     const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
-    originalHtml.addEventListener("click", event => {
-        const button = event.target.closest("[data-action]");
-        if (!button) return;
-
-        const action = button.dataset.action;
-        const config = button.dataset.config;
-        if (action === "showConfiguration" && config === "transformation") {
-            if (!app.isEditable) return;
-            const showConfiguration = TransformationModule.dialogConfigs.showConfiguration;
-
-            new showConfiguration.TransformationConfig(
-                app.actor,
-                TransformationModule.Transformations
-            ).render(true);
-        }
-    });
+    TransformationModule.EventListeners.registerTransformationConfigurationEventListeners(app, originalHtml, config);
     (async () => {
         const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData(config.editable))
-        TransformationModule.logger.debug("new pill: ", html);
         const fragment = document.createRange().createContextualFragment(html);
         originalHtml.querySelector(".pills-lg").append(fragment);
+        TransformationModule.EventListeners.registerTransformationStageChangeListener(app, originalHtml, config);
     })();
 });
 

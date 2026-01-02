@@ -16,7 +16,7 @@
                     {{ selectOptions DND5E.config.characterFlags.transformation-level.choices selected=transformation.transformationLevel labelAttr="label" }}
                 </select>
             {{else}}
-                <span class="subtitle">stage {{ transformation.transformationLevel }}</span>
+                <span class="transformation-stage-select subtitle">stage {{ transformation.transformationLevel }}</span>
             {{/if}}
         </div>
         {{#if editable}}
