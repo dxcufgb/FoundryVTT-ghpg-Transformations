@@ -246,7 +246,7 @@ export class Transformation {
                 delete itemInstance._id;
                 if (itemInstance) {
                     TransformationModule.logger.debug("Creating item on actor: ", itemInstance);
-                    let createdItem = await this.actor.createEmbeddedDocuments("Item", [itemInstance]);
+                    let [createdItem] = await this.actor.createEmbeddedDocuments("Item", [itemInstance]);
                     await this.setItemFlag(createdItem, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
                 }
             });
@@ -254,14 +254,14 @@ export class Transformation {
         if (stages.DAMAGE_RESISTANCES != null) {
             Object.values(stages.DAMAGE_RESISTANCES).forEach(async (resistance) => {
                 TransformationModule.logger.debug("Applying transformation resistance: ", resistance);
-                let createdResistance = await actor.createEmbeddedDocuments("ActiveEffect", [resistance]);
+                let [createdResistance] = await actor.createEmbeddedDocuments("ActiveEffect", [resistance]);
                 this.setItemFlag(createdResistance, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
             });
         }
         if (stages.DAMAGE_IMMUNITIES != null) {
             Object.values(stages.DAMAGE_IMMUNITIES).forEach(async (immunity) => {
                 TransformationModule.logger.debug("Applying transformation immunity: ", immunity);
-                let createdImmunity = await actor.createEmbeddedDocuments("ActiveEffect", [immunity]);
+                let [createdImmunity] = await actor.createEmbeddedDocuments("ActiveEffect", [immunity]);
                 this.setItemFlag(createdImmunity, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
             });
         }
