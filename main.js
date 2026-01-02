@@ -77,31 +77,25 @@ Hooks.once("setup", async () => {
     //     section: "Transformations"
     // };
 
+    CONFIG.DND5E.characterFlags.transformationStage = {
+        type: Number,
+        choices: {
+            "1": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4"
+        },
+        name: "Transformation Stage",
+        hint: "Stage of active transformation on the character",
+        section: "Transformations"
+    };
     CONFIG.DND5E.characterFlags.transformation = {
-        label: "Transformations",
-        hint: "Settings and options for character transformations",
-        flags: {
-            transformationStage: {
-                type: Number,
-                choices: {
-                    "1": "1",
-                    "2": "2",
-                    "3": "3",
-                    "4": "4"
-                },
-                name: "Transformation Stage",
-                hint: "Stage of active transformation on the character",
-                section: "Transformations"
-            },
-            transformation: {
-                type: "string",
-                choices: choices,
-                name: "Transformation",
-                hint: "Transformation active on the character",
-                section: "Transformations"
-            }
-        }
-    }
+        type: "string",
+        choices: choices,
+        name: "Transformation",
+        hint: "Transformation active on the character",
+        section: "Transformations"
+    };
 });
 
 Hooks.once("ready", () => {
