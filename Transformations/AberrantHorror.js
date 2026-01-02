@@ -308,9 +308,9 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 "ActiveEffect",
                 effects
             );
-            if (!effectToExclude || effectToExclude != this.aberrantMutationEffects.ELDRITCH_LIMBS) {
-                this.removeEldritchLimbsItems();
-            }
+        }
+        if (!effectToExclude || effectToExclude != this.aberrantMutationEffects.ELDRITCH_LIMBS) {
+            await this.removeEldritchLimbsItems();
         }
     }
 
