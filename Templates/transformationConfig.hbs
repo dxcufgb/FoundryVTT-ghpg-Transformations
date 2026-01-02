@@ -20,6 +20,17 @@
             </ol>
         </fieldset>
     </section>
+
+    <section class="flexcol transformation-config">
+        <fieldset class="card">
+            <legend>Transformation Stage</legend>
+            <div class="form-group">
+                <label for="transformation-stage-select">Stage</label>
+                <select id="transformation-stage-select" name="transformationStage" {{#unless editable}}disabled{{/unless}}>
+                    {{ selectOptions DND5E.config.characterFlags.transformationStage.choices selected=transformationStage labelAttr="label" }}
+                </select>
+        </fieldset>
+    </section>
     
     <footer style="margin-top:10px; display: flex; justify-content: center;" class="sheet-footer">
         {{#if editable}}

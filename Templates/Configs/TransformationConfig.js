@@ -32,6 +32,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
     async _prepareContext() {
         if (!this.transformations) throw new Error("Invalid transformations");
         const selectedId = this.actor.getFlag("dnd5e", "transformation");
+        const actorTransformationStage = this.actor.getFlag("dnd5e", "transformationStage");
         const valueMap = [];
         for (const transformation of TransformationModule.Transformations.values()) {
             valueMap.push({
@@ -47,8 +48,10 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         return {
             editable: this.isEditable,
             transformations: valueMap,
+            transformationStage: actorTransformationStage,
             rows: rows,
-            noneSelected: !selectedId
+            noneSelected: !selectedId,
+            DND5e: CONFIG.dnd5e
         };
     }
 
@@ -66,6 +69,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         } else {
             await app.actor.unsetFlag("dnd5e", "transformation");
         }
+        await app.actor.setFlag("dnd5e", "transformationStage", formData.get("transformationStage"));
         const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
         TransformationModule.logger.debug("Resolved transformation after config save:", transformation);
         transformation.onTransformationUpdate();
