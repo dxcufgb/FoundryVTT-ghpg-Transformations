@@ -246,7 +246,7 @@ export class Transformation {
             Object.values(stages.ITEMS).forEach(async (itemName) => {
                 TransformationModule.logger.debug("Applying transformation item: ", itemName);
                 const itemData = await Transformation.getCompendiumEntryByName(itemName);
-                let itemInstance = await TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(itemData._id).toObject();
+                let itemInstance = await TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(itemData._id);
                 delete itemInstance._id;
                 this.setItemFlag(itemInstance, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
                 if (itemInstance) {
