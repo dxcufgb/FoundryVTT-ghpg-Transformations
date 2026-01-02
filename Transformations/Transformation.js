@@ -299,16 +299,24 @@ export class Transformation {
         switch (Number(highestStage)) {
             case 4:
                 TransformationModule.logger.debug("Getting transformation stages for level 4");
-                stages = this.constants.TRANSFORMATION_STAGES[4];
+                stages.ITEMS = this.constants.TRANSFORMATION_STAGES[4].ITEMS;
+                stages.DAMAGE_RESISTANCES = this.constants.TRANSFORMATION_STAGES[4].DAMAGE_RESISTANCES;
+                stages.DAMAGE_IMMUNITIES = this.constants.TRANSFORMATION_STAGES[4].DAMAGE_IMMUNITIES;
             case 3:
                 TransformationModule.logger.debug("Getting transformation stages for level 3");
-                stages = { ...stages, ...this.constants.TRANSFORMATION_STAGES[3] };
+                stages.ITEMS = { ...stages.ITEMS, ...this.constants.TRANSFORMATION_STAGES[3].ITEMS };
+                stages.DAMAGE_RESISTANCES = { ...stages.DAMAGE_RESISTANCES, ...this.constants.TRANSFORMATION_STAGES[3].DAMAGE_RESISTANCES };
+                stages.DAMAGE_IMMUNITIES = { ...stages.DAMAGE_IMMUNITIES, ...this.constants.TRANSFORMATION_STAGES[3].DAMAGE_IMMUNITIES };
             case 2:
                 TransformationModule.logger.debug("Getting transformation stages for level 2");
-                stages = { ...stages, ...this.constants.TRANSFORMATION_STAGES[2] };
+                stages.ITEMS = { ...stages.ITEMS, ...this.constants.TRANSFORMATION_STAGES[2].ITEMS };
+                stages.DAMAGE_RESISTANCES = { ...stages.DAMAGE_RESISTANCES, ...this.constants.TRANSFORMATION_STAGES[2].DAMAGE_RESISTANCES };
+                stages.DAMAGE_IMMUNITIES = { ...stages.DAMAGE_IMMUNITIES, ...this.constants.TRANSFORMATION_STAGES[2].DAMAGE_IMMUNITIES };
             case 1:
                 TransformationModule.logger.debug("Getting transformation stages for level 1");
-                stages = { ...stages, ...this.constants.TRANSFORMATION_STAGES[1] };
+                stages.ITEMS = { ...stages.ITEMS, ...this.constants.TRANSFORMATION_STAGES[1].ITEMS };
+                stages.DAMAGE_RESISTANCES = { ...stages.DAMAGE_RESISTANCES, ...this.constants.TRANSFORMATION_STAGES[1].DAMAGE_RESISTANCES };
+                stages.DAMAGE_IMMUNITIES = { ...stages.DAMAGE_IMMUNITIES, ...this.constants.TRANSFORMATION_STAGES[1].DAMAGE_IMMUNITIES };
                 break;
         }
         TransformationModule.logger.debug("Final transformation stages: ", stages);
