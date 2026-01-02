@@ -195,8 +195,8 @@ Hooks.on("updateActor", async (actor, diff, options, userId) => {
 
     if (!transformationWasUpdated) return;
 
-    clearTimeout(pending.get(actor.id));
-    pending.set(
+    clearTimeout(TransformationModule.pending.get(actor.id));
+    TransformationModule.pending.set(
         actor.id,
         setTimeout(async () => {
             pending.delete(actor.id);
