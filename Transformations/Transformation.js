@@ -189,11 +189,13 @@ export class Transformation {
     }
 
     static getItemFlag(item, flag) {
+        if (!item) return {};
+        if (!flag) return {};
         TransformationModule.logger.debug("Getting item flag:", item, flag);
-        const data = foundry.utils.deepClone(
-            item.getFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, flag) ?? {}
-        );
-        return data[flag]
+        return item.getFlag(
+            TransformationModule.constants.EFFECT_FLAG_MODULE_NAME,
+            flag
+        ) ?? null;
     }
 
     async setItemFlag(item, flag, value) {
@@ -251,10 +253,12 @@ export class Transformation {
         });
         Object.values(stages.DAMAGE_RESISTANCES).forEach(async (resistance) => {
             TransformationModule.logger.debug("Applying transformation resistance: ", resistance);
+            this.setItemFlag(resistance, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
             await actor.createEmbeddedDocuments("ActiveEffect", [resistance]);
         });
         Object.values(stages.DAMAGE_IMMUNITIES).forEach(async (immunity) => {
             TransformationModule.logger.debug("Applying transformation immunity: ", immunity);
+            this.setItemFlag(immunity, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
             await actor.createEmbeddedDocuments("ActiveEffect", [immunity]);
         });
     }
