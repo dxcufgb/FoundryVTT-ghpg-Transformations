@@ -56,7 +56,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
     }
 
     static async _onSave(event, target) {
-        const app = event.currentTarget?.application;
+        const app = this;
         if (!app.isEditable) return;
 
         const formData = new FormData(target.form);
