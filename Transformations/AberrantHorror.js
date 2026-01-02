@@ -232,7 +232,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     async aberrantForm() {
-        const item = this.actor.items.find(i => i.name === this.constants.TRANSFORMATION_STAGES[1].ABERRANT_FORM);
+        const item = this.actor.items.find(i => i.name === this.constants.TRANSFORMATION_STAGES[1].ITEMS.ABERRANT_FORM);
         if (!item) {
             ui.notifications.warn(`${this.actor.name} does not have an item named "${itemName}".`);
             return;
@@ -316,9 +316,9 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     hasAberrantMutationEffects(effectToExclude = null) {
         let effectsToLookFor
         if (effectToExclude) {
-            effectsToLookFor = this.aberrantMutationEffects.filter(effect => effect != effectToExclude);
+            effectsToLookFor = Object.values(this.constants.ABERRANT_MUTATION_EFFECTS).filter(effect => effect != effectToExclude);
         } else {
-            effectsToLookFor = this.aberrantMutationEffects;
+            effectsToLookFor = Object.values(this.constants.ABERRANT_MUTATION_EFFECTS);
         }
         const effects = this.actor.effects.filter(effect => effectsToLookFor.includes(effect.name)).map(e => e.id);
         if (effects.length === 0) {
