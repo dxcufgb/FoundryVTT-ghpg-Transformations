@@ -51,14 +51,30 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                     POISONOUS_MUTATIONS: "Poisonous Mutations"
                 },
                 DAMAGE_RESISTANCES: {
-                    POISONOUS_RESISTANCE: "Poisonous Resistance"
+                    POISONOUS_RESISTANCE: {
+                        label: "Poisonous Resistance",
+                        icon: "modules/transformations/Icons/Transformations/Aberrant%20Horror/Poison_Resistance.png",
+                        changes: [{
+                            key: "system.traits.dr.value",
+                            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                            value: "poison"
+                        }]
+                    }
                 },
                 DAMAGE_IMMUNITIES: {
-                    POISONED_IMMUNITY: "Poisoned Immunity"
+                    POISONED_IMMUNITY: {
+                        label: "Poisoned Condition Immunity",
+                        icon: "icons/svg/poison.svg",
+                        changes: [{
+                            key: "system.traits.ci.value",
+                            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                            value: "poisoned"
+                        }]
+                    }
                 }
             }
         }
-    }
+    };
 
     constructor(actor) {
         super(actor);

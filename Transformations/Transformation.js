@@ -252,9 +252,11 @@ export class Transformation {
         });
         Object.values(stages.DAMAGE_RESISTANCES).forEach(async (resistance) => {
             TransformationModule.logger.debug("Applying transformation resistance: ", resistance);
+            await actor.createEmbeddedDocuments("ActiveEffect", [resistance]);
         });
         Object.values(stages.DAMAGE_IMMUNITIES).forEach(async (immunity) => {
             TransformationModule.logger.debug("Applying transformation immunity: ", immunity);
+            await actor.createEmbeddedDocuments("ActiveEffect", [immunity]);
         });
     }
 
