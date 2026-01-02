@@ -144,7 +144,7 @@ Hooks.on("dnd5e.preRollHitDieV2", (context) => {
 });
 
 Hooks.on("dnd5e.preRollSavingThrow", (context, options, data) => {
-    if (context.workflow.item.type == TransformationModule.constants.ITEM_TYPE.SPELL) {
+    if (context.workflow.item?.type == TransformationModule.constants.ITEM_TYPE.SPELL) {
         let transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(context.subject);
         if (transformation.initialized) {
             context = transformation.getTriggerFlag(context, TransformationModule.constants.TRIGGER_FLAG.SPELL_SAVE);

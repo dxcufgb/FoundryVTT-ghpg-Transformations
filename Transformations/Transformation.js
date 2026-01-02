@@ -119,7 +119,7 @@ export class Transformation {
         TransformationModule.logger.debug(drawResult);
         if (!onlyApplyLowerResult || !this.getActorFlag() || (onlyApplyLowerResult && drawResult.roll._total < this.getActorFlag())) {
             if (onlyApplyLowerResult) {
-                this.sendChatMessage(this.constants.APPLY_LOWER_RESULT);
+                this.sendChatMessage(this.getChatMessage(this.constants.APPLY_LOWER_RESULT));
             }
             await this.removeActiveTransformationEffect();
             await this.applyRollTableResult(drawResult.results[0].name);

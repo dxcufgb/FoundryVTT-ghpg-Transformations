@@ -83,7 +83,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         super(actor);
         TransformationModule.logger.debug("Aberrant horror constructor start");
         this.constants = { ...this.constants, ...this.constructor.subClassConstants };
-        this.aberrantMutationEffects = this.constructor.subClassConstants.ABERRANT_MUTATION_EFFECTS;
+        this.aberrantMutationEffects = Object.values(this.constructor.subClassConstants.ABERRANT_MUTATION_EFFECTS);
         this.eldritchLimbsItemIds = this.constructor.eldritchLimbsItemIds;
         this.iconFolder += this.name + "/";
         TransformationModule.logger.debug("icon folder Transformation constructor 3", this.iconFolder);
@@ -119,7 +119,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     onInitiative() {
         TransformationModule.logger.log("onInitiative AberrantHorror");
         if (this.actor.statuses.has(this.constants.ABERRANT_CONFUSION)) {
-            this.actor.toggleStatusEffect(globalConstants.CONDITION.STUNNED, { active: true });
+            this.actor.toggleStatusEffect(this.globalConstants.CONDITION.STUNNED, { active: true });
             super.sendChatMessage(this.getChatMessage(this.constants.ABERRANT_CONFUSION))
         }
     }
