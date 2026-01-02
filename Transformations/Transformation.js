@@ -243,7 +243,7 @@ export class Transformation {
             TransformationModule.logger.debug("Applying transformation stage: ", stage);
             TransformationModule.logger.debug("Applying transformation item: ", itemName);
             const itemData = await Transformation.getCompendiumEntryByName(itemName);
-            this.setItemFlag(itemData, globalConstants.TRANSFORMATION_ITEM_FLAG, true);
+            this.setItemFlag(itemData, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
             if (itemData) {
                 TransformationModule.logger.debug("Creating item on actor: ", itemData);
                 //await this.actor.createEmbeddedDocuments("Item", [itemData]);
@@ -273,8 +273,6 @@ export class Transformation {
     }
 
     removeAllTransformationThings() {
-        TransformationModule.logger.debug("Removing all transformation items from actor:", this.actor);
-        TransformationModule.logger.debug("Actor items:", this.actor.items);
         this.actor.items.filter(i => Transformation.getItemFlag(i, TransformationModule.constants.TRANSFORMATION_ITEM_FLAG) != {}).forEach(async (item) => {
             TransformationModule.logger.debug("Removing transformation item: ", item);
             // await actor.deleteEmbeddedDocuments("Item", [item.id]);
