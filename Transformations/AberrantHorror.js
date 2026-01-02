@@ -104,16 +104,16 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         }
     }
 
-    onShortRest(result) {
+    async onShortRest(result) {
         TransformationModule.logger.log("onShortRest AberrantHorror");
-        this.removeAberrantMutationEffects()
+        await this.removeAberrantMutationEffects()
     }
 
-    onLongRest(result) {
+    async onLongRest(result) {
         TransformationModule.logger.log("onLongRest AberrantHorror");
-        this.removeAberrantMutationEffects()
-        super.setActorFlag(this.constants.HAS_BEEN_BLOODIED_SINCE_LONG_REST, false);
-        super.rollResultFromRollTable();
+        await this.removeAberrantMutationEffects()
+        await super.setActorFlag(this.constants.HAS_BEEN_BLOODIED_SINCE_LONG_REST, false);
+        await super.rollResultFromRollTable();
     }
 
     onInitiative() {
@@ -241,7 +241,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             await item.update({
                 "system.uses.spent": Math.min(item.system.uses.value + 1, item.system.uses.max)
             });
-            const regainedHitPoints = this.actor.system.attributes.prof + this.TransformationStage
+            const regainedHitPoints = this.actor.system.attributes.prof + Number(this.TransformationStage);
             super.sendChatMessage(this.getChatMessage(this.constants.TRANSFORMATION_STAGES[1].ABERRANT_FORM, { regainedHitPoints: regainedHitPoints }));
             this.actor.system.attributes.hp.temp = regainedHitPoints
         }
@@ -281,17 +281,17 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     async chitinousShell() {
         TransformationModule.logger.log("Chitinous Shell called!");
-        this.removeAberrantMutationEffects(this.aberrantMutationEffects.CHITINOUS_SHELL);
+        await this.removeAberrantMutationEffects(this.aberrantMutationEffects.CHITINOUS_SHELL);
     }
 
     async slimyForm() {
         TransformationModule.logger.log("Slimy Form called!");
-        this.removeAberrantMutationEffects(this.aberrantMutationEffects.SLIMY_FORM);
+        await this.removeAberrantMutationEffects(this.aberrantMutationEffects.SLIMY_FORM);
     }
 
     async eldritchLimbs() {
         TransformationModule.logger.log("Eldritch Limbs called!");
-        this.removeAberrantMutationEffects(this.aberrantMutationEffects.ELDRITCH_LIMBS);
+        await this.removeAberrantMutationEffects(this.aberrantMutationEffects.ELDRITCH_LIMBS);
         TransformationModule.logger.log(this.eldritchLimbsItemIds[this.TransformationStage]);
         const item = await fromUuid(this.eldritchLimbsItemIds[this.TransformationStage]);
         if (item && this.actor) {
