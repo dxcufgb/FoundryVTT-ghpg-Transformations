@@ -244,7 +244,7 @@ export class Transformation {
                 const itemData = await Transformation.getCompendiumEntryByName(itemName);
                 let itemInstance = await TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(itemData._id);
                 delete itemInstance._id;
-                this.setItemFlag(itemInstance, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
+                await this.setItemFlag(itemInstance, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
                 if (itemInstance) {
                     TransformationModule.logger.debug("Creating item on actor: ", itemInstance);
                     await this.actor.createEmbeddedDocuments("Item", [itemInstance]);
