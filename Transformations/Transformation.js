@@ -199,6 +199,12 @@ export class Transformation {
     }
 
     async setItemFlag(item, flag, value) {
+        TransformationModule.logger.debug({
+            itemInstance,
+            isArray: Array.isArray(item),
+            isItem: item instanceof Item,
+            documentName: item?.documentName
+        });
         TransformationModule.logger.debug("setting item flag:", item, flag, value);
         await item.setFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, flag, value);
     }
