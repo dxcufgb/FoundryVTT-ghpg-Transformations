@@ -96,10 +96,10 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     onBloodied() {
         this.aberrantForm()
-        if (this.TransformationStage >= 2) {
+        if (this.transformationStage >= 2) {
             this.hideousAppearance()
         }
-        if (this.TransformationStage > 3) {
+        if (this.transformationStage > 3) {
             this.entropicAbomination(this.globalConstants.CONDITION.BLOODIED)
         }
     }
@@ -126,14 +126,14 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     onConcentration() {
         TransformationModule.logger.log("onConcentration AberrantHorror");
-        if (this.TransformationStage >= 2) {
+        if (this.transformationStage >= 2) {
             this.hideousAppearance()
         }
     }
 
     onUnconscious() {
         TransformationModule.logger.log("onUnconscious AberrantHorror");
-        if (this.TransformationStage >= 2) {
+        if (this.transformationStage >= 2) {
             this.hideousAppearance()
         }
     }
@@ -146,7 +146,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     onSpellSavingThrow(roll) {
         TransformationModule.logger.log("onSpellSavingThrow AberrantHorror")
-        if (this.TransformationStage >= 3) {
+        if (this.transformationStage >= 3) {
             roll = this.unstableExistence(roll);
         }
         return roll
@@ -154,7 +154,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     onSavingThrow(roll) {
         TransformationModule.logger.log("onSavingThrow AberrantHorror")
-        if (this.TransformationStage > 3) {
+        if (this.transformationStage > 3) {
             roll = this.entropicAbomination(this.globalConstants.ROLL_TYPE.SAVING_THROW, roll);
         }
         return roll
@@ -163,7 +163,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     getTriggerFlag(context, type) {
         switch (type) {
             case globalConstants.TRIGGER_FLAG.SPELL_SAVE:
-                if (this.TransformationStage > 3) {
+                if (this.transformationStage > 3) {
                     context.rolls[0].options.transformations = {
                         [this.itemId]: [
                             globalConstants.TRIGGER_FLAG.SPELL_SAVE
@@ -206,7 +206,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     async hideousAppearanceConSave() {
         let dc = 0;
-        switch (this.TransformationStage) {
+        switch (this.transformationStage) {
             case 1:
             case 2:
                 dc = 13;
@@ -241,7 +241,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             await item.update({
                 "system.uses.spent": Math.min(item.system.uses.value + 1, item.system.uses.max)
             });
-            const regainedHitPoints = this.actor.system.attributes.prof + Number(this.TransformationStage);
+            const regainedHitPoints = this.actor.system.attributes.prof + Number(this.transformationStage);
             super.sendChatMessage(this.getChatMessage(this.constants.TRANSFORMATION_STAGES[1].ABERRANT_FORM, { regainedHitPoints: regainedHitPoints }));
             this.actor.system.attributes.hp.temp = regainedHitPoints
         }
@@ -292,8 +292,8 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     async eldritchLimbs() {
         TransformationModule.logger.log("Eldritch Limbs called!");
         await this.removeAberrantMutationEffects(this.aberrantMutationEffects.ELDRITCH_LIMBS);
-        TransformationModule.logger.log(this.eldritchLimbsItemIds[this.TransformationStage]);
-        const item = await fromUuid(this.eldritchLimbsItemIds[this.TransformationStage]);
+        TransformationModule.logger.log(this.eldritchLimbsItemIds[this.transformationStage]);
+        const item = await fromUuid(this.eldritchLimbsItemIds[this.transformationStage]);
         if (item && this.actor) {
             await this.actor.createEmbeddedDocuments('Item', [item.toObject()]);
         } else {
