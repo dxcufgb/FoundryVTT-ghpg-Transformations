@@ -51,7 +51,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
             transformationStage: actorTransformationStage,
             rows: rows,
             noneSelected: !selectedId,
-            DND5E: CONFIG.dnd5e
+            DND5E: CONFIG.DND5E
         };
     }
 
