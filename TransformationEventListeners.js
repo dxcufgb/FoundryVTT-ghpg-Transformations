@@ -7,9 +7,14 @@ export function registerTransformationStageChangeListener(app, html, data) {
         event.preventDefault();
         const value = event.target.value;
         TransformationModule.logger.debug("Transformation stage changed to: ", value);
-        app.actor.setFlag("dnd5e", "transformationStage", value);
-        const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
-        transformation.onTransformationUpdate();
+        const pillConfig = TransformationModule.dialogConfigs.pillConfig;
+
+        new pillConfig.TransformationStageConfig(
+            app.actor
+        ).render(true);
+        // app.actor.setFlag("dnd5e", "transformationStage", value);
+        // const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
+        // transformation.onTransformationUpdate();
     });
 }
 

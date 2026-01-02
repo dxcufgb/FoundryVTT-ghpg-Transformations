@@ -28,4 +28,10 @@ export class TransformationStageConfig extends foundry.applications.api.Handleba
             height: "auto"
         }
     };
+
+    async _onSave(event, formData) {
+        await this.actor.update(formData);
+        const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
+        transformation.onTransformationUpdate();
+    }
 }
