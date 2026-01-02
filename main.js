@@ -1,3 +1,5 @@
+import { Transformation } from "./Transformations/Transformation.js";
+
 Hooks.once("init", async () => {
     console.log(`
 ╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
@@ -22,6 +24,7 @@ Hooks.once("init", async () => {
     TransformationModule.compendiums = {};
     TransformationModule.Transformations = new Map();
     TransformationModule.EventListeners = {};
+    TransformationModule.pending = new Map();
     Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
     TransformationModule.dialogConfigs["showConfiguration"] = {}
     TransformationModule.dialogConfigs.showConfiguration = await import("./Templates/Configs/TransformationConfig.js")
@@ -184,25 +187,53 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
 });
 
 Hooks.on("updateActor", async (actor, diff, options, userId) => {
+    if (options?.transformationsInternal) return;
     const flags = diff?.flags?.dnd5e;
-    const transformationWasUpdated = flags && ("transformation" in flags);
-    const transformationStageWasUpdated = flags && ("transformationStage" in flags);
+    if (!flags) return;
 
-    if (!transformationWasUpdated && !transformationStageWasUpdated) return;
+    const transformationWasUpdated =
+        "transformation" in flags ||
+        "transformationStage" in flags;
 
-    const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
-    TransformationModule.logger.debug("Resolved transformation after update:", transformation);
-    await transformation.onTransformationUpdate();
+    if (!transformationWasUpdated) return;
 
-    try {
-        for (const appWindow of Object.values(ui.windows)) {
-            if (appWindow?.document?.id === actor.id && appWindow.constructor?.name?.startsWith("ActorSheet")) {
-                try { appWindow.render(true); } catch (err) { TransformationModule.logger.error("Failed to re-render actor sheet:", err); }
+    clearTimeout(pending.get(actor.id));
+    pending.set(
+        actor.id,
+        setTimeout(async () => {
+            pending.delete(actor.id);
+            const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
+            TransformationModule.logger.debug("Resolved transformation after update:", transformation);
+            if (!transformation) return;
+            TransformationModule.logger.debug(
+                "Applying debounced transformation update:",
+                transformation
+            );
+            await transformation.onTransformationUpdate();
+            for (const appWindow of Object.values(ui.windows)) {
+                if (
+                    appWindow?.document?.id === actor.id &&
+                    appWindow.constructor?.name?.startsWith("ActorSheet")
+                ) {
+                    try {
+                        appWindow.render(true);
+                    } catch (err) {
+                        TransformationModule.logger.error(
+                            "Failed to re-render actor sheet:",
+                            err
+                        );
+                    }
+                }
             }
-        }
-    } catch (err) {
-        TransformationModule.logger.error("Error while attempting to re-render actor sheets:", err);
-    }
 
-    Hooks.call("transformations.actorUpdated", actor, { transformationWasUpdated, transformationLevelWasUpdated: transformationStageWasUpdated });
+            Hooks.call(
+                "transformations.actorUpdated",
+                actor,
+                {
+                    transformationWasUpdated: true
+                }
+            );
+
+        }, 0) // microtask debounce
+    );
 });
