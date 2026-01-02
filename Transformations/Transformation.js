@@ -232,6 +232,26 @@ export class Transformation {
         return pillsData;
     }
 
+    actorHasTransformationItem(itemName) {
+        return this.actor.items.some(i =>
+            i.name === itemName &&
+            i.getFlag(
+                TransformationModule.constants.EFFECT_FLAG_MODULE_NAME,
+                TransformationModule.constants.TRANSFORMATION_ITEM_FLAG
+            )
+        );
+    }
+
+    actorHasTransformationEffect(effectLabel) {
+        return this.actor.effects.some(e =>
+            e.label === effectLabel &&
+            e.getFlag(
+                TransformationModule.constants.EFFECT_FLAG_MODULE_NAME,
+                TransformationModule.constants.TRANSFORMATION_ITEM_FLAG
+            )
+        );
+    }
+
     async applyTransformationStage() {
         TransformationModule.logger.debug("Applying transformation stage:", this.transformationStage);
         TransformationModule.logger.debug("Transformation stages:", this.constants.TRANSFORMATION_STAGES);
@@ -240,29 +260,35 @@ export class Transformation {
         TransformationModule.logger.debug("Final stages to apply:", stages);
         if (stages.ITEMS != null) {
             Object.values(stages.ITEMS).forEach(async (itemName) => {
-                TransformationModule.logger.debug("Applying transformation item: ", itemName);
-                const itemData = await Transformation.getCompendiumEntryByName(itemName);
-                let itemInstance = await TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(itemData._id);
-                delete itemInstance._id;
-                if (itemInstance) {
-                    TransformationModule.logger.debug("Creating item on actor: ", itemInstance);
-                    let [createdItem] = await this.actor.createEmbeddedDocuments("Item", [itemInstance]);
-                    await this.setItemFlag(createdItem, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
+                if (!this.actorHasTransformationItem(itemName)) {
+                    TransformationModule.logger.debug("Applying transformation item: ", itemName);
+                    const itemData = await Transformation.getCompendiumEntryByName(itemName);
+                    let itemInstance = await TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(itemData._id);
+                    delete itemInstance._id;
+                    if (itemInstance) {
+                        TransformationModule.logger.debug("Creating item on actor: ", itemInstance);
+                        let [createdItem] = await this.actor.createEmbeddedDocuments("Item", [itemInstance]);
+                        await this.setItemFlag(createdItem, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
+                    }
                 }
             });
         }
         if (stages.DAMAGE_RESISTANCES != null) {
             Object.values(stages.DAMAGE_RESISTANCES).forEach(async (resistance) => {
-                TransformationModule.logger.debug("Applying transformation resistance: ", resistance);
-                let [createdResistance] = await this.actor.createEmbeddedDocuments("ActiveEffect", [resistance]);
-                this.setItemFlag(createdResistance, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
+                if (!this.actorHasTransformationEffect(resistance.label)) {
+                    TransformationModule.logger.debug("Applying transformation resistance: ", resistance);
+                    let [createdResistance] = await this.actor.createEmbeddedDocuments("ActiveEffect", [resistance]);
+                    this.setItemFlag(createdResistance, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
+                }
             });
         }
         if (stages.DAMAGE_IMMUNITIES != null) {
             Object.values(stages.DAMAGE_IMMUNITIES).forEach(async (immunity) => {
-                TransformationModule.logger.debug("Applying transformation immunity: ", immunity);
-                let [createdImmunity] = await this.actor.createEmbeddedDocuments("ActiveEffect", [immunity]);
-                this.setItemFlag(createdImmunity, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
+                if (!this.actorHasTransformationEffect(immunity.label)) {
+                    TransformationModule.logger.debug("Applying transformation immunity: ", immunity);
+                    let [createdImmunity] = await this.actor.createEmbeddedDocuments("ActiveEffect", [immunity]);
+                    this.setItemFlag(createdImmunity, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
+                }
             });
         }
     }
