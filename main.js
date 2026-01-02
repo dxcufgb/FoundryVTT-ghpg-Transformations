@@ -25,7 +25,9 @@ Hooks.once("init", async () => {
     TransformationModule.pending = new Map();
     Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
     TransformationModule.dialogConfigs["showConfiguration"] = {}
+    TransformationModule.dialogConfigs["choiceDialogConfig"] = {}
     TransformationModule.dialogConfigs.showConfiguration = await import("./Templates/Configs/TransformationConfig.js")
+    TransformationModule.dialogConfigs.choiceDialogConfig = await import("./Templates/Configs/ChoiceDialogConfig.js")
     TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));

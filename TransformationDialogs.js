@@ -32,11 +32,10 @@ export async function getD20RollDialog(actor, identifier, rollType, dc = null, m
     }
 }
 
-export async function getTransformationChoiceDialog(transformation, choices) {
-    if (!actor) {
-        ui.notifications.warn("Select a token.");
-        return;
-    }
+export async function getTransformationChoiceDialog(choices) {
+    const choiceDialogConfig = TransformationModule.dialogConfigs.choiceDialogConfig;
 
-    let config = {};
+    new choiceDialogConfig.TransformationConfig(
+        choices
+    ).render(true);
 }

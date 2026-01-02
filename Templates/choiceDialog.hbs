@@ -1,15 +1,15 @@
 <form autocomplete="off" onsubmit="event.preventDefault();">
-	<ol class="items-list">
+	<ol class="choices-list">
 	   {{#each choices as |advancement name|}}
-		<li class="item flexrow">
-			<div class="item-name flexrow">
-				<div class="item-image" style="background-image: url('{{advancement.icon}}')"></div>
+		<li class="choice flexrow">
+			<div class="choice-name flexrow">
+				<div class="choice-image" style="background-image: url('{{advancement.icon}}')"></div>
 				<h3>{{advancement.label}}</h3>
 			</div>
-			<div class="item-controls flexrow">
-				<input name="type" type="radio" value="{{name}}" {{disabled advancement.disabled}}>
+			<div class="choice-controls flexrow">
+				<input name="type" type="radio" value="{{name}}">
 			</div>
-			<div class="item-hint notes">
+			<div class="choice-hint notes">
 				{{advancement.hint}}
 			</div>
 		</li>
