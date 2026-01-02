@@ -136,8 +136,8 @@ export class Transformation {
     }
 
     getActorTransformationStage() {
-        TransformationModule.logger.debug("Transformation stage:", this.actor.flags.dnd5e["transformation-stage"])
-        return this.actor.flags.dnd5e["transformation-stage"];
+        TransformationModule.logger.debug("Transformation stage:", this.actor.flags.dnd5e.transformationStage)
+        return this.actor.flags.dnd5e.transformationStage;
     }
 
     async getRollTable() {

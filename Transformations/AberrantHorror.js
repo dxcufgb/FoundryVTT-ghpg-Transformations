@@ -336,7 +336,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 uuid: this.uuid,
                 img: this.img,
                 name: this.name,
-                TransformationStage: this.TransformationStage,
+                transformationStage: this.transformationStage,
             },
             actor: this.actor,
             DND5E: dnd5e,

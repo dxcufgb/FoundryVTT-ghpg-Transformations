@@ -12,11 +12,11 @@
         <div class="name name-stacked">
             <span class="title">{{ transformation.name }}</span>
             {{#if editable}}
-                <select class="transformationStage unselect" name="actor.flags.tranformation.TransformationStage">
-                    {{ selectOptions DND5E.config.characterFlags.TransformationStage.choices selected=transformation.TransformationStage labelAttr="label" }}
+                <select class="transformationStage unselect" name="actor.flags.dnd5e.TransformationStage">
+                    {{ selectOptions DND5E.config.characterFlags.TransformationStage.choices selected=transformation.transformationStage labelAttr="label" }}
                 </select>
             {{else}}
-                <span class="transformation-stage-select subtitle">stage {{ transformation.TransformationStage }}</span>
+                <span class="transformation-stage-select subtitle">stage {{ transformation.transformationStage }}</span>
             {{/if}}
         </div>
         {{#if editable}}
