@@ -199,7 +199,7 @@ Hooks.on("updateActor", async (actor, diff, options, userId) => {
     TransformationModule.pending.set(
         actor.id,
         setTimeout(async () => {
-            pending.delete(actor.id);
+            TransformationModule.pending.delete(actor.id);
             const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
             TransformationModule.logger.debug("Resolved transformation after update:", transformation);
             if (!transformation) return;
