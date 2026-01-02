@@ -268,13 +268,13 @@ export class Transformation {
                 stages = this.constants.TRANSFORMATION_STAGES[4];
             case 3:
                 TransformationModule.logger.debug("Getting transformation stages for level 3");
-                stages = stages.concat(this.constants.TRANSFORMATION_STAGES[3]);
+                stages = { ...stages, ...this.constants.TRANSFORMATION_STAGES[3] };
             case 2:
                 TransformationModule.logger.debug("Getting transformation stages for level 2");
-                stages = stages.concat(this.constants.TRANSFORMATION_STAGES[2]);
+                stages = { ...stages, ...this.constants.TRANSFORMATION_STAGES[2] };
             case 1:
                 TransformationModule.logger.debug("Getting transformation stages for level 1");
-                stages = stages.concat(this.constants.TRANSFORMATION_STAGES[1]);
+                stages = { ...stages, ...this.constants.TRANSFORMATION_STAGES[1] };
                 break;
         }
         TransformationModule.logger.debug("Final transformation stages: ", stages);
