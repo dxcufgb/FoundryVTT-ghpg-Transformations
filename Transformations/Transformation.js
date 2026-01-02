@@ -254,24 +254,23 @@ export class Transformation {
         const stages = this.getTransformationStages();
         if (stages.ITEMS != null) {
             if (stages.ITEMS.CHOICES) {
-                let choices = [];
-                Object.values(stages.ITEMS.CHOICES).forEach(async (choice) => {
-                    const itemData = await Transformation.getCompendiumEntryByName(choice);
+                const choices = await Promise.all(
+                    Object.values(stages.ITEMS.CHOICES).map(async (choice) => {
+                        const itemData = await Transformation.getCompendiumEntryByName(choice);
+                        return fromUuid(itemData.uuid);
+                    })
+                );
+                const choiceKey = `stage${this.transformationStage}ChoiceMade`;
+                if (!(this.actor.getFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, choiceKey))) {
+                    const choice = await TransformationModule.utils.renderTransformationTemplate("choiceDialog", choices);
+                    await this.actor.setFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, choiceKey, choice.name);
+                    await this.addItemToActor(choice);
+                } else {
+                    const choiceName = this.actor.getFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, choiceKey);
+                    const itemData = await Transformation.getCompendiumEntryByName(choiceName);
                     let item = await fromUuid(itemData.uuid);
-                    choices.push(item);
-                }).then(async () => {
-                    const choiceKey = `stage${this.transformationStage}ChoiceMade`;
-                    if (!(this.actor.getFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, choiceKey))) {
-                        const choice = await TransformationModule.utils.renderTransformationTemplate("choiceDialog", choices);
-                        await this.actor.setFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, choiceKey, choice.name);
-                        await this.addItemToActor(choice);
-                    } else {
-                        const choiceName = this.actor.getFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, choiceKey);
-                        const itemData = await Transformation.getCompendiumEntryByName(choiceName);
-                        let item = await fromUuid(itemData.uuid);
-                        await this.addItemToActor(item);
-                    }
-                });
+                    await this.addItemToActor(item);
+                }
             }
             Object.values(stages.ITEMS).forEach(async (itemName) => {
                 const itemData = await Transformation.getCompendiumEntryByName(itemName);
