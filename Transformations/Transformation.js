@@ -37,7 +37,7 @@ export class Transformation {
     }
 
     getTransformationType(actor) {
-        let transformation = this;
+        let transformation = new Transformation(actor);
         if (!actor) {
             TransformationModule.logger.warn("No actor was supplied.");
             return
