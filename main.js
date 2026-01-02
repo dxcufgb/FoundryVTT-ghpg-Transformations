@@ -66,10 +66,10 @@ Hooks.once("setup", async () => {
     globalThis.dnd5e.config.characterFlags["transformationStage"] = {
         type: Number,
         choices: {
-            1: 1,
-            2: 2,
-            3: 3,
-            4: 4
+            "1": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4"
         },
         name: "Transformation Stage",
         hint: "Stage of active transformation on the character",
@@ -196,7 +196,6 @@ Hooks.on("updateActor", async (actor, diff, options, userId) => {
     TransformationModule.logger.debug("Resolved transformation after update:", transformation);
     transformation.onTransformationUpdate();
 
-    // Re-render any open actor sheets for this actor so pills/update UI reflect the change
     try {
         for (const appWindow of Object.values(ui.windows)) {
             if (appWindow?.document?.id === actor.id && appWindow.constructor?.name?.startsWith("ActorSheet")) {
