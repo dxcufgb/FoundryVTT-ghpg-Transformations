@@ -1,5 +1,6 @@
 export const EFFECT_FLAG_MODULE_NAME = "transformation";
 export const TRANSFORMATION_FEATURE = "Transformation Feature";
+export const TRANSFORMATION_ITEM_FLAG = "grantedByTransformation";
 
 export const SKILL = Object.freeze({
     ACROBATICS: "acr",

@@ -234,10 +234,13 @@ export class Transformation {
     }
 
     applyTransformationStage() {
-        this.constants.TRANSFORMATION_STAGES[this.transformationLevel - 1].flatMap(stage => Object.values(stage)).forEach(async (itemName) => {
+        TransformationModule.logger.debug("Applying transformation stage:", this.transformationLevel);
+        TransformationModule.logger.debug("Transformation stages:", this.constants.TRANSFORMATION_STAGES);
+        TransformationModule.logger.debug("Transformation stage items:", this.constants.TRANSFORMATION_STAGES[this.transformationLevel]);
+        this.getTransformationStages().forEach(async (itemName, stage) => {
             TransformationModule.logger.debug("Applying transformation item: ", stage, itemName);
             const itemData = await TransformationModule.Utils.getItemDataByName(itemName);
-            this.setItemFlag(itemData, "grantedByTransformation", true);
+            this.setItemFlag(itemData, globalConstants.TRANSFORMATION_ITEM_FLAG, true);
             if (itemData) {
                 TransformationModule.logger.debug("Creating item on actor: ", itemData);
                 //await this.actor.createEmbeddedDocuments("Item", [itemData]);
@@ -245,8 +248,29 @@ export class Transformation {
         });
     }
 
+    getTransformationStages() {
+        let stages = [];
+        switch (this.getActorTransformationLevel()) {
+            case 4:
+                TransformationModule.logger.debug("Getting transformation stages for level 4");
+                stages = this.constants.TRANSFORMATION_STAGES[4];
+            case 3:
+                TransformationModule.logger.debug("Getting transformation stages for level 3");
+                stages = stages.concat(this.constants.TRANSFORMATION_STAGES[3]);
+            case 2:
+                TransformationModule.logger.debug("Getting transformation stages for level 2");
+                stages = stages.concat(this.constants.TRANSFORMATION_STAGES[2]);
+            case 1:
+                TransformationModule.logger.debug("Getting transformation stages for level 1");
+                stages = stages.concat(this.constants.TRANSFORMATION_STAGES[1]);
+                break;
+        }
+        TransformationModule.logger.debug("Final transformation stages: ", stages);
+        return stages;
+    }
+
     static removeAllTransformationThings(actor) {
-        actor.items.filter(i => i.flags.transformations?.grantedByTransformation).forEach(async (item) => {
+        actor.items.filter(i => getItemFlag(i, globalConstants.TRANSFORMATION_ITEM_FLAG)).forEach(async (item) => {
             await actor.deleteEmbeddedDocuments("Item", [item.id]);
         });
     }
