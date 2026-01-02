@@ -6,7 +6,7 @@ export class Transformation {
     img;
     name;
     tablePrefix;
-    transformationLevel = 0;
+    transformationStage = 0;
     initialized = false;
     actor;
     rollTableEffectFunction;
@@ -29,7 +29,7 @@ export class Transformation {
         this.actor = actor;
         this.itemId = this.constructor.itemId;
         this.name = this.constructor.name;
-        this.transformationLevel = this.getActorTransformationLevel();
+        this.transformationStage = this.getActorTransformationStage();
         this.tablePrefix = this.constructor.tablePrefix;
         this.rollTableEffectFunction = this.constructor.rollTableEffectFunction;
         this.iconFolder = this.constructor.iconFolder;
@@ -132,12 +132,12 @@ export class Transformation {
     }
 
     getRollTableName() {
-        return (this.tablePrefix + " Stage " + this.transformationLevel)
+        return (this.tablePrefix + " Stage " + this.transformationStage)
     }
 
-    getActorTransformationLevel() {
-        TransformationModule.logger.debug("Transformation level:", this.actor.flags.dnd5e["transformation-level"])
-        return this.actor.flags.dnd5e["transformation-level"];
+    getActorTransformationStage() {
+        TransformationModule.logger.debug("Transformation stage:", this.actor.flags.dnd5e["transformation-stage"])
+        return this.actor.flags.dnd5e["transformation-stage"];
     }
 
     async getRollTable() {
@@ -234,9 +234,9 @@ export class Transformation {
     }
 
     applyTransformationStage() {
-        TransformationModule.logger.debug("Applying transformation stage:", this.transformationLevel);
+        TransformationModule.logger.debug("Applying transformation stage:", this.transformationStage);
         TransformationModule.logger.debug("Transformation stages:", this.constants.TRANSFORMATION_STAGES);
-        TransformationModule.logger.debug("Transformation stage items:", this.constants.TRANSFORMATION_STAGES[this.transformationLevel]);
+        TransformationModule.logger.debug("Transformation stage items:", this.constants.TRANSFORMATION_STAGES[this.transformationStage]);
         this.getTransformationStages().forEach(async (itemName, stage) => {
             TransformationModule.logger.debug("Applying transformation item: ", stage, itemName);
             const itemData = await TransformationModule.Utils.getItemDataByName(itemName);
@@ -250,7 +250,7 @@ export class Transformation {
 
     getTransformationStages() {
         let stages = [];
-        switch (this.getActorTransformationLevel()) {
+        switch (this.getActorTransformationStage()) {
             case 4:
                 TransformationModule.logger.debug("Getting transformation stages for level 4");
                 stages = this.constants.TRANSFORMATION_STAGES[4];

@@ -6,7 +6,7 @@ export function registerTransformationStageChangeListener(app, html, data) {
     select.addEventListener("change", event => {
         const value = event.target.value;
         TransformationModule.logger.debug("Transformation stage changed to: ", value);
-        app.actor.setFlag("dnd5e", "transformation-level", value);
+        app.actor.setFlag("dnd5e", "TransformationStage", value);
         const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
         transformation.onTransformationUpdate();
     });

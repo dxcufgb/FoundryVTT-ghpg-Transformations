@@ -63,7 +63,7 @@ Hooks.once("setup", async () => {
         section: "Transformations"
     };
 
-    globalThis.dnd5e.config.characterFlags["transformation-level"] = {
+    globalThis.dnd5e.config.characterFlags["transformationStage"] = {
         type: Number,
         choices: {
             1: 1,
@@ -71,8 +71,8 @@ Hooks.once("setup", async () => {
             3: 3,
             4: 4
         },
-        name: "Transformation Level",
-        hint: "Level of active transformation on the character",
+        name: "Transformation Stage",
+        hint: "Stage of active transformation on the character",
         section: "Transformations"
     };
 });
@@ -183,11 +183,10 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
     })();
 });
 
-// Listen for actor updates and detect when transformation or transformation-level change
 Hooks.on("updateActor", async (actor, diff, options, userId) => {
     const flags = diff?.flags?.dnd5e;
     const transformationWasUpdated = flags && ("transformation" in flags);
-    const transformationLevelWasUpdated = flags && ("transformation-level" in flags);
+    const transformationLevelWasUpdated = flags && ("TransformationStage" in flags);
 
     if (!transformationWasUpdated && !transformationLevelWasUpdated) return;
 
