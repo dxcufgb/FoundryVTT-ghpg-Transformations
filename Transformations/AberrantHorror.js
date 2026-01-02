@@ -83,7 +83,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         super(actor);
         TransformationModule.logger.debug("Aberrant horror constructor start");
         this.constants = { ...this.constants, ...this.constructor.subClassConstants };
-        this.aberrantMutationEffects = Object.values(this.constructor.subClassConstants.ABERRANT_MUTATION_EFFECTS);
+        this.aberrantMutationEffects = this.constructor.subClassConstants.ABERRANT_MUTATION_EFFECTS;
         this.eldritchLimbsItemIds = this.constructor.eldritchLimbsItemIds;
         this.iconFolder += this.name + "/";
         TransformationModule.logger.debug("icon folder Transformation constructor 3", this.iconFolder);
