@@ -27,7 +27,9 @@
             <div class="form-group">
                 <label for="transformation-stage-select">Stage</label>
                 <select id="transformation-stage-select" name="transformationStage" {{#unless editable}}disabled{{/unless}}>
-                    {{ selectOptions DND5E.config.characterFlags.transformationStage.choices selected=transformationStage labelAttr="label" }}
+                    {{#each DND5E.config.characterFlags.transformationStage.choices as |s|}}
+                        <option value="{{s.value}}" {{#if (eq s.value transformationStage)}}selected{{/if}}>{{s.label}}</option>
+                    {{/each}}
                 </select>
         </fieldset>
     </section>
