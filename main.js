@@ -192,7 +192,7 @@ Hooks.on("updateActor", async (actor, diff, options, userId) => {
 
     const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
     TransformationModule.logger.debug("Resolved transformation after update:", transformation);
-    transformation.onTransformationUpdate();
+    await transformation.onTransformationUpdate();
 
     try {
         for (const appWindow of Object.values(ui.windows)) {

@@ -236,7 +236,7 @@ export class Transformation {
         return pillsData;
     }
 
-    applyTransformationStage() {
+    async applyTransformationStage() {
         TransformationModule.logger.debug("Applying transformation stage:", this.transformationStage);
         TransformationModule.logger.debug("Transformation stages:", this.constants.TRANSFORMATION_STAGES);
         TransformationModule.logger.debug("Transformation stage items:", this.constants.TRANSFORMATION_STAGES[this.transformationStage]);
