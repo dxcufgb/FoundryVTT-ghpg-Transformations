@@ -141,7 +141,7 @@ export class Transformation {
 
     async getRollTable() {
         const tableName = this.getRollTableName()
-        const index = this.getCompendiumIndexByName(this.constants.ROLL_TABLE_COMPENDIUM);
+        const index = Transformation.getCompendiumIndexByName(this.constants.ROLL_TABLE_COMPENDIUM);
         const entry = index.find(e => e.name === tableName);
         const table = await pack.getDocument(entry._id);
         if (!table) {
@@ -317,7 +317,7 @@ export class Transformation {
     }
 
     static getCompendiumEntryByName(name) {
-        const index = this.getCompendiumIndexByName(this.constants.TRANSFORMATIONS_COMPENDIUM);
+        const index = Transformation.getCompendiumIndexByName(this.constants.TRANSFORMATIONS_COMPENDIUM);
         TransformationModule.logger.debug("index found:", index)
         const entry = index.find(e => e.name === name);
         const doc = TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(entry._id);
@@ -335,7 +335,7 @@ export class Transformation {
 
     static setCompendiumValues(transformation) {
         if (transformation.name != "Transformation") {
-            const compendiumTransformation = this.getCompendiumEntryByName(transformation.name);
+            const compendiumTransformation = Transformation.getCompendiumEntryByName(transformation.name);
             TransformationModule.logger.debug("compendium transformation:", compendiumTransformation);
             transformation.uuid = compendiumTransformation.uuid;
             transformation.id = compendiumTransformation._id
