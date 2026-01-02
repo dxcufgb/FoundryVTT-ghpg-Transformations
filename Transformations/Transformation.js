@@ -242,7 +242,7 @@ export class Transformation {
         TransformationModule.logger.debug("Transformation stage items:", this.constants.TRANSFORMATION_STAGES[this.transformationStage]);
         const stages = this.getTransformationStages();
         TransformationModule.logger.debug("Final stages to apply:", stages);
-        if (stages.items != null) {
+        if (stages.ITEMS != null) {
             Object.values(stages.ITEMS).forEach(async (itemName) => {
                 TransformationModule.logger.debug("Applying transformation item: ", itemName);
                 const itemData = await Transformation.getCompendiumEntryByName(itemName);
