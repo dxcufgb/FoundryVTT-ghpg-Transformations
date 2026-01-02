@@ -141,7 +141,7 @@ export class Transformation {
 
     async getRollTable() {
         const tableName = this.getRollTableName()
-        const index = getCompendiumIndexByName(this.constants.ROLL_TABLE_COMPENDIUM);
+        const index = this.getCompendiumIndexByName(this.constants.ROLL_TABLE_COMPENDIUM);
         const entry = index.find(e => e.name === tableName);
         const table = await pack.getDocument(entry._id);
         if (!table) {
@@ -200,10 +200,6 @@ export class Transformation {
 
     async setItemFlag(item, flag, value) {
         TransformationModule.logger.debug("setting item flag:", item, flag, value);
-        const data = foundry.utils.deepClone(
-            item.getFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, flag) ?? {}
-        );
-        data = value;
         await item.setFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, flag, data);
     }
 
