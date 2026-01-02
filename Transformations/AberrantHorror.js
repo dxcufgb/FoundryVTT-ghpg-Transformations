@@ -31,7 +31,6 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             },
             2: {
                 ITEMS: {
-                    EFFICIENT_KILLER: "Eldritch Limbs (Efficient Killer)",
                     WRITHING_TENDRILS: "Writhing Tendrils",
                     HIDEOUSE_APPEARANCE: "Hideous Appearance",
                 },
