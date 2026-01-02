@@ -203,7 +203,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
 
     async hideousAppearanceConSave() {
         let dc = 0;
-        switch (this.transformationStage) {
+        switch (Number(this.transformationStage)) {
             case 1:
             case 2:
                 dc = 13;
