@@ -64,7 +64,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 DAMAGE_IMMUNITIES: {
                     POISONED_IMMUNITY: {
                         label: "Poisoned Condition Immunity",
-                        icon: "icons/svg/poison.svg",
+                        icon: "modules/transformations/Icons/Transformations/Aberrant%20Horror/Poisoned_immunity.png",
                         changes: [{
                             key: "system.traits.ci.value",
                             mode: CONST.ACTIVE_EFFECT_MODES.ADD,
