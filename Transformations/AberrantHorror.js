@@ -52,6 +52,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 },
                 DAMAGE_RESISTANCES: {
                     POISONOUS_RESISTANCE: {
+                        name: "Poisonous Resistance",
                         label: "Poisonous Resistance",
                         icon: "modules/transformations/Icons/Transformations/Aberrant%20Horror/Poison_Resistance.png",
                         changes: [{
@@ -63,6 +64,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 },
                 DAMAGE_IMMUNITIES: {
                     POISONED_IMMUNITY: {
+                        name: "Poisoned Condition Immunity",
                         label: "Poisoned Condition Immunity",
                         icon: "modules/transformations/Icons/Transformations/Aberrant%20Horror/Poisoned_immunity.png",
                         changes: [{

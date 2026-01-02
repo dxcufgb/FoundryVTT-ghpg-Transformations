@@ -47,11 +47,11 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
 
         return {
             editable: this.isEditable,
-            transformations: valueMap,
-            transformationStage: actorTransformationStage,
-            rows: rows,
+            transformations: valueMap  ?? [],
+            transformationStage: actorTransformationStage ?? 0,
+            rows: rows ?? 1,
             noneSelected: !selectedId,
-            transformationStages: CONFIG.DND5E.characterFlags.transformationStage
+            transformationStages: CONFIG.DND5E.characterFlags.transformationStage ?? {}
         };
     }
 
