@@ -256,7 +256,7 @@ export class Transformation {
             if (stages.ITEMS.CHOICES) {
                 let choices = [];
                 Object.values(stages.ITEMS.CHOICES).forEach(async (choice) => {
-                    const itemData = await Transformation.getCompendiumEntryByName(this.constants.TRANSFORMATIONS_COMPENDIUM);
+                    const itemData = await Transformation.getCompendiumEntryByName(choice);
                     let item = await fromUuid(itemData.uuid);
                     choices.push(item);
                 });
