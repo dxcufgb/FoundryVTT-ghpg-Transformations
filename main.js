@@ -181,7 +181,7 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
         const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData(config.editable))
         const fragment = document.createRange().createContextualFragment(html);
         originalHtml.querySelector(".pills-lg").append(fragment);
-        TransformationModule.EventListeners.registerTransformationStageChangeListener(app, originalHtml, config);
+        // TransformationModule.EventListeners.registerTransformationStageChangeListener(app, originalHtml, config);
     })();
 });
 
