@@ -293,7 +293,7 @@ export class Transformation {
     }
 
     static setCompendiumValues(transformation) {
-        if (transformation.name) {
+        if (transformation.name != "Transformation") {
             const compendiumTransformation = this.getTransformationByName(transformation.name);
             TransformationModule.logger.debug("compendium transformation:", compendiumTransformation);
             transformation.uuid = compendiumTransformation.uuid;
