@@ -199,13 +199,8 @@ Hooks.on("updateActor", async (actor, diff, options, userId) => {
         setTimeout(async () => {
             TransformationModule.pending.delete(actor.id);
             const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
-            TransformationModule.logger.debug("Resolved transformation after update:", transformation);
-            TransformationModule.logger.warn("Should just fire once in a short timeperiod!");
+            TransformationModule.logger.debugWarn("Should just fire once in a short timeperiod!");
             if (!transformation) return;
-            TransformationModule.logger.debug(
-                "Applying debounced transformation update:",
-                transformation
-            );
             await transformation.onTransformationUpdate();
             for (const appWindow of Object.values(ui.windows)) {
                 if (

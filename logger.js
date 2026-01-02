@@ -11,6 +11,12 @@ export class Logger {
         }
     }
 
+    debugWarn(...args) {
+        if (this.logLevel = 5) {
+            console.warn("Transformations |", ...args);
+        }
+    }
+
     info(...args) {
         if (this.logLevel = 4) {
             console.info("Transformations |", ...args);
