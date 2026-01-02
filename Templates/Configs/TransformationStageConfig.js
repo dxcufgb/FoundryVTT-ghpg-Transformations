@@ -6,7 +6,6 @@ export class TransformationStageConfig extends foundry.applications.api.Handleba
 
     async _prepareContext() {
         return {
-            forms: CONFIG.transformation.forms,
             flags: this.actor.flags.dnd5e.transformationStage ?? {}
         };
     }
@@ -16,8 +15,8 @@ export class TransformationStageConfig extends foundry.applications.api.Handleba
         tag: "form",
         classes: ["dnd5e", "sheet", "transformation", "transformation-stage-config"],
         form: {
-        submitOnChange: true,
-        closeOnSubmit: false
+            submitOnChange: true,
+            closeOnSubmit: false
         },
         window: {
             title: "Transformation Stage",
