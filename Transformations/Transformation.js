@@ -246,12 +246,8 @@ export class Transformation {
         if (stages.ITEMS != null) {
             Object.values(stages.ITEMS).forEach(async (itemName) => {
                 const itemData = await Transformation.getCompendiumEntryByName(itemName);
-                let itemInstance = await TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(itemData._id);
-                delete itemInstance._id;
-                // const item = await fromUuid(this.eldritchLimbsItemIds[this.transformationStage]);
-                // if (item && this.actor) {
-                //     await this.actor.createEmbeddedDocuments('Item', [item.toObject()]);
-                if (itemInstance) {
+                let item = await fromUuid(itemData.uuid);
+                if (item && this.actor) {
                     if (!this.actorHasTransformationItem(itemName)) {
                         let [createdItem] = await this.actor.createEmbeddedDocuments("Item", [itemInstance]);
                         await this.setItemFlag(createdItem, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
