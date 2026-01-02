@@ -67,7 +67,7 @@ Hooks.once("setup", async () => {
                 hint: "Transformation active on the character",
                 section: "Transformations"
             },
-            transformationStage = {
+            transformationStage: {
                 type: Number,
                 choices: {
                     "1": "1",
