@@ -20,7 +20,7 @@ export class TransformationStageConfig extends foundry.applications.api.Handleba
         closeOnSubmit: false
         },
         window: {
-            title: "Transformation",
+            title: "Transformation Stage",
             resizable: false
         },
         position: {

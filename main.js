@@ -24,7 +24,9 @@ Hooks.once("init", async () => {
     TransformationModule.EventListeners = {};
     Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
     TransformationModule.dialogConfigs["showConfiguration"] = {}
+    TransformationModule.dialogConfigs["pillConfig"] = {}
     TransformationModule.dialogConfigs.showConfiguration = await import("./Templates/Configs/TransformationConfig.js")
+    TransformationModule.dialogConfigs.pillConfig = await import("./Templates/Configs/TransformationStageConfig.js")
     TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
