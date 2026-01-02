@@ -175,11 +175,11 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         return context;
     }
 
-    getChatMessage(type) {
+    getChatMessage(type, data = null) {
         let chatMessage = super.getChatMessage(type);
         switch (type) {
             case this.constants.TRANSFORMATION_STAGES[1].ABERRANT_FORM:
-                chatMessage = `${this.actor.name}s Aberrant Form activates and gives ${regainedHitPoints} temporary hit points!`;
+                chatMessage = `${this.actor.name}s Aberrant Form activates and gives ${data.regainedHitPoints} temporary hit points!`;
                 break;
             case this.constants.ABERRANT_CONFUSION:
                 chatMessage = `Due to Aberrant Confusion ${this.actor.name} is stunned for the first round!`
@@ -242,7 +242,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 "system.uses.spent": Math.min(item.system.uses.value + 1, item.system.uses.max)
             });
             const regainedHitPoints = this.actor.system.attributes.prof + this.TransformationStage
-            super.sendChatMessage(this.getChatMessage(this.constants.TRANSFORMATION_STAGES[1].ABERRANT_FORM));
+            super.sendChatMessage(this.getChatMessage(this.constants.TRANSFORMATION_STAGES[1].ABERRANT_FORM, { regainedHitPoints: regainedHitPoints }));
             this.actor.system.attributes.hp.temp = regainedHitPoints
         }
     }
@@ -302,7 +302,8 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     async removeAberrantMutationEffects(effectToExclude = null) {
-        if (this.hasAberrantMutationEffects(effectToExclude)) {
+        const effects = this.hasAberrantMutationEffects(effectToExclude)
+        if (effects.length > 0) {
             await this.actor.deleteEmbeddedDocuments(
                 "ActiveEffect",
                 effects
@@ -323,9 +324,9 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         const effects = this.actor.effects.filter(effect => effectsToLookFor.includes(effect.name)).map(e => e.id);
         if (effects.length === 0) {
             TransformationModule.logger.log("No matching effects found.");
-            return false;
+            return [];
         } else {
-            return true
+            return effects
         }
     }
 

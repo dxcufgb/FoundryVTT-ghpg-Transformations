@@ -143,7 +143,7 @@ export class Transformation {
         const tableName = this.getRollTableName()
         const index = Transformation.getCompendiumIndexByName(this.constants.ROLL_TABLE_COMPENDIUM);
         const entry = index.find(e => e.name === tableName);
-        const table = await pack.getDocument(entry._id);
+        const table = await TransformationModule.compendiums[this.constants.ROLL_TABLE_COMPENDIUM].getDocument(entry._id);
         if (!table) {
             ui.notifications.error(`Table "${tableName}" not found`);
             return;
@@ -203,7 +203,7 @@ export class Transformation {
         await item.setFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, flag, value);
     }
 
-    getChatMessage(type) {
+    getChatMessage(type, data = null) {
         let chatMessage = ''
         switch (type) {
             case this.constants.APPLY_LOWER_RESULT:
