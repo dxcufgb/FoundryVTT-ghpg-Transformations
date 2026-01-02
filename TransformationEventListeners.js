@@ -1,5 +1,5 @@
 export function registerTransformationStageChangeListener(app, html, data) {
-    const select = html.find('.transformation-stage-select');
+    const select = html.querySelector('.transformation-stage-select');
     if (!select.length) return;
 
     select.on("change", event => {
