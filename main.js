@@ -24,9 +24,7 @@ Hooks.once("init", async () => {
     TransformationModule.EventListeners = {};
     Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
     TransformationModule.dialogConfigs["showConfiguration"] = {}
-    TransformationModule.dialogConfigs["pillConfig"] = {}
     TransformationModule.dialogConfigs.showConfiguration = await import("./Templates/Configs/TransformationConfig.js")
-    TransformationModule.dialogConfigs.pillConfig = await import("./Templates/Configs/TransformationStageConfig.js")
     TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
@@ -181,18 +179,19 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
         const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData(config.editable))
         const fragment = document.createRange().createContextualFragment(html);
         originalHtml.querySelector(".pills-lg").append(fragment);
-        // TransformationModule.EventListeners.registerTransformationStageChangeListener(app, originalHtml, config);
     })();
 });
 
 Hooks.on("updateActor", async (actor, diff, options, userId) => {
     const flags = diff?.flags?.dnd5e;
     const transformationWasUpdated = flags && ("transformation" in flags);
-    const transformationLevelWasUpdated = flags && ("transformationStage" in flags);
+    const transformationStageWasUpdated = flags && ("transformationStage" in flags);
 
-    if (!transformationWasUpdated && !transformationLevelWasUpdated) return;
+    if (!transformationWasUpdated && !transformationStageWasUpdated) return;
 
-    TransformationModule.logger.debug("Actor update affecting transformations", { actor: actor, diff: diff, transformationWasUpdated, transformationLevelWasUpdated });
+    if (transformationStageWasUpdated) {
+        await actor.setFlag("dnd5e", "transformationStage", flags.transformationStage);
+    }
     const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(actor);
     TransformationModule.logger.debug("Resolved transformation after update:", transformation);
     transformation.onTransformationUpdate();
@@ -208,5 +207,5 @@ Hooks.on("updateActor", async (actor, diff, options, userId) => {
         TransformationModule.logger.error("Error while attempting to re-render actor sheets:", err);
     }
 
-    Hooks.call("transformations.actorUpdated", actor, { transformationWasUpdated, transformationLevelWasUpdated });
+    Hooks.call("transformations.actorUpdated", actor, { transformationWasUpdated, transformationLevelWasUpdated: transformationStageWasUpdated });
 });
