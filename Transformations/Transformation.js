@@ -249,7 +249,7 @@ export class Transformation {
                 let item = await fromUuid(itemData.uuid);
                 if (item && this.actor) {
                     if (!this.actorHasTransformationItem(itemName)) {
-                        let [createdItem] = await this.actor.createEmbeddedDocuments("Item", [itemInstance]);
+                        let [createdItem] = await this.actor.createEmbeddedDocuments("Item", [item.toObject()]);
                         await this.setItemFlag(createdItem, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
                     }
                 }
