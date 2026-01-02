@@ -57,6 +57,7 @@ Hooks.once("setup", async () => {
     });
 
     CONFIG.DND5E.characterFlags.transformations = {
+        name: "Transformations",
         label: "Transformations",
         hint: "Configuration options for the Transformations module",
         flags: {
