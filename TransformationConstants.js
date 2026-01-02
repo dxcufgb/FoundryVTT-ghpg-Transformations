@@ -1,4 +1,4 @@
-export const EFFECT_FLAG_MODULE_NAME = "transformation";
+export const EFFECT_FLAG_MODULE_NAME = "transformations";
 export const TRANSFORMATION_FEATURE = "Transformation Feature";
 export const TRANSFORMATION_ITEM_FLAG = "grantedByTransformation";
 
