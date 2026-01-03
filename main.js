@@ -27,9 +27,9 @@ Hooks.once("init", async () => {
     Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
     TransformationModule.dialogConfigs["showConfiguration"] = {}
     TransformationModule.dialogConfigs["choiceDialogConfig"] = {}
-    TransformationModule.dialogConfigs.showConfiguration = await import("./templates/Configs/TransformationConfig.js")
-    TransformationModule.dialogConfigs.choiceDialogConfig = await import("./templates/Configs/ChoiceDialogConfig.js")
-    TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
+    TransformationModule.dialogConfigs.showConfiguration = await import("./templates/configs/TransformationConfig.js")
+    TransformationModule.dialogConfigs.choiceDialogConfig = await import("./templates/configs/ChoiceDialogConfig.js")
+    TransformationModule.TransformationParent = await import("./transformations/Transformation.js");
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
     TransformationModule.EventListeners = await import("./TransformationEventListeners.js");
@@ -46,7 +46,7 @@ Hooks.once("setup", async () => {
     const transformations = await TransformationModule.utils.importCompendiumPack("transformations.gh-transformations");
     let cachedCompendiums = { rollTables: rollTables, transformations: transformations };
     Object.assign(TransformationModule.compendiums, cachedCompendiums)
-    await import("./Transformations/manifest.js");
+    await import("./transformations/manifest.js");
 
     Hooks.call("transformations.preTransformationsConfigSetup", TransformationModule.Transformations);
 
