@@ -348,9 +348,9 @@ export class Transformation {
         }
     }
 
-    static getCompendiumDocByName(name) {
+    static async getCompendiumDocByName(name) {
         const entry = this.getCompendiumEntryByName(name);
-        const doc = TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(entry._id);
+        const doc = await TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(entry._id);
         return doc;
     }
 
