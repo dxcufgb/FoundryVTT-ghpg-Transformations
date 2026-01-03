@@ -348,10 +348,15 @@ export class Transformation {
         }
     }
 
+    static getCompendiumDocByName(name) {
+        const entry = this.getCompendiumEntryByName(name);
+        const doc = TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(entry._id);
+        return doc;
+    }
+
     static getCompendiumEntryByName(name) {
         const index = Transformation.getCompendiumIndexByName(this.constants.TRANSFORMATIONS_COMPENDIUM);
         const entry = index.find(e => e.name === name);
-        const doc = TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(entry._id);
         return entry;
     }
 

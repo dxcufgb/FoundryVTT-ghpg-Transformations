@@ -32,6 +32,12 @@ Hooks.once("init", async () => {
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
     TransformationModule.EventListeners = await import("./TransformationEventListeners.js");
+
+    const tooltipTemplate = await fetch(
+        "./Templates/tooltip.hbs"
+    ).then(r => r.text());
+
+    Handlebars.registerPartial("transformationTooltip", tooltipTemplate);
 });
 
 Hooks.once("setup", async () => {
@@ -182,6 +188,7 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
         const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData(config.editable))
         const fragment = document.createRange().createContextualFragment(html);
         originalHtml.querySelector(".pills-lg").append(fragment);
+        game.tooltip.activate(originalHtml);
     })();
 });
 

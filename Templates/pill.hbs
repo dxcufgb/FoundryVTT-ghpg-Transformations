@@ -5,6 +5,7 @@
 {{else}}
     <div class="draggable pill-lg texture transformation item-tooltip" data-action="showDocument"
         data-item-id="{{ transformation.id }}" data-uuid="{{ transformation.uuid }}"
+        data-tooltip="{{> transformationTooltip this }}"
         aria-label="{{ localize (ifThen actor.isOwner DND5E.ItemEdit DND5E.ItemView) }}">
         {{#if transformation.img}}
         <img class="gold-icon" src="{{ transformation.img }}" alt="{{ transformation.name }}">
