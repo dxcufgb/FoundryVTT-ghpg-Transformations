@@ -27,17 +27,17 @@ Hooks.once("init", async () => {
     Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
     TransformationModule.dialogConfigs["showConfiguration"] = {}
     TransformationModule.dialogConfigs["choiceDialogConfig"] = {}
-    TransformationModule.dialogConfigs.showConfiguration = await import("./Templates/Configs/TransformationConfig.js")
-    TransformationModule.dialogConfigs.choiceDialogConfig = await import("./Templates/Configs/ChoiceDialogConfig.js")
+    TransformationModule.dialogConfigs.showConfiguration = await import("./templates/Configs/TransformationConfig.js")
+    TransformationModule.dialogConfigs.choiceDialogConfig = await import("./templates/Configs/ChoiceDialogConfig.js")
     TransformationModule.TransformationParent = await import("./Transformations/Transformation.js");
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
     TransformationModule.EventListeners = await import("./TransformationEventListeners.js");
     
     await foundry.applications.handlebars.loadTemplates([
-     "modules/transformations/templates/pill.hbs"
+     "modules/transformations/scripts/Templates/pill.hbs"
    ]);
-    TransformationModule.cachedTemplates["actorTransformationPill"] = Handlebars.partials["modules/transformations/templates/pill.hbs"];
+    TransformationModule.cachedTemplates["actorTransformationPill"] = Handlebars.partials["modules/transformations/scripts/Templates/pill.hbs"];
 });
 
 Hooks.once("setup", async () => {
