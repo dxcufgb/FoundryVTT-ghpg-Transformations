@@ -181,9 +181,22 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
     (async () => {
         const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData(config.editable))
         const fragment = document.createRange().createContextualFragment(html);
-        const container = app.element[0].querySelector(".pills-lg");
-        container.append(fragment);
-        game.tooltip.activate(container);
+        const root = app.element[0]; // <form.application …>
+        // pick a stable, meaningful container
+        const detailsTab = root.querySelector('.tab[data-tab="details"]');
+        // or, even better:
+        const sheetBody = root.querySelector(".sheet-body");
+        let pills = detailsTab.querySelector(".pills-lg");
+
+        if (!pills) {
+            pills = document.createElement("div");
+            pills.classList.add("pills-lg");
+            detailsTab.prepend(pills);
+        }
+        pills.append(fragment);
+        // const container = app.element[0].querySelector(".pills-lg");
+        // container.append(fragment);
+        // game.tooltip.activate(container);
     })();
 });
 
