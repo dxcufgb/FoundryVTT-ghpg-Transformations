@@ -27,3 +27,71 @@
     z-index: 10000;
     pointer-events: none;
   }
+
+  .background-card {
+  font-family: var(--font-primary);
+  color: var(--color-text-dark-primary);
+  background: var(--dnd5e-background-card, #f5efe6);
+  padding: 1.25rem;
+  border-radius: 8px;
+  max-width: 600px;
+}
+
+.background-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.background-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+}
+
+.background-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.background-name {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.background-subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.75;
+}
+
+.background-card hr {
+  margin: 1rem 0;
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.background-body p {
+  margin: 0.35rem 0;
+  line-height: 1.4;
+}
+
+.background-body strong {
+  font-weight: 700;
+}
+
+.background-description {
+  margin-top: 0.75rem;
+  line-height: 1.5;
+}
+
+.background-description em {
+  font-style: italic;
+}
+
+.background-description p {
+  margin: 0.5rem 0 0 0;
+}

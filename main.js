@@ -23,6 +23,7 @@ Hooks.once("init", async () => {
     TransformationModule.Transformations = new Map();
     TransformationModule.EventListeners = {};
     TransformationModule.pending = new Map();
+    TransformationModule.cachedTemplates = new Map();
     Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
     TransformationModule.dialogConfigs["showConfiguration"] = {}
     TransformationModule.dialogConfigs["choiceDialogConfig"] = {}
@@ -32,6 +33,11 @@ Hooks.once("init", async () => {
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
     TransformationModule.EventListeners = await import("./TransformationEventListeners.js");
+    
+    await loadTemplates([
+     "modules/transformations/templates/pill.hbs"
+   ]);
+    TransformationModule.cachedTemplates.actorTransformationPill = Handlebars.partials["modules/transformations/templates/pill.hbs"];
 });
 
 Hooks.once("setup", async () => {
@@ -178,12 +184,15 @@ Hooks.on("dnd5e.rollSavingThrow", (rolls, context) => {
 Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
     const transformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(app.actor);
     TransformationModule.EventListeners.registerTransformationConfigurationEventListeners(app, originalHtml, config);
-    (async () => {
-        const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData(config.editable))
-        const fragment = document.createRange().createContextualFragment(html);
-        originalHtml.querySelector(".pills-lg").append(fragment);
-        TransformationModule.EventListeners.registerTransformationTooltipEventListeners(originalHtml);
-    })();
+    const html = TransformationModule.cachedTemplates.actorTransformationPill(transformation.getPillsData(config.editable))
+    const fragment = document.createRange().createContextualFragment(html);
+    const activeTab = app.element.querySelector(".tab.active");
+    if (!activeTab) return;
+
+    let container = activeTab.querySelector(".pills-lg");
+    container.append(fragment)
+    // originalHtml.querySelector(".pills-lg").append(fragment);
+    // TransformationModule.EventListeners.registerTransformationTooltipEventListeners(originalHtml);
 });
 
 Hooks.on("updateActor", async (actor, diff, options, userId) => {
