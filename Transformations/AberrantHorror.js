@@ -327,7 +327,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     }
 
     getPillsData(isEditable) {
-        const doc = this.getCompendiumDocByName(this.name);
+        const doc = AberrantHorror.getCompendiumDocByName(this.name);
         const pillsData = {
             transformation: {
                 id: this.id,
