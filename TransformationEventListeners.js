@@ -17,7 +17,7 @@ export function registerTransformationConfigurationEventListeners(app, html, dat
     });
 }
 
-export function registerTransformationTooltipEventListeners(app, html, data) {
+export function registerTransformationTooltipEventListeners(container) {
     container.addEventListener("mouseenter", async (event) => {
         const pill = event.target.closest(".transformation");
         if (!pill) return;
