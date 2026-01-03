@@ -35,7 +35,7 @@ export async function getD20RollDialog(actor, identifier, rollType, dc = null, m
 export async function getTransformationChoiceDialog(choices) {
     const choiceDialogConfig = TransformationModule.dialogConfigs.choiceDialogConfig;
 
-    new choiceDialogConfig.TransformationConfig(
+    new choiceDialogConfig.ChoiceDialogConfig(
         choices
     ).render(true);
 }
