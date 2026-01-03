@@ -11,7 +11,7 @@ Hooks.once("init", async () => {
 ║                                                                                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
-    // CONFIG.debug.hooks = true;
+    CONFIG.debug.hooks = true;
     let logger = await import("./logger.js");
     globalThis.TransformationModule ??= {};
     TransformationModule.logger = logger.getLogger(5)
