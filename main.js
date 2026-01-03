@@ -37,7 +37,7 @@ Hooks.once("init", async () => {
     await loadTemplates([
      "modules/transformations/templates/pill.hbs"
    ]);
-    TransformationModule.cachedTemplates.actorTransformationPill = Handlebars.partials["modules/transformations/templates/pill.hbs"];
+    TransformationModule.cachedTemplates["actorTransformationPill"] = Handlebars.partials["modules/transformations/templates/pill.hbs"];
 });
 
 Hooks.once("setup", async () => {
