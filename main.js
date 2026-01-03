@@ -181,7 +181,7 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
     (async () => {
         const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData(config.editable))
         const fragment = document.createRange().createContextualFragment(html);
-        const container = app.element.querySelector(".pills-lg");
+        const container = app.element.querySelector('.tab[data-tab="details"].active').querySelector(".pills-lg");
         container.append(fragment);
         app.activateListeners(app.element);
     })();
