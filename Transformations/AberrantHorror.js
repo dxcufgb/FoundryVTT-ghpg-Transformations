@@ -326,8 +326,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         await this.actor.deleteEmbeddedDocuments("Item", itemsToRemove);
     }
 
-    async getPillsData(isEditable) {
-        const doc = await AberrantHorror.getCompendiumDocByName(this.name);
+    getPillsData(isEditable) {
         const pillsData = {
             transformation: {
                 id: this.id,
@@ -335,12 +334,6 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 img: this.img,
                 name: this.name,
                 transformationStage: this.transformationStage,
-                tooltip: {
-                    description: foundry.utils.escapeHTML(doc.system.description.value),
-                    name: this.name,
-                    type: "Transformation",
-                    icon: this.img
-                }
             },
             actor: this.actor,
             DND5E: dnd5e,
