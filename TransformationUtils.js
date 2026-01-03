@@ -150,7 +150,7 @@ export function findOverrideType(identifier) {
 export async function renderTransformationTemplate(templateName, data) {
 	TransformationModule.logger.debug("renderTemplate: ", templateName, data)
 	const html = await foundry.applications.handlebars.renderTemplate(
-		`modules/transformations/scripts/Templates/${templateName}.hbs`,
+		`modules/transformations/scripts/templates/${templateName}.hbs`,
 		data
 	);
 	TransformationModule.logger.debug("new template:", html);
@@ -164,26 +164,26 @@ export async function importCompendiumPack(compendiumName) {
 	return pack;
 }
 
-const html = await renderTemplate(
-  "modules/your-module/templates/background-card.hbs",
-  {
-    name: "Acolyte",
-    img: "systems/dnd5e/icons/backgrounds/acolyte.webp",
-    abilityScores: "Intelligence, Wisdom, Charisma",
-    feat: "Magic Initiate (Cleric)",
-    skillProficiencies: "Insight, Religion",
-    toolProficiencies: "Calligrapher’s Supplies",
-    equipment: "Calligrapher’s supplies, holy symbol, prayer book, parchment, robe, 8 gp",
-    description: `
-      <p>
-        You devoted yourself to service in a temple, either nestled in a town
-        or secluded in a sacred grove. There you performed rites in honor of a
-        god or pantheon.
-      </p>
-      <p>
-        You served under a priest and studied religion. Thanks to your devotion,
-        you learned to channel divine power in service to your place of worship.
-      </p>
-    `
-  }
-);
+// const html = await renderTemplate(
+//   "modules/your-module/templates/background-card.hbs",
+//   {
+//     name: "Acolyte",
+//     img: "systems/dnd5e/icons/backgrounds/acolyte.webp",
+//     abilityScores: "Intelligence, Wisdom, Charisma",
+//     feat: "Magic Initiate (Cleric)",
+//     skillProficiencies: "Insight, Religion",
+//     toolProficiencies: "Calligrapher’s Supplies",
+//     equipment: "Calligrapher’s supplies, holy symbol, prayer book, parchment, robe, 8 gp",
+//     description: `
+//       <p>
+//         You devoted yourself to service in a temple, either nestled in a town
+//         or secluded in a sacred grove. There you performed rites in honor of a
+//         god or pantheon.
+//       </p>
+//       <p>
+//         You served under a priest and studied religion. Thanks to your devotion,
+//         you learned to channel divine power in service to your place of worship.
+//       </p>
+//     `
+//   }
+// );
