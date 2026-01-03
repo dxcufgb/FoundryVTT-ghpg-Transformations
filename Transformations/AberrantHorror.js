@@ -336,7 +336,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                 name: this.name,
                 transformationStage: this.transformationStage,
                 tooltip: {
-                    description: doc.system.description.value,
+                    description: foundry.utils.escapeHTML(doc.system.description.value),
                     name: this.name,
                     type: "Transformation",
                     icon: this.img
