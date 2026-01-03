@@ -32,12 +32,6 @@ Hooks.once("init", async () => {
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
     TransformationModule.EventListeners = await import("./TransformationEventListeners.js");
-
-    const tooltipTemplate = await fetch(
-        "modules/transformations/scripts/Templates/tooltip.hbs"
-    ).then(r => r.text());
-
-    Handlebars.registerPartial("transformationTooltip", tooltipTemplate);
 });
 
 Hooks.once("setup", async () => {
