@@ -194,6 +194,7 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
         }
 
         container.append(fragment);
+        TransformationModule.EventListeners.registerTransformationTooltipEventListeners(app, originalHtml, config);
     })();
 });
 
