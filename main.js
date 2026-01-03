@@ -60,11 +60,15 @@ Hooks.once("setup", async () => {
         label: TransformationModule.constants.TRANSFORMATION_FEATURE,
         subtypes: transformationSubTypes
     }
-    
+
     CONFIG.DND5E.transformations = {
         label: TransformationModule.constants.TRANSFORMATION_FEATURE,
         subtypes: transformationSubTypes
     }
+
+    CONFIG.Item.dataModels.transformation = TransformationModule.TransformationParent;
+    CONFIG.Item.sheetClasses.transformation = dnd5e.ItemSheet5e;
+    CONFIG.Item.typeLabels.transformation = "Transformation";
 
     let choices = {};
     TransformationModule.Transformations.forEach(transformation => {
