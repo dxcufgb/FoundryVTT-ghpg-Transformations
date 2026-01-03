@@ -326,8 +326,8 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         await this.actor.deleteEmbeddedDocuments("Item", itemsToRemove);
     }
 
-    getPillsData(isEditable) {
-        const doc = AberrantHorror.getCompendiumDocByName(this.name);
+    async getPillsData(isEditable) {
+        const doc = await AberrantHorror.getCompendiumDocByName(this.name);
         const pillsData = {
             transformation: {
                 id: this.id,
