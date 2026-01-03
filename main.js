@@ -181,20 +181,8 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
     (async () => {
         const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData(config.editable))
         const fragment = document.createRange().createContextualFragment(html);
-        const root = app.element;
-        const activeTab = root.querySelector(".tab.active");
-
-        if (!activeTab) return;
-
-        let container = activeTab.querySelector(".pills-lg");
-        if (!container) {
-            container = document.createElement("div");
-            container.classList.add("pills-lg");
-            activeTab.prepend(container);
-        }
-
-        container.append(fragment);
-        TransformationModule.EventListeners.registerTransformationTooltipEventListeners(app, originalHtml, config);
+        originalHtml.querySelector(".pills-lg").append(fragment);
+        TransformationModule.EventListeners.registerTransformationTooltipEventListeners(originalHtml);
     })();
 });
 
