@@ -181,7 +181,9 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
     (async () => {
         const html = await TransformationModule.utils.renderTransformationTemplate("pill", transformation.getPillsData(config.editable))
         const fragment = document.createRange().createContextualFragment(html);
-        originalHtml.querySelector(".pills-lg").append(fragment);
+        const container = originalHtml.querySelector(".pills-lg");
+        container.append(fragment);
+        game.tooltip.activate(container);
     })();
 });
 
