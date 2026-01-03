@@ -34,7 +34,7 @@ Hooks.once("init", async () => {
     TransformationModule.EventListeners = await import("./TransformationEventListeners.js");
 
     const tooltipTemplate = await fetch(
-        "./Templates/tooltip.hbs"
+        "modules/transformations/scripts/Templates/tooltip.hbs"
     ).then(r => r.text());
 
     Handlebars.registerPartial("transformationTooltip", tooltipTemplate);
