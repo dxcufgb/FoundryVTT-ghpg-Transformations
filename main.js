@@ -35,9 +35,9 @@ Hooks.once("init", async () => {
     TransformationModule.EventListeners = await import("./TransformationEventListeners.js");
     
     await foundry.applications.handlebars.loadTemplates([
-     "modules/transformations/scripts/Templates/pill.hbs"
+     "modules/transformations/scripts/templates/pill.hbs"
    ]);
-    TransformationModule.cachedTemplates["actorTransformationPill"] = Handlebars.partials["modules/transformations/scripts/Templates/pill.hbs"];
+    TransformationModule.cachedTemplates["actorTransformationPill"] = Handlebars.partials["modules/transformations/scripts/templates/pill.hbs"];
 });
 
 Hooks.once("setup", async () => {
