@@ -1,5 +1,5 @@
 // @ts-expect-error for some reason vscode thinks this doesn't exist
-import { applyRollTableResult } from "./RollTables/UnstableFormRollTable.js";
+import { applyRollTableResult } from "./rolltables/UnstableFormRollTable.js";
 
 export class AberrantHorror extends TransformationModule.TransformationParent.Transformation {
 
