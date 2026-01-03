@@ -34,7 +34,7 @@ Hooks.once("init", async () => {
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
     TransformationModule.EventListeners = await import("./TransformationEventListeners.js");
     
-    await loadTemplates([
+    await foundry.applications.handlebars.loadTemplates([
      "modules/transformations/templates/pill.hbs"
    ]);
     TransformationModule.cachedTemplates["actorTransformationPill"] = Handlebars.partials["modules/transformations/templates/pill.hbs"];
