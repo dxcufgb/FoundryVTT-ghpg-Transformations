@@ -183,7 +183,7 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
         const fragment = document.createRange().createContextualFragment(html);
         const container = app.element.querySelector(".pills-lg");
         container.append(fragment);
-        game.tooltip.activate(container);
+        app.activateListeners(app.element);
     })();
 });
 
