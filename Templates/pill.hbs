@@ -3,10 +3,8 @@
         Add Transformation
     </div>
 {{else}}
-    <div class="draggable pill-lg texture transformation item-tooltip" data-action="showDocument"
-        data-item-id="{{ transformation.id }}" data-uuid="{{ transformation.uuid }}"
-        data-tooltip-class="item-tooltip"
-        aria-label="{{ localize (ifThen actor.isOwner DND5E.ItemEdit DND5E.ItemView) }}">
+    <div class="draggable pill-lg texture transformation item-tooltip" data-action="showDocument" data-uuid="{{ transformation.uuid }}"
+        data-tooltip-class="item-tooltip">
         {{#if transformation.img}}
         <img class="gold-icon" src="{{ transformation.img }}" alt="{{ transformation.name }}">
         {{/if}}
