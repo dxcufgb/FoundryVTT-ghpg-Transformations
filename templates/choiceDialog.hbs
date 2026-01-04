@@ -1,20 +1,18 @@
-<div class="page">
-  <h1>{{title}}</h1>
+<div class="choice-wrapper">
+	<div class="choice-container">
+		{{#each choices}}
+			<button class="choice-card-button" data-action="save" data-choice-name="{{name}}">
+				<div class="choice-tooltip">
+				<p>Right-click to view info</p>
+				</div>
 
-  <div class="container">
-    {{#each choices}}
-    <button class="choice-card-button" data-choice-id="{{id}}">
-      <div class="choice-tooltip">
-        <p>Right-click to view info</p>
-      </div>
+				<div class="choice-context-tooltip">
+				{{{details}}}
+				</div>
 
-      <div class="context-tooltip">
-        {{{details}}}
-      </div>
-
-      <img src="{{icon}}" alt="{{name}}">
-      <h4>{{name}}</h4>
-    </button>
-    {{/each}}
-  </div>
+				<img src="{{icon}}" alt="{{name}}">
+				<h4>{{name}}</h4>
+			</button>
+		{{/each}}
+	</div>
 </div>

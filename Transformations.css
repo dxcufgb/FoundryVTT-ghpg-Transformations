@@ -19,24 +19,18 @@
     min-width: 8ch;
 }
 
-.transformation-stage-choice-page {
+.choice-wrapper {
     text-align: center;
 }
 
-.transformation-stage-choice-page h1 {
-    margin-bottom: 30px;
-    font-size: 32px;
-    color: #222;
-}
-
-.transformation-stage-choice-page .container {
+.choice-wrapper .choice-container {
     display: flex;
     gap: 20px;
     max-width: 900px;
     padding: 20px;
 }
 
-.transformation-stage-choice-page .choice-card-button {
+.choice-wrapper .choice-card-button {
     background: white;
     border: none;
     border-radius: 12px;
@@ -51,31 +45,31 @@
     align-items: anchor-center;
 }
 
-.transformation-stage-choice-page .choice-card-button:hover {
+.choice-wrapper .choice-card-button:hover {
     transform: translateY(-4px);
     box-shadow: 0 12px 28px rgba(0,0,0,0.12);
 }
 
-.transformation-stage-choice-page .choice-card-button img {
+.choice-wrapper .choice-card-button img {
     width: 80px;
     height: 80px;
     object-fit: contain;
     margin-bottom: 15px;
 }
 
-.transformation-stage-choice-page .choice-card-button h4 {
+.choice-wrapper .choice-card-button h4 {
     margin: 10px 0 8px;
     font-size: 18px;
     color: #333;
 }
 
-.transformation-stage-choice-page .choice-card-button p {
+.choice-wrapper .choice-card-button p {
     font-size: 14px;
     color: #666;
     line-height: 1.5;
 }
 
-.transformation-stage-choice-page .choice-tooltip {
+.choice-wrapper .choice-tooltip {
     position: absolute;
     bottom: 110%;
     left: 50%;
@@ -92,7 +86,7 @@
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.transformation-stage-choice-page .choice-tooltip::after {
+.choice-wrapper .choice-tooltip::after {
     content: "";
     position: absolute;
     top: 100%;
@@ -103,12 +97,12 @@
     border-color: #333 transparent transparent transparent;
 }
 
-.transformation-stage-choice-page .choice-card-button:hover .choice-tooltip {
+.choice-wrapper .choice-card-button:hover .choice-tooltip {
     opacity: 1;
     transform: translateX(-50%) translateY(-6px);
 }
 
-.transformation-stage-choice-page .context-tooltip {
+.choice-wrapper .choice-context-tooltip {
     position: absolute;
     top: 50%;
     left: 105%;
@@ -127,11 +121,11 @@
     z-index: 10;
 }
 
-.transformation-stage-choice-page .context-tooltip::-webkit-scrollbar {
+.choice-wrapper .choice-context-tooltip::-webkit-scrollbar {
     width: 6px;
 }
 
-.transformation-stage-choice-page .context-tooltip::-webkit-scrollbar-thumb {
+.choice-wrapper .choice-context-tooltip::-webkit-scrollbar-thumb {
     background: rgba(255,255,255,0.3);
     border-radius: 3px;
 }
