@@ -244,7 +244,7 @@ export class Transformation {
     async addItemToActor(item) {
         if (item && this.actor) {
             if (!this.actorHasTransformationItem(item.name)) {
-                let [createdItem] = await this.actor.createEmbeddedDocuments("Item", [item.toObject()]);
+                let createdItem = await this.actor.createEmbeddedDocument("Item", item.toObject());
                 await this.setItemFlag(createdItem, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
                 // await createdItem.setFlag(TransformationModule.constants.DDB_IMPORTER_MODULE_NAME, "overrideId", "NONE");
                 // await createdItem.setFlag(TransformationModule.constants.DDB_IMPORTER_MODULE_NAME, "ignoreIcon", false);
