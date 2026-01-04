@@ -187,7 +187,7 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
     TransformationModule.EventListeners.registerTransformationConfigurationEventListeners(app, originalHtml, config);
     const html = TransformationModule.cachedTemplates.actorTransformationPill(transformation.getPillsData(config.editable))
     const fragment = document.createRange().createContextualFragment(html);
-    const activeTab = app.element.querySelector(".tab.active");
+    const activeTab = app.element.querySelector('[data-tab="details"] .pills-lg > .background').parentElement;
     if (!activeTab) return;
 
     let container = activeTab.querySelector(".pills-lg");
