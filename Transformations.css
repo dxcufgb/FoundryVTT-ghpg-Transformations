@@ -1,3 +1,7 @@
+.transformation-config-wrapper {
+    width: 720px;
+}
+
 .dnd5e2.sheet.actor.character .sheet-body .pill-lg.texture.transformation {
     background: url("templates/img/transformation.png") no-repeat right, var(--pill-background-color);
     background-size: contain;

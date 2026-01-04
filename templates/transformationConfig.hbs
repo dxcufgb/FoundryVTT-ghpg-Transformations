@@ -4,17 +4,17 @@
             <legend>Transformation</legend>
             <ol class="unlist form-grid form-grid-50 types-list" style="--type-rows: {{ rows }};">
                 {{#each transformations as |t|}}
-                <li style="display: flex; justify-content: space-around;" class="type-row">
-                    <label for="transformation-type-{{t.id}}">
-                        <p>{{t.name}}</p>
-                        <input type="radio" name="transformation" value="{{t.id}}" {{#if t.selected}}checked{{/if}} {{#unless ../editable}}disabled{{/unless}}>
+                <li style="display: flex;" class="type-row">
+                    <label style="display: flex; align-items: center; width: 100%;" for="transformation-type-{{t.id}}">
+                        <p style="margin: 0 auto; text-align: center;">{{t.name}}</p>
+                        <input style="margin-left: auto;" type="radio" name="transformation" value="{{t.id}}" {{#if t.selected}}checked{{/if}} {{#unless ../editable}}disabled{{/unless}}>
                     </label>
                 </li>
                 {{/each}}
-                <li style="display: flex; justify-content: right;" class="type-row none">
-                    <label for="transformation-type-none">
-                        <p>None</p>
-                        <input type="radio" name="transformation" value="None" id="transformation-type-none" {{#if noneSelected}}checked{{/if}} {{#unless editable}}disabled{{/unless}}>
+                <li style="display: flex;" class="type-row none">
+                    <label style="display: flex; align-items: center; width: 100%;" for="transformation-type-none">
+                        <p style="margin: 0 auto; text-align: center;">None</p>
+                        <input style="margin-left: auto;" type="radio" name="transformation" value="None" id="transformation-type-none" {{#if noneSelected}}checked{{/if}} {{#unless editable}}disabled{{/unless}}>
                     </label>
                 </li>
             </ol>
@@ -24,8 +24,8 @@
     <section style="margin-top:10px; display: flex; justify-content: center;" class="flexcol transformation-stage-config">
         <fieldset class="card">
             <legend>Transformation Stage</legend>
-            <div class="form-group">
-                <p>Curent Stage: {{transformationStage}}</p>
+            <div style="display: flex; justify-content: center; flex-direction: column;" class="form-group">
+                <h4 style="margin:auto">Current Stage: {{transformationStage}}</h4>
             </div>
         </fieldset>
     </section>
