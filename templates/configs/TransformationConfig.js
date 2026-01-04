@@ -59,7 +59,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         const rows = Math.ceil((TransformationModule.Transformations.length + 1) / 2);
 
         return {
-            editable: (this._initialTransformation != null),
+            editable: this.isEditable,
             canLevelUpStage: (this._initialStage < 4),
             transformations: valueMap  ?? [],
             transformationStage: actorTransformationStage ?? 0,
