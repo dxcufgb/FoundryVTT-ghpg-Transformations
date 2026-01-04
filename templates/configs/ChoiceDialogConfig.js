@@ -24,7 +24,7 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
 
     static PARTS = {
         content: {
-            template: "modules/transformations/scripts/Templates/choiceDialog.hbs"
+            template: "modules/transformations/scripts/templates/choiceDialog.hbs"
         }
     };
 
