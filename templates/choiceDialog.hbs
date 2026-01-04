@@ -1,22 +1,22 @@
 <form autocomplete="off" onsubmit="event.preventDefault();">
 	<ol class="choices-list">
-	   {{#each choices as |advancement name|}}
+	   {{#each choices as |choice name|}}
 		<li class="choice flexrow">
 			<div class="choice-name flexrow">
-				<div class="choice-image" style="background-image: url('{{advancement.icon}}')"></div>
-				<h3>{{advancement.label}}</h3>
+				<div class="choice-image" style="background-image: url('{{choice.icon}}')"></div>
+				<h3>{{choice.label}}</h3>
 			</div>
 			<div class="choice-controls flexrow">
 				<input name="type" type="radio" value="{{name}}">
 			</div>
 			<div class="choice-hint notes">
-				{{advancement.hint}}
+				{{choice.hint}}
 			</div>
 		</li>
 	    {{/each}}
 	</ol>
 
-	<button class="dialog-button" data-button="submit" disabled>
-		<i class="far fa-save"></i> {{localize "DND5E.AdvancementSelectionCreateButton"}}
-	</button>
+<button type="submit" data-action="save">
+            choose
+        </button>
 </form>

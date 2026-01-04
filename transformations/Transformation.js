@@ -256,7 +256,7 @@ export class Transformation {
             if (stages.ITEMS.CHOICES) {
                 const choices = await Promise.all(
                     Object.values(stages.ITEMS.CHOICES).map(async (choice) => {
-                        const itemData = await Transformation.getCompendiumEntryByName(choice);
+                        const itemData = await Transformation.getCompendiumDocByName(choice);
                         return fromUuid(itemData.uuid);
                     })
                 );
