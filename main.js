@@ -11,7 +11,7 @@ Hooks.once("init", async () => {
 ║                                                                                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
-    CONFIG.debug.hooks = true;
+    // CONFIG.debug.hooks = true;
     let logger = await import("./logger.js");
     globalThis.TransformationModule ??= {};
     TransformationModule.logger = logger.getLogger(5)
@@ -190,7 +190,6 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
     let container = app.element.querySelector('[data-tab="details"] .pills-lg > .background').parentElement;
     if (!container) return;
     container.append(fragment)
-    foundry.applications.tooltip.activate(container);
 });
 
 Hooks.on("updateActor", async (actor, diff, options, userId) => {
