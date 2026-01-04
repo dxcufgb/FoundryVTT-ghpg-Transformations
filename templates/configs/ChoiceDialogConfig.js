@@ -58,10 +58,12 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
             const id = target.dataset.id;
 
             const descriptions = this.element.querySelectorAll(".choice-description");
+            const choseButton = this.element.querySelector(".choice-confirm");
 
             for (const description of descriptions) {
                 description.hidden = (description.dataset.choiceId !== id);
             }
+            choseButton.dataset.id = id;
         }
 
         const button = target.closest("[data-action='choose']");
