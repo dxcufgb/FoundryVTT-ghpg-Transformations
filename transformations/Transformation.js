@@ -246,7 +246,12 @@ export class Transformation {
             if (!this.actorHasTransformationItem(item.name)) {
                 let [createdItem] = await this.actor.createEmbeddedDocuments("Item", [item.toObject()]);
                 await this.setItemFlag(createdItem, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
-                await createdItem.setFlag("ddbimporter", "ignoreItemImport", true)
+                // await createdItem.setFlag(TransformationModule.constants.DDB_IMPORTER_MODULE_NAME, "overrideId", "NONE");
+                // await createdItem.setFlag(TransformationModule.constants.DDB_IMPORTER_MODULE_NAME, "ignoreIcon", false);
+                await createdItem.setFlag(TransformationModule.constants.DDB_IMPORTER_MODULE_NAME, "ignoreItemImport", true);
+                // await createdItem.setFlag(TransformationModule.constants.DDB_IMPORTER_MODULE_NAME, "ignoreItemForChrisPremades", false);
+                // await createdItem.setFlag(TransformationModule.constants.DDB_IMPORTER_MODULE_NAME, "retainResourceConsumption", false);
+                // await createdItem.setFlag(TransformationModule.constants.DDB_IMPORTER_MODULE_NAME, "ignoreItemUpdate", false);
             }
         }
     }

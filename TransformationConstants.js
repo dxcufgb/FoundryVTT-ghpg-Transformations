@@ -1,4 +1,5 @@
 export const EFFECT_FLAG_MODULE_NAME = "transformations";
+export const DDB_IMPORTER_MODULE_NAME = "ddb-importer"
 export const TRANSFORMATION_FEATURE = "Transformation Feature";
 export const TRANSFORMATION_ITEM_FLAG = "grantedByTransformation";
 

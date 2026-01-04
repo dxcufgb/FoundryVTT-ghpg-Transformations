@@ -46,15 +46,15 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
         super._onRender(context, options);
         const html = this.element;
 
-        html.find(".choice-card-button").on("contextmenu", ev => {
+        html.querySelector(".choice-card-button").on("contextmenu", ev => {
             ev.preventDefault();
             const tooltip = ev.currentTarget.querySelector(".context-tooltip");
-            html.find(".context-tooltip").hide();
+            html.querySelector(".context-tooltip").hide();
             tooltip.style.display = "block";
         });
 
         html.on("click", () => {
-            html.find(".context-tooltip").hide();
+            html.querySelector(".context-tooltip").hide();
         });
     }
 
