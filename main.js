@@ -197,8 +197,8 @@ Hooks.on("updateActor", async (actor, diff, options, userId) => {
     if (!flags) return;
 
     const transformationWasUpdated =
-        "transformation" in flags ||
-        "-=transformation" in flags ||
+        "transformations" in flags ||
+        "-=transformations" in flags ||
         "transformationStage" in flags;
 
     if (!transformationWasUpdated) return;
