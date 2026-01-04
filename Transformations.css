@@ -67,7 +67,7 @@
     line-height: 1.5;
 }
 
-.choice-wrapper .choice-tooltip {
+.choice-wrapper .choice-hover {
     position: absolute;
     inset: 0; /* top:0 right:0 bottom:0 left:0 */
     background: rgba(0, 0, 0, 0.55);
@@ -87,15 +87,15 @@
     transition: opacity 0.2s ease;
 }
 
-.choice-wrapper .choice-tooltip::after {
+.choice-wrapper .choice-hover::after {
     display: none;
 }
 
-.choice-wrapper .choice-card-button:hover .choice-tooltip {
+.choice-wrapper .choice-card-button:hover .choice-hover {
     opacity: 1;
 }
 
-.choice-wrapper .choice-context-tooltip {
+.choice-wrapper .choice-context {
     position: absolute;
     top: 50%;
     left: 105%;
@@ -114,11 +114,11 @@
     z-index: 10;
 }
 
-.choice-wrapper .choice-context-tooltip::-webkit-scrollbar {
+.choice-wrapper .choice-context::-webkit-scrollbar {
     width: 6px;
 }
 
-.choice-wrapper .choice-context-tooltip::-webkit-scrollbar-thumb {
+.choice-wrapper .choice-context::-webkit-scrollbar-thumb {
     background: rgba(255,255,255,0.3);
     border-radius: 3px;
 }
