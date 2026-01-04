@@ -5,8 +5,7 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
         classes: ["sheet", "dnd5e2", "standard-form"],
         window: {
             title: "Transformation Stage Choice",
-            width: 600,
-            height: 450,
+            width: "600px",
             resizable: false
         },
         actions: {

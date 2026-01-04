@@ -44,6 +44,7 @@
     display:flex;
     justify-content: center;
     flex-direction: column;
+    max-width: 600px;
 }
 
 .choice-radio-group {
@@ -51,6 +52,7 @@
     gap: 0.5rem;
     flex-wrap: wrap;
     border: none;
+    justify-content: space-evenly;
 }
 
 .choice-radio {
@@ -69,6 +71,8 @@
 
     transition: background 0.15s ease, border-color 0.15s ease;
     max-width: 150px;
+    background: var(--pill-background-color);
+    color: var(--dnd5e-color-gold);
 }
 
 .choice-radio input[type="radio"] {
@@ -84,7 +88,6 @@
 .choice-radio:has(input[type="radio"]:checked) {
     box-shadow: 0 0 0 1px var(--dnd5e-color-gold);
     background: var(--pill-background-color);
-    border-color: var(--pill-background-color);
     color: var(--dnd5e-color-gold);
     
 }
