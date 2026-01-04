@@ -19,7 +19,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         this.actor = actor;
         this.transformations = transformations;
         this._initialStage = actor.getFlag("dnd5e", "transformationStage") ?? null;
-        this._initialTransformation = actor.getFlag("dnd5e", "transformation") ?? null;
+        this._initialTransformation = actor.getFlag("dnd5e", "transformations") ?? null;
     }
 
     get isEditable() {
@@ -44,7 +44,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
 
     async _prepareContext() {
         if (!this.transformations) throw new Error("Invalid transformations");
-        const selectedId = this.actor.getFlag("dnd5e", "transformation");
+        const selectedId = this.actor.getFlag("dnd5e", "transformations");
         const actorTransformationStage = this.actor.getFlag("dnd5e", "transformationStage");
         const valueMap = [];
         for (const transformation of TransformationModule.Transformations.values()) {
@@ -74,8 +74,8 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         if (!app.isEditable) return;
         const formData = new FormData(target.form);
         const id = formData.get("transformation");
-        if (app.actor.getFlag("dnd5e", "transformation") == null){
-            await app.actor.setFlag("dnd5e", "transformation", id, { transformationsInternal: true });
+        if (app.actor.getFlag("dnd5e", "transformations") == null){
+            await app.actor.setFlag("dnd5e", "transformations", id, { transformationsInternal: true });
         }
         app.close();
     }
