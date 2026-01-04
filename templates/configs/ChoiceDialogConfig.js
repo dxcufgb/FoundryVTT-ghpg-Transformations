@@ -6,6 +6,7 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
         window: {
             title: "Transformation Stage Choice",
             width: "600px",
+            height: "450px",
             resizable: false
         },
         actions: {
@@ -56,8 +57,12 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
         if (target instanceof HTMLInputElement && target.type === "radio") {
             const id = target.dataset.id;
 
+            TransformationModule.logger.warn(this.element)
+            TransformationModule.logger.warn(this.element.querySelectorAll(".choice-description"));
+            TransformationModule.logger.warn(this.element.querySelectorAll(".choice-description").forEach(el => { el.dataset.choiceId }))
+
             this.element
-            .querySelectorAll<HTMLElement>(".choice-description")
+            .querySelectorAll(".choice-description")
             .forEach(el => {
                 el.hidden = el.dataset.choiceId !== id;
             });
