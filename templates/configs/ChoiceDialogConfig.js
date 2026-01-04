@@ -33,10 +33,9 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
         const valueMap = [];
         for (const choice of this.choices) {
             valueMap.push({
-                icon: choice.itemId,
-                label: choice.label,
+                icon: choice.img,
                 name: choice.name,
-                hint: choice.hint,
+                hint: choice.system.description.value,
             });
         }
 
