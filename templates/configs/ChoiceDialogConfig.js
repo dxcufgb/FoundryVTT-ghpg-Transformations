@@ -45,23 +45,35 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
 
     _onRender(context, options) {
         super._onRender(context, options);
-        this.element.addEventListener("contextmenu", (event) => {
-            this._onRightClick(event);
+        this.element.addEventListener("click", (event) => {
+            this._onClick(event);
         });
     }
 
-    async _onRightClick(event) {
+    _onClick(event) {
         const target = event.target;
-        const item = target.closest(".choice-card-button");
-        if (!item) return;
-        event.preventDefault();
-            const uuid = item.dataset.uuid;
-        if (!uuid) return;
 
-        const document = await fromUuid(uuid);
-        if (!document) return;
+        // Radio change
+        if (target instanceof HTMLInputElement && target.type === "radio") {
+            const id = target.dataset.id;
 
-        foundry.applications.api.showDocument(document);
+            this.element
+            .querySelectorAll<HTMLElement>(".choice-description")
+            .forEach(el => {
+                el.hidden = el.dataset.choiceId !== id;
+            });
+        }
+
+        const button = target.closest("[data-action='choose']");
+        if (button) {
+            const selected = this.element.querySelector<HTMLInputElement>(
+            "input[name='choice']:checked"
+            );
+            if (!selected) return;
+
+            console.log("Chosen:", selected.dataset);
+            this.close();
+        }
     }
 
     static _onSelect(event, target) {

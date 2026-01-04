@@ -15,110 +15,27 @@
     min-width: 8ch;
 }
 
+.choice-description-container {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+}
+
+.choice-radio-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.choice-radio {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+}
+
 .choice-wrapper {
     text-align: center;
     display:flex;
     justify-content: center;
-}
-
-.choice-wrapper .choice-container {
-    display: flex;
-    gap: 20px;
-    max-width: 900px;
-    padding: 20px;
-}
-
-.choice-wrapper .choice-card-button {
-    border-radius: 12px;
-    width: 260px;
-    padding: 20px;
-    cursor: pointer;
-    text-align: center;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    flex-direction: column;
-    display: flex;
-    align-items: anchor-center;
-    position: relative;
-    overflow: hidden;
-}
-
-.choice-wrapper .choice-card-button:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(0,0,0,0.12);
-}
-
-.choice-wrapper .choice-card-button img {
-    width: 80px;
-    height: 80px;
-    object-fit: contain;
-    margin-bottom: 15px;
-    border-radius: 15px
-}
-
-.choice-wrapper .choice-card-button h4 {
-    margin: 0px;
-    font-size: 18px;
-}
-
-.choice-wrapper .choice-card-button p {
-    font-size: 14px;
-    color: #666;
-    line-height: 1.5;
-}
-
-.choice-wrapper .choice-hover {
-    position: absolute;
-    inset: 0; /* top:0 right:0 bottom:0 left:0 */
-    background: rgba(0, 0, 0, 0.55);
-    color: white;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-
-    padding: 20px;
-    font-size: 14px;
-    border-radius: 12px;
-
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
-}
-
-.choice-wrapper .choice-hover::after {
-    display: none;
-}
-
-.choice-wrapper .choice-card-button:hover .choice-hover {
-    opacity: 1;
-}
-
-.choice-wrapper .choice-context {
-    position: absolute;
-    top: 50%;
-    left: 105%;
-    transform: translateY(-50%);
-    width: 220px;
-    max-height: 120px;
-    padding: 12px;
-    background: #333;
-    color: #fff;
-    border-radius: 10px;
-    font-size: 13px;
-    line-height: 1.4;
-    overflow-y: auto;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-    display: none;
-    z-index: 10;
-}
-
-.choice-wrapper .choice-context::-webkit-scrollbar {
-    width: 6px;
-}
-
-.choice-wrapper .choice-context::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.3);
-    border-radius: 3px;
 }

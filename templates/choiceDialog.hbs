@@ -1,18 +1,43 @@
 <div class="choice-wrapper">
-	<div class="choice-container">
-		{{#each choices}}
-			<button class="choice-card-button" data-action="select" data-uuid="{{uuid}}" data-id="{{id}}" data-name="{{name}}">
-				<div class="choice-hover">
-					<p>Right-click to view info</p>
-				</div>
 
-				<div class="choice-context">
-					{{{details}}}
-				</div>
+  <!-- RADIO BUTTONS -->
+  <fieldset class="choice-radio-group">
+    {{#each choices}}
+      <label class="choice-radio">
+        <input
+          type="radio"
+          name="choice"
+          value="{{id}}"
+          data-uuid="{{uuid}}"
+          data-id="{{id}}"
+          data-name="{{name}}"
+          {{#if @first}}checked{{/if}}
+        />
 
-				<img src="{{icon}}" alt="{{name}}">
-				<h4>{{name}}</h4>
-			</button>
-		{{/each}}
-	</div>
+        <img src="{{icon}}" alt="{{name}}">
+        <span class="choice-name">{{name}}</span>
+      </label>
+    {{/each}}
+  </fieldset>
+
+  <!-- SCROLLABLE DESCRIPTION PANEL -->
+  <div class="choice-description-container">
+    {{#each choices}}
+      <div
+        class="choice-description"
+        data-choice-id="{{id}}"
+        {{#unless @first}}hidden{{/unless}}
+      >
+        {{{details}}}
+      </div>
+    {{/each}}
+  </div>
+
+  <!-- CHOOSE BUTTON -->
+  <footer class="choice-footer">
+    <button type="button" data-action="choose" class="choice-confirm">
+      Choose
+    </button>
+  </footer>
+
 </div>
