@@ -46,6 +46,8 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
         super._onRender(context, options);
         const html = this.element;
 
+        TransformationModule.logger.warn(html);
+
         html.on("contextmenu", ev => {
             const button = event.target.closest(".choice-card-button");
             if (!button) return;
