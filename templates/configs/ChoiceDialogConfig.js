@@ -46,7 +46,7 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
         super._onRender(context, options);
         this.element.addEventListener("contextmenu", (event) => {
             const tooltip = event.target.querySelector("div.choice-context");
-            if (!tolltip) return;
+            if (!tooltip) return;
             event.preventDefault();
             this.toggleVisibleState(tooltip);
         });
