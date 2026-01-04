@@ -2,12 +2,12 @@
 	<div class="choice-container">
 		{{#each choices}}
 			<button class="choice-card-button" data-action="select" data-choice-id="{{id}}" data-choice-name="{{name}}">
-				<div class="choice-tooltip">
+				<div class="choice-hover">
 					<p>Right-click to view info</p>
 				</div>
 
-				<div class="choice-context-tooltip">
-				{{{details}}}
+				<div class="choice-context">
+					{{{details}}}
 				</div>
 
 				<img src="{{icon}}" alt="{{name}}">
