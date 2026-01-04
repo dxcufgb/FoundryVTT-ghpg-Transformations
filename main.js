@@ -35,8 +35,8 @@ Hooks.once("init", async () => {
     TransformationModule.EventListeners = await import("./TransformationEventListeners.js");
     
     await foundry.applications.handlebars.loadTemplates([
-     "modules/transformations/scripts/templates/pill.hbs"
-   ]);
+        "modules/transformations/scripts/templates/pill.hbs"
+    ]);
     TransformationModule.cachedTemplates["actorTransformationPill"] = Handlebars.partials["modules/transformations/scripts/templates/pill.hbs"];
 });
 
@@ -190,6 +190,7 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
     let container = app.element.querySelector('[data-tab="details"] .pills-lg > .background').parentElement;
     if (!container) return;
     container.append(fragment)
+    foundry.applications.tooltip.activate(container);
 });
 
 Hooks.on("updateActor", async (actor, diff, options, userId) => {

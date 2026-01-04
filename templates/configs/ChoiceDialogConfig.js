@@ -59,8 +59,8 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
 
             const descriptions = this.element.querySelectorAll(".choice-description");
 
-            for (const node of nodes) {
-                node.hidden = (node.dataset.choiceId !== id);
+            for (const description of descriptions) {
+                description.hidden = (description.dataset.choiceId !== id);
             }
         }
 
