@@ -7,6 +7,7 @@
 .dnd5e2.sheet.actor.character .sheet-body .pill-lg.transformation:hover:not(:has(a:hover)) {
     box-shadow: 0 0 12px 0 var(--dnd5e-color-gold);
 }
+
 .pill-lg.transformation {
     cursor: help;
 }
@@ -18,80 +19,119 @@
     min-width: 8ch;
 }
 
-.custom-tooltip {
-    position: fixed;
-    max-width: 300px;
-    background: var(--color-bg);
-    border: 1px solid var(--color-border);
-    padding: 0.5rem;
-    z-index: 10000;
+.transformation-stage-choice-page {
+    text-align: center;
+}
+
+.transformation-stage-choice-page h1 {
+    margin-bottom: 30px;
+    font-size: 32px;
+    color: #222;
+}
+
+.transformation-stage-choice-page .container {
+    display: flex;
+    gap: 20px;
+    max-width: 900px;
+    padding: 20px;
+}
+
+.transformation-stage-choice-page .choice-card-button {
+    background: white;
+    border: none;
+    border-radius: 12px;
+    width: 260px;
+    padding: 20px;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    flex-direction: column;
+    display: flex;
+    align-items: anchor-center;
+}
+
+.transformation-stage-choice-page .choice-card-button:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+}
+
+.transformation-stage-choice-page .choice-card-button img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+
+.transformation-stage-choice-page .choice-card-button h4 {
+    margin: 10px 0 8px;
+    font-size: 18px;
+    color: #333;
+}
+
+.transformation-stage-choice-page .choice-card-button p {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+}
+
+.transformation-stage-choice-page .choice-tooltip {
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+    width: 220px;
+    opacity: 0;
     pointer-events: none;
-  }
-
-  .background-card {
-  font-family: var(--font-primary);
-  color: var(--color-text-dark-primary);
-  background: var(--dnd5e-background-card, #f5efe6);
-  padding: 1.25rem;
-  border-radius: 8px;
-  max-width: 600px;
+    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.background-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+.transformation-stage-choice-page .choice-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
 }
 
-.background-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 8px;
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+.transformation-stage-choice-page .choice-card-button:hover .choice-tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-6px);
 }
 
-.background-titles {
-  display: flex;
-  flex-direction: column;
+.transformation-stage-choice-page .context-tooltip {
+    position: absolute;
+    top: 50%;
+    left: 105%;
+    transform: translateY(-50%);
+    width: 220px;
+    max-height: 120px;
+    padding: 12px;
+    background: #333;
+    color: #fff;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.4;
+    overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    display: none;
+    z-index: 10;
 }
 
-.background-name {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
+.transformation-stage-choice-page .context-tooltip::-webkit-scrollbar {
+    width: 6px;
 }
 
-.background-subtitle {
-  margin: 0;
-  font-size: 0.9rem;
-  font-weight: 500;
-  opacity: 0.75;
-}
-
-.background-card hr {
-  margin: 1rem 0;
-  border: none;
-  border-top: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-.background-body p {
-  margin: 0.35rem 0;
-  line-height: 1.4;
-}
-
-.background-body strong {
-  font-weight: 700;
-}
-
-.background-description {
-  margin-top: 0.75rem;
-  line-height: 1.5;
-}
-
-.background-description em {
-  font-style: italic;
-}
-
-.background-description p {
-  margin: 0.5rem 0 0 0;
+.transformation-stage-choice-page .context-tooltip::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 3px;
 }

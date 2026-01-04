@@ -18,8 +18,18 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
         this.choices = choices;
     }
 
-    get isEditable() {
-        return this.actor.isOwner || game.user.isGM;
+    activateListeners(html) {
+        super.activateListeners(html);
+        html.find(".choice-card-button").on("contextmenu", ev => {
+            ev.preventDefault();
+            const tooltip = ev.currentTarget.querySelector(".context-tooltip");
+            html.find(".context-tooltip").hide();
+            tooltip.style.display = "block";
+        });
+
+        html.on("click", () => {
+            html.find(".context-tooltip").hide();
+        });
     }
 
     static PARTS = {
@@ -33,17 +43,16 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
         const valueMap = [];
         for (const choice of this.choices) {
             valueMap.push({
+                id: choice._id,
                 icon: choice.img,
                 name: choice.name,
-                hint: choice.system.description.value,
+                details: choice.system.description.value,
             });
         }
 
-        const rows = Math.ceil((this.choices.length + 1) / 2);
-
         return {
-           choices: valueMap  ?? [],
-           rows: rows ?? 1,
+            title: "Tranformation Stage Choices",
+            choices: valueMap ?? [],
         };
     }
 

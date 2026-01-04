@@ -1,22 +1,20 @@
-<form autocomplete="off" onsubmit="event.preventDefault();">
-	<ol class="choices-list">
-	   {{#each choices as |choice name|}}
-		<li class="choice flexrow">
-			<div class="choice-name flexrow">
-				<div class="choice-image" style="background-image: url('{{choice.icon}}')"></div>
-				<h3>{{choice.name}}</h3>
-			</div>
-			<div class="choice-controls flexrow">
-				<input name="type" type="radio" value="{{name}}">
-			</div>
-			<div class="choice-hint notes">
-				{{choice.hint}}
-			</div>
-		</li>
-	    {{/each}}
-	</ol>
+<div class="page">
+  <h1>{{title}}</h1>
 
-	<button type="submit" data-action="save">
-		choose
-	</button>
-</form>
+  <div class="container">
+    {{#each choices}}
+    <button class="choice-card-button" data-choice-id="{{id}}">
+      <div class="choice-tooltip">
+        <p>Right-click to view info</p>
+      </div>
+
+      <div class="context-tooltip">
+        {{{details}}}
+      </div>
+
+      <img src="{{icon}}" alt="{{name}}">
+      <h4>{{name}}</h4>
+    </button>
+    {{/each}}
+  </div>
+</div>
