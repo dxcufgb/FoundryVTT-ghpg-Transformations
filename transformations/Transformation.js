@@ -272,7 +272,7 @@ export class Transformation {
                     await this.addItemToActor(choice);
                 }
                 Object.values(stages[stage].ITEMS).forEach(async (itemName) => {
-                    const itemData = await Transformation.getCompendiumEntryByName(itemName);
+                    const itemData = await Transformation.getCompendiumDocByName(itemName);
                     let item = await fromUuid(itemData.uuid);
                     await this.addItemToActor(item);
                 });
