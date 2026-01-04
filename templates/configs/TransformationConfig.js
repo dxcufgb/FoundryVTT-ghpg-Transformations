@@ -9,7 +9,8 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
             resizable: false
         },
         actions: {
-            save: TransformationConfig._onSave
+            save: TransformationConfig._onSave,
+            stageUp: TransformationConfig._onStageUp
         }
     };
 
@@ -22,7 +23,17 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
     }
 
     get isEditable() {
-        return this.actor.isOwner || game.user.isGM;
+        if (game.user.isGM) {
+            return true;
+        } else if (this.actor.isOwner) {
+            if (this._initialTransformation == null) {
+                return true;
+            } else if (this._initialStage < 4) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     static PARTS = {
@@ -48,7 +59,8 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         const rows = Math.ceil((TransformationModule.Transformations.length + 1) / 2);
 
         return {
-            editable: this.isEditable,
+            editable: (this._initialTransformation != null),
+            canLevelUpStage: (this._initialStage < 4),
             transformations: valueMap  ?? [],
             transformationStage: actorTransformationStage ?? 0,
             rows: rows ?? 1,
@@ -62,15 +74,18 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         if (!app.isEditable) return;
         const formData = new FormData(target.form);
         const id = formData.get("transformation");
-        if (id !== app._initialTransformation) {
-            if (id && id !== "None") {
-                await app.actor.setFlag("dnd5e", "transformation", id, { transformationsInternal: true });
-            } else {
-                await app.actor.unsetFlag("dnd5e", "transformation" , { transformationsInternal: true });
-            }
+        if (app.actor.getFlag("dnd5e", "transformation") == null){
+            await app.actor.setFlag("dnd5e", "transformation", id, { transformationsInternal: true });
         }
-        if (formData.get("transformationStage") != app._initialStage) {
-            await app.actor.setFlag("dnd5e", "transformationStage", formData.get("transformationStage"), { transformationsInternal: true });
+        app.close();
+    }
+
+    static async _onStageUp(event, target) {
+        const app = this;
+        if (!app.isEditable) return;
+        const formData = new FormData(target.form);
+        if (app._initialStage < 4) {
+            await app.actor.setFlag("dnd5e", "transformationStage", app._initialStage+1, { transformationsInternal: true });
         }
         app.close();
     }

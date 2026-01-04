@@ -257,74 +257,43 @@ export class Transformation {
     }
 
     async applyTransformationStage() {
-        const stages = this.getTransformationStages();
-        if (stages.ITEMS != null) {
-            if (stages.ITEMS.CHOICES) {
-                const choices = await Promise.all(
-                    Object.values(stages.ITEMS.CHOICES).map(async (choice) => {
-                        const itemData = await Transformation.getCompendiumDocByName(choice);
-                        return fromUuid(itemData.uuid);
-                    })
-                );
-                const choiceKey = `stage${this.transformationStage}ChoiceMade`;
-                if (!(this.actor.getFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, choiceKey))) {
+        const stages = this.constants.TRANSFORMATION_STAGES
+        for (const stage = 1; stage <= this.getActorTransformationStage(); stage++){
+            if (stags.ITEMS != null) {
+                if (stage.ITEMS.CHOICES) {
+                    const choices = await Promise.all(
+                        Object.values(stages.ITEMS.CHOICES).map(async (choice) => {
+                            const itemData = await Transformation.getCompendiumDocByName(choice);
+                            return fromUuid(itemData.uuid);
+                        })
+                    );
                     const choice = await TransformationModule.dialogs.getTransformationChoiceDialog(choices);
                     await this.actor.setFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, choiceKey, choice.name);
                     await this.addItemToActor(choice);
-                } else {
-                    const choiceName = this.actor.getFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, choiceKey);
-                    const itemData = await Transformation.getCompendiumEntryByName(choiceName);
+                }
+                Object.values(stage.ITEMS).forEach(async (itemName) => {
+                    const itemData = await Transformation.getCompendiumEntryByName(itemName);
                     let item = await fromUuid(itemData.uuid);
                     await this.addItemToActor(item);
-                }
+                });
             }
-            Object.values(stages.ITEMS).forEach(async (itemName) => {
-                const itemData = await Transformation.getCompendiumEntryByName(itemName);
-                let item = await fromUuid(itemData.uuid);
-                await this.addItemToActor(item);
-            });
+            if (stage.DAMAGE_RESISTANCES != null) {
+                Object.values(stage.DAMAGE_RESISTANCES).forEach(async (resistance) => {
+                    if (!this.actorHasTransformationEffect(resistance.label)) {
+                        let [createdResistance] = await this.actor.createEmbeddedDocuments("ActiveEffect", [resistance]);
+                        this.setItemFlag(createdResistance, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
+                    }
+                });
+            }
+            if (stage.DAMAGE_IMMUNITIES != null) {
+                Object.values(stage.DAMAGE_IMMUNITIES).forEach(async (immunity) => {
+                    if (!this.actorHasTransformationEffect(immunity.label)) {
+                        let [createdImmunity] = await this.actor.createEmbeddedDocuments("ActiveEffect", [immunity]);
+                        this.setItemFlag(createdImmunity, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
+                    }
+                });
+            }
         }
-        if (stages.DAMAGE_RESISTANCES != null) {
-            Object.values(stages.DAMAGE_RESISTANCES).forEach(async (resistance) => {
-                if (!this.actorHasTransformationEffect(resistance.label)) {
-                    let [createdResistance] = await this.actor.createEmbeddedDocuments("ActiveEffect", [resistance]);
-                    this.setItemFlag(createdResistance, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
-                }
-            });
-        }
-        if (stages.DAMAGE_IMMUNITIES != null) {
-            Object.values(stages.DAMAGE_IMMUNITIES).forEach(async (immunity) => {
-                if (!this.actorHasTransformationEffect(immunity.label)) {
-                    let [createdImmunity] = await this.actor.createEmbeddedDocuments("ActiveEffect", [immunity]);
-                    this.setItemFlag(createdImmunity, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
-                }
-            });
-        }
-    }
-
-    getTransformationStages() {
-        let stages = {};
-        const highestStage = this.getActorTransformationStage();
-        switch (Number(highestStage)) {
-            case 4:
-                stages.ITEMS = this.constants.TRANSFORMATION_STAGES[4].ITEMS;
-                stages.DAMAGE_RESISTANCES = this.constants.TRANSFORMATION_STAGES[4].DAMAGE_RESISTANCES;
-                stages.DAMAGE_IMMUNITIES = this.constants.TRANSFORMATION_STAGES[4].DAMAGE_IMMUNITIES;
-            case 3:
-                stages.ITEMS = { ...stages.ITEMS, ...this.constants.TRANSFORMATION_STAGES[3].ITEMS };
-                stages.DAMAGE_RESISTANCES = { ...stages.DAMAGE_RESISTANCES, ...this.constants.TRANSFORMATION_STAGES[3].DAMAGE_RESISTANCES };
-                stages.DAMAGE_IMMUNITIES = { ...stages.DAMAGE_IMMUNITIES, ...this.constants.TRANSFORMATION_STAGES[3].DAMAGE_IMMUNITIES };
-            case 2:
-                stages.ITEMS = { ...stages.ITEMS, ...this.constants.TRANSFORMATION_STAGES[2].ITEMS };
-                stages.DAMAGE_RESISTANCES = { ...stages.DAMAGE_RESISTANCES, ...this.constants.TRANSFORMATION_STAGES[2].DAMAGE_RESISTANCES };
-                stages.DAMAGE_IMMUNITIES = { ...stages.DAMAGE_IMMUNITIES, ...this.constants.TRANSFORMATION_STAGES[2].DAMAGE_IMMUNITIES };
-            case 1:
-                stages.ITEMS = { ...stages.ITEMS, ...this.constants.TRANSFORMATION_STAGES[1].ITEMS };
-                stages.DAMAGE_RESISTANCES = { ...stages.DAMAGE_RESISTANCES, ...this.constants.TRANSFORMATION_STAGES[1].DAMAGE_RESISTANCES };
-                stages.DAMAGE_IMMUNITIES = { ...stages.DAMAGE_IMMUNITIES, ...this.constants.TRANSFORMATION_STAGES[1].DAMAGE_IMMUNITIES };
-                break;
-        }
-        return stages;
     }
 
     async removeAllTransformationThings() {
