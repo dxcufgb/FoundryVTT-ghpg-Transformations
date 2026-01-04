@@ -21,6 +21,8 @@
 
 .choice-wrapper {
     text-align: center;
+    display:flex;
+    justify-content: center;
 }
 
 .choice-wrapper .choice-container {
@@ -31,8 +33,6 @@
 }
 
 .choice-wrapper .choice-card-button {
-    background: white;
-    border: none;
     border-radius: 12px;
     width: 260px;
     padding: 20px;
@@ -43,6 +43,8 @@
     flex-direction: column;
     display: flex;
     align-items: anchor-center;
+    position: relative;
+    overflow: hidden;
 }
 
 .choice-wrapper .choice-card-button:hover {
@@ -71,35 +73,30 @@
 
 .choice-wrapper .choice-tooltip {
     position: absolute;
-    bottom: 110%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
+    inset: 0; /* top:0 right:0 bottom:0 left:0 */
+    background: rgba(0, 0, 0, 0.55);
     color: white;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    line-height: 1.4;
-    width: 220px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    padding: 20px;
+    font-size: 14px;
+    border-radius: 12px;
+
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    transition: opacity 0.2s ease;
 }
 
 .choice-wrapper .choice-tooltip::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 6px;
-    border-style: solid;
-    border-color: #333 transparent transparent transparent;
+    display: none;
 }
 
 .choice-wrapper .choice-card-button:hover .choice-tooltip {
     opacity: 1;
-    transform: translateX(-50%) translateY(-6px);
 }
 
 .choice-wrapper .choice-context-tooltip {
