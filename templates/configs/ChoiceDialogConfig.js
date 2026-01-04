@@ -8,36 +8,15 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
             width: 600,
             resizable: false
         },
+        actions: {
+            select: ChoiceDialogConfig._onSelect,
+        }
     };
 
     constructor(choices, { resolve } = {}) {
         super();
         this.choices = choices;
         this._resolve = resolve;
-    }
-    
-    activateListeners(html) {
-        super.activateListeners(html);
-
-        html.find(".choice-card-button").on("click", ev => {
-            const button = ev.currentTarget;
-            const choiceId = button.dataset.choiceName;
-            if (this._resolve) {
-                this._resolve(choiceName);
-            }
-            this.close();
-        });
-
-        html.find(".choice-card-button").on("contextmenu", ev => {
-            ev.preventDefault();
-            const tooltip = ev.currentTarget.querySelector(".choice-context-tooltip");
-            html.find(".choice-context-tooltip").hide();
-            tooltip.style.display = "block";
-        });
-
-        html.on("click", () => {
-            html.find(".choice-context-tooltip").hide();
-        });
     }
 
     static PARTS = {
@@ -62,4 +41,34 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
             choices: valueMap ?? [],
         };
     }
+
+    _onRender(context, options) {
+        super._onRender(context, options);
+        const html = this.element;
+
+        html.find(".choice-card-button").on("contextmenu", ev => {
+            ev.preventDefault();
+            const tooltip = ev.currentTarget.querySelector(".context-tooltip");
+            html.find(".context-tooltip").hide();
+            tooltip.style.display = "block";
+        });
+
+        html.on("click", () => {
+            html.find(".context-tooltip").hide();
+        });
+    }
+
+    static _onSelect(event, target) {
+        const app = this;
+
+        const choiceId = target.dataset.choiceId;
+        const choiceName = target.dataset.choiceName;
+
+        if (app._resolve) {
+            app._resolve({ id: choiceId, name: choiceName });
+        }
+
+        app.close();
+    }
+
 }
