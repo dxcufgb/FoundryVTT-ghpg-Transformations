@@ -40,7 +40,7 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
             });
         }
 
-        const rows = Math.ceil((choices.length + 1) / 2);
+        const rows = Math.ceil((this.choices.length + 1) / 2);
 
         return {
            choices: valueMap  ?? [],

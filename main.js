@@ -192,8 +192,6 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
 
     let container = activeTab.querySelector(".pills-lg");
     container.append(fragment)
-    // originalHtml.querySelector(".pills-lg").append(fragment);
-    // TransformationModule.EventListeners.registerTransformationTooltipEventListeners(originalHtml);
 });
 
 Hooks.on("updateActor", async (actor, diff, options, userId) => {
