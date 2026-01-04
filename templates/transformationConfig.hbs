@@ -5,7 +5,7 @@
             <legend>Transformation</legend>
             <ol class="unlist form-grid form-grid-50 types-list" style="--type-rows: {{ rows }};">
                 {{#each transformations as |t|}}
-                <li style="display: flex; justify-content: right;" class="type-row">
+                <li style="display: flex; justify-content: space-around;" class="type-row">
                     <label for="transformation-type-{{t.id}}">
                         <span>{{t.name}}</span>
                         <input type="radio" name="transformation" value="{{t.id}}" {{#if t.selected}}checked{{/if}} {{#unless ../editable}}disabled{{/unless}}>
@@ -31,22 +31,22 @@
         </fieldset>
     </section>
     
-    <footer style="margin-top:10px; display: flex; justify-content: center;" class="sheet-footer">
+    <footer style="margin-top:10px; display: flex; justify-content: space-around;" class="sheet-footer">
         {{#if editable}}
-        <button type="submit" data-action="save">
+        <button style="padding-right: 15px; padding-left: 15px" type="submit" data-action="save">
             Add Transformation
         </button>
         {{else}}
-        <button type="submit" disabled data-tooltip="Transformation can't be changed">
+        <button style="padding-right: 15px; padding-left: 15px" type="submit" disabled data-tooltip="Transformation can't be changed">
             Add Transformation
         </button>
         {{/if}}
         {{#if canLevelUpStage}}
-        <button type="submit" data-action="stageUp">
+        <button style="padding-right: 15px; padding-left: 15px" type="submit" data-action="stageUp">
             Level up transformation stage
         </button>
         {{else}}
-        <button type="submit" disabled data-tooltip="Transformation has Reached hihgest stage">
+        <button style="padding-right: 15px; padding-left: 15px" type="submit" disabled data-tooltip="Transformation has Reached hihgest stage">
             Level up transformation stage
         </button>
         {{/if}}
