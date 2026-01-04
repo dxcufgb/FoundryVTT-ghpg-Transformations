@@ -187,6 +187,10 @@ Hooks.on("renderActorSheetV2", (app, originalHtml, config) => {
     TransformationModule.EventListeners.registerTransformationConfigurationEventListeners(app, originalHtml, config);
     const html = TransformationModule.cachedTemplates.actorTransformationPill(transformation.getPillsData(config.editable))
     const fragment = document.createRange().createContextualFragment(html);
+    TransformationModule.logger.warn(app.element.querySelector('[data-tab="details"]'));
+    TransformationModule.logger.warn(app.element.querySelector('[data-tab="details"] .pills-lg'));
+    TransformationModule.logger.warn(app.element.querySelector('[data-tab="details"] .pills-lg > .background'));
+    TransformationModule.logger.warn(app.element.querySelector('[data-tab="details"] .pills-lg > .background').parentElement);
     const activeTab = app.element.querySelector('[data-tab="details"] .pills-lg > .background').parentElement;
     if (!activeTab) return;
 
