@@ -259,10 +259,10 @@ export class Transformation {
     async applyTransformationStage() {
         const stages = this.constants.TRANSFORMATION_STAGES
         for (let stage = 1; stage <= this.getActorTransformationStage(); stage++){
-            if (stage.ITEMS != null) {
-                if (stage.ITEMS.CHOICES) {
+            if (stages[stage].ITEMS != null) {
+                if (stages[stage].ITEMS.CHOICES) {
                     const choices = await Promise.all(
-                        Object.values(stages.ITEMS.CHOICES).map(async (choice) => {
+                        Object.values(stages[stage].ITEMS.CHOICES).map(async (choice) => {
                             const itemData = await Transformation.getCompendiumDocByName(choice);
                             return fromUuid(itemData.uuid);
                         })
@@ -271,22 +271,22 @@ export class Transformation {
                     await this.actor.setFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, choiceKey, choice.name);
                     await this.addItemToActor(choice);
                 }
-                Object.values(stage.ITEMS).forEach(async (itemName) => {
+                Object.values(stages[stage].ITEMS).forEach(async (itemName) => {
                     const itemData = await Transformation.getCompendiumEntryByName(itemName);
                     let item = await fromUuid(itemData.uuid);
                     await this.addItemToActor(item);
                 });
             }
-            if (stage.DAMAGE_RESISTANCES != null) {
-                Object.values(stage.DAMAGE_RESISTANCES).forEach(async (resistance) => {
+            if (stages[stage].DAMAGE_RESISTANCES != null) {
+                Object.values(stages[stage].DAMAGE_RESISTANCES).forEach(async (resistance) => {
                     if (!this.actorHasTransformationEffect(resistance.label)) {
                         let [createdResistance] = await this.actor.createEmbeddedDocuments("ActiveEffect", [resistance]);
                         this.setItemFlag(createdResistance, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
                     }
                 });
             }
-            if (stage.DAMAGE_IMMUNITIES != null) {
-                Object.values(stage.DAMAGE_IMMUNITIES).forEach(async (immunity) => {
+            if (stages[stage].DAMAGE_IMMUNITIES != null) {
+                Object.values(stages[stage].DAMAGE_IMMUNITIES).forEach(async (immunity) => {
                     if (!this.actorHasTransformationEffect(immunity.label)) {
                         let [createdImmunity] = await this.actor.createEmbeddedDocuments("ActiveEffect", [immunity]);
                         this.setItemFlag(createdImmunity, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
