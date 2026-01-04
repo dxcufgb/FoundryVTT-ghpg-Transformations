@@ -78,10 +78,9 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
         const app = this;
 
         const choiceId = target.dataset.id;
-        const choiceName = target.dataset.name;
-
+        const selectedItem = this.choices.find(item => item.id === choiceId);
         if (app._resolve) {
-            app._resolve({ id: choiceId, name: choiceName });
+            app._resolve(selectedItem);
         }
 
         app.close();
