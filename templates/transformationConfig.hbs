@@ -3,6 +3,12 @@
         <fieldset class="card">
             <legend>Transformation</legend>
             <ol class="unlist form-grid form-grid-50 types-list" style="--type-rows: {{ rows }};">
+                <li style="display: flex;" class="type-row none">
+                    <label style="display: flex; align-items: center; width: 100%;" for="transformation-type-none">
+                        <p style="margin: 0 auto; text-align: center;">None</p>
+                        <input style="margin-left: auto;" type="radio" name="transformation" value="None" id="transformation-type-none" {{#if noneSelected}}checked{{/if}} {{#unless editable}}disabled{{/unless}}>
+                    </label>
+                </li>
                 {{#each transformations as |t|}}
                 <li style="display: flex;" class="type-row">
                     <label style="display: flex; align-items: center; width: 100%;" for="transformation-type-{{t.id}}">
@@ -11,12 +17,6 @@
                     </label>
                 </li>
                 {{/each}}
-                <li style="display: flex;" class="type-row none">
-                    <label style="display: flex; align-items: center; width: 100%;" for="transformation-type-none">
-                        <p style="margin: 0 auto; text-align: center;">None</p>
-                        <input style="margin-left: auto;" type="radio" name="transformation" value="None" id="transformation-type-none" {{#if noneSelected}}checked{{/if}} {{#unless editable}}disabled{{/unless}}>
-                    </label>
-                </li>
             </ol>
         </fieldset>
     </section>

@@ -76,7 +76,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         if (!app.isEditable) return;
         const formData = new FormData(target.form);
         const id = formData.get("transformation");
-        if (app.actor.getFlag("dnd5e", "transformations") == null){
+        if (app.actor.getFlag("dnd5e", "transformations") == null || game.user.isGM){
             await app.actor.setFlag("dnd5e", "transformations", id, { transformationsInternal: true });
         }
         app.close();
