@@ -31,6 +31,7 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
         for (const choice of this.choices) {
             valueMap.push({
                 id: choice._id,
+                uuid: choice.uuid,
                 icon: choice.img,
                 name: choice.name,
                 details: choice.system.description.value,
@@ -45,19 +46,22 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
     _onRender(context, options) {
         super._onRender(context, options);
         this.element.addEventListener("contextmenu", (event) => {
-            const tooltip = event.target.querySelector("div.choice-context");
-            if (!tooltip) return;
-            event.preventDefault();
-            this.toggleVisibleState(tooltip);
+            this._onRightClick(event);
         });
     }
 
-    toggleVisibleState(tooltip) {
-        if (tooltip.style.display != "block") {
-            tooltip.style.display = "block";
-        } else {
-            tooltip.style.display = "none";
-        }
+    async _onRightClick(event) {
+        const target = event.target;
+        const item = target.closest(".choice-card-button");
+        if (!item) return;
+        event.preventDefault();
+            const uuid = item.dataset.uuid;
+        if (!uuid) return;
+
+        const document = await fromUuid(uuid);
+        if (!document) return;
+
+        foundry.applications.api.showDocument(document);
     }
 
     static _onSelect(event, target) {
