@@ -8,27 +8,35 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
             width: 600,
             resizable: false
         },
-        actions: {
-            save: ChoiceDialogConfig._onSave
-        }
     };
 
-    constructor(choices, options = {}) {
-        super(options);
+    constructor(choices, { resolve } = {}) {
+        super();
         this.choices = choices;
+        this._resolve = resolve;
     }
-
+    
     activateListeners(html) {
         super.activateListeners(html);
+
+        html.find(".choice-card-button").on("click", ev => {
+            const button = ev.currentTarget;
+            const choiceId = button.dataset.choiceName;
+            if (this._resolve) {
+                this._resolve(choiceName);
+            }
+            this.close();
+        });
+
         html.find(".choice-card-button").on("contextmenu", ev => {
             ev.preventDefault();
-            const tooltip = ev.currentTarget.querySelector(".context-tooltip");
-            html.find(".context-tooltip").hide();
+            const tooltip = ev.currentTarget.querySelector(".choice-context-tooltip");
+            html.find(".choice-context-tooltip").hide();
             tooltip.style.display = "block";
         });
 
         html.on("click", () => {
-            html.find(".context-tooltip").hide();
+            html.find(".choice-context-tooltip").hide();
         });
     }
 
@@ -51,14 +59,7 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
         }
 
         return {
-            title: "Tranformation Stage Choices",
             choices: valueMap ?? [],
         };
-    }
-
-    static async _onSave(event, target) {
-        const app = this;
-        const formData = new FormData(target.form);
-        app.close();
     }
 }

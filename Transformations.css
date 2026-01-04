@@ -57,12 +57,12 @@
     height: 80px;
     object-fit: contain;
     margin-bottom: 15px;
+    border-radius: 15px
 }
 
 .choice-wrapper .choice-card-button h4 {
-    margin: 10px 0 8px;
+    margin: 0px;
     font-size: 18px;
-    color: #333;
 }
 
 .choice-wrapper .choice-card-button p {
