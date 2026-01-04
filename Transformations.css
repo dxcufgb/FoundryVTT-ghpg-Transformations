@@ -25,6 +25,7 @@
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  flex-direction: row;
 }
 
 .choice-radio {
@@ -32,10 +33,62 @@
   align-items: center;
   gap: 0.25rem;
   cursor: pointer;
+  flex-direction: column;
 }
 
 .choice-wrapper {
     text-align: center;
     display:flex;
     justify-content: center;
+    flex-direction: column;
+}
+
+.choice-radio-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.choice-radio {
+  position: relative;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+
+  background: var(--color-bg-option);
+  border: 1px solid var(--color-border-light);
+
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.choice-radio input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.choice-radio:hover {
+  background: var(--color-bg-option-hover);
+}
+
+.choice-radio:has(input[type="radio"]:checked) {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border-highlight);
+  box-shadow: 0 0 0 1px var(--color-border-highlight);
+}
+
+.choice-radio:has(input[type="radio"]:focus-visible) {
+  outline: 2px solid var(--color-border-highlight);
+  outline-offset: 2px;
+}
+
+.choice-radio img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
