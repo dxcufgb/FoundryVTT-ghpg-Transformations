@@ -259,7 +259,7 @@ export class Transformation {
     async applyTransformationStage() {
         const stages = this.constants.TRANSFORMATION_STAGES
         for (const stage = 1; stage <= this.getActorTransformationStage(); stage++){
-            if (stags.ITEMS != null) {
+            if (stage.ITEMS != null) {
                 if (stage.ITEMS.CHOICES) {
                     const choices = await Promise.all(
                         Object.values(stages.ITEMS.CHOICES).map(async (choice) => {
