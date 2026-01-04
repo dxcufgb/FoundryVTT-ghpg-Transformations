@@ -6,6 +6,7 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
         window: {
             title: "Transformation Stage Choice",
             width: 600,
+            height: 450,
             resizable: false
         },
         actions: {
@@ -53,7 +54,6 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
     _onClick(event) {
         const target = event.target;
 
-        // Radio change
         if (target instanceof HTMLInputElement && target.type === "radio") {
             const id = target.dataset.id;
 
@@ -66,9 +66,7 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
 
         const button = target.closest("[data-action='choose']");
         if (button) {
-            const selected = this.element.querySelector<HTMLInputElement>(
-            "input[name='choice']:checked"
-            );
+            const selected = this.element.querySelector("input[name='choice']:checked");
             if (!selected) return;
 
             console.log("Chosen:", selected.dataset);
