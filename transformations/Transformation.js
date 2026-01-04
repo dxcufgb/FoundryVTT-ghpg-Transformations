@@ -258,7 +258,7 @@ export class Transformation {
 
     async applyTransformationStage() {
         const stages = this.constants.TRANSFORMATION_STAGES
-        for (const stage = 1; stage <= this.getActorTransformationStage(); stage++){
+        for (let stage = 1; stage <= this.getActorTransformationStage(); stage++){
             if (stage.ITEMS != null) {
                 if (stage.ITEMS.CHOICES) {
                     const choices = await Promise.all(

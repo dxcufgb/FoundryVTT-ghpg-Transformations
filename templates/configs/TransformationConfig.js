@@ -33,6 +33,8 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
             } else {
                 return false;
             }
+        } else {
+            return false;
         }
     }
 
@@ -60,7 +62,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
 
         return {
             editable: this.isEditable,
-            canLevelUpStage: (this._initialStage < 4),
+            canLevelUpStage: (this._initialStage < 4 && this._initialTransformation != null),
             transformations: valueMap  ?? [],
             transformationStage: actorTransformationStage ?? 0,
             rows: rows ?? 1,
