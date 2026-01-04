@@ -275,7 +275,6 @@ export class Transformation {
                         })
                     );
                     const choice = await TransformationModule.dialogs.getTransformationChoiceDialog(choices);
-                    await this.actor.setFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, choiceKey, choice.name);
                     await this.addItemToActor(choice);
                 }
                 Object.values(stages[stage].ITEMS).forEach(async (itemName) => {

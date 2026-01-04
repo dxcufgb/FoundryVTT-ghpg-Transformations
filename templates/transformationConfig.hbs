@@ -2,6 +2,7 @@
     <section class="flexcol transformation-config">
         <fieldset class="card">
             <legend>Transformation</legend>
+            {{#if editable}}
             <ol class="unlist form-grid form-grid-50 types-list" style="--type-rows: {{ rows }};">
                 <li style="display: flex;" class="type-row none">
                     <label style="display: flex; align-items: center; width: 100%;" for="transformation-type-none">
@@ -18,6 +19,11 @@
                 </li>
                 {{/each}}
             </ol>
+            {{else}}
+            <div style="display: flex; justify-content: center; flex-direction: column;" class="form-group">
+                <h4 style="margin:auto">{{selectedTransformationName}}</h4>
+            </div>
+            {{/if}}
         </fieldset>
     </section>
 
@@ -35,17 +41,9 @@
         <button style="padding-right: 15px; padding-left: 15px" type="submit" data-action="save">
             Add Transformation
         </button>
-        {{else}}
-        <button style="padding-right: 15px; padding-left: 15px" type="submit" disabled data-tooltip="Transformation can't be changed">
-            Add Transformation
-        </button>
         {{/if}}
         {{#if canLevelUpStage}}
         <button style="padding-right: 15px; padding-left: 15px" type="submit" data-action="stageUp">
-            Level up transformation stage
-        </button>
-        {{else}}
-        <button style="padding-right: 15px; padding-left: 15px" type="submit" disabled data-tooltip="Transformation stage cannot be increased">
             Level up transformation stage
         </button>
         {{/if}}

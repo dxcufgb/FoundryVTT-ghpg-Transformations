@@ -67,7 +67,8 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
             transformationStage: actorTransformationStage ?? 0,
             rows: rows ?? 1,
             noneSelected: !selectedId,
-            transformationStages: CONFIG.DND5E.characterFlags.transformationStage ?? {}
+            transformationStages: CONFIG.DND5E.characterFlags.transformationStage ?? {},
+            selectedTransformationName: this._initialTransformation.name ?? ""
         };
     }
 
