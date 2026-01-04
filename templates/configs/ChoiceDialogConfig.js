@@ -10,7 +10,7 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
             resizable: false
         },
         actions: {
-            select: ChoiceDialogConfig._onSelect,
+            choose: ChoiceDialogConfig._onSelect,
         }
     };
 
@@ -57,15 +57,11 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
         if (target instanceof HTMLInputElement && target.type === "radio") {
             const id = target.dataset.id;
 
-            TransformationModule.logger.warn(this.element)
-            TransformationModule.logger.warn(this.element.querySelectorAll(".choice-description"));
-            TransformationModule.logger.warn(this.element.querySelectorAll(".choice-description").forEach(el => { el.dataset.choiceId }))
+            const descriptions = this.element.querySelectorAll(".choice-description");
 
-            this.element
-            .querySelectorAll(".choice-description")
-            .forEach(el => {
-                el.hidden = el.dataset.choiceId !== id;
-            });
+            for (const node of nodes) {
+                node.hidden = (node.dataset.choiceId !== id);
+            }
         }
 
         const button = target.closest("[data-action='choose']");
@@ -81,8 +77,8 @@ export class ChoiceDialogConfig extends foundry.applications.api.HandlebarsAppli
     static _onSelect(event, target) {
         const app = this;
 
-        const choiceId = target.dataset.choiceId;
-        const choiceName = target.dataset.choiceName;
+        const choiceId = target.dataset.id;
+        const choiceName = target.dataset.name;
 
         if (app._resolve) {
             app._resolve({ id: choiceId, name: choiceName });
