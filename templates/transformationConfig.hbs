@@ -1,20 +1,19 @@
 <div class="transformation-config-wrapper">
     <section class="flexcol transformation-config">
-        <div class="final-value">{{ preview }}</div>
         <fieldset class="card">
             <legend>Transformation</legend>
             <ol class="unlist form-grid form-grid-50 types-list" style="--type-rows: {{ rows }};">
                 {{#each transformations as |t|}}
                 <li style="display: flex; justify-content: space-around;" class="type-row">
                     <label for="transformation-type-{{t.id}}">
-                        <span>{{t.name}}</span>
+                        <p>{{t.name}}</p>
                         <input type="radio" name="transformation" value="{{t.id}}" {{#if t.selected}}checked{{/if}} {{#unless ../editable}}disabled{{/unless}}>
                     </label>
                 </li>
                 {{/each}}
                 <li style="display: flex; justify-content: right;" class="type-row none">
                     <label for="transformation-type-none">
-                        <span>None</span>
+                        <p>None</p>
                         <input type="radio" name="transformation" value="None" id="transformation-type-none" {{#if noneSelected}}checked{{/if}} {{#unless editable}}disabled{{/unless}}>
                     </label>
                 </li>

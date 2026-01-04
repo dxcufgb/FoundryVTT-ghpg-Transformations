@@ -5,7 +5,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         classes: ["sheet", "dnd5e2", "standard-form"],
         window: {
             title: "Transformation",
-            width: "600px",
+            width: "720px",
             resizable: false
         },
         actions: {
