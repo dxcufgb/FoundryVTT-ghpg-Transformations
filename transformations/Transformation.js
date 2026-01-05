@@ -268,13 +268,17 @@ export class Transformation {
         for (let stage = 1; stage <= this.getActorTransformationStage(); stage++){
             if (stages[stage].ITEMS != null) {
                 if (stages[stage].ITEMS.CHOICES) {
-                    const choices = await Promise.all(
-                        Object.values(stages[stage].ITEMS.CHOICES).map(async (choice) => {
-                            const itemData = await Transformation.getCompendiumDocByName(choice);
-                            return fromUuid(itemData.uuid);
-                        })
-                    );
-                    const choice = await TransformationModule.dialogs.getTransformationChoiceDialog(choices);
+                    let choice = fromUuid(this.getActorFlag(`stage-${stage}-choice`));
+                    if (!choice) {
+                        const choices = await Promise.all(
+                            Object.values(stages[stage].ITEMS.CHOICES).map(async (choice) => {
+                                const itemData = await Transformation.getCompendiumDocByName(choice);
+                                return fromUuid(itemData.uuid);
+                            })
+                        );
+                        choice = await TransformationModule.dialogs.getTransformationChoiceDialog(choices);
+                        this.setActorFlag(`stage-${stage}-choice`, choice.uuid);
+                    }
                     await this.addItemToActor(choice);
                 }
                 Object.values(stages[stage].ITEMS).forEach(async (itemName) => {
