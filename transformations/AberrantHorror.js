@@ -61,7 +61,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
                     CHOICES: {
                         ELDRITCH_ABERRATION: {
                             name: "Eldritch Aberration",
-                            preReq: this.globalConstants.ACTOR_HAS_SPELL_SLOTS
+                            preReq: TransformationModule.constants.ACTOR_HAS_SPELL_SLOTS
                         },
                         POISONOUS_MUTATIONS: {
                             name: "Poisonous Mutations"
