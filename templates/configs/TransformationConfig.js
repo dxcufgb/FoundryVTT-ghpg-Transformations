@@ -45,6 +45,20 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         }
     };
 
+    _getHeaderControls() {
+        const controls = super._getHeaderControls();
+        if (game.user.isGM){
+            controls.push(
+                {
+                icon: "fas fa-rotate",
+                label: "Reset Transformation Stage Choices",
+                action: "clearStageChoicesFlags"
+                }
+            );
+        }
+        return controls;
+    }
+
     async _prepareContext() {
         if (!this.transformations) throw new Error("Invalid transformations");
         const selectedId = this.actor.getFlag("dnd5e", "transformations");
@@ -69,8 +83,7 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
             rows: rows ?? 1,
             noneSelected: !selectedId,
             transformationStages: CONFIG.DND5E.characterFlags.transformationStage ?? {},
-            selectedTransformationName: this._initialTransformation.name ?? "",
-            isGM: game.user.isGM
+            selectedTransformationName: this._initialTransformation.name ?? ""
         };
     }
 
