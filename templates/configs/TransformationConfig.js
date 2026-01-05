@@ -10,7 +10,8 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         },
         actions: {
             save: TransformationConfig._onSave,
-            stageUp: TransformationConfig._onStageUp
+            stageUp: TransformationConfig._onStageUp,
+            clearStageChoicesFlags: TransformationConfig._clearStageChoicesFlags
         }
     };
 
@@ -68,7 +69,8 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
             rows: rows ?? 1,
             noneSelected: !selectedId,
             transformationStages: CONFIG.DND5E.characterFlags.transformationStage ?? {},
-            selectedTransformationName: this._initialTransformation.name ?? ""
+            selectedTransformationName: this._initialTransformation.name ?? "",
+            isGM: game.user.isGM
         };
     }
 
@@ -91,5 +93,13 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
             await app.actor.setFlag("dnd5e", "transformationStage", app._initialStage+1, { transformationsInternal: true });
         }
         app.close();
+    }
+
+    static async _clearStageChoicesFlags(event, target) {
+        const app = this;
+        if (!game.user.isGM) return;
+        for (let stage = 1; stage <= 4; stage++){
+            await app.actor.setFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, `stage-${stage}-choice`, null);
+        }
     }
 }

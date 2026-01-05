@@ -263,6 +263,17 @@ export class Transformation {
         }
     }
 
+    async actorHasPreReq(choice) {
+        if (choice.preReq) {
+            const preReqItemData = await Transformation.getCompendiumDocByName(choice.name);
+            if (preReqItemData == this.globalConstants.ACTOR_HAS_SPELL_SLOTS) { 
+                actorHasPreReq = TransformationModule.utils.hasSpellSlots(this.actor);
+            } else if (!this.actorHasTransformationItem(preReqItemData.name)) {
+                actorHasPreReq = false
+            }
+        }
+    }
+
     async applyTransformationStage() {
         const stages = this.constants.TRANSFORMATION_STAGES
         for (let stage = 1; stage <= this.getActorTransformationStage(); stage++){
@@ -272,11 +283,18 @@ export class Transformation {
                     if (!choice) {
                         const choices = await Promise.all(
                             Object.values(stages[stage].ITEMS.CHOICES).map(async (choice) => {
-                                const itemData = await Transformation.getCompendiumDocByName(choice);
-                                return await fromUuid(itemData.uuid);
+                                let actorHasPreReq = await this.actorHasPreReq(choice);
+                                if(actorHasPreReq){
+                                    const itemData = await Transformation.getCompendiumDocByName(choice.name);
+                                    return fromUuid(itemData.uuid);
+                                }
                             })
                         );
-                        choice = await TransformationModule.dialogs.getTransformationChoiceDialog(choices);
+                        if (choices.length > 1) {
+                            choice = await TransformationModule.dialogs.getTransformationChoiceDialog(choices);
+                        } else {
+                            choice = choices[0]
+                        }
                         this.setActorFlag(`stage-${stage}-choice`, choice.uuid);
                     }
                     await this.addItemToActor(choice);

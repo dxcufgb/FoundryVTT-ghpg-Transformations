@@ -32,8 +32,12 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             2: {
                 ITEMS: {
                     CHOICES: {
-                        EFFICIENT_KILLER: "Eldritch Limbs (Efficient Killer)",
-                        WRITHING_TENDRILS: "Writhing Tendrils",
+                        EFFICIENT_KILLER: {
+                            name: "Eldritch Limbs (Efficient Killer)"
+                        },
+                        WRITHING_TENDRILS: {
+                            name: "Writhing Tendrils"
+                        },
                     },
                     HIDEOUSE_APPEARANCE: "Hideous Appearance",
                 },
@@ -41,8 +45,13 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             3: {
                 ITEMS: {
                     CHOICES: {
-                        CONSTRICTING_TENDRILS: "Constricting Tendrils",
-                        TERRIFYING_VISAGE: "Terrifying Visage",
+                        CONSTRICTING_TENDRILS: {
+                            name: "Constricting Tendrils",
+                            preReq: "Writhing Tendrils"
+                        },
+                        TERRIFYING_VISAGE: {
+                            name: "Terrifying Visage",
+                        }
                     },
                     UNSTABLE_EXISTENCE: "Unstable Existence",
                 }
@@ -50,8 +59,13 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
             4: {
                 ITEMS: {
                     CHOICES: {
-                        ELDRITCH_ABERRATION: "Eldritch Aberration",
-                        POISONOUS_MUTATIONS: "Poisonous Mutations"
+                        ELDRITCH_ABERRATION: {
+                            name: "Eldritch Aberration",
+                            preReq: this.globalConstants.ACTOR_HAS_SPELL_SLOTS
+                        },
+                        POISONOUS_MUTATIONS: {
+                            name: "Poisonous Mutations"
+                        }
                     },
                     ENTROPIC_ABOMINATION: "Entropic Abomination"
                 },

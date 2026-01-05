@@ -1,3 +1,20 @@
+{{#if isGm}}
+<div class="dialog-header">
+  <button
+    type="button"
+    class="options-button"
+    aria-label="Options"
+    data-action="toggle-options"
+  >
+    ⋮
+  </button>
+
+  <div class="options-menu" hidden>
+    <button type="button" data-action="clearStageChoicesFlags">Reset Transformation Choices</button>
+    </div>
+</div>
+{{/if}}
+
 <div class="transformation-config-wrapper">
     <section class="flexcol transformation-config">
         <fieldset class="card">
