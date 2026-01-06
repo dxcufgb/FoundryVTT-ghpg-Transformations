@@ -36,9 +36,9 @@ export function getTransformationChoiceDialog(choices) {
     const choiceDialogConfig = TransformationModule.dialogConfigs.choiceDialogConfig;
 
     return new Promise(resolve => {
-    new choiceDialogConfig.ChoiceDialogConfig(
-      choices,
-      { resolve }
-    ).render(true);
-  });
+        new choiceDialogConfig.ChoiceDialogConfig(
+            choices,
+            { resolve }
+        ).render(true);
+    });
 }

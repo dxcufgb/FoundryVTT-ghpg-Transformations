@@ -1,32 +1,40 @@
-export class TransformationConfig extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
+import { WithThreeDotMenu } from "../mixins/WithThreeDotMenu.js";
+
+export class TransformationConfig extends WithThreeDotMenu(foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2)) {
     static DEFAULT_OPTIONS = {
+        ...super.DEFAULT_OPTIONS,
         id: "transformation-config",
         tag: "form",
         classes: ["sheet", "dnd5e2", "standard-form"],
         window: {
             title: "Transformation",
-            width: "720px",
             resizable: false
         },
         actions: {
             save: TransformationConfig._onSave,
             stageUp: TransformationConfig._onStageUp,
-            clearStageChoicesFlags: TransformationConfig._clearStageChoicesFlags
+            resetCurrentTransformation: TransformationConfig._resetCurrentTransformation,
+            removeTransformation: TransformationConfig._removeCurrentTransformation
         }
     };
+
+    static get threeDotConfig() {
+        return {
+            selector: ".header-control.fa-ellipsis-vertical.hidden",
+            gmOnly: true
+        };
+    }
 
     constructor(actor, transformations, options = {}) {
         super(options);
         this.actor = actor;
         this.transformations = transformations;
         this._initialStage = actor.getFlag("dnd5e", "transformationStage") ?? null;
-        this._initialTransformation = actor.getFlag("dnd5e", "transformations") ?? null;
+        this._initialTransformation = TransformationModule.TransformationParent.Transformation.prototype.getTransformationType(this.actor);
     }
 
     get isEditable() {
-        if (game.user.isGM) {
-            return true;
-        } else if (this.actor.isOwner) {
+        if (this.actor.isOwner || game.user.isGM) {
             if (this._initialTransformation == null) {
                 return true;
             } else if (this._initialStage < 4) {
@@ -40,26 +48,33 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
     }
 
     static PARTS = {
+        ...super.PARTS,
         content: {
             template: "modules/transformations/scripts/templates/transformationConfig.hbs"
         }
     };
 
-    _getHeaderControls() {
-        const controls = super._getHeaderControls();
-        if (game.user.isGM){
-            controls.push(
-                {
-                icon: "fas fa-rotate",
-                label: "Reset Transformation Stage Choices",
-                action: "clearStageChoicesFlags"
-                }
-            );
-        }
-        return controls;
+    getContextMenuOptions() {
+        return [
+            {
+                name: "Reset Transformation",
+                icon: '<i class="fas fa-rotate-left"></i>',
+                condition: () => game.user.isGM,
+                callback: () =>
+                    TransformationConfig._resetCurrentTransformation.call(this)
+            },
+            {
+                name: "Remove Transformation",
+                icon: '<i class="fas fa-trash"></i>',
+                condition: () => game.user.isGM,
+                callback: () =>
+                    TransformationConfig._removeCurrentTransformation.call(this)
+            }
+        ];
     }
 
     async _prepareContext() {
+        super._prepareContext();
         if (!this.transformations) throw new Error("Invalid transformations");
         const selectedId = this.actor.getFlag("dnd5e", "transformations");
         const actorTransformationStage = this.actor.getFlag("dnd5e", "transformationStage");
@@ -74,16 +89,22 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         }
 
         const rows = Math.ceil((TransformationModule.Transformations.length + 1) / 2);
+        let selectedTransformationName;
+        if (this._initialTransformation.name != "Transformation") {
+            selectedTransformationName = this._initialTransformation.name;
+        } else {
+            selectedTransformationName = "";
+        }
 
         return {
             editable: this.isEditable,
-            canLevelUpStage: (this._initialStage < 4 && this._initialTransformation != null),
-            transformations: valueMap  ?? [],
+            canLevelUpStage: (this._initialStage < 4 && this._initialTransformation.name != "Transformation"),
+            transformations: valueMap ?? [],
             transformationStage: actorTransformationStage ?? 0,
             rows: rows ?? 1,
             noneSelected: !selectedId,
-            transformationStages: CONFIG.DND5E.characterFlags.transformationStage ?? {},
-            selectedTransformationName: this._initialTransformation.name ?? ""
+            transformationStages: CONFIG.DND5E.characterFlags.transformationStage ?? 1,
+            selectedTransformationName: selectedTransformationName
         };
     }
 
@@ -92,8 +113,9 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
         if (!app.isEditable) return;
         const formData = new FormData(target.form);
         const id = formData.get("transformation");
-        if (app.actor.getFlag("dnd5e", "transformations") == null || game.user.isGM){
-            await app.actor.setFlag("dnd5e", "transformations", id, { transformationsInternal: true });
+        if (app.actor.getFlag("dnd5e", "transformations") == null || game.user.isGM) {
+            await app.actor.setFlag("dnd5e", "transformations", id);
+            await app.actor.setFlag(TransformationModule.constants.MODULE_NAME, "transformations", "transformationStage", 1);
         }
         app.close();
     }
@@ -101,18 +123,33 @@ export class TransformationConfig extends foundry.applications.api.HandlebarsApp
     static async _onStageUp(event, target) {
         const app = this;
         if (!app.isEditable) return;
-        const formData = new FormData(target.form);
         if (app._initialStage < 4) {
-            await app.actor.setFlag("dnd5e", "transformationStage", app._initialStage+1, { transformationsInternal: true });
+            await app.actor.setFlag("dnd5e", "transformationStage", app._initialStage + 1);
         }
         app.close();
     }
 
-    static async _clearStageChoicesFlags(event, target) {
+    static async _resetCurrentTransformation(event, target) {
         const app = this;
         if (!game.user.isGM) return;
-        for (let stage = 1; stage <= 4; stage++){
-            await app.actor.setFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, `stage-${stage}-choice`, null);
+        for (let stage = 1; stage <= 4; stage++) {
+            await app.actor.unsetFlag(TransformationModule.constants.MODULE_NAME, `stage-${stage}-choice`);
         }
+        await app.actor.setFlag("dnd5e", "transformationStage", 1);
+        this._initialStage = 1;
+        app.render(true);
+    }
+
+    static async _removeCurrentTransformation(event, target) {
+        const app = this;
+        if (!game.user.isGM) return;
+        for (let stage = 1; stage <= 4; stage++) {
+            await app.actor.unsetFlag(TransformationModule.constants.MODULE_NAME, `stage-${stage}-choice`);
+        }
+        await app.actor.setFlag("dnd5e", "transformationStage", 1);
+        await app.actor.unsetFlag("dnd5e", "transformations");
+        this._initialStage = 1;
+        this._initialTransformation = null;
+        app.close();
     }
 }

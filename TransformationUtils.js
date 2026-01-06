@@ -22,7 +22,7 @@ export async function createActiveEffectOnActor(actor, effectName, description, 
 		changes: changes,
 		origin: actor.uuid,
 		flags: {
-			[TransformationModule.constants.EFFECT_FLAG_MODULE_NAME]: { removeOnLongRest: true }
+			[TransformationModule.constants.MODULE_NAME]: { removeOnLongRest: true }
 		},
 	}]);
 }
@@ -165,11 +165,12 @@ export async function importCompendiumPack(compendiumName) {
 }
 
 export function hasSpellSlots(actor) {
-  const slots = actor.system.spells;
-  if (!slots) return false;
+	const slots = actor.system.spells;
+	if (!slots) return false;
 
-  return Object.entries(slots).some(([key, data]) => {
-    if (!key.startsWith("spell")) return false;
-    return (data.max ?? 0) > 0;
-  });
+	return Object.entries(slots).some(([key, data]) => {
+		//TODO: change Startswith
+		if (!key.startsWith("spell")) return false;
+		return (data.max ?? 0) > 0;
+	});
 }

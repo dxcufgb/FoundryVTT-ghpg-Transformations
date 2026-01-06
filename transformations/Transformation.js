@@ -153,7 +153,7 @@ export class Transformation {
 
     async removeActiveTransformationEffect() {
         const effects = this.actor.effects.filter(e =>
-            e.flags[this.globalConstants.EFFECT_FLAG_MODULE_NAME]?.removeOnLongRest
+            e.flags[this.globalConstants.MODULE_NAME]?.removeOnLongRest
         );
 
         if (effects.length) {
@@ -165,31 +165,29 @@ export class Transformation {
     }
 
     getActorFlag(flag) {
-        const data = foundry.utils.deepClone(
-            this.actor.getFlag(this.globalConstants.EFFECT_FLAG_MODULE_NAME, this.itemId) ?? {}
-        );
-        return data[flag]
+        if (!this.actor) return {};
+        if (!flag) return {};
+        return this.actor.getFlag(
+            TransformationModule.constants.MODULE_NAME,
+            flag
+        ) ?? null;
     }
 
     async setActorFlag(flag, value) {
-        const data = foundry.utils.deepClone(
-            this.actor.getFlag(this.globalConstants.EFFECT_FLAG_MODULE_NAME, this.itemId) ?? {}
-        );
-        data[flag] = value;
-        await this.actor.setFlag(this.globalConstants.EFFECT_FLAG_MODULE_NAME, this.itemId, data);
+        await this.actor.setFlag(TransformationModule.constants.MODULE_NAME, flag, value);
     }
 
     static getItemFlag(item, flag) {
         if (!item) return {};
         if (!flag) return {};
         return item.getFlag(
-            TransformationModule.constants.EFFECT_FLAG_MODULE_NAME,
+            TransformationModule.constants.MODULE_NAME,
             flag
         ) ?? null;
     }
 
     async setItemFlag(item, flag, value) {
-        await item.setFlag(TransformationModule.constants.EFFECT_FLAG_MODULE_NAME, flag, value);
+        await item.setFlag(TransformationModule.constants.MODULE_NAME, flag, value);
     }
 
     getChatMessage(type, data = null) {
@@ -222,116 +220,175 @@ export class Transformation {
     }
 
     actorHasTransformationItem(itemName) {
-        return this.actor.items.some(i =>
-            i.name === itemName &&
+        const actorHasItem = this.actor.items.some(i =>
+            i.name == itemName &&
             i.getFlag(
-                TransformationModule.constants.EFFECT_FLAG_MODULE_NAME,
+                TransformationModule.constants.MODULE_NAME,
                 TransformationModule.constants.TRANSFORMATION_ITEM_FLAG
             )
         );
+        return actorHasItem;
     }
 
     actorHasTransformationEffect(effectLabel) {
         return this.actor.effects.some(e =>
             e.label === effectLabel &&
             e.getFlag(
-                TransformationModule.constants.EFFECT_FLAG_MODULE_NAME,
+                TransformationModule.constants.MODULE_NAME,
                 TransformationModule.constants.TRANSFORMATION_ITEM_FLAG
             )
         );
     }
 
     async addItemToActor(item) {
-        if (item && this.actor) {
-            if (!this.actorHasTransformationItem(item.name)) {
+        if (item && this.actor && item.doNotAddToActor !== true) {
+            const actorHasItem = this.actorHasTransformationItem(item.name)
+            if (!actorHasItem) {
                 let [createdItem] = await this.actor.createEmbeddedDocuments("Item", [item.toObject()]);
                 await this.setItemFlag(createdItem, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
                 await createdItem.update({
                     flags: {
-                        ddbimporter: {
-                        ignoreItemImport: true
+                        [TransformationModule.constants.DDB_IMPORTER_MODULE_NAME]: {
+                            ignoreItemImport: true
                         }
                     }
                 });
-                // await createdItem.setFlag(TransformationModule.constants.DDB_IMPORTER_MODULE_NAME, "ignoreItemImport", true );
-                // await createdItem.setFlag(TransformationModule.constants.DDB_IMPORTER_MODULE_NAME, "overrideId", "NONE");
-                // await createdItem.setFlag(TransformationModule.constants.DDB_IMPORTER_MODULE_NAME, "ignoreIcon", false);
-                // await createdItem.setFlag(TransformationModule.constants.DDB_IMPORTER_MODULE_NAME, "ignoreItemForChrisPremades", false);
-                // await createdItem.setFlag(TransformationModule.constants.DDB_IMPORTER_MODULE_NAME, "retainResourceConsumption", false);
-                // await createdItem.setFlag(TransformationModule.constants.DDB_IMPORTER_MODULE_NAME, "ignoreItemUpdate", false);
             }
         }
     }
 
-    async actorHasPreReq(choice) {
-        if (choice.preReq) {
-            const preReqItemData = await Transformation.getCompendiumDocByName(choice.name);
-            if (preReqItemData == this.globalConstants.ACTOR_HAS_SPELL_SLOTS) { 
-                actorHasPreReq = TransformationModule.utils.hasSpellSlots(this.actor);
-            } else if (!this.actorHasTransformationItem(preReqItemData.name)) {
+    async actorHasPreReq(preReq, stage, preReqItems) {
+        let actorHasPreReq = true;
+        if (preReq.uuid) {
+            let satisfiedByChoice = false;
+            let satisfiedByItem = false;
+            for (let s = 1; s <= stage; s++) {
+                const stageData = preReqItems[s];
+                if (!stageData) continue;
+                if (stageData.CHOICES) {
+                    for (const choice of Object.values(stageData.CHOICES)) {
+                        if (choice.uuid === preReq.uuid) {
+                            if (this.getActorFlag(`stage-${stage}-choice`)) {
+                                satisfiedByChoice = true;
+                            }
+                        }
+                    }
+                }
+                if (stageData.ITEMS) {
+                    for (const item of Object.values(stageData.ITEMS)) {
+                        if (item.uuid === preReq.uuid) {
+                            satisfiedByItem = true;
+                        }
+                    }
+                }
+            }
+            if (!satisfiedByChoice && !satisfiedByItem) {
                 actorHasPreReq = false
             }
+        } else if (preReq == this.globalConstants.ACTOR_HAS_SPELL_SLOTS) {
+            actorHasPreReq = TransformationModule.utils.hasSpellSlots(this.actor);
         }
+        return actorHasPreReq;
     }
+
+    findPreReqs(obj, results = []) {
+        if (obj && typeof obj === "object") {
+            if (obj.isPreReq === true) {
+                results.push(obj);
+            }
+
+            for (const value of Object.values(obj)) {
+                this.findPreReqs(value, results);
+            }
+        }
+        return results;
+    }
+
 
     async applyTransformationStage() {
         const stages = this.constants.TRANSFORMATION_STAGES
-        for (let stage = 1; stage <= this.getActorTransformationStage(); stage++){
-            if (stages[stage].ITEMS != null) {
-                if (stages[stage].ITEMS.CHOICES) {
-                    let choice = await fromUuid(this.getActorFlag(`stage-${stage}-choice`));
-                    if (!choice) {
+        let itemsToAdd = [];
+        let itemsToRemove = [];
+        let preReqItems = {
+            1: { ITEMS: [], CHOICES: [] },
+            2: { ITEMS: [], CHOICES: [] },
+            3: { ITEMS: [], CHOICES: [] },
+            4: { ITEMS: [], CHOICES: [] },
+        };
+        for (let stage = 1; stage <= 4; stage++) {
+            TransformationModule.logger.debug(`Finding preReqs for stage ${stage}`, preReqItems[stage], stages[stage]);
+            preReqItems[stage].ITEMS = this.findPreReqs(stages[stage].ITEMS);
+            preReqItems[stage].CHOICES = this.findPreReqs(stages[stage].CHOICES);
+        }
+        await Promise.all(
+            Array.from({ length: this.getActorTransformationStage() }, (_, i) => i + 1).map(async stage => {
+                if (stages[stage].CHOICES) {
+                    let madeChoice = await fromUuid(this.getActorFlag(`stage-${stage}-choice`));
+                    if (!madeChoice) {
                         const choices = await Promise.all(
-                            Object.values(stages[stage].ITEMS.CHOICES).map(async (choice) => {
-                                let actorHasPreReq = await this.actorHasPreReq(choice);
-                                if(actorHasPreReq){
-                                    const itemData = await Transformation.getCompendiumDocByName(choice.name);
-                                    return fromUuid(itemData.uuid);
+                            await Object.values(stages[stage].CHOICES).map(async (choice) => {
+                                if (choice.preReq) {
+                                    let actorHasPreReq = await this.actorHasPreReq(choice.preReq, stage - 1, preReqItems);
+                                    if (actorHasPreReq) {
+                                        return await this.constructor.getCompendiumDocByName(choice.name);
+                                    }
+                                } else {
+                                    return await this.constructor.getCompendiumDocByName(choice.name);
                                 }
                             })
                         );
-                        if (choices.length > 1) {
-                            choice = await TransformationModule.dialogs.getTransformationChoiceDialog(choices);
+                        TransformationModule.logger.debug(`found choices for stage ${stage}:`, choices);
+                        const filteredChoices = choices.filter(c => c !== undefined);
+                        TransformationModule.logger.debug(`found choices for stage ${stage}:`, filteredChoices);
+                        if (filteredChoices.length > 1) {
+                            madeChoice = await TransformationModule.dialogs.getTransformationChoiceDialog(filteredChoices);
                         } else {
-                            choice = choices[0]
+                            madeChoice = filteredChoices[0]
                         }
-                        this.setActorFlag(`stage-${stage}-choice`, choice.uuid);
+                        TransformationModule.logger.debug(`Setting choice flag for stage ${stage}:`, madeChoice.uuid);
+                        this.setActorFlag(`stage-${stage}-choice`, madeChoice.uuid);
                     }
-                    await this.addItemToActor(choice);
+                    TransformationModule.logger.debug("Adding transformation item:", madeChoice);
+                    itemsToAdd.push(madeChoice);
                 }
-                Object.values(stages[stage].ITEMS).forEach(async (itemName) => {
-                    const itemData = await Transformation.getCompendiumDocByName(itemName);
-                    let item = await fromUuid(itemData.uuid);
-                    await this.addItemToActor(item);
-                });
-            }
-            if (stages[stage].DAMAGE_RESISTANCES != null) {
-                Object.values(stages[stage].DAMAGE_RESISTANCES).forEach(async (resistance) => {
-                    if (!this.actorHasTransformationEffect(resistance.label)) {
-                        let [createdResistance] = await this.actor.createEmbeddedDocuments("ActiveEffect", [resistance]);
-                        this.setItemFlag(createdResistance, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
-                    }
-                });
-            }
-            if (stages[stage].DAMAGE_IMMUNITIES != null) {
-                Object.values(stages[stage].DAMAGE_IMMUNITIES).forEach(async (immunity) => {
-                    if (!this.actorHasTransformationEffect(immunity.label)) {
-                        let [createdImmunity] = await this.actor.createEmbeddedDocuments("ActiveEffect", [immunity]);
-                        this.setItemFlag(createdImmunity, this.globalConstants.TRANSFORMATION_ITEM_FLAG, true);
-                    }
-                });
-            }
+                await Promise.all(
+                    await Object.values(stages[stage].ITEMS).map(async (item) => {
+                        TransformationModule.logger.debug("Finding transformation item:", item.name);
+                        if (item.replace) {
+                            const itemToRemove = this.actor.items.find(i => i.name === item.replace);
+                            if (itemToRemove) {
+                                TransformationModule.logger.debug("Removing transformation item to be replaced:", itemToRemove);
+                                itemsToRemove.push(itemToRemove);
+                            }
+                        }
+                        if (!item.doNotAddToActor) {
+                            const fetchedItem = await fromUuid(item.uuid);
+                            TransformationModule.logger.debug("Adding transformation item:", fetchedItem);
+                            itemsToAdd.push(fetchedItem);
+                        }
+                    })
+                )
+            })
+        );
+        for (const item of itemsToAdd) {
+            await this.addItemToActor(item);
+        }
+        if (itemsToRemove.length) {
+            await this.actor.deleteEmbeddedDocuments(
+                "Item",
+                itemsToRemove.map(i => i.id)
+            );
         }
     }
 
     async removeAllTransformationThings() {
         const toRemove = this.actor.items.filter(i =>
-            i.getFlag(this.globalConstants.EFFECT_FLAG_MODULE_NAME,
+            i.getFlag(this.globalConstants.MODULE_NAME,
                 TransformationModule.constants.TRANSFORMATION_ITEM_FLAG)
         );
 
         const effectsToRemove = this.actor.effects.filter(e =>
-            e.getFlag(this.globalConstants.EFFECT_FLAG_MODULE_NAME,
+            e.getFlag(this.globalConstants.MODULE_NAME,
                 TransformationModule.constants.TRANSFORMATION_ITEM_FLAG)
         );
 
@@ -351,15 +408,16 @@ export class Transformation {
         }
     }
 
-    static async getCompendiumDocByName(name) {
-        const entry = this.getCompendiumEntryByName(name);
-        const doc = await TransformationModule.compendiums[this.constants.TRANSFORMATIONS_COMPENDIUM].getDocument(entry._id);
+    static async getCompendiumDocByName(name, compendiumName = this.constants.TRANSFORMATIONS_COMPENDIUM) {
+        const pack = TransformationModule.compendiums[compendiumName]
+        const entry = Transformation.getCompendiumEntryByName(name, compendiumName);
+        const doc = await pack.getDocument(entry._id);
         return doc;
     }
 
-    static getCompendiumEntryByName(name) {
-        const index = Transformation.getCompendiumIndexByName(this.constants.TRANSFORMATIONS_COMPENDIUM);
-        const entry = index.find(e => e.name === name);
+    static getCompendiumEntryByName(name, compendiumName = this.constants.TRANSFORMATIONS_COMPENDIUM) {
+        const index = Transformation.getCompendiumIndexByName(compendiumName);
+        const entry = index.find(e => e.name == name);
         return entry;
     }
 

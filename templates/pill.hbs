@@ -1,29 +1,24 @@
 {{#if (eq transformation "None")}}
-    <div class="pill-lg empty roboto-upper" data-action="showConfiguration" data-config="transformation">
-        Add Transformation
-    </div>
+<div class="pill-lg empty roboto-upper" data-action="showConfiguration" data-config="transformation">
+    Add Transformation
+</div>
 {{else}}
-    <div  
-        class="draggable pill-lg texture transformation item-tooltip"
-        data-action="showDocument"
-        data-item-id="{{ transformation.id }}"
-        data-uuid="{{ transformation.uuid }}"
-        data-tooltip="&lt;section class=&quot;loading&quot; data-uuid=&quot;{{ transformation.uuid }}&quot;&gt;&lt;i class=&quot;fas fa-spinner fa-spin-pulse&quot;&gt;&lt;/i&gt;&lt;/section&gt;"
-        data-tooltip-class="dnd5e2 dnd5e-tooltip item-tooltip themed theme-light"
-        data-tooltip-direction="LEFT"
-        draggable="true"
-    >
-        {{#if transformation.img}}
-        <img class="gold-icon" src="{{ transformation.img }}" alt="{{ transformation.name }}">
-        {{/if}}
-        <div class="name name-stacked">
-            <span class="title">{{ transformation.name }}</span>
-            <span class="transformation-stage subtitle">stage {{ transformation.transformationStage }}</span>
-        </div>
-        {{#if editable}}
-        <button type="button" class="config-button unbutton" data-action="showConfiguration" data-config="transformation">
-            <i class="fas fa-cog" inert=""></i>
-        </button>
-        {{/if}}
+<div class="pill-lg texture transformation item-tooltip" data-action="showDocument"
+    data-item-id="{{ transformation.id }}" data-uuid="{{ transformation.uuid }}"
+    data-tooltip="&lt;section class=&quot;loading&quot; data-uuid=&quot;{{ transformation.uuid }}&quot;&gt;&lt;i class=&quot;fas fa-spinner fa-spin-pulse&quot;&gt;&lt;/i&gt;&lt;/section&gt;"
+    data-tooltip-class="dnd5e2 dnd5e-tooltip item-tooltip themed theme-light" data-tooltip-direction="LEFT"
+    draggable="true">
+    {{#if transformation.img}}
+    <img class="gold-icon" src="{{ transformation.img }}" alt="{{ transformation.name }}">
+    {{/if}}
+    <div class="name name-stacked">
+        <span class="title">{{ transformation.name }}</span>
+        <span class="transformation-stage subtitle">stage {{ transformation.transformationStage }}</span>
     </div>
+    {{#if editable}}
+    <button type="button" class="config-button unbutton" data-action="showConfiguration" data-config="transformation">
+        <i class="fas fa-cog" inert=""></i>
+    </button>
+    {{/if}}
+</div>
 {{/if}}

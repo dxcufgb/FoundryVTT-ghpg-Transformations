@@ -24,6 +24,8 @@ Hooks.once("init", async () => {
     TransformationModule.EventListeners = {};
     TransformationModule.pending = new Map();
     TransformationModule.cachedTemplates = new Map();
+    TransformationModule.mixins = {};
+    TransformationModule.adapters = new Map();
     Object.assign(TransformationModule.constants, await import("./TransformationConstants.js"));
     TransformationModule.dialogConfigs["showConfiguration"] = {}
     TransformationModule.dialogConfigs["choiceDialogConfig"] = {}
@@ -33,11 +35,25 @@ Hooks.once("init", async () => {
     Object.assign(TransformationModule.utils, await import("./TransformationUtils.js"));
     Object.assign(TransformationModule.dialogs, await import("./TransformationDialogs.js"));
     TransformationModule.EventListeners = await import("./TransformationEventListeners.js");
-    
-    await foundry.applications.handlebars.loadTemplates([
+    TransformationModule.adapters.contextMenuAdapter = await import("./templates/adapters/contextMenuAdapter.js");
+
+    const { WithThreeDotMenu } = await import("./templates/mixins/WithThreeDotMenu.js");
+    TransformationModule.mixins.WithThreeDotMenu = WithThreeDotMenu;
+
+    const templates = [
+        "modules/transformations/scripts/templates/contextMenu.hbs",
         "modules/transformations/scripts/templates/pill.hbs"
-    ]);
+    ];
+
+    await foundry.applications.handlebars.loadTemplates(templates);
+
     TransformationModule.cachedTemplates["actorTransformationPill"] = Handlebars.partials["modules/transformations/scripts/templates/pill.hbs"];
+    // Register partials explicitly
+    // Handlebars.registerPartial(
+    //     "contextMenuList",
+    //     await fetch("modules/your-module/templates/contextMenuList.hbs")
+    //         .then(r => r.text())
+    // );
 });
 
 Hooks.once("setup", async () => {
@@ -197,8 +213,9 @@ Hooks.on("updateActor", async (actor, diff, options, userId) => {
     if (!flags) return;
 
     const transformationWasUpdated =
-        "transformation" in flags ||
-        "transformationStage" in flags;
+        "transformations" in flags ||
+        "transformationStage" in flags ||
+        "-=transformations" in flags;
 
     if (!transformationWasUpdated) return;
 
@@ -214,6 +231,7 @@ Hooks.on("updateActor", async (actor, diff, options, userId) => {
             for (const appWindow of Object.values(ui.windows)) {
                 if (
                     appWindow?.document?.id === actor.id &&
+                    //TODO: change from StartsWith
                     appWindow.constructor?.name?.startsWith("ActorSheet")
                 ) {
                     try {
@@ -237,4 +255,14 @@ Hooks.on("updateActor", async (actor, diff, options, userId) => {
 
         }, 100)
     );
+});
+
+Hooks.on("threeDotMenu", ({ app, event, button }) => {
+    if (!(app instanceof TransformationModule.dialogConfigs.showConfiguration.TransformationConfig)) return;
+    if (typeof app.getContextMenuOptions !== "function") return;
+
+    TransformationModule.adapters.contextMenuAdapter.openContextMenu({
+        app,
+        button,
+    });
 });

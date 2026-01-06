@@ -1,18 +1,32 @@
-.transformation-config-wrapper {
-    width: 500px;
+@keyframes glow-pulse {
+    0% {
+        box-shadow: 0 0 4px var(--dnd5e-color-note-warn);
+    }
+
+    50% {
+        box-shadow: 0 0 14px var(--dnd5e-color-gold);
+    }
+
+    100% {
+        box-shadow: 0 0 4px var(--dnd5e-color-note-warn);
+    }
 }
 
-.dnd5e2.sheet.actor.character .sheet-body .pill-lg.texture.transformation {
+.transformation-config-wrapper {
+    min-width: 300px;
+}
+
+.pill-lg.texture.transformation {
     background: url("templates/img/transformation.png") no-repeat right, var(--pill-background-color);
     background-size: contain;
     transition: box-shadow 200ms ease;
 }
 
-.dnd5e2.sheet.actor.character .sheet-body .pill-lg.transformation:hover:not(:has(a:hover)) {
+.pill-lg.transformation:hover:not(:has(a:hover)) {
     box-shadow: 0 0 12px 0 var(--dnd5e-color-gold);
 }
 
-.dnd5e2.sheet.actor.character .sheet-body .pill-lg .transformation-stage-select {
+.pill-lg .transformation-stage-select {
     width: fit-content;
     height: unset;
     font-size: var(--font-size-11);
@@ -45,7 +59,7 @@
 
 .choice-wrapper {
     text-align: center;
-    display:flex;
+    display: flex;
     justify-content: center;
     flex-direction: column;
     max-width: 600px;
@@ -70,7 +84,7 @@
     padding: 1rem 1.4rem;
     border-radius: 6px;
 
-    background: var(--color-bg-option);
+    background: var(--pill-background-color);
     border: 1px solid var(--color-border-light);
 
     transition: background 0.15s ease, border-color 0.15s ease;
@@ -86,14 +100,18 @@
 }
 
 .choice-radio:hover {
-    background: var(--color-bg-option-hover);
+    animation: glow-pulse 1.5s infinite ease-in-out;
+    background: var(--pill-background-color);
 }
 
 .choice-radio:has(input[type="radio"]:checked) {
-    box-shadow: 0 0 0 1px var(--dnd5e-color-gold);
+    box-shadow:
+        0 0 6px var(--dnd5e-color-gold),
+        0 0 12px var(--dnd5e-color-gold),
+        0 0 18px var(--dnd5e-color-gold);
     background: var(--pill-background-color);
     color: var(--dnd5e-color-gold);
-    
+    pointer-events: none;
 }
 
 .choice-radio:has(input[type="radio"]:focus-visible) {
@@ -109,5 +127,68 @@
 
 .choice-footer {
     justify-content: center;
-    display:flex;
+    display: flex;
+}
+
+.context-trigger {
+    background: none;
+    border: none;
+    color: inherit;
+    padding: 0 4px;
+    cursor: pointer;
+}
+
+.context-trigger i {
+    pointer-events: none;
+}
+
+.dnd5e-context-menu {
+    /* position: absolute; */
+    position: fixed;
+    min-width: 145px;
+    width: max-content;
+    background: var(--dnd5e-background-card);
+    border: none;
+    border-radius: 3px;
+    box-shadow: 0 3px 6px var(--dnd5e-shadow-45);
+    font-family: var(--dnd5e-font-roboto);
+    z-index: var(--z-index-tooltip);
+    font-size: var(--font-size-13);
+    color: var(--color-text-primary);
+}
+
+.dnd5e-context-menu .context-items {
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem 0;
+}
+
+.dnd5e-context-menu .context-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.dnd5e-context-menu .context-item:hover {
+    background: var(--dnd5e-color-tan);
+}
+
+.dnd5e-context-menu i {
+    width: 1rem;
+    text-align: center;
+}
+
+.three-dot-trigger {
+    background: none;
+    border: none;
+    padding: 0 6px;
+    cursor: pointer;
+    color: inherit;
+}
+
+.three-dot-trigger i {
+    pointer-events: none;
 }

@@ -24,50 +24,88 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         TRANSFORMATION_STAGES: {
             1: {
                 ITEMS: {
-                    ABERRANT_MUTATION: "Aberrant Mutation",
-                    ABERRANT_FORM: "Aberrant Form",
-                    UNSTABLE_FORM: "Unstable Form"
+                    ABERRANT_MUTATION: {
+                        name: "Aberrant Mutation",
+                        uuid: "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9"
+                    },
+                    ABERRANT_FORM: {
+                        name: "Aberrant Form",
+                        uuid: "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu"
+                    },
+                    UNSTABLE_FORM: {
+                        name: "Unstable Form",
+                        uuid: "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT",
+                        isPreReq: true
+                    }
                 }
             },
             2: {
-                ITEMS: {
-                    CHOICES: {
-                        EFFICIENT_KILLER: {
-                            name: "Eldritch Limbs (Efficient Killer)"
-                        },
-                        WRITHING_TENDRILS: {
-                            name: "Writhing Tendrils"
-                        },
+
+                CHOICES: {
+                    EFFICIENT_KILLER: {
+                        name: "Efficient Killer",
+                        uuid: 'Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq'
                     },
-                    HIDEOUSE_APPEARANCE: "Hideous Appearance",
+                    WRITHING_TENDRILS: {
+                        name: "Writhing Tendrils",
+                        uuid: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                        isPreReq: true
+                    },
+                },
+                ITEMS: {
+                    HIDEOUS_APPEARANCE: {
+                        name: "Hideous Appearance",
+                        uuid: "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV"
+                    }
                 },
             },
             3: {
-                ITEMS: {
-                    CHOICES: {
-                        CONSTRICTING_TENDRILS: {
-                            name: "Constricting Tendrils",
-                            preReq: "Writhing Tendrils"
+                CHOICES: {
+                    CONSTRICTING_TENDRILS: {
+                        name: "Constricting Tendrils",
+                        preReq: {
+                            name: "Writhing Tendrils",
+                            uuid: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E"
                         },
-                        TERRIFYING_VISAGE: {
-                            name: "Terrifying Visage",
-                        }
+                        uuid: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5"
                     },
-                    UNSTABLE_EXISTENCE: "Unstable Existence",
+                    TERRIFYING_VISAGE: {
+                        name: "Terrifying Visage",
+                        uuid: "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat"
+                    }
+                },
+                ITEMS: {
+                    UNSTABLE_EXISTENCE: {
+                        name: "Unstable Existence",
+                        uuid: "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz",
+                        replace: {
+                            name: "Unstable Form",
+                            uuid: "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT"
+                        }
+                    }
                 }
             },
             4: {
-                ITEMS: {
-                    CHOICES: {
-                        ELDRITCH_ABERRATION: {
-                            name: "Eldritch Aberration",
-                            preReq: TransformationModule.constants.ACTOR_HAS_SPELL_SLOTS
-                        },
-                        POISONOUS_MUTATIONS: {
-                            name: "Poisonous Mutations"
-                        }
+                CHOICES: {
+                    ELDRITCH_ABERRATION: {
+                        name: "Eldritch Aberration",
+                        preReq: TransformationModule.constants.ACTOR_HAS_SPELL_SLOTS,
+                        uuid: "Compendium.transformations.gh-transformations.Item.Q0c1NafrnW9C7tDz"
                     },
-                    ENTROPIC_ABOMINATION: "Entropic Abomination"
+                    POISONOUS_MUTATIONS: {
+                        name: "Poisonous Mutations",
+                        uuid: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                    }
+                },
+                ITEMS: {
+                    ENTROPIC_ABOMINATION: {
+                        name: "Entropic Abomination",
+                        replace: {
+                            name: "Unstable Existence",
+                            uuid: "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz"
+                        },
+                        uuid: "Compendium.transformations.gh-transformations.Item.bZIioCqc5wwEUdKG"
+                    }
                 },
             }
         }
@@ -259,7 +297,7 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
         if (type == this.globalConstants.ROLL_TYPE.SAVING_THROW) {
             roll = data
             TransformationModule.logger.log(roll)
-            const rollResult = (roll._total - roll.data.mod)
+            const natRoll = (roll._total - roll.data.mod)
             if (natRoll < 3) {
                 await this.rollResultFromRollTable(true)
             }
@@ -284,7 +322,12 @@ export class AberrantHorror extends TransformationModule.TransformationParent.Tr
     async eldritchLimbs() {
         TransformationModule.logger.log("Eldritch Limbs called!");
         await this.removeAberrantMutationEffects(this.aberrantMutationEffects.ELDRITCH_LIMBS);
-        const item = await fromUuid(this.eldritchLimbsItemIds[this.transformationStage]);
+        let item;
+        if (this.actorHasTransformationItem(this.constants.TRANSFORMATION_STAGES[2].CHOICES.EFFICIENT_KILLER.name)) {
+            item = await fromUuid(this.eldritchLimbsItemIds[2]);
+        } else {
+            item = await fromUuid(this.eldritchLimbsItemIds[1]);
+        }
         if (item && this.actor) {
             await this.actor.createEmbeddedDocuments('Item', [item.toObject()]);
         } else {

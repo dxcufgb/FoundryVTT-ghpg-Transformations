@@ -11,7 +11,8 @@ export function registerTransformationConfigurationEventListeners(app, html, dat
 
             new showConfiguration.TransformationConfig(
                 app.actor,
-                TransformationModule.Transformations
+                TransformationModule.Transformations,
+                { parent: this }
             ).render(true);
         }
     });
