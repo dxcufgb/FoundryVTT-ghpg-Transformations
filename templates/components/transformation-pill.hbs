@@ -1,0 +1,25 @@
+{{#if (eq label "None")}}
+<div class="pill-lg empty transformation roboto-upper config-button" data-action="pill-config-add"
+    data-config="transformation">
+    Add Transformation
+</div>
+{{else}}
+<div class="pill-lg texture transformation item-tooltip" data-action="showDocument" data-item-id="{{ data.id }}"
+    data-uuid="{{ data.uuid }}"
+    data-tooltip="&lt;section class=&quot;loading&quot; data-uuid=&quot;{{ data.uuid }}&quot;&gt;&lt;i class=&quot;fas fa-spinner fa-spin-pulse&quot;&gt;&lt;/i&gt;&lt;/section&gt;"
+    data-tooltip-class="dnd5e2 dnd5e-tooltip item-tooltip themed theme-light" data-tooltip-direction="LEFT"
+    draggable="true">
+    {{#if data.img}}
+    <img class="gold-icon" src="{{ data.img }}" alt="{{ label }}">
+    {{/if}}
+    <div class="name name-stacked">
+        <span class="title">{{ label }}</span>
+        <span class="transformation-stage subtitle">stage {{ data.stage }}</span>
+    </div>
+    {{#if editable}}
+    <button type="button" class="config-button unbutton" data-action="pill-config-stage" data-config="transformation">
+        <i class="fas fa-arrow-alt-up" inert=""></i>
+    </button>
+    {{/if}}
+</div>
+{{/if}}

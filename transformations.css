@@ -1,0 +1,280 @@
+@keyframes glow-pulse {
+    0% {
+        box-shadow: 0 0 4px var(--dnd5e-color-note-warn);
+    }
+
+    50% {
+        box-shadow: 0 0 14px var(--dnd5e-color-gold);
+    }
+
+    100% {
+        box-shadow: 0 0 4px var(--dnd5e-color-note-warn);
+    }
+}
+
+.transformation-config-wrapper {
+    min-width: 300px;
+}
+
+.pill-lg.texture.transformation {
+    background: url("templates/img/transformation.png") no-repeat right, var(--pill-background-color);
+    background-size: contain;
+    transition: box-shadow 200ms ease;
+}
+
+.pill-lg.transformation:hover:not(:has(a:hover)) {
+    box-shadow: 0 0 12px 0 var(--dnd5e-color-gold);
+}
+
+.pill-lg .transformation-stage-select {
+    width: fit-content;
+    height: unset;
+    font-size: var(--font-size-11);
+    min-width: 8ch;
+}
+
+.choice-description-container {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 0.5rem;
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-bottom: 25px;
+}
+
+.choice-radio-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+.choice-radio {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    cursor: pointer;
+    flex-direction: column;
+}
+
+.choice-wrapper {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    max-width: 600px;
+}
+
+.choice-radio-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    border: none;
+    justify-content: space-evenly;
+}
+
+.choice-radio {
+    position: relative;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    padding: 1rem 1.4rem;
+    border-radius: 6px;
+
+    background: var(--pill-background-color);
+    border: 1px solid var(--color-border-light);
+
+    transition: background 0.15s ease, border-color 0.15s ease;
+    max-width: 150px;
+    background: var(--pill-background-color);
+    color: var(--dnd5e-color-gold);
+}
+
+.choice-radio input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.choice-radio:hover {
+    animation: glow-pulse 1.5s infinite ease-in-out;
+    background: var(--pill-background-color);
+}
+
+.choice-radio:has(input[type="radio"]:checked) {
+    box-shadow:
+        0 0 6px var(--dnd5e-color-gold),
+        0 0 12px var(--dnd5e-color-gold),
+        0 0 18px var(--dnd5e-color-gold);
+    background: var(--pill-background-color);
+    color: var(--dnd5e-color-gold);
+    pointer-events: none;
+}
+
+.choice-radio:has(input[type="radio"]:focus-visible) {
+    outline: 2px solid var(--dnd5e-color-gold);
+    outline-offset: 2px;
+}
+
+.choice-radio img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+
+.choice-footer {
+    justify-content: center;
+    display: flex;
+}
+
+.context-trigger {
+    background: none;
+    border: none;
+    color: inherit;
+    padding: 0 4px;
+    cursor: pointer;
+}
+
+.context-trigger i {
+    pointer-events: none;
+}
+
+.dnd5e-context-menu {
+    /* position: absolute; */
+    position: fixed;
+    min-width: 145px;
+    width: max-content;
+    background: var(--dnd5e-background-card);
+    border: none;
+    border-radius: 3px;
+    box-shadow: 0 3px 6px var(--dnd5e-shadow-45);
+    font-family: var(--dnd5e-font-roboto);
+    z-index: var(--z-index-tooltip);
+    font-size: var(--font-size-13);
+    color: var(--color-text-primary);
+}
+
+.dnd5e-context-menu .context-items {
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem 0;
+}
+
+.dnd5e-context-menu .context-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.dnd5e-context-menu .context-item:hover {
+    background: var(--dnd5e-color-tan);
+}
+
+.dnd5e-context-menu i {
+    width: 1rem;
+    text-align: center;
+}
+
+.three-dot-trigger {
+    background: none;
+    border: none;
+    padding: 0 6px;
+    cursor: pointer;
+    color: inherit;
+}
+
+.three-dot-trigger i {
+    pointer-events: none;
+}
+
+.transformation-option {
+    list-style: none;
+    margin: 6px 0;
+    position: relative;
+}
+
+/* Hide radio but keep it accessible */
+.transformation-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Button layout */
+.transformation-button {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    align-items: center;
+    gap: 10px;
+
+    padding: 10px 14px;
+    border-radius: 8px;
+
+    background: var(--dnd5e-background-card, #2b2b2b);
+    border: 1px solid #555;
+
+    cursor: pointer;
+    user-select: none;
+
+    font-family: "Roboto Condensed", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    transition:
+        box-shadow 0.2s ease,
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.1s ease;
+}
+
+/* Image on the left */
+.transformation-image {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 4px;
+    opacity: 0.85;
+}
+
+/* Label text */
+.transformation-label {
+    text-align: center;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+/* Hover */
+.transformation-button:hover {
+    border-color: #888;
+    background: #333;
+}
+
+/* Checked glow */
+.transformation-radio:checked+.transformation-button {
+    border-color: #c29a5b;
+    background: linear-gradient(135deg,
+            #3a2f1f,
+            #2b2418);
+    box-shadow:
+        0 0 0 1px #c29a5b inset,
+        0 0 14px rgba(194, 154, 91, 0.6);
+    transform: translateY(-1px);
+}
+
+/* Image glow sync */
+.transformation-radio:checked+.transformation-button .transformation-image {
+    opacity: 1;
+    filter: drop-shadow(0 0 4px rgba(194, 154, 91, 0.8));
+}
+
+/* Keyboard focus */
+.transformation-radio:focus-visible+.transformation-button {
+    outline: 2px solid #c29a5b;
+    outline-offset: 2px;
+}
