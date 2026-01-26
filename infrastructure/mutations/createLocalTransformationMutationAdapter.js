@@ -4,9 +4,7 @@ export function createLocalTransformationMutationAdapter({
     creatureTypeService,
     compendiumRepository,
     stageGrantResolver,
-    effectService,
-    rollTableService,
-    applyActions,
+    actionExecutor,
     logger
 }) {
 
@@ -14,11 +12,9 @@ export function createLocalTransformationMutationAdapter({
     // Gateway command implementations
     // ─────────────────────────────────────────────────────────────
 
-    async function applyTransformation({ actorId, definitionId, stage = 1 }) {
+    async function applyTransformation({ actorId, definition, stage = 1 }) {
         const actor = actorRepository.getById(actorId);
         if (!actor) return;
-
-        const definition = await transformationQueryService.getDefinitionById(definitionId);
 
         // Set flags first (single source of truth)
         await actorRepository.setTransformation(
@@ -26,8 +22,6 @@ export function createLocalTransformationMutationAdapter({
             definition.id,
             stage
         );
-
-        await applyStage(actor, definition, stage);
     }
 
     async function initializeTransformation({ actorId, definition }) {
@@ -42,8 +36,7 @@ export function createLocalTransformationMutationAdapter({
         const actor = actorRepository.getById(actorId);
         if (!actor) return;
 
-        const definition =
-            await actorRepository.getActiveTransformationDefinition(actor);
+        const definition = await actorRepository.getActiveTransformationDefinition(actor);
 
         if (!definition) return;
 
@@ -60,11 +53,13 @@ export function createLocalTransformationMutationAdapter({
     }
 
     async function applyTriggerActions(payload) {
-        return applyActions(
-            payload,
-            { actorRepository, effectService, rollTableService },
-            { logger }
-        );
+        await actionExecutor.execute({
+            actorId: payload.actorId,
+            actions: payload.actions,
+            context: payload.context,
+            variables: payload.variables,
+            handlers: payload.handlers
+        });
     }
 
     return Object.freeze({

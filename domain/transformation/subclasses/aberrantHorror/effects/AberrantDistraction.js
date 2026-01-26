@@ -17,9 +17,9 @@ export class AberrantDistraction extends AberrantEffect {
 
     async beforeApply() {
         this.addEffects(
-            TransformationModule.utils.getDisadvantageEffectChanges(
-                TransformationModule.constants.SKILL.PERCEPTION,
-                TransformationModule.constants.ROLL_TYPE.SAVING_THROW
+            this.effectChangeBuilder.getDisadvantage(
+                this.constants.SKILL.PERCEPTION,
+                this.constants.ROLL_TYPE.SAVING_THROW
             )
         );
     }

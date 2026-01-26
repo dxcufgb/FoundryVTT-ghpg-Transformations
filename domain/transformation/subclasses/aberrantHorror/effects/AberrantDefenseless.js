@@ -17,9 +17,9 @@ export class AberrantDefenseless extends AberrantEffect {
 
     async beforeApply() {
         this.addEffects(
-            TransformationModule.utils.getDisadvantageEffectChanges(
-                TransformationModule.constants.ABILITY.CONSTITUTION,
-                TransformationModule.constants.ROLL_TYPE.SAVING_THROW
+            this.effectChangeBuilder.getDisadvantage(
+                this.constants.ABILITY.CONSTITUTION,
+                this.constants.ROLL_TYPE.SAVING_THROW
             )
         );
     }

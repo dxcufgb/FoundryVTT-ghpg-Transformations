@@ -16,27 +16,27 @@ export class AberrantDisadvantage extends AberrantEffect {
     }
 
     async beforeApply() {
-        Object.values(TransformationModule.constants.SKILL).forEach(skill => {
+        Object.values(this.constants.SKILL).forEach(skill => {
             this.addEffects(
-                TransformationModule.utils.getSkillDisadvantageEffectChanges(skill)
+                this.effectChangeBuilder.getDisadvantage(skill)
             );
         });
 
-        Object.values(TransformationModule.constants.ABILITY).forEach(ability => {
+        Object.values(this.constants.ABILITY).forEach(ability => {
             this.addEffects(
-                TransformationModule.utils.getAbilityCheckDisadvantageEffectChanges(ability)
+                this.effectChangeBuilder.getDisadvantage(ability)
             );
             this.addEffects(
-                TransformationModule.utils.getAbilitySaveDisadvantageEffectChanges(ability)
+                this.effectChangeBuilder.getDisadvantage(ability, this.constants.ROLL_TYPE.SAVING_THROW)
             );
         });
 
-        Object.values(TransformationModule.constants.ATTRIBUTE.ROLLABLE).forEach(attr => {
+        Object.values(this.constants.ATTRIBUTE.ROLLABLE).forEach(attr => {
             this.addEffects(
-                TransformationModule.utils.getAttributeCheckDisadvantageEffectChanges(attr)
+                this.effectChangeBuilder.getDisadvantage(attr)
             );
             this.addEffects(
-                TransformationModule.utils.getAttributeSaveDisadvantageEffectChanges(attr)
+                this.effectChangeBuilder.getDisadvantage(attr, this.constants.ROLL_TYPE.SAVING_THROW)
             );
         });
     }

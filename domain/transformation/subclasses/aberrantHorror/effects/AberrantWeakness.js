@@ -18,8 +18,8 @@ export class AberrantWeakness extends AberrantEffect {
         const newMax = this.actor.system.attributes.hp.max / 2;
 
         this.addEffects(
-            TransformationModule.utils.getSystemEffectChange(
-                TransformationModule.constants.ATTRIBUTE.HEALT_POINTS_MAX,
+            this.effectChangeBuilder.getSystemEffectChange(
+                this.constants.ATTRIBUTE.HEALT_POINTS_MAX,
                 newMax,
                 CONST.ACTIVE_EFFECT_MODES.OVERRIDE
             )

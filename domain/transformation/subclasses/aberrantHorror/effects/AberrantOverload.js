@@ -14,21 +14,16 @@ export class AberrantOverload extends AberrantEffect {
     }
 
     async beforeApply() {
-        await this.actor.update({
-            "system.attributes.hp.temp": 0,
-            "system.attributes.hp.value": 0,
-            "system.attributes.death.failure": 3
-        });
-
-        TransformationModule.dialogs
-            .getSimpleDialog(this.name, this.description)
-            .render(true);
-
-        ChatMessage.create({
-            speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-            content: this.description
-        });
+        await this.actorRepository.setActorHp(actor, 0, "value");
+        await this.actorRepository.setActorHp(actor, 0, "temp");
+        await this.actorRepository.setActorDeathSaves(this.actor, 3, "failures");
 
         this.runActiveEffect = false;
+    }
+
+    async afterApply() {
+        await this.postChat({
+            content: this.description
+        });
     }
 }

@@ -55,7 +55,7 @@ export function createAberrantHorrorMacroHandlers({
         },
 
         async removeAberrantMutationEffects({ actor, trigger }) {
-            if (trigger !== "transformations.onLongRest") return;
+            if (trigger !== "longRest") return;
 
             const effectIds = activeEffectRepository.findAllByName(
                 actor,
@@ -92,7 +92,10 @@ export function createAberrantHorrorMacroHandlers({
 
         if (!uuid) return;
 
-        const id = await itemRepository.findEmbeddedByUuidFlag(actor, uuid).id;
+        const eldritchLimbs = await itemRepository.findEmbeddedByUuidFlag(actor, uuid);
+
+        if (!eldritchLimbs) return;
+        const id = eldritchLimbs.id;
 
         await itemRepository.deleteEmbedded(actor, [id]);
     }

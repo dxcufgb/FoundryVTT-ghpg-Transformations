@@ -7,14 +7,16 @@ export class AberrantTemporaryVitalityBoost extends AberrantEffect {
             2: [94, 100]
         }
     }
+
+    constructor(args) {
+        super(args);
+        this.description =
+            "Your flesh becomes more hardy. You start the day with 4 Temporary Hit Points per Transformation Stage.";
+    }
+
     async beforeApply() {
-        const currentTempHp = this.actor.system.attributes.hp.temp ?? 0;
         const bonus = this.actor.flags.dnd5e.transformationStage * 4;
-
-        await this.actor.update({
-            "system.attributes.hp.temp": currentTempHp + bonus
-        });
-
+        await this.actorRepository.setActorHp(this.actor, bonus, "temp");
         this.runActiveEffect = false;
     }
 }

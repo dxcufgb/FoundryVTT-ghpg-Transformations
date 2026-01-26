@@ -2,13 +2,11 @@ import { createGMTransformationHandlers } from "./gmTransformationHandlers.js";
 
 export function registerSockets({
     socketGateway,
-    infrastructure,
+    transformationMutationGateway,
     logger
 }) {
-    const gateway = infrastructure.transformationMutationGateway;
-
     const handlers = createGMTransformationHandlers({
-        gateway,
+        transformationMutationGateway,
         logger
     });
 

@@ -5,7 +5,7 @@ export function registerGMOnlyActorHooks({
     ActorClass,
     ui,
     actorRepository,
-    transformationService,
+    triggerRuntime,
     transformationQueryService,
     constants,
     logger
@@ -45,7 +45,7 @@ export function registerGMOnlyActorHooks({
         switch (effectName) {
             case constants.CONDITION.BLOODIED:
                 try {
-                    await transformationService.onBloodied(actor);
+                    await triggerRuntime.run("bloodied", actor);
                 } catch (err) {
                     logger.error(
                         "Error handling bloodied trigger",
@@ -81,7 +81,7 @@ export function registerGMOnlyActorHooks({
         switch (effectName) {
             case constants.CONDITION.UNCONSCIOUS:
                 try {
-                    await transformationService.onUnconscious(actor);
+                    await triggerRuntime.run("bloodied", actor);
                 } catch (err) {
                     logger.error(
                         "Error handling unconscious trigger",

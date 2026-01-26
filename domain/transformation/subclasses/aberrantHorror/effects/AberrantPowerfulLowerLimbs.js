@@ -1,6 +1,6 @@
 import { AberrantEffect } from "../aberrantEffect.js";
 
-export class AberrantPowerfulLowerLimbs extends AberrantEffect {
+export class AberrantPowerfullLowerLimbs extends AberrantEffect {
     static meta = {
         rollRanges: {
             1: [80, 87],
@@ -15,16 +15,7 @@ export class AberrantPowerfulLowerLimbs extends AberrantEffect {
     }
 
     async beforeApply() {
-        Object.values(TransformationModule.constants.MOVEMENT_TYPE).forEach(type => {
-            if (this.actor.system.attributes.movement[type] > 0) {
-                this.addEffects(
-                    TransformationModule.utils.getSystemEffectChange(
-                        type,
-                        5,
-                        CONST.ACTIVE_EFFECT_MODES.ADD
-                    )
-                );
-            }
-        });
+        const effects = this.actorRepository.setMovementBonus(this.actor, 5);
+        this.addEffects(effects);
     }
 }

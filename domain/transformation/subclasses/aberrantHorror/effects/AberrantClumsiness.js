@@ -12,21 +12,21 @@ export class AberrantClumsiness extends AberrantEffect {
     constructor(args) {
         super(args);
         this.description =
-            "Imposes disadvantage on constitution ability checks and saving throws";
+            "You become clumsy. You have Disadvantage on Dexterity saving throws and Dexterity ability checks.";
     }
 
     async beforeApply() {
         this.addEffects(
-            TransformationModule.utils.getDisadvantageEffectChanges(
-                TransformationModule.constants.ABILITY.DEXTERITY,
-                TransformationModule.constants.ROLL_TYPE.ABILITY_CHECK
+            this.effectChangeBuilder.getDisadvantage(
+                this.constants.ABILITY.DEXTERITY,
+                this.constants.ROLL_TYPE.ABILITY_CHECK
             )
         );
 
         this.addEffects(
-            TransformationModule.utils.getDisadvantageEffectChanges(
-                TransformationModule.constants.ABILITY.DEXTERITY,
-                TransformationModule.constants.ROLL_TYPE.SAVING_THROW
+            this.effectChangeBuilder.getDisadvantage(
+                this.constants.ABILITY.DEXTERITY,
+                this.constants.ROLL_TYPE.SAVING_THROW
             )
         );
     }

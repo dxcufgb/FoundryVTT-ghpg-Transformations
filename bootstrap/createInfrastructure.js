@@ -6,11 +6,13 @@ import { createEffectService } from "../infrastructure/foundry/createEffectServi
 import { createCreatureTypeService } from "../infrastructure/foundry/creatureSubTypeService.js";
 import { createItemRepository } from "../infrastructure/foundry/itemRepository.js";
 import { createTokenRepository } from "../infrastructure/foundry/tokenRepository.js";
-import { createTransformationMutationGateway } from "../infrastructure/foundry/TransformationMutationGateway.js";
 import { createLocalTransformationMutationAdapter } from "../infrastructure/mutations/createLocalTransformationMutationAdapter.js";
 import { createSocketGateway } from "../infrastructure/socket/createSocketGateway.js";
 import { createMacroRegistry } from "../macros/macroRegistry.js";
-import { applyActions } from "../infrastructure/actions/applyActions.js";
+import { createDirectMacroInvoker } from "../macros/createDirectMacroInvoker.js";
+import { createRollTableService } from "../infrastructure/rolltables/createRollTableService.js";
+import { createActionExecutor } from "../infrastructure/actions/createActionExecutor.js";
+import { createChatService } from "../infrastructure/foundry/createChatService.js";
 
 export function createInfrastructure({
     getGame,
@@ -18,6 +20,8 @@ export function createInfrastructure({
     dependencies
 }) {
     const { utils, constants } = dependencies;
+
+    const chatService = createChatService({ logger });
 
     const actorRepository = createActorRepository({ getGame, logger });
     const tokenRepository = createTokenRepository({ logger });
@@ -38,8 +42,22 @@ export function createInfrastructure({
         logger
     })
     const compendiumRepository = createCompendiumRepository({ getGame, fromUuid, logger });
+    const rollTableService = createRollTableService({ compendiumRepository, logger });
 
     const socketGateway = createSocketGateway({ getGame, isGM: () => game.user?.isGM === true, logger });
+
+    const macroRegistry = createMacroRegistry({ logger });
+    const directMacroInvoker = createDirectMacroInvoker({
+        macroRegistry,
+        activeEffectRepository,
+        itemRepository,
+        logger
+    });
+
+    const actionExecutor = createActionExecutor({
+        actorRepository,
+        logger
+    });
 
     const localMutationAdapter = createLocalTransformationMutationAdapter({
         actorRepository,
@@ -47,28 +65,26 @@ export function createInfrastructure({
         creatureTypeService,
         stageGrantResolver,
         effectService,
+        directMacroInvoker,
         compendiumRepository,
-        applyActions,
+        rollTableService,
+        actionExecutor,
         utils,
         logger
     });
 
-    const transformationMutationGateway = createTransformationMutationGateway({
-        socketGateway,
-        localMutationAdapter,
-        logger
-    });
-
-    const macroRegistry = createMacroRegistry({ logger });
-
     return Object.freeze({
         actorRepository,
+        rollTableService,
+        chatService,
         activeEffectRepository,
         tokenRepository,
         itemRepository,
         compendiumRepository,
         socketGateway,
-        transformationMutationGateway,
-        macroRegistry
+        macroRegistry,
+        localMutationAdapter,
+        actionExecutor,
+        directMacroInvoker
     });
 }

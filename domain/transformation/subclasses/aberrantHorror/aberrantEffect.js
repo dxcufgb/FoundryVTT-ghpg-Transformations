@@ -4,9 +4,10 @@ export class AberrantEffect extends RollTableEffect {
     constructor(args) {
         super(args);
         this.iconSuffix = "Unstable_Form.png";
+        this.addFlag("removeOnLongRest", true)
     }
 
     getIconPath() {
-        return this.iconBaseFilePath + this.iconSuffix;
+        return super.getIconPath() + "Aberrant%20Horror/" + this.iconSuffix;
     }
 }

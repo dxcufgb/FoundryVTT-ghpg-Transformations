@@ -18,7 +18,7 @@ import { registerActorHooks } from "./infrastructure/hooks/actorHooks.js";
 import { registerSockets } from "./infrastructure/socket/registerSockets.js";
 
 // domain
-import { registerTransformations } from "./domain/transformation/manifest.js";
+// import { registerTransformations } from "./domain/transformation/manifest.js";
 
 //utils
 import { createUtils } from "./utils/createUtils.js";
@@ -50,7 +50,10 @@ const logger = createLogger({
 const dependencies = createDependencies({
     game,
     constants,
-    utils: createUtils({ logger }),
+    utils: createUtils({
+        constants,
+        logger
+    }),
     logger
 });
 
@@ -121,11 +124,14 @@ Hooks.once("setup", async () => {
     Object.freeze(Registry);
 
     // 4️⃣ Domain registration
-    registerTransformations(services.transformationRegistry);
+    // registerTransformations(services.transformationRegistry);
+    // services.triggerRuntime.build();
 
     // Macro registrations
     registerTransformationMacros({
         macroRegistry: Registry.infrastructure.macroRegistry,
+        activeEffectRepository: Registry.infrastructure.activeEffectRepository,
+        itemRepository: Registry.infrastructure.itemRepository,
         logger: Registry.logger
     });
 
@@ -135,6 +141,7 @@ Hooks.once("setup", async () => {
     // 6️⃣ Hook registration (pure wiring)
     registerDnd5eHooks({
         transformationService: services.transformationService,
+        triggerRuntime: services.triggerRuntime,
         logger
     });
 
@@ -158,7 +165,7 @@ Hooks.once("setup", async () => {
             game,
             ActorClass: Actor,
             ui,
-            transformationService: services.transformationService,
+            triggerRuntime: services.triggerRuntime,
             transformationQueryService: services.transformationQueryService,
             actorRepository: infrastructure.actorRepository,
             constants,
@@ -220,7 +227,6 @@ Hooks.once("ready", async () => {
 
     // 🔟 Macros
     const macros = bootstrapMacros({
-        services: Registry.services,
         infrastructure: Registry.infrastructure,
         logger: Registry.logger
     });
@@ -259,7 +265,7 @@ Hooks.once("socketlib.ready", () => {
 
     registerSockets({
         socketGateway: Registry.infrastructure.socketGateway,
-        infrastructure,
+        transformationMutationGateway: () => Registry.services.transformationMutationGateway,
         logger: Registry.logger
     });
 

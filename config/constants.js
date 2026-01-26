@@ -1,4 +1,5 @@
 export const MODULE_NAME = "transformations";
+export const MODULE_FOLDER = "modules/transformations/Icons/Transformations/";
 export const DDB_IMPORTER_MODULE_NAME = "ddbimporter"
 export const TRANSFORMATION_FEATURE = "Transformation Feature";
 export const TRANSFORMATION_ITEM_FLAG = "grantedByTransformation";

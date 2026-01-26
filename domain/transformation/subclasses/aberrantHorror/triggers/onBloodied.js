@@ -16,7 +16,7 @@ export const onBloodied = {
 
     actions: [
         {
-            type: "item",
+            type: "ITEM",
             when: {
                 stage: { min: 1 },
                 items: {
@@ -35,7 +35,7 @@ export const onBloodied = {
         },
 
         {
-            type: "hp",
+            type: "HP",
             when: {
                 stage: { min: 1 }
             },
@@ -46,7 +46,7 @@ export const onBloodied = {
         },
 
         {
-            type: "chat",
+            type: "CHAT",
             when: {
                 stage: { min: 1 },
             },
@@ -56,7 +56,7 @@ export const onBloodied = {
         },
 
         {
-            type: "save",
+            type: "SAVE",
             when: {
                 stage: { min: 2 },
                 effects: { name: "Hiding Hideous Appearance" }
@@ -69,7 +69,7 @@ export const onBloodied = {
         },
 
         {
-            type: "effect",
+            type: "EFFECT",
             when: {
                 stage: { min: 2 },
                 saveFailed: "hideous-appearance-con-save"
@@ -81,7 +81,7 @@ export const onBloodied = {
         },
 
         {
-            type: "rollTable",
+            type: "APPLY_ROLLTABLE",
             when: {
                 stage: { min: 4 },
             },

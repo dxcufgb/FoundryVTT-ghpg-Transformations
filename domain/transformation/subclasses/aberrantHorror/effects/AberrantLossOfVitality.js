@@ -14,4 +14,20 @@ export class AberrantLossOfVitality extends AberrantEffect {
         this.description =
             "Imposes disadvantage on constitution ability checks and saving throws";
     }
+
+    async beforeApply() {
+        this.addEffects(
+            this.effectChangeBuilder.getDisadvantage(
+                this.constants.ABILITY.CONSTITUTION,
+                this.constants.ROLL_TYPE.ABILITY_CHECK
+            )
+        );
+
+        this.addEffects(
+            this.effectChangeBuilder.getDisadvantage(
+                this.constants.ABILITY.CONSTITUTION,
+                this.constants.ROLL_TYPE.SAVING_THROW
+            )
+        );
+    }
 }

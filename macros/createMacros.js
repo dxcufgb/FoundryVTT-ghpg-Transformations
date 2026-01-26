@@ -3,7 +3,6 @@ import { createMacroExecutor } from "./createMacroExecutor.js";
 import { createMacroContextFactory } from "../infrastructure/macros/createMacroContextFactory.js";
 
 export function bootstrapMacros({
-    services,
     infrastructure,
     logger
 }) {

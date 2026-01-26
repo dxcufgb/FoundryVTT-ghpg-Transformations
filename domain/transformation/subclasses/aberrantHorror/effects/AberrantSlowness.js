@@ -16,16 +16,7 @@ export class AberrantSlowness extends AberrantEffect {
     }
 
     async beforeApply() {
-        Object.values(TransformationModule.constants.MOVEMENT_TYPE).forEach(type => {
-            if (this.actor.system.attributes.movement[type] > 0) {
-                this.addEffects(
-                    TransformationModule.utils.getSystemEffectChange(
-                        type,
-                        -15,
-                        CONST.ACTIVE_EFFECT_MODES.ADD
-                    )
-                );
-            }
-        });
+        const effects = this.actorRepository.getMovementBonusEffectChanges(actor, { bonus: -15 });
+        this.addEffects(effects);
     }
 }

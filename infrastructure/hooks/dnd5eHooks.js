@@ -1,12 +1,13 @@
 export function registerDnd5eHooks({
     transformationService,
+    triggerRuntime,
     logger
 }) {
 
     Hooks.on("dnd5e.damageActor", (actor) => {
         logger.debug("dnd5e.damageActor called", actor);
         (async () => {
-            transformationService.onDamage(actor);
+            triggerRuntime.run("damage", actor);
         })();
     });
 
@@ -14,9 +15,9 @@ export function registerDnd5eHooks({
         logger.debug("dnd5e.restCompleted called", actor, result);
         (async () => {
             if (result.type === "short") {
-                transformationService.onShortRest(actor);
+                triggerRuntime.run("shortRest", actor);
             } else if (result.longRest) {
-                transformationService.onLongRest(actor);
+                triggerRuntime.run("longRest", actor);
             }
         })();
     });
@@ -24,7 +25,7 @@ export function registerDnd5eHooks({
     Hooks.on("dnd5e.rollInitiative", (actor) => {
         logger.debug("dnd5e.rollInitiative called", actor);
         (async () => {
-            transformationService.onInitiative(actor);
+            triggerRuntime.run("initiative", actor);
         })();
     });
 
@@ -33,7 +34,7 @@ export function registerDnd5eHooks({
         (async () => {
             if (item.type !== "spell") return;
             if (!item.system.duration.concentration) return;
-            transformationService.onConcentration(actor);
+            triggerRuntime.run("concentration", actor);
         })();
     });
 

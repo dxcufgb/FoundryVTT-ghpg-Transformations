@@ -15,7 +15,7 @@ export function createTransformationInstanceFactory() {
             );
         }
 
-        const actorId = actor.id ?? actor.getFlag("transformation", "fallbackActorId");
+        const actorId = actor.id ?? actor.getFlag("transformations", "fallbackActorId");
 
         if (!actorId) {
             throw new Error(

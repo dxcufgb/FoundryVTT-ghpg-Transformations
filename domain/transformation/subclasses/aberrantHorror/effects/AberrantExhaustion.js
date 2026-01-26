@@ -10,14 +10,14 @@ export class AberrantExhaustion extends AberrantEffect {
         }
     }
 
+    constructor(args) {
+        super(args);
+        this.description =
+            "Your body’s metabolism quickly drains your energy. You gain 2 Exhaustion levels.";
+    }
+
     async beforeApply() {
-        const current = this.actor.system.attributes.exhaustion ?? 0;
-        const value = Math.clamp(current + 2, 0, 6);
-
-        await this.actor.update({
-            "system.attributes.exhaustion": value
-        });
-
+        this.actorRepository.addExhaustionLevels(this.actor, 2);
         this.runActiveEffect = false;
     }
 }

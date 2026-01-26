@@ -155,6 +155,106 @@ export function createActorRepository({ getGame, logger }) {
         return null;
     }
 
+    async function addExhaustionLevels(actor, levels) {
+        if (!actor) return;
+
+        const current = Number(actor.system?.attributes?.exhaustion) || 0;
+
+        const value = Math.clamp(current + levels, 0, 6);
+
+        logger.debug(
+            "Updating exhaustion",
+            actor.id,
+            current,
+            "→",
+            value
+        );
+
+        await actor.update({
+            "system.attributes.exhaustion": value
+        });
+    }
+
+    async function setActorDeathSaves(actor, saves, mode) {
+        if (!actor) return;
+
+        if (!["success", "failure"].includes(mode)) {
+            throw new Error(`Invalid death save mode '${mode}'`);
+        }
+
+        const value = Math.clamp(Number(saves) || 0, 0, 3);
+
+        await actor.update({
+            [`system.attributes.death.${mode}`]: value
+        });
+    }
+
+    async function setActorHp(actor, hp, type = "value") {
+        if (!actor) return;
+
+        if (!["value", "temp", "max"].includes(type)) {
+            throw new Error(`Invalid HP type '${type}'`);
+        }
+
+        const path = `system.attributes.hp.${type}`;
+
+        await actor.update({
+            [path]: hp
+        });
+    }
+
+    function getNumericAttributeEffectChanges(actor, {
+        basePath,
+        bonus,
+        mode = CONST.ACTIVE_EFFECT_MODES.ADD,
+        filter = v => v > 0
+    }) {
+        if (!actor) return [];
+
+        const values = foundry.utils.getProperty(actor.system, basePath);
+        if (!values) return [];
+
+        const effects = [];
+
+        for (const [key, value] of Object.entries(values)) {
+            if (filter(value)) {
+                effects.push({
+                    key: `${basePath}.${key}`,
+                    mode,
+                    value: bonus
+                });
+            }
+        }
+
+        return effects;
+    }
+
+    async function addTempHp(actor, amount) {
+        const current = actor.system.attributes.hp.temp ?? 0;
+        await actor.update({
+            "system.attributes.hp.temp": Math.max(current, amount)
+        });
+    }
+
+    async function addHp(actor, amount) {
+        const { value, max } = actor.system.attributes.hp;
+        await actor.update({
+            "system.attributes.hp.value": Math.min(value + amount, max)
+        });
+    }
+
+    async function applyDamage(actor, amount) {
+        const { value } = actor.system.attributes.hp;
+        await actor.update({
+            "system.attributes.hp.value": Math.max(value - amount, 0)
+        });
+    }
+
+    async function setMovementBonus(actor, movementBonus) {
+        await actor.update({
+            "system.attributes.movement.bonus": String(movementBonus)
+        })
+    }
 
     return Object.freeze({
         getById,
@@ -174,7 +274,16 @@ export function createActorRepository({ getGame, logger }) {
         hasMacroExecution,
         setMacroExecution,
         clearMacroExecution,
-        clearAllMacroExecutionsForActor
+        clearAllMacroExecutionsForActor,
+
+        addExhaustionLevels,
+        setActorHp,
+        setActorDeathSaves,
+        getNumericAttributeEffectChanges,
+        addHp,
+        addTempHp,
+        applyDamage,
+        setMovementBonus
     });
 
     async function getClearTransformationUpdates(actor) {

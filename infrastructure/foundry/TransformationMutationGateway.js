@@ -1,6 +1,8 @@
 export function createTransformationMutationGateway({
     socketGateway,
     localMutationAdapter,
+    actionExecutor,
+    actionHandlers,
     logger
 }) {
 
@@ -26,6 +28,26 @@ export function createTransformationMutationGateway({
 
     async function execute(action, payload) {
         if (socketGateway.canMutateLocally()) {
+            assertLocalAuthority(action, payload);
+
+            // ─────────────────────────────────────────────────────────────
+            // Special case: trigger actions need handlers
+            // ─────────────────────────────────────────────────────────────
+            if (action === "applyTriggerActions") {
+                logger.debug(
+                    "Executing trigger actions locally",
+                    payload
+                );
+
+                return actionExecutor.execute({
+                    ...payload,
+                    handlers: actionHandlers
+                });
+            }
+
+            // ─────────────────────────────────────────────────────────────
+            // Standard local mutation
+            // ─────────────────────────────────────────────────────────────
             const fn = localMutationAdapter[action];
 
             if (typeof fn !== "function") {
@@ -51,11 +73,20 @@ export function createTransformationMutationGateway({
             return fn(payload);
         }
 
+        // ─────────────────────────────────────────────────────────────
+        // Remote execution via GM socket
+        // ─────────────────────────────────────────────────────────────
         logger.debug(
             "Forwarding mutation to GM via socket",
             action,
             payload
         );
+
+        if (!socketGateway.isReady()) {
+            throw new Error(
+                `Socket gateway not ready for action: ${action}`
+            );
+        }
 
         return socketGateway.executeAsGM(action, payload);
     }
@@ -67,4 +98,21 @@ export function createTransformationMutationGateway({
         clearTransformation,
         applyTriggerActions
     });
+
+    function assertLocalAuthority(action, payload) {
+        if (!socketGateway.canMutateLocally()) {
+            const err = new Error(
+                `Illegal local mutation attempt: ${action}`
+            );
+
+            logger.error(err.message, {
+                action,
+                payload,
+                user: game.user?.id
+            });
+
+            throw err;
+        }
+    }
+
 }

@@ -204,12 +204,94 @@ export function createItemRepository({ logger }) {
         await item.update(updates);
     }
 
+    function getRemainingUses(item) {
+        if (!item) return 0;
+
+        const uses = item.system?.uses;
+        if (!uses) return 0;
+
+        const max = Number(uses.max) || 0;
+        const spent = Number(uses.spent) || 0;
+
+        return Math.max(0, max - spent);
+    }
+
+    async function consumeUses(item, amount = 1) {
+        if (!item || amount <= 0) return false;
+
+        const uses = item.system?.uses;
+        if (!uses) return false;
+
+        const max = Number(uses.max) || 0;
+        const spent = Number(uses.spent) || 0;
+
+        if (max === 0) {
+            // Unlimited uses item
+            return true;
+        }
+
+        const remaining = Math.max(0, max - spent);
+
+        if (remaining < amount) {
+            return false;
+        }
+
+        await item.update({
+            "system.uses.spent": spent + amount
+        });
+
+        return true;
+    }
+
+    async function removeBySourceUuid(actor, sourceUuids) {
+        if (!actor || !sourceUuids) return 0;
+
+        const uuids = Array.isArray(sourceUuids)
+            ? sourceUuids
+            : [sourceUuids];
+
+        const itemsToRemove = actor.items.filter(item =>
+            uuids.includes(
+                item.flags?.transformations?.sourceUuid
+            )
+        );
+
+        if (!itemsToRemove.length) return 0;
+
+        await actor.deleteEmbeddedDocuments(
+            "Item",
+            itemsToRemove.map(i => i.id)
+        );
+
+        return itemsToRemove.length;
+    }
+
+    function getItemsRemoveOnLongRest(actor) {
+        if (!actor) return [];
+
+        return actor.items.filter(item =>
+            item.getFlag("transformations", "removeOnLongRest") === true
+        );
+    }
+
+    async function removeItemsOnLongRest(actor) {
+        const items = getItemsRemoveOnLongRest(actor);
+        if (!items.length) return;
+
+        await actor.deleteEmbeddedDocuments(
+            "Item",
+            items.map(i => i.id)
+        );
+    }
+
     return Object.freeze({
         // queries
         findEmbeddedById,
         findEmbeddedByUuidFlag,
         getEmbeddedAddedByTransformation,
         findEmbeddedByType,
+        getRemainingUses,
+        consumeUses,
 
         // mutations
         addTransformationItem,
@@ -218,6 +300,8 @@ export function createItemRepository({ logger }) {
         createEmbedded,
         deleteEmbedded,
         updateEmbedded,
+        removeBySourceUuid,
+        removeItemsOnLongRest,
 
         // flags
         getTransformationFlags,
