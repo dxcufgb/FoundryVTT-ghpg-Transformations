@@ -10,12 +10,15 @@ export class AberrantNoEffect extends AberrantEffect {
         }
     }
     constructor(args) {
+        args?.logger?.debug?.("AberrantNoEffect.constructor", { args })
         super(args);
         this.description =
             "No effect";
     }
 
     async beforeApply() {
+        this.logger?.debug?.("AberrantNoEffect.beforeApply", {})
         this.runActiveEffect = false;
     }
 }
+

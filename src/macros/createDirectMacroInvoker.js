@@ -6,6 +6,13 @@ export function createDirectMacroInvoker({
     logger
 })
 {
+    logger.debug("createDirectMacroInvoker", {
+        tracker,
+        macroRegistry,
+        activeEffectRepository,
+        itemRepository
+    })
+
     async function invoke({
         transformationType,
         action,
@@ -13,6 +20,12 @@ export function createDirectMacroInvoker({
         context
     })
     {
+        logger.debug("createDirectMacroInvoker.invoke", {
+            transformationType,
+            action,
+            actor,
+            context
+        })
         const entry = macroRegistry.get(transformationType)
         if (!entry) {
             throw new Error(`Unknown transformation: ${transformationType}`)

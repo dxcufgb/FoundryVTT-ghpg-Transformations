@@ -6,6 +6,7 @@ export function createTransformationDefinitionFactory({
     logger
 })
 {
+    logger.debug("createTransformationDefinitionFactory", { transformationRegistry })
 
     function create({
         id,
@@ -16,6 +17,14 @@ export function createTransformationDefinitionFactory({
         triggers
     })
     {
+        logger.debug("createTransformationDefinitionFactory.create", {
+            id,
+            uuid,
+            item,
+            TransformationClass,
+            stages,
+            triggers
+        })
         if (!item) {
             logger?.warn?.(
                 "Cannot create TransformationDefinition: missing item",
@@ -42,7 +51,8 @@ export function createTransformationDefinitionFactory({
             item,
             stages,
             triggers: normalizeTriggers(triggers),
-            rollTableEffects
+            rollTableEffects,
+            logger
         })
 
         definition.validate?.()
@@ -52,6 +62,7 @@ export function createTransformationDefinitionFactory({
 
     function createRollTableEffects(TransformationClass)
     {
+        logger.debug("createTransformationDefinitionFactory.createRollTableEffects", { TransformationClass })
         const entry =
             transformationRegistry.getEntryByItemId(
                 TransformationClass.itemId
@@ -62,12 +73,14 @@ export function createTransformationDefinitionFactory({
         }
 
         return new RollTableEffectCatalog({
-            effects: entry.TransformationRollTableEffects
+            effects: entry.TransformationRollTableEffects,
+            logger
         })
     }
 
     function normalizeTriggers(rawTriggers = {})
     {
+        logger.debug("createTransformationDefinitionFactory.normalizeTriggers", { rawTriggers })
         const map = new Map()
 
         if (!rawTriggers || typeof rawTriggers !== "object") {
@@ -90,6 +103,7 @@ export function createTransformationDefinitionFactory({
 
     function normalizeTriggerActions(actions = [])
     {
+        logger.debug("createTransformationDefinitionFactory.normalizeTriggerActions", { actions })
         if (!Array.isArray(actions)) return []
 
         return actions
@@ -99,6 +113,7 @@ export function createTransformationDefinitionFactory({
 
     function normalizeAction(action)
     {
+        logger.debug("createTransformationDefinitionFactory.normalizeAction", { action })
         if (!action || typeof action !== "object") return null
         if (!action.type) return null
 
@@ -112,6 +127,7 @@ export function createTransformationDefinitionFactory({
 
     function normalizeVariables(vars = [])
     {
+        logger.debug("createTransformationDefinitionFactory.normalizeVariables", { vars })
         if (!Array.isArray(vars)) return []
 
         return vars
@@ -125,6 +141,7 @@ export function createTransformationDefinitionFactory({
 
     function normalizeWhen(when = {})
     {
+        logger.debug("createTransformationDefinitionFactory.normalizeWhen", { when })
         if (!when || typeof when !== "object") return undefined
 
         const out = {}
@@ -141,6 +158,7 @@ export function createTransformationDefinitionFactory({
 
     function normalizeOnce(once)
     {
+        logger.debug("createTransformationDefinitionFactory.normalizeOnce", { once })
         if (!once) return undefined
 
         if (typeof once === "string") {
@@ -160,6 +178,7 @@ export function createTransformationDefinitionFactory({
 
     function normalizeData(data)
     {
+        logger.debug("createTransformationDefinitionFactory.normalizeData", { data })
         if (!data || typeof data !== "object") return undefined
         return structuredClone(data)
     }

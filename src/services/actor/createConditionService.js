@@ -2,9 +2,11 @@ export function createConditionService({
     logger
 })
 {
+    logger.debug("createConditionService", {})
 
     function hasSpellSlotCapacity(actor)
     {
+        logger.debug("createConditionService.hasSpellSlotCapacity", { actor })
         const spells = actor?.system?.spells
         if (!spells) return false
 
@@ -15,6 +17,7 @@ export function createConditionService({
 
     function hasAvailableSpellSlots(actor)
     {
+        logger.debug("createConditionService.hasAvailableSpellSlots", { actor })
         const spells = actor?.system?.spells
         if (!spells) return false
 
@@ -25,6 +28,7 @@ export function createConditionService({
 
     function checkActorRequirement({ actor, requirement })
     {
+        logger.debug("createConditionService.checkActorRequirement", { actor, requirement })
         if (!requirement) return true
 
         switch (requirement) {

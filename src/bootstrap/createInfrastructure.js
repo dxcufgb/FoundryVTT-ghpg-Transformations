@@ -23,6 +23,14 @@ export function createInfrastructure({
     notifications
 })
 {
+    logger.debug("createInfrastructure", {
+        getGame,
+        dependencies,
+        getTransformationQueryService,
+        getExecutor,
+        notifications
+    })
+
     const { utils, constants } = dependencies
     const trackers = {
         repositories: utils.asyncTrackers.get("repositories"),

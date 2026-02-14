@@ -1,13 +1,14 @@
 /**
  * Evaluate whether an action's conditions are met.
  */
-export function conditionsMet(actor, when = {}, context = {}) {
+export function conditionsMet(actor, when = {}, context = {}, logger = null) {
+    logger?.debug?.("conditionsMet", { actor, when, context })
     if (!when) return true;
-    const stageConditions = stageConditionMet(when.stage, context.stage);
-    const actorCondition = actorConditionMet(actor, when.actor);
-    const itemCondition = itemConditionMet(actor, when.items);
-    const effectCondition = effectConditionMet(actor, when.effects);
-    const saveCondition = saveConditionMet(context, when);
+    const stageConditions = stageConditionMet(when.stage, context.stage, logger);
+    const actorCondition = actorConditionMet(actor, when.actor, logger);
+    const itemCondition = itemConditionMet(actor, when.items, logger);
+    const effectCondition = effectConditionMet(actor, when.effects, logger);
+    const saveCondition = saveConditionMet(context, when, logger);
 
     return (
         stageConditions &&
@@ -18,7 +19,8 @@ export function conditionsMet(actor, when = {}, context = {}) {
     );
 }
 
-function stageConditionMet(condition, stage) {
+function stageConditionMet(condition, stage, logger = null) {
+    logger?.debug?.("stageConditionMet", { condition, stage })
     if (!condition) return true;
     if (stage == null) return false;
 
@@ -35,7 +37,8 @@ function stageConditionMet(condition, stage) {
     return false;
 }
 
-function actorConditionMet(actor, condition) {
+function actorConditionMet(actor, condition, logger = null) {
+    logger?.debug?.("actorConditionMet", { actor, condition })
     if (!condition) return true;
 
     if (condition.hasSpellSlots) {
@@ -56,7 +59,8 @@ function actorConditionMet(actor, condition) {
     return true;
 }
 
-function itemConditionMet(actor, condition) {
+function itemConditionMet(actor, condition, logger = null) {
+    logger?.debug?.("itemConditionMet", { actor, condition })
     if (!condition) return true;
 
     const items = actor.items ?? [];
@@ -91,7 +95,8 @@ function itemConditionMet(actor, condition) {
     return true;
 }
 
-function effectConditionMet(actor, condition) {
+function effectConditionMet(actor, condition, logger = null) {
+    logger?.debug?.("effectConditionMet", { actor, condition })
     if (!condition) return true;
 
     const effects = actor.effects ?? [];
@@ -111,7 +116,8 @@ function effectConditionMet(actor, condition) {
     return true;
 }
 
-function saveConditionMet(context, when) {
+function saveConditionMet(context, when, logger = null) {
+    logger?.debug?.("saveConditionMet", { context, when })
     if (!when) return true;
     const saves = context.saves ?? {};
 

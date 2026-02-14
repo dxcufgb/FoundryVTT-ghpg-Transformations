@@ -1,7 +1,10 @@
 import { Transformation } from "./Transformation.js"
 
-export function createTransformationInstanceFactory()
+export function createTransformationInstanceFactory({
+    logger
+})
 {
+    logger.debug("createTransformationInstanceFactory", {})
 
     function create({
         actor,
@@ -10,6 +13,12 @@ export function createTransformationInstanceFactory()
         TransformationClass
     })
     {
+        logger.debug("createTransformationInstanceFactory.create", {
+            actor,
+            definition,
+            stage,
+            TransformationClass
+        })
         if (!actor) {
             throw new Error(
                 "TransformationInstanceFactory.create requires actor"
@@ -35,7 +44,8 @@ export function createTransformationInstanceFactory()
         return new transformation({
             actorId: actorId,
             definition,
-            stage
+            stage,
+            logger
         })
     }
 

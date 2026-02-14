@@ -2,7 +2,10 @@ import { substitute } from "../actions/utils/substitute.js";
 
 // services/formulas/createFormulaEvaluator.js
 export function createFormulaEvaluator({ logger }) {
+    logger.debug("createFormulaEvaluator", {})
+
     function evaluate({ formula, scope }) {
+        logger.debug("createFormulaEvaluator.evaluate", { formula, scope })
         if (!formula) return null;
 
         try {

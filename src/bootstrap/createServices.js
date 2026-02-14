@@ -23,6 +23,12 @@ export function createServices({
     triggerNotification
 })
 {
+    dependencies.logger.debug("createServices", {
+        dependencies,
+        infrastructure,
+        triggerNotification
+    })
+
     const { utils, logger, constants } = dependencies
     const { actorRepository, chatService, directMacroInvoker, activeEffectRepository, rollTableService, itemRepository, compendiumRepository, actionExecutor, socketGateway, localMutationAdapter, notifier } = infrastructure
     const trackers = {
@@ -34,8 +40,8 @@ export function createServices({
         services: utils.asyncTrackers.get("services")
     }
 
-    const transformationRegistry = createTransformationRegistry()
-    registerTransformations(transformationRegistry)
+    const transformationRegistry = createTransformationRegistry({ logger })
+    registerTransformations(transformationRegistry, logger)
 
     // TODO: fix createRollEffectCatalog
     const rollTableEffectCatalog = createRollTableEffectCatalog({

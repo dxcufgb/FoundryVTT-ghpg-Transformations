@@ -7,12 +7,19 @@ export function createSaveAction({
     logger
 })
 {
+    logger.debug("createSaveAction", { tracker })
+
     return async function SAVE_ACTION({
         actor,
         action,
         context
     })
     {
+        logger.debug("createSaveAction.SAVE_ACTION", {
+            actor,
+            action,
+            context
+        })
         const { ability, dc, key } = action.data ?? {}
 
         if (!ability || !key) {

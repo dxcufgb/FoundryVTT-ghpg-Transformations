@@ -10,12 +10,14 @@ export class AberrantDefenseless extends AberrantEffect {
         }
     }
     constructor(args) {
+        args?.logger?.debug?.("AberrantDefenseless.constructor", { args })
         super(args);
         this.description =
             "Imposes disadvantage on constitution saving throws";
     }
 
     async beforeApply() {
+        this.logger?.debug?.("AberrantDefenseless.beforeApply", {})
         this.addEffects(
             this.effectChangeBuilder.getDisadvantage(
                 this.constants.ABILITY.CONSTITUTION,
@@ -24,3 +26,4 @@ export class AberrantDefenseless extends AberrantEffect {
         );
     }
 }
+

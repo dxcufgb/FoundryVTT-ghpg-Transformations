@@ -10,12 +10,14 @@ export class AberrantDisadvantage extends AberrantEffect {
     }
 
     constructor(args) {
+        args?.logger?.debug?.("AberrantDisadvantage.constructor", { args })
         super(args);
         this.description =
             "Your body starts to lose cohesion. You have Disadvantage on all D20 Tests.";
     }
 
     async beforeApply() {
+        this.logger?.debug?.("AberrantDisadvantage.beforeApply", {})
         Object.values(this.constants.SKILL).forEach(skill => {
             this.addEffects(
                 this.effectChangeBuilder.getDisadvantage(skill)
@@ -41,3 +43,4 @@ export class AberrantDisadvantage extends AberrantEffect {
         });
     }
 }
+

@@ -3,7 +3,8 @@ import { resolveExpression } from "./resolveExpression.js";
 /**
  * Replace @expressions inside a chat message.
  */
-export function interpolateMessage(template, context) {
+export function interpolateMessage(template, context, logger = null) {
+    logger?.debug?.("interpolateMessage", { template, context })
     return template.replace(
         /@([a-zA-Z_][a-zA-Z0-9_.]*)/g,
         (_, expr) => {

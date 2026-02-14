@@ -6,8 +6,16 @@ export function createTransformationConfigController({
     logger
 })
 {
+    logger.debug("createTransformationConfigController", {
+        transformationService,
+        transformationQueryService,
+        actorQueryService,
+        tracker
+    })
+
     async function applySelection({ actorUuid, transformationId })
     {
+        logger.debug("createTransformationConfigController.applySelection", { actorUuid, transformationId })
         return tracker.track(
             (async () =>
             {

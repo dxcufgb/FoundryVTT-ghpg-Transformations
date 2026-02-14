@@ -5,11 +5,18 @@ export function createAberrantHorrorMacroHandlers({
     logger
 })
 {
+    logger.debug("createAberrantHorrorMacroHandlers", {
+        activeEffectRepository,
+        itemRepository,
+        tracker
+    })
+
     return Object.freeze({
         whenIdle: tracker.whenIdle,
 
         async chitinousShell({ actor, trigger })
         {
+            logger.debug("createAberrantHorrorMacroHandlers.chitinousShell", { actor, trigger })
             return tracker.track(
                 (async () =>
                 {
@@ -32,6 +39,7 @@ export function createAberrantHorrorMacroHandlers({
 
         async eldritchLimbs({ actor, trigger })
         {
+            logger.debug("createAberrantHorrorMacroHandlers.eldritchLimbs", { actor, trigger })
             return tracker.track(
                 (async () =>
                 {
@@ -55,6 +63,7 @@ export function createAberrantHorrorMacroHandlers({
 
         async slimyForm({ actor, trigger })
         {
+            logger.debug("createAberrantHorrorMacroHandlers.slimyForm", { actor, trigger })
             return tracker.track(
                 (async () =>
                 {
@@ -77,6 +86,7 @@ export function createAberrantHorrorMacroHandlers({
 
         async removeAberrantMutationEffects({ actor, trigger })
         {
+            logger.debug("createAberrantHorrorMacroHandlers.removeAberrantMutationEffects", { actor, trigger })
             return tracker.track(
                 (async () =>
                 {
@@ -99,6 +109,7 @@ export function createAberrantHorrorMacroHandlers({
 
     async function addEldritchLimbsItem(actor)
     {
+        logger.debug("createAberrantHorrorMacroHandlers.addEldritchLimbsItem", { actor })
         return tracker.track(
             (async () =>
             {
@@ -120,6 +131,7 @@ export function createAberrantHorrorMacroHandlers({
 
     async function removeEldritchLimbsItem(actor)
     {
+        logger.debug("createAberrantHorrorMacroHandlers.removeEldritchLimbsItem", { actor })
         return tracker.track(
             (async () =>
             {
@@ -141,6 +153,7 @@ export function createAberrantHorrorMacroHandlers({
 
     function actorHasEfficientKiller(actor)
     {
+        logger.debug("createAberrantHorrorMacroHandlers.actorHasEfficientKiller", { actor })
         return itemRepository.findEmbeddedByUuidFlag(
             actor,
             aberrantMutationConstants.items.efficientKiller

@@ -5,8 +5,15 @@ export function createTransformationPillRenderer({
     logger
 })
 {
+    logger.debug("createTransformationPillRenderer", {
+        tracker,
+        renderTemplate,
+        templates
+    })
+
     async function render(viewModel)
     {
+        logger.debug("createTransformationPillRenderer.render", { viewModel })
         return tracker.track(
             (async () =>
             {

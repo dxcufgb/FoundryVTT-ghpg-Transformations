@@ -2,8 +2,11 @@ export function createMacroContextFactory({
     logger
 })
 {
+    logger.debug("createMacroContextFactory", {})
+
     function createFromToken(token)
     {
+        logger.debug("createMacroContextFactory.createFromToken", { token })
         if (!token) {
             logger.warn("MacroContextFactory: token missing")
             return null

@@ -1,8 +1,13 @@
 export function createTransformationStageChoiceViewModel({
     choices,
-    selectedId = null
+    selectedId = null,
+    logger = null
 })
 {
+    logger?.debug?.("createTransformationStageChoiceViewModel", {
+        choices,
+        selectedId
+    })
     return {
         choices: choices.map(c => ({
             ...c,

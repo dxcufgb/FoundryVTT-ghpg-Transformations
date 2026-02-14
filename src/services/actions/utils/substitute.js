@@ -1,6 +1,7 @@
 // services/triggers/utils/substitute.js
 
-export function substitute(expression, scope) {
+export function substitute(expression, scope, logger = null) {
+    logger?.debug?.("substitute", { expression, scope })
     if (typeof expression !== "string") {
         return expression;
     }
@@ -8,7 +9,7 @@ export function substitute(expression, scope) {
     return expression.replace(
         /@([a-zA-Z0-9_.]+)/g,
         (_, path) => {
-            const value = getByPath(scope, path);
+            const value = getByPath(scope, path, logger);
 
             if (value == null) {
                 throw new Error(
@@ -21,7 +22,8 @@ export function substitute(expression, scope) {
     );
 }
 
-function getByPath(obj, path) {
+function getByPath(obj, path, logger = null) {
+    logger?.debug?.("getByPath", { obj, path })
     return path.split(".").reduce(
         (acc, key) => acc?.[key],
         obj

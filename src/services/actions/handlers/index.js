@@ -17,6 +17,16 @@ export function createActionHandlers({
     logger
 })
 {
+    logger.debug("createActionHandlers", {
+        trackers,
+        directMacroInvoker,
+        actorRepository,
+        itemRepository,
+        activeEffectRepository,
+        rollTableService,
+        rollTableEffectResolver
+    })
+
     return Object.freeze({
         APPLY_ROLLTABLE: createRollTableAction({
             tracker: trackers.mutations,

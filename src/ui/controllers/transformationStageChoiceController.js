@@ -4,10 +4,12 @@ export function createTransformationStageChoiceController({
     logger
 })
 {
+    logger.debug("createTransformationStageChoiceController", { actor, resolve })
     let settled = false
 
     function choose(choiceId)
     {
+        logger.debug("createTransformationStageChoiceController.choose", { choiceId })
         if (settled) return
         settled = true
 
@@ -17,6 +19,7 @@ export function createTransformationStageChoiceController({
 
     function cancel()
     {
+        logger.debug("createTransformationStageChoiceController.cancel", {})
         if (settled) return
         settled = true
 

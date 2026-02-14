@@ -10,7 +10,8 @@ export const ActionTypes = {
     CHAT: "chat"
 };
 
-export function isValidAction(action) {
+export function isValidAction(action, logger = null) {
+    logger?.debug?.("isValidAction", { action })
     return (
         typeof action?.type === "string" &&
         action.type in ActionTypes &&

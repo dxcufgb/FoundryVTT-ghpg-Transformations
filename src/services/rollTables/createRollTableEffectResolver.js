@@ -11,8 +11,19 @@ export function createRollTableEffectResolver({
     moduleFolderPath,
     logger
 }) {
+    logger.debug("createRollTableEffectResolver", {
+        rollTableEffectCatalog,
+        activeEffectRepository,
+        constants,
+        effectChangeBuilder,
+        actorRepository,
+        chatService,
+        stringUtils,
+        moduleFolderPath
+    })
 
     function resolve({ actor, effectKey }) {
+        logger.debug("createRollTableEffectResolver.resolve", { actor, effectKey })
         if (!actor) {
             logger.warn(
                 "rollTableEffectResolver.resolve called without actor"

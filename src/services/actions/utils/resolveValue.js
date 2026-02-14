@@ -1,4 +1,5 @@
-export function resolveValue(value, context) {
+export function resolveValue(value, context, logger = null) {
+    logger?.debug?.("resolveValue", { value, context })
     if (typeof value === "number") return value;
 
     if (typeof value !== "string") return null;

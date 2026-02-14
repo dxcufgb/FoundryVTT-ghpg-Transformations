@@ -6,14 +6,21 @@ export function createActiveEffectRepository({
     logger
 })
 {
+    logger.debug("createActiveEffectRepository", {
+        tracker,
+        debouncedTracker
+    })
+
     function getAll(actor)
     {
+        logger.debug("createActiveEffectRepository.getAll", { actor })
         if (!actor) return []
         return Array.from(actor.effects ?? [])
     }
 
     function findByName(actor, name)
     {
+        logger.debug("createActiveEffectRepository.findByName", { actor, name })
         if (!actor || !name) return null
 
         const effect = actor.effects.find(
@@ -32,6 +39,7 @@ export function createActiveEffectRepository({
 
     function findById(actor, effectId)
     {
+        logger.debug("createActiveEffectRepository.findById", { actor, effectId })
         if (!actor || !effectId) return null
 
         return actor.effects.get(effectId) ?? null
@@ -39,6 +47,7 @@ export function createActiveEffectRepository({
 
     function findBySourceUuid(actor, sourceUuid)
     {
+        logger.debug("createActiveEffectRepository.findBySourceUuid", { actor, sourceUuid })
         if (!actor || !sourceUuid) return null
 
         return actor.effects.find(
@@ -48,6 +57,7 @@ export function createActiveEffectRepository({
 
     function findAllByName(actor, effectNames = [])
     {
+        logger.debug("createActiveEffectRepository.findAllByName", { actor, effectNames })
         if (!actor || !effectNames.length) return false
 
         const foundEffects = []
@@ -62,6 +72,7 @@ export function createActiveEffectRepository({
 
     function hasAnyByName(actor, effectNames = [])
     {
+        logger.debug("createActiveEffectRepository.hasAnyByName", { actor, effectNames })
         if (!actor || !effectNames.length) return false
 
         return effectNames.some(name =>
@@ -71,6 +82,7 @@ export function createActiveEffectRepository({
 
     function hasAny(actor, effectIds = [])
     {
+        logger.debug("createActiveEffectRepository.hasAny", { actor, effectIds })
         if (!actor || !effectIds.length) return false
 
         return effectIds.some(id =>
@@ -80,6 +92,7 @@ export function createActiveEffectRepository({
 
     function findManyByIds(actor, effectIds = [])
     {
+        logger.debug("createActiveEffectRepository.findManyByIds", { actor, effectIds })
         if (!actor || !effectIds.length) return []
 
         return effectIds
@@ -89,6 +102,7 @@ export function createActiveEffectRepository({
 
     async function removeByIds(actor, effectIds = [])
     {
+        logger.debug("createActiveEffectRepository.removeByIds", { actor, effectIds })
         if (!actor || !effectIds.length) return
 
         const existing =
@@ -110,6 +124,7 @@ export function createActiveEffectRepository({
 
     function hasByName(actor, name)
     {
+        logger.debug("createActiveEffectRepository.hasByName", { actor, name })
         if (!actor || !name) return false
 
         return getAll(actor).some(e => e.name === name)
@@ -117,6 +132,7 @@ export function createActiveEffectRepository({
 
     function getIdsByName(actor, name)
     {
+        logger.debug("createActiveEffectRepository.getIdsByName", { actor, name })
         if (!actor || !name) return []
 
         return getAll(actor)
@@ -136,6 +152,17 @@ export function createActiveEffectRepository({
         context = {}
     })
     {
+        logger.debug("createActiveEffectRepository.create", {
+            actor,
+            name,
+            description,
+            source,
+            icon,
+            changes,
+            duration,
+            flags,
+            context
+        })
         if (!actor || !name) {
             logger.warn("ActiveEffect.create called without actor or name")
             return null
@@ -180,6 +207,7 @@ export function createActiveEffectRepository({
 
     function getEffectsRemoveOnLongRest(actor)
     {
+        logger.debug("createActiveEffectRepository.getEffectsRemoveOnLongRest", { actor })
         if (!actor) return []
 
         return actor.effects.filter(effect =>
@@ -189,6 +217,7 @@ export function createActiveEffectRepository({
 
     async function removeEffectsOnLongRest(actor)
     {
+        logger.debug("createActiveEffectRepository.removeEffectsOnLongRest", { actor })
         const effects = getEffectsRemoveOnLongRest(actor)
         if (!effects.length) return
 

@@ -1,9 +1,15 @@
 export function createTransformationPillViewModel({
     actor,
     transformation,
-    editable
+    editable,
+    logger = null
 })
 {
+    logger?.debug?.("createTransformationPillViewModel", {
+        actor,
+        transformation,
+        editable
+    })
     if (!transformation) {
         return {
             mode: "add",

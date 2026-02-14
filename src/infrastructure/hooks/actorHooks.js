@@ -9,10 +9,20 @@ export function registerActorHooks({
     logger,
 })
 {
+    logger.debug("registerActorHooks", {
+        transformationTypes,
+        transformationService,
+        transformationQueryService,
+        game,
+        ui,
+        debouncedTracker,
+        dialogFactory
+    })
+
     Hooks.on("renderActorSheetV2", async (app, html, config) =>
     {
-        debouncedTracker.pulse("renderActorSheetV2")
         logger.debug("renderActorSheetV2", app, html, config)
+        debouncedTracker.pulse("renderActorSheetV2")
         const actor = app.actor
         const transformation = await transformationQueryService.getForActor(actor)
         const transformations = await transformationQueryService.getAll()
@@ -28,7 +38,7 @@ export function registerActorHooks({
 
         if (!pillHtml) return
         const fragment = document.createRange().createContextualFragment(pillHtml)
-        const container = getPillsContainer(app)
+        const container = getPillsContainer(app, logger)
         if (container) container.append(fragment)
 
         const pillElement = container.querySelector('.pills-lg > .transformation')
@@ -41,13 +51,13 @@ export function registerActorHooks({
             transformations
         })
 
-        injectTransformationLegendInTraitsTab(game, ui, app, html, transformationTypes, config.editable)
+        injectTransformationLegendInTraitsTab(game, ui, app, html, transformationTypes, config.editable, logger)
     })
 
     Hooks.on("updateActor", (actor, diff, options, userId) =>
     {
-        debouncedTracker.pulse("updateActor")
         logger.debug("updateActor", actor, diff, options, userId)
+        debouncedTracker.pulse("updateActor")
         if (!diff?.flags?.transformations) return
 
         transformationService.onActorFlagsUpdated({
@@ -59,8 +69,9 @@ export function registerActorHooks({
     })
 }
 
-function getPillsContainer(app)
+function getPillsContainer(app, logger)
 {
+    logger.debug("getPillsContainer", { app })
     return (
         app.element
             .querySelector('[data-tab="details"] .pills-lg > .background')
@@ -73,8 +84,16 @@ function getPillsContainer(app)
 
 }
 
-async function injectTransformationLegendInTraitsTab(game, ui, app, html, transformationTypes, editMode)
+async function injectTransformationLegendInTraitsTab(game, ui, app, html, transformationTypes, editMode, logger)
 {
+    logger.debug("injectTransformationLegendInTraitsTab", {
+        game,
+        ui,
+        app,
+        html,
+        transformationTypes,
+        editMode
+    })
     const actor = app.actor
     if (!actor || actor.type !== "character") return
 

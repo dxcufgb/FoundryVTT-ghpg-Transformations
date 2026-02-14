@@ -9,6 +9,11 @@ export function bootstrapMacros({
     logger
 })
 {
+    logger.debug("bootstrapMacros", {
+        infrastructure,
+        notify,
+        tracker
+    })
     const { actorRepository, itemRepository, tokenRepository, socketGateway, activeEffectRepository, macroRegistry } = infrastructure
 
     const macroContextFactory = createMacroContextFactory({ logger })

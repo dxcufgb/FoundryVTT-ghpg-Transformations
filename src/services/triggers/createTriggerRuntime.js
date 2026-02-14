@@ -4,8 +4,11 @@ export function createTriggerRuntime({
     logger
 })
 {
+    logger.debug("createTriggerRuntime", { tracker, transformationService })
+
     async function run(triggerName, actor)
     {
+        logger.debug("createTriggerRuntime.run", { triggerName, actor })
         return tracker.track(
             (async () =>
             {

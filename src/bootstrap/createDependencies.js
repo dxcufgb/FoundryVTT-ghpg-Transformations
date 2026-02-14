@@ -5,6 +5,12 @@ export function createDependencies({
     logger
 })
 {
+    logger.debug("createDependencies", {
+        game,
+        constants,
+        utils
+    })
+
     return {
         game,
         constants,

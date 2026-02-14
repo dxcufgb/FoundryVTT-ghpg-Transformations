@@ -6,11 +6,19 @@ export function createCompendiumRepository({
     logger
 })
 {
+    logger.debug("createCompendiumRepository", {
+        tracker,
+        getGame,
+        fromUuid,
+        debouncedTracker
+    })
+
     const documentCache = new Map()
     const packCache = new Map()
 
     async function loadPack(packId)
     {
+        logger.debug("createCompendiumRepository.loadPack", { packId })
         if (packCache.has(packId)) {
             return packCache.get(packId)
         }
@@ -34,6 +42,7 @@ export function createCompendiumRepository({
 
     async function getDocumentByUuid(uuid)
     {
+        logger.debug("createCompendiumRepository.getDocumentByUuid", { uuid })
         if (!uuid || typeof uuid !== "string") {
             logger.warn("Invalid UUID", uuid)
             return null
@@ -68,6 +77,7 @@ export function createCompendiumRepository({
 
     async function getDocumentFromPack(packId, documentId)
     {
+        logger.debug("createCompendiumRepository.getDocumentFromPack", { packId, documentId })
         return tracker.track(
             (async () =>
             {
@@ -90,6 +100,7 @@ export function createCompendiumRepository({
 
     async function getDocumentByName(packId, name)
     {
+        logger.debug("createCompendiumRepository.getDocumentByName", { packId, name })
         return tracker.track(
             (async () =>
             {

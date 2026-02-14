@@ -5,6 +5,12 @@ export function createStageChoiceResolver({
     conditionService
 })
 {
+    logger.debug("createStageChoiceResolver", {
+        tracker,
+        compendiumRepository,
+        conditionService
+    })
+
     async function resolve({
         actor,
         definition,
@@ -12,6 +18,12 @@ export function createStageChoiceResolver({
         requestChoice
     })
     {
+        logger.debug("createStageChoiceResolver.resolve", {
+            actor,
+            definition,
+            stage,
+            requestChoice
+        })
 
         const stageDef = definition.stages[stage]
         if (!stageDef?.choices?.items?.length) return null
@@ -64,6 +76,7 @@ export function createStageChoiceResolver({
 
     async function buildChoiceList({ actor, stageDef })
     {
+        logger.debug("createStageChoiceResolver.buildChoiceList", { actor, stageDef })
         return tracker.track((async () =>
         {
 
@@ -98,6 +111,11 @@ export function createStageChoiceResolver({
         choiceUuid
     })
     {
+        logger.debug("createStageChoiceResolver.isChoiceRuntimeValid", {
+            actor,
+            stageDef,
+            choiceUuid
+        })
         const choiceDef = stageDef?.choices?.items
             ?.find(c => c.uuid === choiceUuid)
 

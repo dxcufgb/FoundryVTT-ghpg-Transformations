@@ -4,13 +4,20 @@ export function createItemRepository({
     logger
 })
 {
+    logger.debug("createItemRepository", {
+        tracker,
+        debouncedTracker
+    })
+
     function findEmbeddedById(actor, itemId)
     {
+        logger.debug("createItemRepository.findEmbeddedById", { actor, itemId })
         return actor?.items?.get(itemId) ?? null
     }
 
     function findEmbeddedByUuidFlag(actor, uuid)
     {
+        logger.debug("createItemRepository.findEmbeddedByUuidFlag", { actor, uuid })
         return actor.items.find(
             item =>
                 item.getFlag("transformations", "sourceUuid") === uuid
@@ -19,6 +26,7 @@ export function createItemRepository({
 
     function getEmbeddedAddedByTransformation(actor)
     {
+        logger.debug("createItemRepository.getEmbeddedAddedByTransformation", { actor })
         return actor.items.filter(item =>
             item.getFlag("transformations", "addedByTransformation") === true
         )
@@ -26,6 +34,7 @@ export function createItemRepository({
 
     function findEmbeddedByType(actor, type)
     {
+        logger.debug("createItemRepository.findEmbeddedByType", { actor, type })
         return actor.items.find(item => item.type === type) ?? null
     }
 
@@ -41,6 +50,13 @@ export function createItemRepository({
         isPrerequisite
     })
     {
+        logger.debug("createItemRepository.addTransformationItem", {
+            actor,
+            sourceItem,
+            context,
+            replacesUuid,
+            isPrerequisite
+        })
         if (!actor || !sourceItem) return null
 
         return tracker.track(
@@ -92,6 +108,7 @@ export function createItemRepository({
 
     async function removeTransformationItems(actor)
     {
+        logger.debug("createItemRepository.removeTransformationItems", { actor })
         const items = getEmbeddedAddedByTransformation(actor)
 
         if (!items.length) return
@@ -116,6 +133,12 @@ export function createItemRepository({
         preventDuplicate = true
     })
     {
+        logger.debug("createItemRepository.addItemFromUuid", {
+            actor,
+            uuid,
+            flags,
+            preventDuplicate
+        })
         if (!actor) {
             throw new Error("addItemFromUuid requires actor")
         }
@@ -175,6 +198,7 @@ export function createItemRepository({
 
     async function createEmbedded(actor, itemData)
     {
+        logger.debug("createItemRepository.createEmbedded", { actor, itemData })
         if (!actor || !itemData) return null
         logger.trace("createEmbedded called", actor, itemData)
 
@@ -198,6 +222,7 @@ export function createItemRepository({
 
     async function deleteEmbedded(actor, itemIds)
     {
+        logger.debug("createItemRepository.deleteEmbedded", { actor, itemIds })
         if (!actor || !itemIds?.length) return
 
         return tracker.track(
@@ -212,6 +237,7 @@ export function createItemRepository({
 
     async function updateEmbedded(item, update)
     {
+        logger.debug("createItemRepository.updateEmbedded", { item, update })
         if (!item || !update) return
 
         return tracker.track(
@@ -226,21 +252,25 @@ export function createItemRepository({
 
     function getTransformationFlags(item)
     {
+        logger.debug("createItemRepository.getTransformationFlags", { item })
         return item.getFlag("transformations", "") ?? {}
     }
 
     function getSourceUuid(item)
     {
+        logger.debug("createItemRepository.getSourceUuid", { item })
         return item.getFlag("transformations", "sourceUuid") ?? null
     }
 
     function isAddedByTransformation(item)
     {
+        logger.debug("createItemRepository.isAddedByTransformation", { item })
         return item.getFlag("transformations", "addedByTransformation") === true
     }
 
     async function setTransformationFlags(item, flags)
     {
+        logger.debug("createItemRepository.setTransformationFlags", { item, flags })
         return tracker.track(
             (async () =>
             {
@@ -253,6 +283,7 @@ export function createItemRepository({
 
     async function clearTransformationFlags(item)
     {
+        logger.debug("createItemRepository.clearTransformationFlags", { item })
         const scope = item.flags?.transformations
         if (!scope) return
 
@@ -274,6 +305,7 @@ export function createItemRepository({
 
     function getRemainingUses(item)
     {
+        logger.debug("createItemRepository.getRemainingUses", { item })
         if (!item) return 0
 
         const uses = item.system?.uses
@@ -287,6 +319,7 @@ export function createItemRepository({
 
     async function consumeUses(item, amount = 1)
     {
+        logger.debug("createItemRepository.consumeUses", { item, amount })
         if (!item || amount <= 0) return false
 
         const uses = item.system?.uses
@@ -322,6 +355,7 @@ export function createItemRepository({
 
     async function removeBySourceUuid(actor, sourceUuids)
     {
+        logger.debug("createItemRepository.removeBySourceUuid", { actor, sourceUuids })
         if (!actor || !sourceUuids) return 0
 
         const uuids = Array.isArray(sourceUuids)
@@ -353,6 +387,7 @@ export function createItemRepository({
 
     function getItemsRemoveOnLongRest(actor)
     {
+        logger.debug("createItemRepository.getItemsRemoveOnLongRest", { actor })
         if (!actor) return []
 
         return actor.items.filter(item =>
@@ -362,6 +397,7 @@ export function createItemRepository({
 
     async function removeItemsOnLongRest(actor)
     {
+        logger.debug("createItemRepository.removeItemsOnLongRest", { actor })
         const items = getItemsRemoveOnLongRest(actor)
         if (!items.length) return
 

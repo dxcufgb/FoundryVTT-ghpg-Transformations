@@ -11,6 +11,12 @@ export async function withMacroExecutionLock(
         actorRepository
     }
 ) {
+    logger.debug("withMacroExecutionLock", {
+        actor,
+        transformationType,
+        action,
+        trigger
+    })
     if (!actor) {
         throw new Error("withMacroExecutionLock requires actor");
     }

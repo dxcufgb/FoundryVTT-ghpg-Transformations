@@ -3,6 +3,8 @@ export function createChatService({
     logger
 })
 {
+    logger.debug("createChatService", { tracker })
+
     async function post({
         speaker,
         content,
@@ -10,6 +12,12 @@ export function createChatService({
         flavor = null
     })
     {
+        logger.debug("createChatService.post", {
+            speaker,
+            content,
+            whisper,
+            flavor
+        })
         if (!content) return
 
         return tracker.track(

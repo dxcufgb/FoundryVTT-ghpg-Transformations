@@ -1,7 +1,9 @@
 export function createMacroRegistry({ logger }) {
+    logger.debug("createMacroRegistry", {})
     const registry = new Map();
 
     function register({ type, createHandlers }) {
+        logger.debug("createMacroRegistry.register", { type, createHandlers })
         if (!type) {
             throw new Error("Macro registry entry requires type");
         }
@@ -29,6 +31,7 @@ export function createMacroRegistry({ logger }) {
     }
 
     function get(type) {
+        logger.debug("createMacroRegistry.get", { type })
         return registry.get(type) ?? null;
     }
 

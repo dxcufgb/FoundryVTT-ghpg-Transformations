@@ -1,14 +1,15 @@
 /**
  * Resolve a numeric expression with @variables and @namespaces.
  */
-export function resolveExpression(expression, context = {}) {
+export function resolveExpression(expression, context = {}, logger = null) {
+    logger?.debug?.("resolveExpression", { expression, context })
     if (typeof expression === "number") return expression;
     if (typeof expression !== "string") return 0;
 
     const replaced = expression.replace(
         /@([a-zA-Z_][a-zA-Z0-9_.]*)/g,
         (_, path) => {
-            const value = getPathValue(context, path);
+            const value = getPathValue(context, path, logger);
             return Number.isFinite(value) ? value : 0;
         }
     );
@@ -31,7 +32,8 @@ export function resolveExpression(expression, context = {}) {
 /**
  * Safely resolve a dotted path from an object.
  */
-function getPathValue(obj, path) {
+function getPathValue(obj, path, logger = null) {
+    logger?.debug?.("getPathValue", { obj, path })
     return path.split(".").reduce((acc, key) => {
         if (acc && typeof acc === "object" && key in acc) {
             return acc[key];

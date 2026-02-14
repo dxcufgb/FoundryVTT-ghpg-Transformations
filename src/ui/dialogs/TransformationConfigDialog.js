@@ -35,6 +35,12 @@ export class TransformationConfigDialog
         logger
     })
     {
+        logger?.debug?.("TransformationConfigDialog.constructor", {
+            actorUuid,
+            viewModel,
+            controller,
+            options
+        })
         super(options)
         console.log(
             "Dialog constructed with actorUuid:",
@@ -50,11 +56,13 @@ export class TransformationConfigDialog
 
     async _prepareContext()
     {
+        this.logger?.debug?.("TransformationConfigDialog._prepareContext", {})
         return this.viewModel
     }
 
     async onSave(event, target)
     {
+        this.logger?.debug?.("TransformationConfigDialog.onSave", { event, target })
         event.preventDefault()
 
         console.log(

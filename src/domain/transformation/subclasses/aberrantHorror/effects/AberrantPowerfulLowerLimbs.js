@@ -9,13 +9,16 @@ export class AberrantPowerfullLowerLimbs extends AberrantEffect {
         }
     }
     constructor(args) {
+        args?.logger?.debug?.("AberrantPowerfulLowerLimbs.constructor", { args })
         super(args);
         this.description =
             "Your lower limbs become more powerful. Your Speed increases by 5 feet";
     }
 
     async beforeApply() {
+        this.logger?.debug?.("AberrantPowerfulLowerLimbs.beforeApply", {})
         const effects = this.actorRepository.setMovementBonus(this.actor, 5);
         this.addEffects(effects);
     }
 }
+

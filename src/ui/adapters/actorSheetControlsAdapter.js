@@ -7,8 +7,17 @@ export function registerActorSheetControlsAdapter({
     logger,
 })
 {
+    logger.debug("registerActorSheetControlsAdapter", {
+        game,
+        ActorClass,
+        transformationQueryService,
+        debouncedTracker,
+        ui
+    })
+
     Hooks.on("getHeaderControlsApplicationV2", (app, controls) =>
     {
+        logger.debug("registerActorSheetControlsAdapter.getHeaderControlsApplicationV2", { app, controls })
         debouncedTracker.pulse("getHeaderControlsApplicationV2")
         if (!ui.policies.canShowTransformationControls({ app, game, ActorClass })) {
             return

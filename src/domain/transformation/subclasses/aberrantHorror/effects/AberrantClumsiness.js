@@ -10,12 +10,14 @@ export class AberrantClumsiness extends AberrantEffect {
         }
     }
     constructor(args) {
+        args?.logger?.debug?.("AberrantClumsiness.constructor", { args })
         super(args);
         this.description =
             "You become clumsy. You have Disadvantage on Dexterity saving throws and Dexterity ability checks.";
     }
 
     async beforeApply() {
+        this.logger?.debug?.("AberrantClumsiness.beforeApply", {})
         this.addEffects(
             this.effectChangeBuilder.getDisadvantage(
                 this.constants.ABILITY.DEXTERITY,
@@ -31,3 +33,4 @@ export class AberrantClumsiness extends AberrantEffect {
         );
     }
 }
+

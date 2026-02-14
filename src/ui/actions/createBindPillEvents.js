@@ -2,12 +2,20 @@ export function createBindPillEvents({
     dialogFactory,
     logger
 }) {
+    logger.debug("createBindPillEvents", { dialogFactory })
+
     return function bindPillEvents({
         app,
         pill,
         pillMode,
         transformation
     }) {
+        logger.debug("createBindPillEvents.bindPillEvents", {
+            app,
+            pill,
+            pillMode,
+            transformation
+        })
         if (!pill || !app) {
             logger.error("bindPillEvents called without pill or app", {
                 pill,
@@ -47,6 +55,7 @@ export function createBindPillEvents({
     // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     function bindAddMode({ app, pill, transformation }) {
+        logger.debug("createBindPillEvents.bindAddMode", { app, pill, transformation })
         pill.addEventListener("click", event => {
             stop(event);
 
@@ -64,6 +73,7 @@ export function createBindPillEvents({
     }
 
     function bindStageMode({ app, pill, transformation }) {
+        logger.debug("createBindPillEvents.bindStageMode", { app, pill, transformation })
         const stageButton =
             pill.querySelector('[data-action="pill-config-stage"]');
 
@@ -92,6 +102,7 @@ export function createBindPillEvents({
     }
 
     function stop(event) {
+        logger.debug("createBindPillEvents.stop", { event })
         event.preventDefault();
         event.stopPropagation();
     }

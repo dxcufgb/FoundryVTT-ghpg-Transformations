@@ -10,12 +10,14 @@ export class AberrantDistraction extends AberrantEffect {
         }
     }
     constructor(args) {
+        args?.logger?.debug?.("AberrantDistraction.constructor", { args })
         super(args);
         this.description =
             "Imposes disadvantage on dexterity saving throws";
     }
 
     async beforeApply() {
+        this.logger?.debug?.("AberrantDistraction.beforeApply", {})
         this.addEffects(
             this.effectChangeBuilder.getDisadvantage(
                 this.constants.SKILL.PERCEPTION,
@@ -24,3 +26,4 @@ export class AberrantDistraction extends AberrantEffect {
         );
     }
 }
+

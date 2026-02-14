@@ -11,6 +11,14 @@ export function createRollTableEffectCatalog({
     logger
 })
 {
+    logger.debug("createRollTableEffectCatalog", {
+        transformationRegistry,
+        constants,
+        effectChangeBuilder,
+        chatService,
+        actorRepository
+    })
+
     const effectsByKey = {}
 
     for (const entry of transformationRegistry.getAllEntries()) {
@@ -32,6 +40,7 @@ export function createRollTableEffectCatalog({
     return Object.freeze(
         new RollTableEffectCatalog({
             effectsByKey,
+            logger,
             constants,
             effectChangeBuilder,
             chatService,

@@ -1,12 +1,15 @@
 export function createLogger({
     level = 3,
-    prefix = "Transformations"
+    prefix = "Transformations",
+    bootstrapLogger = null
 } = {})
 {
+    bootstrapLogger?.debug?.("createLogger", { level, prefix })
     let actualLevel = level
 
     function enabled(minLevel)
     {
+        bootstrapLogger?.debug?.("createLogger.enabled", { minLevel, actualLevel })
         return actualLevel >= minLevel
     }
 

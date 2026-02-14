@@ -3,8 +3,11 @@ export function createTransformationCardController({
     logger
 })
 {
+    logger.debug("createTransformationCardController", { debouncedTracker })
+
     function activateTransformationCardListeners(html, actor)
     {
+        logger.debug("createTransformationCardController.activateTransformationCardListeners", { html, actor })
         html.find('[data-action="change-type"]').on("change", async event =>
         {
             const value = event.currentTarget.value

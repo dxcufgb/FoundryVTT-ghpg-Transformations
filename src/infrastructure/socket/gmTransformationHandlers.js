@@ -3,20 +3,37 @@ export function createGMTransformationHandlers({
   logger
 })
 {
+  logger.debug("createGMTransformationHandlers", { gateway })
+
   return Object.freeze({
     applyTransformation: payload =>
-      gateway.applyTransformation(payload),
+    {
+      logger.debug("createGMTransformationHandlers.applyTransformation", { payload })
+      return gateway.applyTransformation(payload)
+    },
 
     initializeTransformation: payload =>
-      gateway.initializeTransformation(payload),
+    {
+      logger.debug("createGMTransformationHandlers.initializeTransformation", { payload })
+      return gateway.initializeTransformation(payload)
+    },
 
     advanceStage: payload =>
-      gateway.advanceStage(payload),
+    {
+      logger.debug("createGMTransformationHandlers.advanceStage", { payload })
+      return gateway.advanceStage(payload)
+    },
 
     clearTransformation: payload =>
-      gateway.clearTransformation(payload),
+    {
+      logger.debug("createGMTransformationHandlers.clearTransformation", { payload })
+      return gateway.clearTransformation(payload)
+    },
 
     applyTriggerActions: payload =>
-      gateway.applyTriggerActions(payload)
+    {
+      logger.debug("createGMTransformationHandlers.applyTriggerActions", { payload })
+      return gateway.applyTriggerActions(payload)
+    }
   })
 }

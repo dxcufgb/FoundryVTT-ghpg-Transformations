@@ -9,8 +9,18 @@ export function createTransformationService({
     logger
 })
 {
+    logger.debug("createTransformationService", {
+        tracker,
+        mutationGateway,
+        transformationQueryService,
+        variableResolver,
+        stageChoiceResolver,
+        actorRepository
+    })
+
     async function applyTransformation(actor, transformation)
     {
+        logger.debug("createTransformationService.applyTransformation", { actor, transformation })
         return tracker.track(
             (async () =>
             {
@@ -33,6 +43,7 @@ export function createTransformationService({
 
     async function clearTransformation(actor)
     {
+        logger.debug("createTransformationService.clearTransformation", { actor })
         return tracker.track(
             (async () =>
             {
@@ -49,6 +60,7 @@ export function createTransformationService({
 
     async function onActorFlagsUpdated({ actor, diff })
     {
+        logger.debug("createTransformationService.onActorFlagsUpdated", { actor, diff })
         if (!actor) {
             logger.warn(
                 "Transformation skipped: actor no longer exists",
@@ -78,6 +90,7 @@ export function createTransformationService({
 
     async function handleTransformationChanged(actor)
     {
+        logger.debug("createTransformationService.handleTransformationChanged", { actor })
         const transformationId = actor.flags?.transformations?.type
 
         if (!transformationId) {
@@ -108,6 +121,7 @@ export function createTransformationService({
 
     async function handleStageChanged(actor)
     {
+        logger.debug("createTransformationService.handleStageChanged", { actor })
         const dialogFactory = UiAccessor.dialogs
         if (!dialogFactory) {
             logger.debug(
@@ -185,6 +199,7 @@ export function createTransformationService({
 
     async function onTrigger(actor, triggerName)
     {
+        logger.debug("createTransformationService.onTrigger", { actor, triggerName })
         assertActor(actor)
 
         return tracker.track(
@@ -241,6 +256,7 @@ export function createTransformationService({
 
     function assertActor(actor)
     {
+        logger.debug("createTransformationService.assertActor", { actor })
         if (!actor) {
             throw new Error("TransformationService requires actor")
         }
@@ -248,6 +264,7 @@ export function createTransformationService({
 
     function assertTransformation(transformation)
     {
+        logger.debug("createTransformationService.assertTransformation", { transformation })
         if (!transformation?.definition) {
             throw new Error(
                 "TransformationService requires a valid transformation"

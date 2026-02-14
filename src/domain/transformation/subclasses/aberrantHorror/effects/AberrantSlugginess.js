@@ -10,8 +10,10 @@ export class AberrantSlugginess extends AberrantEffect {
         }
     }
     constructor(args) {
+        args?.logger?.debug?.("AberrantSlugginess.constructor", { args })
         super(args);
         this.description =
             "Your body does not react quickly to mental commands. You cannot take Reactions.";
     }
 }
+

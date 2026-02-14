@@ -2,11 +2,19 @@ export function registerTransformationConfigAdapter({
     app,
     html,
     dialogFactory,
-    transformations
+    transformations,
+    logger = null
 })
 {
+    logger?.debug?.("registerTransformationConfigAdapter", {
+        app,
+        html,
+        dialogFactory,
+        transformations
+    })
     html.addEventListener("click", event =>
     {
+        logger?.debug?.("registerTransformationConfigAdapter.click", { event })
         const button = event.target.closest("[data-action]")
         if (!button) return
 

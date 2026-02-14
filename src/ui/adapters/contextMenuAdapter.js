@@ -5,6 +5,7 @@ export function registerContextMenuAdapter({
     dialogs,
     logger
 }) {
+    logger.debug("registerContextMenuAdapter", { app, html, services, dialogs })
     html.on("contextmenu", "[data-context-action]", event => {
         const action =
             event.currentTarget.dataset.contextAction;

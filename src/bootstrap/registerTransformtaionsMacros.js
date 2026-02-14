@@ -6,6 +6,8 @@ export function registerTransformationMacros({
     logger
 })
 {
+    logger.debug("registerTransformationMacros", { macroRegistry })
+
     macroRegistry.register({
         type: "General",
         createHandlers: createGeneralHandlers

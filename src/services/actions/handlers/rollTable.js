@@ -7,12 +7,23 @@ export function createRollTableAction({
     logger
 })
 {
+    logger.debug("createRollTableAction", {
+        rollTableService,
+        rollTableEffectResolver,
+        tracker
+    })
+
     return async function APPLY_ROLLTABLE({
         actor,
         action,
         context
     })
     {
+        logger.debug("createRollTableAction.APPLY_ROLLTABLE", {
+            actor,
+            action,
+            context
+        })
         return tracker.track(
             (async () =>
             {

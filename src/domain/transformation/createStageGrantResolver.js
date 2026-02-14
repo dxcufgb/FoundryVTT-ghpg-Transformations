@@ -2,8 +2,11 @@ export function createStageGrantResolver({
     logger
 })
 {
+    logger.debug("createStageGrantResolver", {})
+
     function resolve({ definition, stage })
     {
+        logger.debug("createStageGrantResolver.resolve", { definition, stage })
         if (!definition || !stage) {
             return empty()
         }
@@ -24,6 +27,7 @@ export function createStageGrantResolver({
 
     function normalizeItems(items = [])
     {
+        logger.debug("createStageGrantResolver.normalizeItems", { items })
         if (!Array.isArray(items)) return []
 
         return items.map(item => ({
@@ -34,6 +38,7 @@ export function createStageGrantResolver({
 
     function empty()
     {
+        logger.debug("createStageGrantResolver.empty", {})
         return {
             items: [],
             creatureSubType: null

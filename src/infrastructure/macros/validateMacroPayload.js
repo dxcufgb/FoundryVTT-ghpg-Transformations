@@ -1,4 +1,5 @@
 export function validateMacroPayload(payload, { logger }) {
+    logger.debug("validateMacroPayload", { payload })
     if (!payload || typeof payload !== "object") {
         logger.warn("Invalid macro payload: not an object", payload);
         return false;

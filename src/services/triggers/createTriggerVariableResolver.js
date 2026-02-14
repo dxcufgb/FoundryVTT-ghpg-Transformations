@@ -4,6 +4,7 @@ export function createTriggerVariableResolver({
     logger
 })
 {
+    logger.debug("createTriggerVariableResolver", { formulaEvaluator })
 
     function resolve({
         actor,
@@ -12,6 +13,12 @@ export function createTriggerVariableResolver({
         context
     })
     {
+        logger.debug("createTriggerVariableResolver.resolve", {
+            actor,
+            transformation,
+            rawVariables,
+            context
+        })
         if (!Array.isArray(rawVariables) || rawVariables.length === 0) {
             return {}
         }
@@ -54,6 +61,13 @@ export function createTriggerVariableResolver({
         resolved
     })
     {
+        logger.debug("createTriggerVariableResolver.resolveVariable", {
+            variable,
+            actor,
+            transformation,
+            context,
+            resolved
+        })
         switch (variable.type) {
             case "formula":
                 return formulaEvaluator.evaluate({
@@ -83,6 +97,12 @@ export function createTriggerVariableResolver({
         variables
     })
     {
+        logger.debug("createTriggerVariableResolver.buildScope", {
+            actor,
+            transformation,
+            context,
+            variables
+        })
         return {
             actor,
             transformation,

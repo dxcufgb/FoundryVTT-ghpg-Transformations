@@ -20,6 +20,13 @@ export function createUi({
     logger
 })
 {
+    logger.debug("createUi", {
+        services,
+        infrastructure,
+        renderTemplate,
+        tracker,
+        debouncedTracker
+    })
     const { transformationService, transformationQueryService, actorQueryService } = services
 
     const dialogs = createDialogFactory({

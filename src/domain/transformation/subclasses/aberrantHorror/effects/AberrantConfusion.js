@@ -11,8 +11,10 @@ export class AberrantConfusion extends AberrantEffect {
     }
 
     constructor(args) {
+        args?.logger?.debug?.("AberrantConfusion.constructor", { args })
         super(args);
         this.description =
             "After rolling Initiative, you have the Stunned condition until the end of your first turn";
     }
 }
+

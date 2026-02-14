@@ -10,13 +10,17 @@ export class AberrantSlowness extends AberrantEffect {
         }
     }
     constructor(args) {
+        args?.logger?.debug?.("AberrantSlowness.constructor", { args })
         super(args);
         this.description =
             "After rolling Initiative, you have the Stunned condition until the end of your first turn";
     }
 
     async beforeApply() {
+        this.logger?.debug?.("AberrantSlowness.beforeApply", {})
         const effects = this.actorRepository.getMovementBonusEffectChanges(actor, { bonus: -15 });
         this.addEffects(effects);
     }
 }
+
+

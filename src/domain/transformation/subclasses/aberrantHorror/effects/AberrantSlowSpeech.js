@@ -10,8 +10,10 @@ export class AberrantSlowSpeech extends AberrantEffect {
         }
     }
     constructor(args) {
+        args?.logger?.debug?.("AberrantSlowSpeech.constructor", { args })
         super(args);
         this.description =
             "Speaking is difficult. You can only utter one word during each turn. This does not hamper spellcasting";
     }
 }
+

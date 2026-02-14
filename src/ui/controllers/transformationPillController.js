@@ -3,6 +3,8 @@ export function createTransformationPillController({
     logger
 })
 {
+    logger.debug("createTransformationPillController", { dialogs })
+
     function bind({
         app,
         pillElement,
@@ -11,6 +13,13 @@ export function createTransformationPillController({
         transformations
     })
     {
+        logger.debug("createTransformationPillController.bind", {
+            app,
+            pillElement,
+            viewModel,
+            transformation,
+            transformations
+        })
         if (!pillElement) return
 
         if (viewModel.mode === "add") {

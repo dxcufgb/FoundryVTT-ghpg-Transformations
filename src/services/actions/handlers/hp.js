@@ -6,6 +6,8 @@ export function createHpAction({
     logger
 })
 {
+    logger.debug("createHpAction", { actorRepository, tracker })
+
     return async function APPLY_HP({
         actor,
         action,
@@ -13,6 +15,12 @@ export function createHpAction({
         variables
     })
     {
+        logger.debug("createHpAction.APPLY_HP", {
+            actor,
+            action,
+            context,
+            variables
+        })
         const { mode, value } = action.data ?? {}
 
         if (!mode || value == null) {

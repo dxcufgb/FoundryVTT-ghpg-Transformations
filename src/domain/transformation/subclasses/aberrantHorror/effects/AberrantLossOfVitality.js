@@ -10,12 +10,14 @@ export class AberrantLossOfVitality extends AberrantEffect {
         }
     }
     constructor(args) {
+        args?.logger?.debug?.("AberrantLossOfVitality.constructor", { args })
         super(args);
         this.description =
             "Imposes disadvantage on constitution ability checks and saving throws";
     }
 
     async beforeApply() {
+        this.logger?.debug?.("AberrantLossOfVitality.beforeApply", {})
         this.addEffects(
             this.effectChangeBuilder.getDisadvantage(
                 this.constants.ABILITY.CONSTITUTION,
@@ -31,3 +33,4 @@ export class AberrantLossOfVitality extends AberrantEffect {
         );
     }
 }
+

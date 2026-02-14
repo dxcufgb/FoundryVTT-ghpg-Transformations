@@ -1,5 +1,11 @@
-export function createTransformationCardViewModel(actor, transformationTypes, isGM, editMode = false)
+export function createTransformationCardViewModel(actor, transformationTypes, isGM, editMode = false, logger = null)
 {
+    logger?.debug?.("createTransformationCardViewModel", {
+        actor,
+        transformationTypes,
+        isGM,
+        editMode
+    })
     const flags = actor.flags.transformations ?? {}
 
     const transformationType = flags.type ?? ""

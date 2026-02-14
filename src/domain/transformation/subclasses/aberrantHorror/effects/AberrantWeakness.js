@@ -9,12 +9,14 @@ export class AberrantWeakness extends AberrantEffect {
     }
 
     constructor(args) {
+        args?.logger?.debug?.("AberrantWeakness.constructor", { args })
         super(args);
         this.description =
             "Your form becomes fragile. Your Hit Point Maximum is half your normal maximum";
     }
 
     async beforeApply() {
+        this.logger?.debug?.("AberrantWeakness.beforeApply", {})
         const newMax = this.actor.system.attributes.hp.max / 2;
 
         this.addEffects(
@@ -26,3 +28,4 @@ export class AberrantWeakness extends AberrantEffect {
         );
     }
 }
+

@@ -7,8 +7,17 @@ export function createCreatureTypeService({
     logger
 })
 {
+    logger.debug("createCreatureTypeService", {
+        tracker,
+        debouncedTracker,
+        actorRepository,
+        itemRepository,
+        utils
+    })
+
     async function applyCreatureSubType(actor, creatureSubType)
     {
+        logger.debug("createCreatureTypeService.applyCreatureSubType", { actor, creatureSubType })
         if (!actor || !creatureSubType) return
 
         const baseType = actor.system.details.type.value
@@ -43,6 +52,7 @@ export function createCreatureTypeService({
 
     async function restoreBaseCreatureType(actor)
     {
+        logger.debug("createCreatureTypeService.restoreBaseCreatureType", { actor })
         if (!actor) return
 
         const flags = actorRepository.getCreatureTypeFlags(actor)

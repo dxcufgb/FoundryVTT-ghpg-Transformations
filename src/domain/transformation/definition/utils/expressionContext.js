@@ -5,6 +5,7 @@ import { resolveExpression } from "../utils/resolveExpression.js"
  */
 export function buildExpressionContext(actor, context = {})
 {
+    context?.logger?.debug?.("buildExpressionContext", { actor, context })
     const base = {
         stage: context?.stage ?? 0,
         prof: actor.system?.attributes?.prof ?? 0,

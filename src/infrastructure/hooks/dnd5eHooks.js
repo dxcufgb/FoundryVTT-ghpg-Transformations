@@ -5,11 +5,16 @@ export function registerDnd5eHooks({
     logger
 })
 {
+    logger.debug("registerDnd5eHooks", {
+        transformationService,
+        triggerRuntime,
+        debouncedTracker
+    })
 
     Hooks.on("dnd5e.damageActor", (actor) =>
     {
-        debouncedTracker.pulse("dnd5e.damageActor")
         logger.debug("dnd5e.damageActor called", actor);
+        debouncedTracker.pulse("dnd5e.damageActor")
         (async () =>
         {
             triggerRuntime.run("damage", actor)
@@ -18,8 +23,8 @@ export function registerDnd5eHooks({
 
     Hooks.on("dnd5e.restCompleted", (actor, result) =>
     {
-        debouncedTracker.pulse("dnd5e.restCompleted")
         logger.debug("dnd5e.restCompleted called", actor, result);
+        debouncedTracker.pulse("dnd5e.restCompleted")
         (async () =>
         {
             if (result.type === "short") {
@@ -32,8 +37,8 @@ export function registerDnd5eHooks({
 
     Hooks.on("dnd5e.rollInitiative", (actor) =>
     {
-        debouncedTracker.pulse("dnd5e.rolInitiative")
         logger.debug("dnd5e.rollInitiative called", actor);
+        debouncedTracker.pulse("dnd5e.rolInitiative")
         (async () =>
         {
             triggerRuntime.run("initiative", actor)
@@ -42,8 +47,8 @@ export function registerDnd5eHooks({
 
     Hooks.on("dnd5e.beginConcentrating", (actor, item) =>
     {
-        debouncedTracker.pulse("dnd5e.beginConcentrating")
         logger.debug("dnd5e.beginConcentrating called", actor, item);
+        debouncedTracker.pulse("dnd5e.beginConcentrating")
         (async () =>
         {
             if (item.type !== "spell") return
@@ -54,8 +59,8 @@ export function registerDnd5eHooks({
 
     Hooks.on("dnd5e.preRollHitDieV2", (context) =>
     {
-        debouncedTracker.pulse("dnd5e.preRollHitDieV2")
         logger.debug("dnd5e.preRollHitDieV2 called", context);
+        debouncedTracker.pulse("dnd5e.preRollHitDieV2")
         (async () =>
         {
             return transformationService.onHitDieRoll(
@@ -66,8 +71,8 @@ export function registerDnd5eHooks({
 
     Hooks.on("dnd5e.preRollSavingThrow", (context, options, data) =>
     {
-        debouncedTracker.pulse("dnd5e.preRollSavingThrow")
         logger.debug("dnd5e.preRollSavingThrow called", context, options, data);
+        debouncedTracker.pulse("dnd5e.preRollSavingThrow")
         (async () =>
         {
             if (context.workflow?.item?.type !== "spell") return
@@ -79,8 +84,8 @@ export function registerDnd5eHooks({
 
     Hooks.on("dnd5e.rollSavingThrow", (rolls, context) =>
     {
-        debouncedTracker.pulse("dnd5e.rollSavingThrow")
         logger.debug("dnd5e.rollSavingThrow called", rolls, context);
+        debouncedTracker.pulse("dnd5e.rollSavingThrow")
         (async () =>
         {
             const roll = rolls?.[0]

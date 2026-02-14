@@ -8,7 +8,6 @@ export async function advanceStageAndWait({
 })
 {
     await actor.setFlag("transformations", "stage", stage)
-    await waitForActorConsistency(actor)
     await asyncTrackers.whenIdle()
     await waitForNextFrame()
 }

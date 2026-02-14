@@ -6,12 +6,22 @@ export function createEffectAction({
     logger
 })
 {
+    logger.debug("createEffectAction", {
+        activeEffectRepository,
+        tracker
+    })
+
     return async function EFFECT_ACTION({
         actor,
         action,
         context
     })
     {
+        logger.debug("createEffectAction.EFFECT_ACTION", {
+            actor,
+            action,
+            context
+        })
         const { mode, name, source } = action.data ?? {}
 
         if (!mode || !name) {
@@ -61,6 +71,12 @@ export function createEffectAction({
         context
     })
     {
+        logger.debug("createEffectAction.applyEffect", {
+            actor,
+            name,
+            source,
+            context
+        })
         if (activeEffectRepository.hasByName(actor, name)) {
             logger.debug(
                 "Effect already present, skipping",
@@ -88,6 +104,7 @@ export function createEffectAction({
         name
     })
     {
+        logger.debug("createEffectAction.removeEffect", { actor, name })
         const ids = activeEffectRepository.getIdsByName(actor, name)
 
         if (!ids.length) return

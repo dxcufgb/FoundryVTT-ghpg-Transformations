@@ -1,8 +1,10 @@
 export function createTransformationConfigViewModel({
     actor,
-    transformations
+    transformations,
+    logger = null
 })
 {
+    logger?.debug?.("createTransformationConfigViewModel", { actor, transformations })
     const activeId = actor.flags?.transformations?.type ?? "None"
 
     return {

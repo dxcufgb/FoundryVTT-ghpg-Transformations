@@ -3,12 +3,19 @@ export class TransformationChoiceDialog
         foundry.applications.api.ApplicationV2
     ) {
 
-    constructor ({ actor, viewModel, controller, options = {} })
+    constructor ({ actor, viewModel, controller, options = {}, logger = null })
     {
+        logger?.debug?.("TransformationChoiceDialog.constructor", {
+            actor,
+            viewModel,
+            controller,
+            options
+        })
         super(options)
         this.actor = actor
         this.viewModel = viewModel
         this.controller = controller
+        this.logger = logger
     }
 
     static DEFAULT_OPTIONS = {
@@ -33,11 +40,13 @@ export class TransformationChoiceDialog
 
     async _prepareContext()
     {
+        this.logger?.debug?.("TransformationChoiceDialog._prepareContext", {})
         return this.viewModel
     }
 
     _onRender(context, options)
     {
+        this.logger?.debug?.("TransformationChoiceDialog._onRender", { context, options })
         super._onRender(context, options)
 
         const root = this.element
@@ -72,12 +81,14 @@ export class TransformationChoiceDialog
 
     async _onClose(options)
     {
+        this.logger?.debug?.("TransformationChoiceDialog._onClose", { options })
         await super._onClose(options)
         this.controller.cancel()
     }
 
     radioButtonListener(ev, root)
     {
+        this.logger?.debug?.("TransformationChoiceDialog.radioButtonListener", { ev, root })
         const uuid = ev.currentTarget.dataset.uuid
 
         root.querySelectorAll(".choice-description").forEach(el =>

@@ -8,8 +8,9 @@ import
 
 import { enumUtils } from "../../utils/enumUtils.js"
 
-export function createD20RollAction({ ui })
+export function createD20RollAction({ ui, logger = null })
 {
+    logger?.debug?.("createD20RollAction", { ui })
 
     async function roll({
         actor,
@@ -19,6 +20,13 @@ export function createD20RollAction({ ui })
         mode = ROLL_MODE.NORMAL.int
     })
     {
+        logger?.debug?.("createD20RollAction.roll", {
+            actor,
+            identifier,
+            rollType,
+            dc,
+            mode
+        })
         if (!actor) {
             ui.notifications.warn("Select a token.")
             return

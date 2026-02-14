@@ -7,12 +7,14 @@ export class AberrantResilience extends AberrantEffect {
         }
     }
     constructor(args) {
+        args?.logger?.debug?.("AberrantResilience.constructor", { args })
         super(args);
         this.description =
             "Your bodyâ€™s systems are enhanced. You have Advantage on Death Saving Throws";
     }
 
     async beforeApply() {
+        this.logger?.debug?.("AberrantResilience.beforeApply", {})
         this.addEffects([{
             key: "flags.midi-qol.advantage.deathSave",
             mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
@@ -20,3 +22,5 @@ export class AberrantResilience extends AberrantEffect {
         }]);
     }
 }
+
+

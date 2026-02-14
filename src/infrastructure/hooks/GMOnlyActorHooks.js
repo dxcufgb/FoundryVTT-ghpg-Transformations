@@ -11,6 +11,18 @@ export function registerGMOnlyActorHooks({
     logger
 })
 {
+    logger.debug("registerGMOnlyActorHooks", {
+        game,
+        ActorClass,
+        ui,
+        actorRepository,
+        triggerRuntime,
+        transformationQueryService,
+        constants,
+        registerActorSheetControlsAdapter,
+        debouncedTracker
+    })
+
     registerActorSheetControlsAdapter({
         game,
         ActorClass,
@@ -22,12 +34,11 @@ export function registerGMOnlyActorHooks({
 
     Hooks.on("createActiveEffect", async (effect, options, userId) =>
     {
+        logger.debug("GM createActiveEffect", effect, options, userId)
         debouncedTracker.pulse("createActiveEffect")
         const executionContext = effect.parent?.getFlag("transformations", "executionContext")
 
         if (executionContext === "macro") return
-
-        logger.debug("GM createActiveEffect", effect, options, userId)
 
         const actor = effect.parent
         if (!actor) return
@@ -56,13 +67,12 @@ export function registerGMOnlyActorHooks({
 
     Hooks.on("applyActiveEffect", async (target, context) =>
     {
+        logger.debug("GM applyActiveEffect", target, context)
         debouncedTracker.pulse("applyActiveEffect")
         const actor = actorRepository.resolveActor(target)
         const executionContext = actor?.getFlag("transformations", "executionContext")
 
         if (executionContext === "macro") return
-
-        logger.debug("GM applyActiveEffect", actor, context)
 
         if (!actor) return
 

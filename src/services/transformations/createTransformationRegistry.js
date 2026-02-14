@@ -1,5 +1,8 @@
-export function createTransformationRegistry()
+export function createTransformationRegistry({
+    logger
+} = {})
 {
+    logger?.debug?.("createTransformationRegistry", {})
     const registry = new Map()
 
     function register({
@@ -12,6 +15,15 @@ export function createTransformationRegistry()
         TransformationMacros
     })
     {
+        logger?.debug?.("createTransformationRegistry.register", {
+            uuid,
+            TransformationClass,
+            TransformationDefinition,
+            TransformationStages,
+            TransformationTriggers,
+            TransformationRollTableEffects,
+            TransformationMacros
+        })
         if (!TransformationClass?.itemId) {
             throw new Error("TransformationClass must define itemId")
         }
@@ -33,6 +45,7 @@ export function createTransformationRegistry()
 
     function getEntryForActor(actor)
     {
+        logger?.debug?.("createTransformationRegistry.getEntryForActor", { actor })
         const itemId = actor?.flags?.transformations?.type
 
         if (!itemId) return null
@@ -42,16 +55,19 @@ export function createTransformationRegistry()
 
     function getEntryByItemId(itemId)
     {
+        logger?.debug?.("createTransformationRegistry.getEntryByItemId", { itemId })
         return registry.get(itemId) ?? null
     }
 
     function getAllEntries()
     {
+        logger?.debug?.("createTransformationRegistry.getAllEntries", {})
         return Array.from(registry.values())
     }
 
     function getRollTableEffectsByType()
     {
+        logger?.debug?.("createTransformationRegistry.getRollTableEffectsByType", {})
         const map = {}
 
         for (const entry of registry.values()) {
@@ -68,6 +84,7 @@ export function createTransformationRegistry()
 
     function getRollTableEffectsByKey()
     {
+        logger?.debug?.("createTransformationRegistry.getRollTableEffectsByKey", {})
         const effectsByKey = Object.create(null)
 
         for (const entry of registry.values()) {

@@ -15,9 +15,21 @@ export function createMacroExecutor({
     notify
 })
 {
+    logger.debug("createMacroExecutor", {
+        actorRepository,
+        tokenRepository,
+        itemRepository,
+        socketGateway,
+        activeEffectRepository,
+        macroRegistry,
+        macroContextFactory,
+        tracker,
+        notify
+    })
 
     async function macroWrapper(payload)
     {
+        logger.debug("createMacroExecutor.macroWrapper", { payload })
         return tracker.track(
             (async () =>
             {
@@ -34,6 +46,7 @@ export function createMacroExecutor({
 
     async function executeMacro(payload)
     {
+        logger.debug("createMacroExecutor.executeMacro", { payload })
         return tracker.track(
             (async () =>
             {

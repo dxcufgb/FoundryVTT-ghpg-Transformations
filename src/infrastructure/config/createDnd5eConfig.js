@@ -1,8 +1,13 @@
 export function createDnd5eConfig({
     constants,
-    transformationSubTypes
+    transformationSubTypes,
+    logger = null
 })
 {
+    logger?.debug?.("createDnd5eConfig", {
+        constants,
+        transformationSubTypes
+    })
     const { TRANSFORMATION_FEATURE } = constants
 
     CONFIG.DND5E.featureTypes.transformation = {

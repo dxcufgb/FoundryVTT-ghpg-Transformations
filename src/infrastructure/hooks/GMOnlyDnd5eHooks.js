@@ -4,5 +4,8 @@ export function registerGMOnlyDnd5eHooks({
     logger
 })
 {
-
+    logger.debug("registerGMOnlyDnd5eHooks", {
+        transformationService,
+        transformationQueryService
+    })
 }

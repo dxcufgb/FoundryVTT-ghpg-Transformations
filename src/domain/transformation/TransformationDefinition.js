@@ -16,9 +16,18 @@ export class TransformationDefinition
         item,
         stages,
         triggers,
-        rollTableEffects = null
+        rollTableEffects = null,
+        logger = null
     })
     {
+        logger?.debug?.("TransformationDefinition.constructor", {
+            id,
+            uuid,
+            item,
+            stages,
+            triggers,
+            rollTableEffects
+        })
         if (!id) throw new Error("TransformationDefinition requires id")
         if (!uuid) throw new Error("TransformationDefinition requires uuid")
         if (!item) throw new Error("TransformationDefinition requires item")
@@ -41,20 +50,26 @@ export class TransformationDefinition
         this.stages = stages
         this.triggers = triggers
         this.rollTableEffects = rollTableEffects
+        this.logger = logger
 
         Object.freeze(this)
     }
 
     getStage(stage)
     {
+        this.logger?.debug?.("TransformationDefinition.getStage", { stage })
         return this.stages.get(stage) ?? null
     }
 
     getTrigger(key)
     {
+        this.logger?.debug?.("TransformationDefinition.getTrigger", { key })
         return this.triggers.get(key) ?? null
     }
 
     /** Optional hook for subclasses */
-    validate() { }
+    validate()
+    {
+        this.logger?.debug?.("TransformationDefinition.validate", {})
+    }
 }

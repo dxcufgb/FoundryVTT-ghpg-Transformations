@@ -7,12 +7,23 @@ export function createRollTableService({
     logger
 })
 {
+    logger.debug("createRollTableService", {
+        tracker,
+        debouncedTracker,
+        compendiumRepository
+    })
+
     async function roll({
         uuid,
         mode = "normal",
         context = {}
     })
     {
+        logger.debug("createRollTableService.roll", {
+            uuid,
+            mode,
+            context
+        })
         if (!uuid) {
             logger.warn("rollTableService.roll called without uuid")
             return null
@@ -74,6 +85,7 @@ export function createRollTableService({
 
     function passesMode(outcome, mode, context)
     {
+        logger.debug("createRollTableService.passesMode", { outcome, mode, context })
         if (mode === "normal") return true
 
         const currentStage = context?.stage
@@ -98,6 +110,12 @@ export function createRollTableService({
 
     function normalizeResult({ table, rollResult, result, context })
     {
+        logger.debug("createRollTableService.normalizeResult", {
+            table,
+            rollResult,
+            result,
+            context
+        })
         return {
             table: {
                 uuid: table.uuid,
@@ -124,6 +142,7 @@ export function createRollTableService({
 
     function extractEffectKey(result)
     {
+        logger.debug("createRollTableService.extractEffectKey", { result })
         // Preferred: explicit flag
         const flagged = result.flags?.transformations?.effectKey
 
@@ -137,6 +156,7 @@ export function createRollTableService({
 
     function extractStageFromText(text = "")
     {
+        logger.debug("createRollTableService.extractStageFromText", { text })
         const match = text.match(/stage\s*(\d+)/i)
         return match ? Number(match[1]) : null
     }

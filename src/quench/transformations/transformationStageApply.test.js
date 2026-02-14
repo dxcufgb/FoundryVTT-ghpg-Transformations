@@ -117,6 +117,11 @@ quench.registerBatch(
                     { trackers: runtime.dependencies.utils.asyncTrackers }
                 )
 
+                await waitForNextFrame()
+
+                expect(actor.getFlag("transformations", "stage")).to.be.equal(0)
+                expect(actor.getFlag("transformations", "type")).to.be.equal("aberrant-horror")
+
                 await advanceStageAndWait({
                     actor,
                     stage: 1,

@@ -7,6 +7,8 @@ export function createChatAction({
     logger
 })
 {
+    logger.debug("createChatAction", { tracker })
+
     return async function CHAT({
         actor,
         action,
@@ -14,6 +16,12 @@ export function createChatAction({
         variables
     })
     {
+        logger.debug("createChatAction.CHAT", {
+            actor,
+            action,
+            context,
+            variables
+        })
         const template = action.data?.message
         if (!template) return
 

@@ -8,8 +8,18 @@ export function createTransformationMutationGateway({
     logger
 })
 {
+    logger.debug("createTransformationMutationGateway", {
+        tracker,
+        socketGateway,
+        localMutationAdapter,
+        actionExecutor,
+        actionHandlers,
+        notifier
+    })
+
     async function applyTransformation(payload)
     {
+        logger.debug("createTransformationMutationGateway.applyTransformation", { payload })
         return tracker.track(
             (async () =>
             {
@@ -20,6 +30,7 @@ export function createTransformationMutationGateway({
 
     async function initializeTransformation(payload)
     {
+        logger.debug("createTransformationMutationGateway.initializeTransformation", { payload })
         return tracker.track(
             (async () =>
             {
@@ -30,6 +41,7 @@ export function createTransformationMutationGateway({
 
     async function advanceStage(payload)
     {
+        logger.debug("createTransformationMutationGateway.advanceStage", { payload })
         return tracker.track(
             (async () =>
             {
@@ -40,6 +52,7 @@ export function createTransformationMutationGateway({
 
     async function clearTransformation(payload)
     {
+        logger.debug("createTransformationMutationGateway.clearTransformation", { payload })
         return tracker.track(
             (async () =>
             {
@@ -50,6 +63,7 @@ export function createTransformationMutationGateway({
 
     async function applyTriggerActions(payload)
     {
+        logger.debug("createTransformationMutationGateway.applyTriggerActions", { payload })
         return tracker.track(
             (async () =>
             {
@@ -60,6 +74,7 @@ export function createTransformationMutationGateway({
 
     async function execute(action, payload)
     {
+        logger.debug("createTransformationMutationGateway.execute", { action, payload })
         return tracker.track(
             (async () =>
             {
@@ -151,6 +166,7 @@ export function createTransformationMutationGateway({
 
     function assertLocalAuthority(action, payload)
     {
+        logger.debug("createTransformationMutationGateway.assertLocalAuthority", { action, payload })
         if (!socketGateway.canMutateLocally()) {
             const err = new Error(
                 `Illegal local mutation attempt: ${action}`

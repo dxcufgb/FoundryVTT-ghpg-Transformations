@@ -11,11 +11,24 @@ export function createDialogFactory({
     logger
 })
 {
+    logger.debug("createDialogFactory", {
+        controllers,
+        viewModels,
+        transformationService,
+        transformationQueryService,
+        actorQueryService,
+        tracker
+    })
+
     function openTransformationConfig({
         actor,
         transformations
     })
     {
+        logger.debug("createDialogFactory.openTransformationConfig", {
+            actor,
+            transformations
+        })
         if (!actor) {
             logger.warn(
                 "openTransformationConfig called without actor"
@@ -58,6 +71,11 @@ export function createDialogFactory({
         stage
     })
     {
+        logger.debug("createDialogFactory.openStageChoiceDialog", {
+            actor,
+            choices,
+            stage
+        })
         if (!actor || !choices?.length) {
             return undefined
         }
@@ -86,7 +104,8 @@ export function createDialogFactory({
                 controller,
                 options: {
                     id: `transformation-choice-dialog-${actor.id}-stage-${stage}`
-                }
+                },
+                logger
             })
 
             await dialog.render(true)
@@ -102,6 +121,7 @@ export function createDialogFactory({
 
     function closeExistingDialog(dialog)
     {
+        logger.debug("createDialogFactory.closeExistingDialog", { dialog })
         for (const app of Object.values(ui.windows)) {
             if (app instanceof dialog) {
                 app.close({ force: true })

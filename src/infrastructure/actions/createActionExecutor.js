@@ -7,6 +7,11 @@ export function createActionExecutor({
     logger
 })
 {
+    logger.debug("createActionExecutor", {
+        tracker,
+        actorRepository
+    })
+
     async function execute({
         actorId,
         actions,
@@ -15,6 +20,13 @@ export function createActionExecutor({
         handlers
     })
     {
+        logger.debug("createActionExecutor.execute", {
+            actorId,
+            actions,
+            context,
+            variables,
+            handlers
+        })
         const actor = actorRepository.getById(actorId)
         if (!actor || !Array.isArray(actions)) return
 

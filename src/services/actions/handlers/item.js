@@ -4,12 +4,19 @@ export function createItemAction({
     logger
 })
 {
+    logger.debug("createItemAction", { itemRepository, tracker })
+
     return async function APPLY_ITEM({
         actor,
         action,
         context
     })
     {
+        logger.debug("createItemAction.APPLY_ITEM", {
+            actor,
+            action,
+            context
+        })
         const {
             uuid,
             mode = "add",

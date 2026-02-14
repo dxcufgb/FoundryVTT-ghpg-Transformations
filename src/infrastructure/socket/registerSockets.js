@@ -5,6 +5,12 @@ export function registerSockets({
     logger
 })
 {
+    logger.debug("registerSockets", {
+        socketGateway,
+        transformationMutationGateway,
+        createGMTransformationHandlers
+    })
+
     const handlers = createGMTransformationHandlers({
         gateway: transformationMutationGateway,
         logger

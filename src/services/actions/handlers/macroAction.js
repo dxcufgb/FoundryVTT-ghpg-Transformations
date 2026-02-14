@@ -6,6 +6,8 @@ export function createMacroAction({
     logger
 })
 {
+    logger.debug("createMacroAction", { directMacroInvoker, tracker })
+
     return async function MACRO({
         actor,
         action,
@@ -13,6 +15,12 @@ export function createMacroAction({
         variables
     })
     {
+        logger.debug("createMacroAction.MACRO", {
+            actor,
+            action,
+            context,
+            variables
+        })
         const data = action.data
 
         if (!data?.type || !data?.action) {

@@ -1,9 +1,11 @@
 export function canShowTransformationControls({
     app,
     game,
-    ActorClass
+    ActorClass,
+    logger = null
 })
 {
+    logger?.debug?.("canShowTransformationControls", { app, game, ActorClass })
     if (!game.user.isGM) return false
     if (!(app.document instanceof ActorClass)) return false
     if (!app.actor) return false

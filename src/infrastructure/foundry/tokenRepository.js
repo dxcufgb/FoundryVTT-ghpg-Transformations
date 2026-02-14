@@ -4,9 +4,15 @@ export function createTokenRepository({
     logger
 })
 {
+    logger.debug("createTokenRepository", {
+        tracker,
+        debouncedTracker
+    })
+
     return {
         getByUuid: async () =>
         {
+            logger.debug("createTokenRepository.getByUuid", {})
             return tracker.track(
                 (async () =>
                 {
