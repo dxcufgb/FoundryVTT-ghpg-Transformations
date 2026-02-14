@@ -2,86 +2,102 @@
 
 export function createEffectAction({
     activeEffectRepository,
+    tracker,
     logger
-}) {
+})
+{
     return async function EFFECT_ACTION({
         actor,
         action,
         context
-    }) {
-        const { mode, name, source } = action.data ?? {};
+    })
+    {
+        const { mode, name, source } = action.data ?? {}
 
         if (!mode || !name) {
-            logger.warn("EFFECT action missing mode or name", action);
-            return;
+            logger.warn("EFFECT action missing mode or name", action)
+            return
         }
 
-        logger.debug(
-            "Executing EFFECT action",
-            actor.id,
-            mode,
-            name
-        );
+        return tracker.track(
+            (async () =>
+            {
 
-        switch (mode) {
-            case "apply":
-                await applyEffect({
-                    actor,
-                    name,
-                    source,
-                    context
-                });
-                break;
-
-            case "remove":
-                await removeEffect({
-                    actor,
+                logger.debug(
+                    "Executing EFFECT action",
+                    actor.id,
+                    mode,
                     name
-                });
-                break;
+                )
 
-            default:
-                logger.warn("Unknown EFFECT action mode", mode);
-        }
-    };
+                switch (mode) {
+                    case "apply":
+                        await applyEffect({
+                            actor,
+                            name,
+                            source,
+                            context
+                        })
+                        break
 
-    // ─────────────────────────────────────────────────────────────
-    // Internal helpers
-    // ─────────────────────────────────────────────────────────────
+                    case "remove":
+                        await removeEffect({
+                            actor,
+                            name
+                        })
+                        break
+
+                    default:
+                        logger.warn("Unknown EFFECT action mode", mode)
+                }
+            })()
+        )
+    }
 
     async function applyEffect({
         actor,
         name,
         source,
         context
-    }) {
-        // Avoid duplicates
+    })
+    {
         if (activeEffectRepository.hasByName(actor, name)) {
             logger.debug(
                 "Effect already present, skipping",
                 actor.id,
                 name
-            );
-            return;
+            )
+            return
         }
 
-        await activeEffectRepository.create({
-            actor,
-            name,
-            source: source ?? "transformation",
-            context
-        });
+        return tracker.track(
+            (async () =>
+            {
+                await activeEffectRepository.create({
+                    actor,
+                    name,
+                    source: source ?? "transformation",
+                    context
+                })
+            })()
+        )
     }
 
     async function removeEffect({
         actor,
         name
-    }) {
-        const ids =
-            activeEffectRepository.getIdsByName(actor, name);
+    })
+    {
+        const ids = activeEffectRepository.getIdsByName(actor, name)
 
-        if (!ids.length) return;
+        if (!ids.length) return
 
-        await activeEffectRepository.removeByIds(actor, ids);
+        return tracker.track(
+            (async () =>
+            {
+
+                await activeEffectRepository.removeByIds(actor, ids)
+            })()
+        )
     }
 }

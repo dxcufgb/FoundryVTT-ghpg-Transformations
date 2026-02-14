@@ -1,6 +1,7 @@
-import { AberrantEffect } from "../aberrantEffect.js";
+import { AberrantEffect } from "../aberrantEffect.js"
 
-export class AberrantTemporaryVitalityBoost extends AberrantEffect {
+export class AberrantTemporaryVitalityBoost extends AberrantEffect
+{
     static meta = {
         rollRanges: {
             1: [88, 93],
@@ -8,15 +9,17 @@ export class AberrantTemporaryVitalityBoost extends AberrantEffect {
         }
     }
 
-    constructor(args) {
-        super(args);
+    constructor (args)
+    {
+        super(args)
         this.description =
-            "Your flesh becomes more hardy. You start the day with 4 Temporary Hit Points per Transformation Stage.";
+            "Your flesh becomes more hardy. You start the day with 4 Temporary Hit Points per Transformation Stage."
     }
 
-    async beforeApply() {
-        const bonus = this.actor.flags.dnd5e.transformationStage * 4;
-        await this.actorRepository.setActorHp(this.actor, bonus, "temp");
-        this.runActiveEffect = false;
+    async beforeApply()
+    {
+        const bonus = this.actor.flags.transformations.stage * 4
+        await this.actorRepository.setActorHp(this.actor, bonus, "temp")
+        this.runActiveEffect = false
     }
 }

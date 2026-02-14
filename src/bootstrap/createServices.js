@@ -1,36 +1,42 @@
 // bootstrap/createServices.js
 
-import { registerTransformations } from "../domain/transformation/manifest.js";
-import { createTransformationDefinitionFactory } from "../domain/transformation/createTransformationDefinitionFactory.js";
-import { createTransformationInstanceFactory } from "../domain/transformation/createTransformationInstanceFactory.js";
-import { createActorQueryService } from "../services/actor/createActorQueryService.js";
-import { createRollTableEffectResolver } from "../services/rollTables/createRollTableEffectResolver.js";
-import { createTransformationQueryService } from "../services/transformations/createTransformationQueryService.js";
-import { createTransformationRegistry } from "../services/transformations/createTransformationRegistry.js";
-import { createTransformationService } from "../services/transformations/createTransformationServices.js";
-import { createTriggerRuntime } from "../services/triggers/createTriggerRuntime.js";
-import { createRollTableEffectCatalog } from "../services/rollTables/createRollTableEffectCatalog.js";
-import { createTransformationMutationGateway } from "../infrastructure/foundry/TransformationMutationGateway.js";
-import { createActionHandlers } from "../services/actions/handlers/index.js";
-import { createTriggerVariableResolver } from "../services/triggers/createTriggerVariableResolver.js";
-import { createFormulaEvaluator } from "../services/formulas/createFormulaEvaluator.js";
+import { registerTransformations } from "../domain/transformation/manifest.js"
+import { createTransformationDefinitionFactory } from "../domain/transformation/createTransformationDefinitionFactory.js"
+import { createTransformationInstanceFactory } from "../domain/transformation/createTransformationInstanceFactory.js"
+import { createActorQueryService } from "../services/actor/createActorQueryService.js"
+import { createRollTableEffectResolver } from "../services/rollTables/createRollTableEffectResolver.js"
+import { createTransformationQueryService } from "../services/transformations/createTransformationQueryService.js"
+import { createTransformationRegistry } from "../services/transformations/createTransformationRegistry.js"
+import { createTransformationService } from "../services/transformations/createTransformationServices.js"
+import { createTriggerRuntime } from "../services/triggers/createTriggerRuntime.js"
+import { createRollTableEffectCatalog } from "../services/rollTables/createRollTableEffectCatalog.js"
+import { createTransformationMutationGateway } from "../infrastructure/foundry/TransformationMutationGateway.js"
+import { createActionHandlers } from "../services/actions/handlers/index.js"
+import { createTriggerVariableResolver } from "../services/triggers/createTriggerVariableResolver.js"
+import { createFormulaEvaluator } from "../services/formulas/createFormulaEvaluator.js"
+import { createStageChoiceResolver } from "../domain/transformation/createStageChoiceResolver.js"
+import { createConditionService } from "../services/actor/createConditionService.js"
 
 export function createServices({
     dependencies,
-    infrastructure
-}) {
-    const { utils, logger, constants } = dependencies;
-    const { actorRepository, chatService, directMacroInvoker, activeEffectRepository, rollTableService, itemRepository, compendiumRepository, actionExecutor, socketGateway, localMutationAdapter } = infrastructure;
-    // ─────────────────────────────────────────────────────────────
-    // Domain registries (pure, no Foundry)
-    // ─────────────────────────────────────────────────────────────
+    infrastructure,
+    triggerNotification
+})
+{
+    const { utils, logger, constants } = dependencies
+    const { actorRepository, chatService, directMacroInvoker, activeEffectRepository, rollTableService, itemRepository, compendiumRepository, actionExecutor, socketGateway, localMutationAdapter, notifier } = infrastructure
+    const trackers = {
+        repositories: utils.asyncTrackers.get("repositories"),
+        mutations: utils.asyncTrackers.get("mutations"),
+        sockets: utils.asyncTrackers.get("sockets"),
+        macros: utils.asyncTrackers.get("macros"),
+        ui: utils.asyncTrackers.get("ui"),
+        services: utils.asyncTrackers.get("services")
+    }
 
-    const transformationRegistry = createTransformationRegistry();
-    registerTransformations(transformationRegistry);
+    const transformationRegistry = createTransformationRegistry()
+    registerTransformations(transformationRegistry)
 
-    // ─────────────────────────────────────────────────────────────
-    // Application services (orchestration only)
-    // ─────────────────────────────────────────────────────────────
     // TODO: fix createRollEffectCatalog
     const rollTableEffectCatalog = createRollTableEffectCatalog({
         transformationRegistry,
@@ -40,7 +46,7 @@ export function createServices({
         chatService,
         actorRepository,
         logger
-    });
+    })
 
     const rollTableEffectResolver = createRollTableEffectResolver({
         constants,
@@ -62,20 +68,22 @@ export function createServices({
     const transformationDefinitionFactory = createTransformationDefinitionFactory({
         transformationRegistry: transformationRegistry,
         logger
-    });
+    })
 
     const transformationQueryService = createTransformationQueryService({
+        tracker: trackers.services,
         transformationRegistry,
         compendiumRepository,
         transformationDefinitionFactory,
         transformationInstanceFactory
-    });
+    })
 
     const actorQueryService = createActorQueryService({
         actorRepository
-    });
+    })
 
     const actionHandlers = createActionHandlers({
+        trackers,
         directMacroInvoker,
         activeEffectRepository,
         actorRepository,
@@ -83,15 +91,17 @@ export function createServices({
         rollTableService,
         rollTableEffectResolver,
         logger
-    });
+    })
 
     const transformationMutationGateway = createTransformationMutationGateway({
+        tracker: trackers.mutations,
         socketGateway,
         localMutationAdapter,
         actionExecutor,
         actionHandlers,
+        notifier,
         logger
-    });
+    })
 
     const formulaEvaluator = createFormulaEvaluator({
         logger
@@ -102,22 +112,33 @@ export function createServices({
         logger
     })
 
+    const conditionService = createConditionService({
+        logger
+    })
+
+    const stageChoiceResolver = createStageChoiceResolver({
+        tracker: trackers.services,
+        compendiumRepository,
+        conditionService,
+        logger
+    })
+
     const transformationService = createTransformationService({
+        tracker: trackers.services,
         actorRepository,
         mutationGateway: transformationMutationGateway,
         transformationQueryService,
         variableResolver,
+        stageChoiceResolver,
+        actorRepository,
         logger
-    });
+    })
 
     const triggerRuntime = createTriggerRuntime({
+        tracker: trackers.services,
         transformationService,
         logger
-    });
-
-    // ─────────────────────────────────────────────────────────────
-    // Public service surface (immutable)
-    // ─────────────────────────────────────────────────────────────
+    })
 
     return Object.freeze({
         transformationRegistry,
@@ -128,5 +149,5 @@ export function createServices({
         triggerRuntime,
         actorQueryService,
         transformationMutationGateway
-    });
+    })
 }

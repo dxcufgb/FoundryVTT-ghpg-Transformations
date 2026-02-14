@@ -5,113 +5,105 @@
  * No logging.
  * No sockets.
  */
-export class Transformation {
+export class Transformation
+{
     static type = "base";
 
-    constructor({
+    constructor ({
         actorId,
         definition,
-        stage = 1
-    }) {
+        stage = 0
+    })
+    {
         if (!actorId) {
-            throw new Error("Transformation requires actorId");
+            throw new Error("Transformation requires actorId")
         }
 
         if (!definition) {
             throw new Error(
                 "Transformation requires TransformationDefinition"
-            );
+            )
         }
 
-        this.actorId = actorId;
-        this.definition = definition;
-        this.stage = stage;
+        this.actorId = actorId
+        this.definition = definition
+        this.stage = stage
 
-        Object.freeze(this);
+        Object.freeze(this)
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // Identity
-    // ─────────────────────────────────────────────────────────────
-
-    get itemId() {
-        return this.definition.id;
+    get itemId()
+    {
+        return this.definition.id
     }
 
-    get name() {
-        return this.definition.name;
+    get name()
+    {
+        return this.definition.name
     }
 
-    get img() {
-        return this.definition.img;
+    get img()
+    {
+        return this.definition.img
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // Stage & triggers
-    // ─────────────────────────────────────────────────────────────
-
-    getStage() {
-        return this.stage;
+    getStage()
+    {
+        return this.stage
     }
 
-    getTriggerActions(trigger) {
+    getTriggerActions(trigger)
+    {
         const triggerDef =
-            this.definition.getTrigger(trigger);
+            this.definition.getTrigger(trigger)
 
-        return triggerDef?.actions ?? [];
+        return triggerDef?.actions ?? []
     }
 
-    getTriggerVariables(trigger) {
+    getTriggerVariables(trigger)
+    {
         const triggerDef =
-            this.definition.getTrigger(trigger);
+            this.definition.getTrigger(trigger)
 
-        return triggerDef?.variables ?? [];
+        return triggerDef?.variables ?? []
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // Domain rules
-    // ─────────────────────────────────────────────────────────────
-
-    shouldApplyLowerRollResult(previous, current) {
-        return current < previous;
+    shouldApplyLowerRollResult(previous, current)
+    {
+        return current < previous
     }
 
-    getRollTableName() {
+    getRollTableName()
+    {
         const prefix =
-            this.definition.meta?.tablePrefix ?? "";
+            this.definition.meta?.tablePrefix ?? ""
 
-        return `${prefix} Stage ${this.stage}`;
+        return `${prefix} Stage ${this.stage}`
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // Domain events → action descriptors
-    // ─────────────────────────────────────────────────────────────
-
-    describeStageChange() {
+    describeStageChange()
+    {
         return [
             { type: "CLEAR_TRANSFORMATION_EFFECTS" },
             { type: "APPLY_STAGE_ITEMS", stage: this.stage }
-        ];
+        ]
     }
 
-    describeRollTableResult(effectName) {
+    describeRollTableResult(effectName)
+    {
         return [
             { type: "REMOVE_ACTIVE_EFFECTS" },
             { type: "APPLY_EFFECT", name: effectName }
-        ];
+        ]
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // Optional extension hooks (override in subclasses)
-    // ─────────────────────────────────────────────────────────────
-
-    onDamage() { return null; }
-    onShortRest() { return null; }
-    onLongRest() { return null; }
-    onInitiative() { return null; }
-    onConcentration() { return null; }
-    onHitDieRoll() { return null; }
-    onSavingThrow() { return null; }
-    onBloodied() { return null; }
-    onUnconscious() { return null; }
+    onDamage() { }
+    onShortRest() { }
+    onLongRest() { }
+    onInitiative() { }
+    onConcentration() { }
+    onHitDieRoll() { }
+    onSavingThrow() { }
+    onBloodied() { }
+    onUnconscious() { }
 }

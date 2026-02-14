@@ -1,50 +1,63 @@
-import { conditionsMet } from "../../domain/actions/conditionSchema.js";
+import { conditionsMet } from "../../domain/actions/conditionSchema.js"
 
 // infrastructure/actions/actionExecutor.js
 export function createActionExecutor({
+    tracker,
     actorRepository,
     logger
-}) {
+})
+{
     async function execute({
         actorId,
         actions,
         context,
         variables,
         handlers
-    }) {
-        const actor = actorRepository.getById(actorId);
-        if (!actor || !Array.isArray(actions)) return;
+    })
+    {
+        const actor = actorRepository.getById(actorId)
+        if (!actor || !Array.isArray(actions)) return
 
-        for (const action of actions) {
-            if (!conditionsMet(actor, action.when, {
-                ...context,
-                variables
-            })) {
-                logger.debug(
-                    "Action skipped (conditions not met)",
-                    action.type,
-                    action.when
-                );
-                continue;
-            }
-            const handler = handlers[action.type];
+        return tracker.track(
+            (async () =>
+            {
 
-            if (!handler) {
-                logger.warn(
-                    "No handler for action type",
-                    action.type
-                );
-                continue;
-            }
+                for (const action of actions) {
+                    if (!conditionsMet(actor, action.when, {
+                        ...context,
+                        variables
+                    })) {
+                        logger.debug(
+                            "Action skipped (conditions not met)",
+                            action.type,
+                            action.when
+                        )
+                        continue
+                    }
+                    const handler = handlers[action.type]
 
-            await handler({
-                actor,
-                action,
-                context,
-                variables
-            });
-        }
+                    if (!handler) {
+                        logger.warn(
+                            "No handler for action type",
+                            action.type
+                        )
+                        continue
+                    }
+
+                    await handler({
+                        actor,
+                        action,
+                        context,
+                        variables
+                    })
+                }
+            })()
+        )
     }
 
-    return Object.freeze({ execute });
+    return Object.freeze({
+        whenIdle: tracker.whenIdle,
+        execute
+    })
+
 }

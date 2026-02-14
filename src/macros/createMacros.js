@@ -1,23 +1,17 @@
-import { createMacroRegistry } from "./macroRegistry.js";
-import { createMacroExecutor } from "./createMacroExecutor.js";
-import { createMacroContextFactory } from "../infrastructure/macros/createMacroContextFactory.js";
+import { createMacroRegistry } from "./macroRegistry.js"
+import { createMacroExecutor } from "./createMacroExecutor.js"
+import { createMacroContextFactory } from "../infrastructure/macros/createMacroContextFactory.js"
 
 export function bootstrapMacros({
     infrastructure,
     notify,
+    tracker,
     logger
-}) {
+})
+{
     const { actorRepository, itemRepository, tokenRepository, socketGateway, activeEffectRepository, macroRegistry } = infrastructure
-    // ─────────────────────────────────────────────────────────────
-    // Registry
-    // context factory
-    // ─────────────────────────────────────────────────────────────
 
-    const macroContextFactory = createMacroContextFactory({ logger });
-
-    // ─────────────────────────────────────────────────────────────
-    // Executor
-    // ─────────────────────────────────────────────────────────────
+    const macroContextFactory = createMacroContextFactory({ logger })
 
     const macroExecutor = createMacroExecutor({
         actorRepository: actorRepository,
@@ -27,15 +21,12 @@ export function bootstrapMacros({
         itemRepository,
         macroRegistry,
         macroContextFactory,
+        tracker,
         logger,
         notify
-    });
-
-    // ─────────────────────────────────────────────────────────────
-    // Public surface
-    // ─────────────────────────────────────────────────────────────
+    })
 
     return Object.freeze({
         executeMacro: macroExecutor.macroWrapper
-    });
+    })
 }

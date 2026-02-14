@@ -14,7 +14,11 @@
     {{/if}}
     <div class="name name-stacked">
         <span class="title">{{ label }}</span>
-        <span class="transformation-stage subtitle">stage {{ data.stage }}</span>
+        {{#if (eq data.stage 0)}}
+            <span class="transformation-stage subtitle">Dormant</span>
+        {{ else }}
+            <span class="transformation-stage subtitle">Stage {{ data.stage }}</span>
+        {{/if}}
     </div>
     {{#if editable}}
     <button type="button" class="config-button unbutton" data-action="pill-config-stage" data-config="transformation">

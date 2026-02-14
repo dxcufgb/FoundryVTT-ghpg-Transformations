@@ -1,9 +1,9 @@
 export function createTransformationConfigViewModel({
     actor,
     transformations
-}) {
-    const activeId =
-        actor.flags?.dnd5e?.transformations ?? "None";
+})
+{
+    const activeId = actor.flags?.transformations?.type ?? "None"
 
     return {
         actor: {
@@ -20,5 +20,5 @@ export function createTransformationConfigViewModel({
             }))
         ],
         selectedTransformation: activeId
-    };
+    }
 }

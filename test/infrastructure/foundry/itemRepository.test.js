@@ -1,22 +1,29 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createItemRepository } from
   "@src/infrastructure/foundry/itemRepository.js";
-import { makeActor } from "../../helpers/actorHelper.js";
-import { makeItem } from "../../helpers/itemHelper.js";
+import { makeActor } from "@test/helpers/actorHelper.js";
+import { makeItem } from "@test/helpers/itemHelper.js";
+import { createMockLogger } from "@test/setup.js";
 
 describe("createItemRepository", () => {
-  const logger = {
-    trace: vi.fn(),
-    debug: vi.fn(),
-    warn: vi.fn()
-  };
+  let logger;
+  let repo;
 
-  const repo = createItemRepository({ logger });
+  beforeEach(() => {
+    logger = createMockLogger();
+    repo = createItemRepository({ logger });
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* Query helpers                                                      */
+  /* ------------------------------------------------------------------ */
 
   describe("query helpers", () => {
     it("findEmbeddedById returns item or null", () => {
       const item = makeItem({ id: "a" });
-      const actor = makeActor({ items: new Map([["a", item]]) });
+      const actor = makeActor({
+        items: new Map([["a", item]])
+      });
 
       expect(repo.findEmbeddedById(actor, "a")).toBe(item);
       expect(repo.findEmbeddedById(actor, "x")).toBeNull();
@@ -26,6 +33,7 @@ describe("createItemRepository", () => {
       const item = makeItem({
         flags: { transformations: { sourceUuid: "u1" } }
       });
+
       const actor = makeActor({ items: [item] });
 
       expect(repo.findEmbeddedByUuidFlag(actor, "u1")).toBe(item);
@@ -39,16 +47,24 @@ describe("createItemRepository", () => {
 
       const actor = makeActor({ items: [a, b] });
 
-      expect(repo.getEmbeddedAddedByTransformation(actor)).toEqual([a]);
+      expect(
+        repo.getEmbeddedAddedByTransformation(actor)
+      ).toEqual([a]);
     });
 
     it("findEmbeddedByType finds first matching type", () => {
       const race = makeItem({ type: "race" });
       const actor = makeActor({ items: [race] });
 
-      expect(repo.findEmbeddedByType(actor, "race")).toBe(race);
+      expect(
+        repo.findEmbeddedByType(actor, "race")
+      ).toBe(race);
     });
   });
+
+  /* ------------------------------------------------------------------ */
+  /* Uses helpers                                                       */
+  /* ------------------------------------------------------------------ */
 
   describe("uses helpers", () => {
     it("getRemainingUses returns remaining count", () => {
@@ -65,6 +81,7 @@ describe("createItemRepository", () => {
       });
 
       const result = await repo.consumeUses(item, 2);
+
       expect(result).toBe(true);
       expect(item.update).toHaveBeenCalledWith({
         "system.uses.spent": 3
@@ -76,9 +93,15 @@ describe("createItemRepository", () => {
         system: { uses: { max: 1, spent: 1 } }
       });
 
-      expect(await repo.consumeUses(item, 1)).toBe(false);
+      expect(
+        await repo.consumeUses(item, 1)
+      ).toBe(false);
     });
   });
+
+  /* ------------------------------------------------------------------ */
+  /* addTransformationItem                                              */
+  /* ------------------------------------------------------------------ */
 
   describe("addTransformationItem", () => {
     it("returns existing item when duplicate exists", async () => {
@@ -117,9 +140,15 @@ describe("createItemRepository", () => {
       });
 
       expect(oldItem.delete).toHaveBeenCalled();
-      expect(actor.createEmbeddedDocuments).toHaveBeenCalled();
+      expect(
+        actor.createEmbeddedDocuments
+      ).toHaveBeenCalled();
     });
   });
+
+  /* ------------------------------------------------------------------ */
+  /* Remove helpers                                                     */
+  /* ------------------------------------------------------------------ */
 
   describe("remove helpers", () => {
     it("removeTransformationItems deletes only transformation items", async () => {
@@ -133,10 +162,9 @@ describe("createItemRepository", () => {
 
       await repo.removeTransformationItems(actor);
 
-      expect(actor.deleteEmbeddedDocuments).toHaveBeenCalledWith(
-        "Item",
-        ["1"]
-      );
+      expect(
+        actor.deleteEmbeddedDocuments
+      ).toHaveBeenCalledWith("Item", ["1"]);
     });
 
     it("removeBySourceUuid deletes matching items", async () => {
@@ -154,10 +182,9 @@ describe("createItemRepository", () => {
       const count = await repo.removeBySourceUuid(actor, "x");
 
       expect(count).toBe(1);
-      expect(actor.deleteEmbeddedDocuments).toHaveBeenCalledWith(
-        "Item",
-        ["1"]
-      );
+      expect(
+        actor.deleteEmbeddedDocuments
+      ).toHaveBeenCalledWith("Item", ["1"]);
     });
   });
 });

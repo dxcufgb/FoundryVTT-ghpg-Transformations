@@ -1,7 +1,8 @@
 export function createGMTransformationHandlers({
   gateway,
   logger
-}) {
+})
+{
   return Object.freeze({
     applyTransformation: payload =>
       gateway.applyTransformation(payload),
@@ -17,5 +18,5 @@ export function createGMTransformationHandlers({
 
     applyTriggerActions: payload =>
       gateway.applyTriggerActions(payload)
-  });
+  })
 }

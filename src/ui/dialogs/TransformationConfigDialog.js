@@ -5,15 +5,17 @@ export class TransformationConfigDialog
 
     static DEFAULT_OPTIONS = {
         ...super.DEFAULT_OPTIONS,
-        id: "transformation-config",
         tag: "form",
-        classes: ["sheet", "dnd5e2", "standard-form"],
+        classes: ["sheet", "dnd5e2", "standard-form", "transformation-config"],
         window: {
             title: "Transformation",
             resizable: false
         },
         actions: {
-            save: TransformationConfigDialog._onSave
+            save: async function(event, target)
+            {
+                return this.onSave(event, target)
+            }
         }
     };
 
@@ -25,45 +27,57 @@ export class TransformationConfigDialog
         }
     };
 
-    constructor({
-        actorId,
+    constructor ({
+        actorUuid,
         viewModel,
         controller,
+        options,
         logger
-    }) {
-        super();
-
-        this.actorId = actorId;
-        this.viewModel = viewModel;
-        this.controller = controller;
-        this.logger = logger;
+    })
+    {
+        super(options)
+        console.log(
+            "Dialog constructed with actorUuid:",
+            actorUuid,
+            "instance",
+            this
+        )
+        this.actorUuid = actorUuid
+        this.viewModel = viewModel
+        this.controller = controller
+        this.logger = logger
     }
 
-    async _prepareContext() {
-        return this.viewModel;
+    async _prepareContext()
+    {
+        return this.viewModel
     }
 
-    static async _onSave(event, target) {
-        return this._handleSave(event, target);
-    }
+    async onSave(event, target)
+    {
+        event.preventDefault()
 
-    async _handleSave(event, target) {
-        event.preventDefault();
+        console.log(
+            "onSave using actorUuid:",
+            this.actorUuid,
+            "instance",
+            this
+        )
 
-        const formData = new FormData(target.form);
-        const selectedId = formData.get("transformation");
+        const formData = new FormData(target.form)
+        const selectedId = formData.get("transformation")
 
         this.logger.debug(
             "TransformationConfigDialog save",
-            this.actorId,
+            this.actorUuid,
             selectedId
-        );
+        )
 
         await this.controller.applySelection({
-            actorId: this.actorId,
+            actorUuid: this.actorUuid,
             transformationId: selectedId
-        });
+        })
 
-        this.close();
+        await this.close({ force: true })
     }
 }

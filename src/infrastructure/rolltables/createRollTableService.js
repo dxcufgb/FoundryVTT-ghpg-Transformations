@@ -1,88 +1,103 @@
 // infrastructure/rolltables/createRollTableService.js
 
 export function createRollTableService({
+    tracker,
+    debouncedTracker,
     compendiumRepository,
     logger
-}) {
-
+})
+{
     async function roll({
         uuid,
         mode = "normal",
         context = {}
-    }) {
+    })
+    {
         if (!uuid) {
-            logger.warn("rollTableService.roll called without uuid");
-            return null;
+            logger.warn("rollTableService.roll called without uuid")
+            return null
         }
 
-        const table = await compendiumRepository.getDocumentByUuid(uuid);
+        return tracker.track(
+            (async () =>
+            {
+                const table = await compendiumRepository.getDocumentByUuid(uuid)
 
-        if (!table || table.documentName !== "RollTable") {
-            logger.warn("Invalid RollTable UUID", uuid);
-            return null;
-        }
+                if (!table || table.documentName !== "RollTable") {
+                    logger.warn("Invalid RollTable UUID", uuid)
+                    return null
+                }
 
-        const rollResult = await table.draw();
-        const result = rollResult?.results?.[0];
+                const rollResult = await table.draw()
+                const result = rollResult?.results?.[0]
 
-        if (!result) {
-            logger.warn("RollTable produced no result", uuid);
-            return null;
-        }
-        const existingKey = result.flags?.transformations?.effectKey;
-      
-        if (!existingKey) {
-            await result.setFlag("transformations", "effectKey", result.name.replaceAll(" ", ""));
-        }
+                if (!result) {
+                    logger.warn("RollTable produced no result", uuid)
+                    return null
+                }
+                const existingKey = result.flags?.transformations?.effectKey
 
-        const outcome = normalizeResult({
-            table,
-            rollResult,
-            result,
-            context
-        });
+                if (!existingKey) {
+                    debouncedTracker.pulse("applyEffectKey")
+                    await result.setFlag("transformations", "effectKey", result.name.replaceAll(" ", ""))
+                }
 
-        if (!passesMode(outcome, mode, context)) {
-            logger.debug(
-                "RollTable result rejected by mode",
-                { mode, outcome }
-            );
-            return null;
-        }
+                const outcome = normalizeResult({
+                    table,
+                    rollResult,
+                    result,
+                    context
+                })
 
-        return outcome;
+                if (!passesMode(outcome, mode, context)) {
+                    logger.debug(
+                        "RollTable result rejected by mode",
+                        { mode, outcome }
+                    )
+                    return null
+                }
+
+                return outcome
+            })()
+        )
     }
 
-    return Object.freeze({ roll });
+    return Object.freeze({
+        whenIdle: tracker.whenIdle,
+        roll
+    })
 
-    // ─────────────────────────────────────────────────────────────
+
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Helpers
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    function passesMode(outcome, mode, context) {
-        if (mode === "normal") return true;
+    function passesMode(outcome, mode, context)
+    {
+        if (mode === "normal") return true
 
-        const currentStage = context?.stage;
+        const currentStage = context?.stage
         const rolledStage = extractStageFromText(
             outcome.result.text
-        );
+        )
 
         if (currentStage == null || rolledStage == null) {
-            return true;
+            return true
         }
 
         if (mode === "downgradeOnly") {
-            return rolledStage <= currentStage;
+            return rolledStage <= currentStage
         }
 
         if (mode === "upgradeOnly") {
-            return rolledStage >= currentStage;
+            return rolledStage >= currentStage
         }
 
-        return true;
+        return true
     }
 
-    function normalizeResult({ table, rollResult, result, context }) {
+    function normalizeResult({ table, rollResult, result, context })
+    {
         return {
             table: {
                 uuid: table.uuid,
@@ -100,27 +115,29 @@ export function createRollTableService({
                 range: result.range
             },
 
-            // 👇 IMPORTANT: effectKey is just data
+            // ðŸ‘‡ IMPORTANT: effectKey is just data
             effectKey: extractEffectKey(result),
 
             context
-        };
+        }
     }
 
-    function extractEffectKey(result) {
+    function extractEffectKey(result)
+    {
         // Preferred: explicit flag
-        const flagged = result.flags?.transformations?.effectKey;
+        const flagged = result.flags?.transformations?.effectKey
 
-        if (flagged) return flagged;
+        if (flagged) return flagged
 
         // Fallback: [EffectKey] in text
-        const text = result?.text ?? "";
-        const match = text.match(/\[(.+?)\]/);
-        return match ? match[1] : null;
+        const text = result?.text ?? ""
+        const match = text.match(/\[(.+?)\]/)
+        return match ? match[1] : null
     }
 
-    function extractStageFromText(text = "") {
-        const match = text.match(/stage\s*(\d+)/i);
-        return match ? Number(match[1]) : null;
+    function extractStageFromText(text = "")
+    {
+        const match = text.match(/stage\s*(\d+)/i)
+        return match ? Number(match[1]) : null
     }
 }

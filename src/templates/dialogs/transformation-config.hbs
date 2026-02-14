@@ -2,7 +2,7 @@
     <section class="flexcol transformation-config">
         <fieldset class="card">
             <legend>Transformation</legend>
-            <ol class="unlist form-grid form-grid-50 types-list" style="width:500px; --type-rows: {{ rows }};">
+            <ol name="transformation" class="unlist form-grid form-grid-50 types-list" style="width:500px; --type-rows: {{ rows }};">
                 {{#each transformations as |t|}}
                 <li class="type-row transformation-option">
                     <input type="radio" id="transformation-type-{{t.itemId}}" name="transformation" value="{{t.itemId}}"
@@ -20,7 +20,7 @@
     </section>
 
     <footer style="margin-top:10px; display: flex; justify-content: space-around;" class="sheet-footer">
-        <button style="padding-right: 15px; padding-left: 15px" type="submit" data-action="save">
+        <button style="padding-right: 15px; padding-left: 15px" data-action="save">
             Set Transformation
         </button>
     </footer>

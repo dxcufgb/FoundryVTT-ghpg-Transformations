@@ -1,80 +1,93 @@
 export function createCreatureTypeService({
+    tracker,
+    debouncedTracker,
     actorRepository,
     itemRepository,
     utils,
     logger
-}) {
+})
+{
+    async function applyCreatureSubType(actor, creatureSubType)
+    {
+        if (!actor || !creatureSubType) return
 
-    async function applyCreatureSubType(actor, creatureSubType) {
-        if (!actor || !creatureSubType) return;
-
-        const baseType = actor.system.details.type.value;
+        const baseType = actor.system.details.type.value
 
         logger.debug(
             "Applying creature subtype",
             actor.id,
             baseType,
             creatureSubType
-        );
+        )
 
-        await actorRepository.setCreatureTypeFlags(actor, {
-            base: baseType,
-            added: [creatureSubType]
-        });
+        return tracker.track(
+            (async () =>
+            {
 
-        const raceItem =
-            itemRepository.findEmbeddedByType(actor, "race");
+                await actorRepository.setCreatureTypeFlags(actor, {
+                    base: baseType,
+                    added: [creatureSubType]
+                })
 
-        if (raceItem) {
-            await itemRepository.updateEmbedded(raceItem, {
-                "system.type.subtype":
-                    utils.stringUtils.capitalize(creatureSubType)
-            });
-        }
+                const raceItem = itemRepository.findEmbeddedByType(actor, "race")
+
+                if (raceItem) {
+                    await itemRepository.updateEmbedded(raceItem, {
+                        "system.type.value": raceItem.system.type.value ?? "humanoid",
+                        "system.type.subtype": utils.stringUtils.capitalize(creatureSubType)
+                    })
+                }
+            })()
+        )
     }
 
-    async function restoreBaseCreatureType(actor) {
-        if (!actor) return;
+    async function restoreBaseCreatureType(actor)
+    {
+        if (!actor) return
 
-        const flags =
-            actorRepository.getCreatureTypeFlags(actor);
+        const flags = actorRepository.getCreatureTypeFlags(actor)
 
-        if (!flags) return;
+        if (!flags) return
 
-        const { base, added = [] } = flags;
+        const { base, added = [] } = flags
 
         logger.debug(
             "Restoring base creature type",
             actor.id,
             base,
             added
-        );
+        )
 
-        const currentSubtype =
-            actor.system.details.type.subtype;
+        const currentSubtype = actor.system.details.type.subtype
 
-        if (currentSubtype && added.includes(currentSubtype)) {
-            const raceItem =
-                itemRepository.findEmbeddedByType(actor, "race");
+        return tracker.track(
+            (async () =>
+            {
 
-            if (raceItem) {
-                await itemRepository.updateEmbedded(raceItem, {
-                    "system.type.subtype": ""
-                });
-            }
-        }
+                if (currentSubtype && added.includes(currentSubtype)) {
+                    const raceItem = itemRepository.findEmbeddedByType(actor, "race")
 
-        if (actor.system.details.type.value !== base) {
-            await actor.update({
-                "system.details.type.value": base
-            });
-        }
+                    if (raceItem) {
+                        await itemRepository.updateEmbedded(raceItem, {
+                            "system.type.subtype": ""
+                        })
+                    }
+                }
 
-        await actorRepository.clearCreatureTypeFlags(actor);
+                if (actor.system.details.type.value !== base) {
+                    debouncedTracker.pulse("actor.update")
+                    await actor.update({
+                        "system.details.type.value": base
+                    })
+                }
+                await actorRepository.clearCreatureTypeFlags(actor)
+            })()
+        )
     }
 
     return Object.freeze({
+        whenIdle: tracker.whenIdle,
         applyCreatureSubType,
         restoreBaseCreatureType
-    });
+    })
 }

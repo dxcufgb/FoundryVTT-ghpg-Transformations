@@ -1,20 +1,33 @@
-export function createChatService({ logger }) {
-
+export function createChatService({
+    tracker,
+    logger
+})
+{
     async function post({
         speaker,
         content,
         whisper = null,
         flavor = null
-    }) {
-        if (!content) return;
+    })
+    {
+        if (!content) return
 
-        return ChatMessage.create({
-            speaker,
-            content,
-            flavor,
-            whisper
-        });
+        return tracker.track(
+            (async () =>
+            {
+                return ChatMessage.create({
+                    speaker,
+                    content,
+                    flavor,
+                    whisper
+                })
+            })()
+        )
     }
 
-    return Object.freeze({ post });
+    return Object.freeze({
+        whenIdle: tracker.whenIdle,
+        post
+    })
+
 }

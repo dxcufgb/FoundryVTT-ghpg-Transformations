@@ -2,44 +2,51 @@ export function createTransformationConfigController({
     transformationService,
     transformationQueryService,
     actorQueryService,
+    tracker,
     logger
-}) {
+})
+{
+    async function applySelection({ actorUuid, transformationId })
+    {
+        return tracker.track(
+            (async () =>
+            {
+                const actor = await actorQueryService.getByUuid(actorUuid)
 
-    async function applySelection({ actorId, transformationId }) {
-        const actor = await actorQueryService.getById(actorId);
+                if (!actor) {
+                    logger.warn(
+                        "TransformationConfigController: actor not found",
+                        actorUuid
+                    )
+                    return
+                }
 
-        if (!actor) {
-            logger.warn(
-                "TransformationConfigController: actor not found",
-                actorId
-            );
-            return;
-        }
+                if (transformationId === "None") {
+                    return transformationService.clearTransformation(actor)
+                }
 
-        if (transformationId === "None") {
-            return transformationService.clearTransformation(actor);
-        }
+                const definition = await transformationQueryService.getDefinitionById(
+                    transformationId
+                )
 
-        const definition =
-            await transformationQueryService.getDefinitionById(
-                transformationId
-            );
+                if (!definition) {
+                    logger.warn(
+                        "TransformationConfigController: definition not found",
+                        transformationId
+                    )
+                    return
+                }
 
-        if (!definition) {
-            logger.warn(
-                "TransformationConfigController: definition not found",
-                transformationId
-            );
-            return;
-        }
-
-        await transformationService.applyTransformation(
-            actor,
-            { definition }
-        );
+                await transformationService.applyTransformation(
+                    actor,
+                    { definition }
+                )
+            })()
+        )
     }
 
     return Object.freeze({
+        whenIdle: tracker.whenIdle,
         applySelection
-    });
+    })
 }

@@ -2,41 +2,49 @@
 
 export function createMacroAction({
     directMacroInvoker,
+    tracker,
     logger
-}) {
+})
+{
     return async function MACRO({
         actor,
         action,
         context,
         variables
-    }) {
-        const data = action.data;
+    })
+    {
+        const data = action.data
 
-        if (!data?.transformationType || !data?.action) {
+        if (!data?.type || !data?.action) {
             logger.warn(
                 "Invalid MACRO action payload",
                 action
-            );
-            return;
+            )
+            return
         }
 
         logger.debug(
             "Executing MACRO action",
-            data.transformationType,
+            data.type,
             data.action,
             context.trigger
-        );
+        )
 
-        await directMacroInvoker.invoke({
-            actor,
-            transformationType: data.transformationType,
-            action: data.action,
-            context: {
-                actorUuid: actor.uuid,
-                ...data.args,
-                ...variables,
-                ...context
-            }
-        });
-    };
+        return tracker.track(
+            (async () =>
+            {
+                await directMacroInvoker.invoke({
+                    actor,
+                    transformationType: data.type,
+                    action: data.action,
+                    context: {
+                        actorUuid: actor.uuid,
+                        ...data.args,
+                        ...variables,
+                        ...context
+                    }
+                })
+            })()
+        )
+    }
 }

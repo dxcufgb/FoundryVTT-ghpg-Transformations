@@ -1,10 +1,13 @@
 export function canShowTransformationControls({
     app,
+    game,
     ActorClass
-}) {
-    if (!(app.document instanceof ActorClass)) return false;
-    if (!app.actor) return false;
-    if (app.actor.type !== "character") return false;
+})
+{
+    if (!game.user.isGM) return false
+    if (!(app.document instanceof ActorClass)) return false
+    if (!app.actor) return false
+    if (app.actor.type !== "character") return false
 
-    return true;
+    return true
 }

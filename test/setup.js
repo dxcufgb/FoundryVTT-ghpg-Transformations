@@ -1,160 +1,19 @@
 import { webcrypto } from "node:crypto";
 import { beforeEach, vi } from "vitest";
 
-class FakeApplicationV2 {
-  static get defaultOptions() {
-    return {};
-  }
-
-  activateListeners() {}
-  close() {}
-}
-
-beforeEach(() => {
-  vi.resetModules();
-});
-
 /* ------------------------------------------------------------------ */
 /* Web crypto (browser parity)                                         */
 /* ------------------------------------------------------------------ */
 global.crypto = webcrypto;
 
 /* ------------------------------------------------------------------ */
-/* Foundry v11 Application base                                        */
+/* Foundry globals (defined ONCE)                                      */
 /* ------------------------------------------------------------------ */
-class MockApplication {
-  constructor(..._args) {}
+global.fromUuid = vi.fn(async uuid => {
+  return null; // or a fake document if needed
+});
 
-  static DEFAULT_OPTIONS = {};
-
-  async render() {}
-  async close() {}
-  getData() {
-    return {};
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/* HandlebarsApplicationMixin                                          */
-/* ------------------------------------------------------------------ */
-const HandlebarsApplicationMixin = Base => {
-  if (!Base) {
-    throw new Error(
-      "HandlebarsApplicationMixin called with undefined Base"
-    );
-  }
-
-  return class extends Base {
-    static DEFAULT_OPTIONS = {};
-
-    constructor(...args) {
-      super(...args);
-    }
-
-    async render() {}
-    async close() {}
-    getData() {
-      return {};
-    }
-  };
-};
-
-/* ------------------------------------------------------------------ */
-/* Global Foundry namespace (single definition, no overwrites)         */
-/* ------------------------------------------------------------------ */
-global.foundry = {
-  applications: {
-    api: {
-      ApplicationV2: FakeApplicationV2,
-      HandlebarsApplicationMixin: Base => {
-        if (!Base) {
-          throw new Error(
-            "HandlebarsApplicationMixin called with undefined Base"
-          );
-        }
-        return class extends Base {};
-      },
-    },
-    handlebars: {
-      renderTemplate: vi.fn(),
-      loadTemplates: vi.fn(async () => [])
-    }
-  }
-};
-
-/* ------------------------------------------------------------------ */
-/* Mock Foundry ES module imports (THIS is what you were missing)      */
-/* ------------------------------------------------------------------ */
-vi.mock("foundry/applications/api.js", () => ({
-  Application: MockApplication,
-  HandlebarsApplicationMixin
-}));
-
-vi.mock("foundry/applications", () => ({
-  Application: MockApplication,
-  HandlebarsApplicationMixin
-}));
-
-vi.mock("@src/flags/applyTransformationFlags.js", () => ({
-  applyTransformationFlags: vi.fn(async () => {})
-}));
-
-/* ------------------------------------------------------------------ */
-/* Hooks                                                              */
-/* ------------------------------------------------------------------ */
-global.Hooks = {
-  _once: {},
-  _on: {},
-
-  once(event, fn) {
-    this._once[event] = fn;
-  },
-
-  on(event, fn) {
-    // store it in case you ever want to inspect it
-    this._on[event] = this._on[event] ?? [];
-    this._on[event].push(fn);
-  }
-};
-
-/* ------------------------------------------------------------------ */
-/* Game                                                               */
-/* ------------------------------------------------------------------ */
-global.game = {
-  ready: Promise.resolve(),
-  user: { isGM: true },
-  actors: [],
-  socket: {
-    on: vi.fn()
-  }
-};
-
-/* ------------------------------------------------------------------ */
-/* Socketlib                                                          */
-/* ------------------------------------------------------------------ */
-global.socketlib = {
-  registerModule: vi.fn(() => ({}))
-};
-
-/* ------------------------------------------------------------------ */
-/* Misc globals Foundry assumes exist                                 */
-/* ------------------------------------------------------------------ */
-global.Actor = function Actor() {};
-
-global.fromUuid = vi.fn(async uuid => ({
-  uuid,
-  name: "Mock Document"
-}));
-
-loadTemplates: vi.fn(async () => [])
-
-global.socketlib = {
-  registerModule: vi.fn(() => ({
-    register: vi.fn()
-  }))
-};
-
-globalThis.ui = {
+global.ui = {
   notifications: {
     info: vi.fn(),
     warn: vi.fn(),
@@ -162,14 +21,177 @@ globalThis.ui = {
   },
 };
 
-global.CONFIG = {
-  DND5E: {
-    featureTypes: {},
-    characterFlags: {}
+global.ChatMessage = {
+  create: vi.fn(),
+  getSpeaker: vi.fn(() => ({})),
+};
+
+global.Hooks = {
+  _once: Object.create(null),
+  _on: Object.create(null),
+
+  once(event, fn) {
+    this._once[event] = fn;
+  },
+
+  on(event, fn) {
+    this._on[event] = fn;
+  },
+
+  call(event, ...args) {
+    this._on[event]?.(...args);
+  },
+
+  callAll(event, ...args) {
+    this._on[event]?.(...args);
   }
 };
 
-global.mergeObject = vi.fn((a, b) => ({
-  ...a,
-  ...b,
-}));
+global.Roll = {
+  safeEval: vi.fn(),
+};
+
+global.foundry = {
+  applications: {
+    api: {
+      ApplicationV2: class {
+        render() {}
+        close() {}
+        activateListeners() {}
+      },
+      HandlebarsApplicationMixin: Base => class extends Base {
+        activateListeners(html) {
+          if (super.activateListeners) {
+            super.activateListeners(html);
+          }
+        }
+      }
+    },
+    handlebars: {
+      renderTemplate: vi.fn(),
+      loadTemplates: vi.fn(),
+    },
+  },
+};
+
+global.game = {
+  ready: Promise.resolve(),
+
+  user: {
+    id: "USER_ID",
+    isGM: false,
+    character: null
+  },
+
+  users: [
+    { id: "USER_ID", isGM: false, active: true }
+  ],
+
+  actors: {
+    getName: vi.fn()
+  },
+
+  settings: {
+    get: vi.fn(),
+    set: vi.fn()
+  },
+
+  socket: {
+    on: vi.fn(),
+    emit: vi.fn(),
+  }
+};
+
+global.Actor = class Actor {
+  constructor() {
+    this.type = "character";
+  }
+};
+
+global.socketlib = {
+  registerModule: vi.fn(() => ({
+    register: vi.fn(),
+    executeAsGM: vi.fn(),
+  })),
+};
+
+/* ------------------------------------------------------------------ */
+/* Mock factories (NOT instances)                                      */
+/* ------------------------------------------------------------------ */
+
+export function createMockLogger() {
+  return {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    trace: vi.fn(),
+  };
+}
+
+export function createMockActorRepository() {
+  return {
+    getById: vi.fn(),
+    getByUuid: vi.fn(),
+    setTransformation: vi.fn(),
+    clearTransformation: vi.fn(),
+    advanceStage: vi.fn(),
+    hasMacroExecution: vi.fn(),
+    setMacroExecution: vi.fn(),
+    clearMacroExecution: vi.fn(),
+    addHp: vi.fn(),
+    addTempHp: vi.fn(),
+    applyDamage: vi.fn(),
+    setActorHp: vi.fn(),
+  };
+}
+
+export function createMockItemRepository() {
+  return {
+    addItemFromUuid: vi.fn(),
+    removeBySourceUuid: vi.fn(),
+    findEmbeddedByUuidFlag: vi.fn(),
+    getRemainingUses: vi.fn(),
+    consumeUses: vi.fn(),
+    removeItemsOnLongRest: vi.fn(),
+  };
+}
+
+export function createMockActiveEffectRepository() {
+  return {
+    hasByName: vi.fn(),
+    create: vi.fn(),
+    getIdsByName: vi.fn(() => []),
+    removeByIds: vi.fn(),
+    removeEffectsOnLongRest: vi.fn(),
+  };
+}
+
+export function createMockSocketGateway() {
+  return {
+    canMutateLocally: vi.fn(),
+    emit: vi.fn(),
+    register: vi.fn(),
+    executeAsGM: vi.fn(),
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* Unified test context                                                */
+/* ------------------------------------------------------------------ */
+
+export function createTestContext() {
+  const logger = createMockLogger();
+
+  return {
+    logger,
+    actorRepository: createMockActorRepository(),
+    itemRepository: createMockItemRepository(),
+    activeEffectRepository: createMockActiveEffectRepository(),
+    socketGateway: createMockSocketGateway(),
+
+    reset() {
+      vi.clearAllMocks();
+    },
+  };
+}

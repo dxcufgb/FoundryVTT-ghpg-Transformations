@@ -1,39 +1,52 @@
 export function createDirectMacroInvoker({
+    tracker,
     macroRegistry,
     activeEffectRepository,
     itemRepository,
     logger
-}) {
+})
+{
     async function invoke({
         transformationType,
         action,
         actor,
         context
-    }) {
-        const entry = macroRegistry.get(transformationType);
+    })
+    {
+        const entry = macroRegistry.get(transformationType)
         if (!entry) {
-            throw new Error(`Unknown transformation: ${transformationType}`);
+            throw new Error(`Unknown transformation: ${transformationType}`)
         }
 
         const handlers = entry.createHandlers({
             logger,
             activeEffectRepository,
-            itemRepository
-        });
+            itemRepository,
+            tracker
+        })
 
-        const handler = handlers[action];
+        const handler = handlers[action]
         if (typeof handler !== "function") {
             throw new Error(
                 `Handler '${action}' not found for ${transformationType}`
-            );
+            )
         }
 
-        return handler({
-            actor,
-            trigger: context.trigger,
-            context
-        });
+        return tracker.track(
+            (async () =>
+            {
+                return handler({
+                    actor,
+                    trigger: context.trigger,
+                    context
+                })
+            })()
+        )
     }
 
-    return Object.freeze({ invoke });
+    return Object.freeze({
+        whenIdle: tracker.whenIdle,
+        invoke
+    })
+
 }

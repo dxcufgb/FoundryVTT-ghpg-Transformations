@@ -1,10 +1,16 @@
 import { describe, it, expect } from "vitest";
-import "../test/mocks/bootstrap.js";
-
+import "@test/mocks/bootstrap.js";
+vi.mock("@src/infrastructure/socket/registerSockets.js", () => ({
+  registerSockets: vi.fn(),
+}));
 describe("Transformations module bootstrap", () => {
-  vi.mock("@src/infrastructure/socket/registerSockets.js", () => ({
-    registerSockets: vi.fn(),
-  }));
+  beforeEach(() => {
+    vi.resetModules(); // critical
+
+    // Default non-GM
+    global.game.user.isGM = false;
+  });
+
   it("registers init, setup, ready, and socketlib hooks", async () => {
     // Importing main.js should register hooks immediately
     await import("@src/main.js");
@@ -30,9 +36,8 @@ describe("Transformations module bootstrap", () => {
   });
 
   it("registers GM-only hooks when user is GM", async () => {
-    const {
-      registerGMOnlyActorHooks
-    } = await import(
+    game.user.isGM = true
+    const { registerGMOnlyActorHooks } = await import(
       "@src/infrastructure/hooks/GMOnlyActorHooks.js"
     );
 

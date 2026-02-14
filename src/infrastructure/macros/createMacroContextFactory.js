@@ -1,20 +1,22 @@
 export function createMacroContextFactory({
     logger
-}) {
-    function createFromToken(token) {
+})
+{
+    function createFromToken(token)
+    {
         if (!token) {
-            logger.warn("MacroContextFactory: token missing");
-            return null;
+            logger.warn("MacroContextFactory: token missing")
+            return null
         }
 
-        const actor = token.actor;
+        const actor = token.actor
 
         if (!actor) {
             logger.warn(
                 "MacroContextFactory: token has no actor",
                 token.id
-            );
-            return null;
+            )
+            return null
         }
 
         return Object.freeze({
@@ -33,10 +35,10 @@ export function createMacroContextFactory({
                 name: actor.name,
                 type: actor.type
             }
-        });
+        })
     }
 
     return Object.freeze({
         createFromToken
-    });
+    })
 }

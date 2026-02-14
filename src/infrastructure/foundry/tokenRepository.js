@@ -1,7 +1,19 @@
 export function createTokenRepository({
+    tracker,
+    debouncedTracker,
     logger
-}) {
+})
+{
     return {
-        getByUuid: async uuid => fromUuid(uuid)
-    };
+        getByUuid: async () =>
+        {
+            return tracker.track(
+                (async () =>
+                {
+                    debouncedTracker.pulse("fromUUID")
+                    await fromUuid(uuid)
+                })()
+            )
+        }
+    }
 }

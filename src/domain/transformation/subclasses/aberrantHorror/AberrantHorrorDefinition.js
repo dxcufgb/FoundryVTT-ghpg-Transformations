@@ -1,29 +1,33 @@
-import { TransformationDefinition } from "../../TransformationDefinition.js";
+import { TransformationDefinition } from "../../TransformationDefinition.js"
 import { aberrantHorrorStages } from "./stages/aberrantHorrorStages.js"
 import { aberrantHorrorTriggers } from "./triggers/aberrantHorrorTriggers.js"
 
-export class AberrantHorrorDefinition extends TransformationDefinition {
+export class AberrantHorrorDefinition extends TransformationDefinition
+{
 
-    constructor({ uuid, item }) {
+    constructor ({ uuid, item })
+    {
         super({
             id: "aberrant-horror",
             label: "Aberrant Horror",
             uuid,
             item
-        });
+        })
 
 
-        this.#defineStages();
-        this.#defineTriggers();
+        this.#defineStages()
+        this.#defineTriggers()
 
-        this.validate();
+        this.validate()
     }
 
-    #defineStages() {
-        this.stages = aberrantHorrorStages;
+    #defineStages()
+    {
+        this.stages = aberrantHorrorStages
     }
 
-    #defineTriggers() {
-        this.triggers = aberrantHorrorTriggers;
+    #defineTriggers()
+    {
+        this.triggers = aberrantHorrorTriggers
     }
 }

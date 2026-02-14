@@ -9,33 +9,33 @@
           name="choice"
           value="{{id}}"
           data-uuid="{{uuid}}"
-          data-id="{{id}}"
           data-name="{{name}}"
-          {{#if @first}}checked{{/if}}
+          {{#if checked}}checked{{/if}}
         />
 
-        <img src="{{icon}}" alt="{{name}}">
+        <img src="{{img}}" alt="{{name}}">
         <span class="choice-name">{{name}}</span>
       </label>
     {{/each}}
   </fieldset>
 
   <!-- SCROLLABLE DESCRIPTION PANEL -->
-  <div class="choice-description-container">
+  <div class="choice-description-container" hidden>
     {{#each choices}}
       <div
         class="choice-description"
-        data-choice-id="{{id}}"
-        {{#unless @first}}hidden{{/unless}}
+        data-choice-uuid="{{uuid}}"
+        hidden
       >
-        {{{details}}}
+      <h2>{{name}}</h2>
+        {{{description}}}
       </div>
     {{/each}}
   </div>
 
   <!-- CHOOSE BUTTON -->
-  <footer class="choice-footer">
-    <button type="button" data-action="choose" data-id="{{id}}" class="choice-confirm">
+  <footer class="choice-footer" hidden>
+    <button type="button" data-action="choose" data-uuid="{{uuid}}" class="choice-confirm">
       Choose
     </button>
   </footer>

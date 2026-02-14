@@ -9,7 +9,7 @@ export class AberrantResilience extends AberrantEffect {
     constructor(args) {
         super(args);
         this.description =
-            "Your body’s systems are enhanced. You have Advantage on Death Saving Throws";
+            "Your bodyâ€™s systems are enhanced. You have Advantage on Death Saving Throws";
     }
 
     async beforeApply() {

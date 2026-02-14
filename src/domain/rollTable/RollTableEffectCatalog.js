@@ -1,8 +1,10 @@
 // domain/rolltables/RollTableEffectCatalog.js
 
-export class RollTableEffectCatalog {
-    constructor({ effectsByKey }) {
-        this.effectsByKey = effectsByKey;
+export class RollTableEffectCatalog
+{
+    constructor ({ effectsByKey })
+    {
+        this.effectsByKey = effectsByKey
     }
 
     createInstance({
@@ -15,9 +17,10 @@ export class RollTableEffectCatalog {
         actor,
         stringUtils,
         moduleFolderPath
-    }) {
-        const EffectClass = this.effectsByKey[effectKey];
-        if (!EffectClass) return null;
+    })
+    {
+        const EffectClass = this.effectsByKey[effectKey]
+        if (!EffectClass) return null
 
         return new EffectClass({
             actor,
@@ -28,6 +31,6 @@ export class RollTableEffectCatalog {
             actorRepository,
             stringUtils,
             moduleFolderPath
-        });
+        })
     }
 }

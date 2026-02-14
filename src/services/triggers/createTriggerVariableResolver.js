@@ -2,19 +2,21 @@
 export function createTriggerVariableResolver({
     formulaEvaluator,
     logger
-}) {
+})
+{
 
     function resolve({
         actor,
         transformation,
         rawVariables,
         context
-    }) {
+    })
+    {
         if (!Array.isArray(rawVariables) || rawVariables.length === 0) {
-            return {};
+            return {}
         }
 
-        const resolved = {};
+        const resolved = {}
 
         for (const variable of rawVariables) {
             try {
@@ -24,7 +26,7 @@ export function createTriggerVariableResolver({
                     transformation,
                     context,
                     resolved
-                });
+                })
             } catch (err) {
                 logger.error(
                     "Failed to resolve trigger variable",
@@ -35,14 +37,14 @@ export function createTriggerVariableResolver({
                         context,
                         err
                     }
-                );
+                )
             }
         }
 
-        return resolved;
+        return resolved
     }
 
-    return Object.freeze({ resolve });
+    return Object.freeze({ resolve })
 
     function resolveVariable({
         variable,
@@ -50,7 +52,8 @@ export function createTriggerVariableResolver({
         transformation,
         context,
         resolved
-    }) {
+    })
+    {
         switch (variable.type) {
             case "formula":
                 return formulaEvaluator.evaluate({
@@ -61,15 +64,15 @@ export function createTriggerVariableResolver({
                         context,
                         variables: resolved
                     })
-                });
+                })
 
             case "static":
-                return variable.value;
+                return variable.value
 
             default:
                 throw new Error(
                     `Unknown trigger variable type: ${variable.type}`
-                );
+                )
         }
     }
 
@@ -78,7 +81,8 @@ export function createTriggerVariableResolver({
         transformation,
         context,
         variables
-    }) {
+    })
+    {
         return {
             actor,
             transformation,
@@ -88,7 +92,7 @@ export function createTriggerVariableResolver({
             // Common shorthands
             prof: actor?.system?.attributes?.prof ?? 0,
             stage: transformation?.stage ?? 0
-        };
+        }
     }
 
 }

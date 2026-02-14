@@ -1,24 +1,22 @@
-import { resolveExpression } from "../utils/resolveExpression.js";
+import { resolveExpression } from "../utils/resolveExpression.js"
 /**
  * Build a nested expression context object.
  * This is the ONLY place allowed to read actor data.
  */
-export function buildExpressionContext(actor, context = {}) {
+export function buildExpressionContext(actor, context = {})
+{
     const base = {
-        // ───────── Flat aliases (backward compatibility) ─────────
-        stage: context?.stage ?? 1,
+        stage: context?.stage ?? 0,
         prof: actor.system?.attributes?.prof ?? 0,
         level:
             actor.system?.details?.level ??
             actor.system?.details?.levels?.level ??
             1,
 
-        // ───────── Namespaced: transformation ─────────
         transformation: {
             stage: context?.stage ?? 1
         },
 
-        // ───────── Namespaced: actor ─────────
         actor: {
             name: actor.name,
             hp: actor.system?.attributes?.hp?.value ?? 0,
@@ -30,23 +28,21 @@ export function buildExpressionContext(actor, context = {}) {
                 1
         },
 
-        // ───────── Namespaced: flags ─────────
         flags: {
-            dnd5e: {
-                transformationStage:
-                    actor.flags?.dnd5e?.transformationStage ?? 1
-            },
             transformations: {
-                id: actor.flags?.dnd5e?.transformations ?? null
+                stage:
+                    actor.flags?.transformations?.stage ?? 0,
+                type:
+                    actor.flags?.transformations?.type ?? null
             }
-        }
-    };
-
-    if (context?.derived) {
-        for (const [key, expr] of Object.entries(context.derived)) {
-            base[key] = resolveExpression(expr, base);
         }
     }
 
-    return base;
+    if (context?.derived) {
+        for (const [key, expr] of Object.entries(context.derived)) {
+            base[key] = resolveExpression(expr, base)
+        }
+    }
+
+    return base
 }

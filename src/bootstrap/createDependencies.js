@@ -3,11 +3,12 @@ export function createDependencies({
     constants,
     utils,
     logger
-}) {
+})
+{
     return {
         game,
         constants,
         utils,
         logger
-    };
+    }
 }

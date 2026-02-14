@@ -2,14 +2,15 @@ export function createTransformationPillViewModel({
     actor,
     transformation,
     editable
-}) {
+})
+{
     if (!transformation) {
         return {
             mode: "add",
             label: "None",
             editable,
             data: null
-        };
+        }
     }
 
     return {
@@ -22,5 +23,5 @@ export function createTransformationPillViewModel({
             img: transformation.definition.img,
             stage: transformation.stage
         }
-    };
+    }
 }

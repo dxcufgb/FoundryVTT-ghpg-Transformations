@@ -5,7 +5,7 @@ export function ErrorUtils({ }) {
         if (errors.some(e => e.throwError === true)) {
             throw new Error(
                 "Validation failed:\n" +
-                errors.map(e => `• ${e.objectType}:${e.reason}`).join("\n")
+                errors.map(e => `â€¢ ${e.objectType}:${e.reason}`).join("\n")
             );
         }
     }

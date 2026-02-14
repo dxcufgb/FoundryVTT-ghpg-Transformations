@@ -1,6 +1,6 @@
 // services/rolltables/createRollTableEffectCatalog.js
 
-import { RollTableEffectCatalog } from "../../domain/rollTable/RollTableEffectCatalog.js";
+import { RollTableEffectCatalog } from "../../domain/rollTable/RollTableEffectCatalog.js"
 
 export function createRollTableEffectCatalog({
     transformationRegistry,
@@ -9,22 +9,23 @@ export function createRollTableEffectCatalog({
     chatService,
     actorRepository,
     logger
-}) {
-    const effectsByKey = {};
+})
+{
+    const effectsByKey = {}
 
     for (const entry of transformationRegistry.getAllEntries()) {
-        const effects = entry.TransformationRollTableEffects;
-        if (!effects) continue;
+        const effects = entry.TransformationRollTableEffects
+        if (!effects) continue
 
         for (const [key, EffectClass] of Object.entries(effects)) {
             if (effectsByKey[key]) {
                 logger.warn(
                     "Duplicate roll table effect key",
                     key
-                );
-                continue;
+                )
+                continue
             }
-            effectsByKey[key] = EffectClass;
+            effectsByKey[key] = EffectClass
         }
     }
 
@@ -36,5 +37,5 @@ export function createRollTableEffectCatalog({
             chatService,
             actorRepository
         })
-    );
+    )
 }

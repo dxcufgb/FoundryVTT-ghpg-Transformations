@@ -1,13 +1,15 @@
-import {
-    ABILITY,
-    SKILL,
-    ROLL_TYPE,
-    ROLL_MODE
-} from "../../config/constants.js";
+import
+    {
+        ABILITY,
+        SKILL,
+        ROLL_TYPE,
+        ROLL_MODE
+    } from "../../config/constants.js"
 
-import { enumUtils } from "../../utils/enumUtils.js";
+import { enumUtils } from "../../utils/enumUtils.js"
 
-export function createD20RollAction({ ui }) {
+export function createD20RollAction({ ui })
+{
 
     async function roll({
         actor,
@@ -15,44 +17,45 @@ export function createD20RollAction({ ui }) {
         rollType,
         dc = null,
         mode = ROLL_MODE.NORMAL.int
-    }) {
+    })
+    {
         if (!actor) {
-            ui.notifications.warn("Select a token.");
-            return;
+            ui.notifications.warn("Select a token.")
+            return
         }
 
-        const config = {};
+        const config = {}
 
         if (mode === ROLL_MODE.ADVANTAGE.int) {
-            config.advantage = true;
+            config.advantage = true
         }
 
         if (mode === ROLL_MODE.DISADVANTAGE.int) {
-            config.disadvantage = true;
+            config.disadvantage = true
         }
 
         if (enumUtils.enumContains(ABILITY, identifier)) {
-            config.ability = identifier;
+            config.ability = identifier
 
             if (rollType === ROLL_TYPE.SAVING_THROW) {
-                if (dc != null) config.target = dc;
-                return actor.rollSavingThrow(config);
+                if (dc != null) config.target = dc
+                return actor.rollSavingThrow(config)
             }
 
             if (rollType === ROLL_TYPE.ABILITY_CHECK) {
-                return actor.rollAbilityCheck(config);
+                return actor.rollAbilityCheck(config)
             }
         }
 
         if (enumUtils.enumContains(SKILL, identifier)) {
-            config.skill = identifier;
-            return actor.rollSkill(config);
+            config.skill = identifier
+            return actor.rollSkill(config)
         }
 
-        ui.notifications.warn("Unknown roll type");
+        ui.notifications.warn("Unknown roll type")
     }
 
     return {
         roll
-    };
+    }
 }
