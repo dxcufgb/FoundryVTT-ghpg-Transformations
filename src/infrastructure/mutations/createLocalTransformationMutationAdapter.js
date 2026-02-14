@@ -119,7 +119,6 @@ export function createLocalTransformationMutationAdapter({
     async function applyStage(actor, definition, stage, choice)
     {
         logger.debug("createLocalTransformationMutationAdapter.applyStage", { actor, definition, stage, choice })
-        console.log("applyStage running for stage", stage)
         if (stage != 0) {
             const grants = stageGrantResolver.resolve({
                 definition,

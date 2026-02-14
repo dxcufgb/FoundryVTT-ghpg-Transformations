@@ -24,10 +24,10 @@ quench.registerBatch(
             await cleanupQuenchTestActors(testActorIds)
         })
         for (const entry of TransformationSubclassTestRegistry) {
+
             runTransformationTestSuite({
                 runtime,
                 mochaFunctions: { describe, it, assert, expect },
-                transformationDef: entry.definition,
                 testDef: entry.testDefinition
             })
         }

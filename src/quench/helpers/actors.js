@@ -114,3 +114,21 @@ export async function waitForActorConsistency(actor, {
     }
 }
 
+export function expectItemsOnActor(expectedItemUuids, actor, expect)
+{
+    const actorSourceIds = actor.items.map(i =>
+        i.flags.transformations?.sourceUuid
+    )
+    for (const uuid of expectedItemUuids) {
+        expect(
+            actorSourceIds.includes(uuid),
+            `Expected UUID ${uuid} was not found on actor`
+        ).to.equal(true)
+    }
+}
+
+export function expectRaceItemSubTypeOnActor(runtime, subtype, actor, expect)
+{
+    const raceItem = runtime.infrastructure.itemRepository.findEmbeddedByType(actor, "race")
+    expect(raceItem?.system?.type?.subtype).to.be.equal(subtype)
+}

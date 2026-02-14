@@ -1,6 +1,7 @@
 import { createTestActor } from "../../helpers/actors.js"
 import { advanceStageAndChoose } from "../../helpers/adcanceStageAndExpectchoiceDialog.js"
 import { advanceStageAndWait } from "../../helpers/advanceStageAndWait.js"
+import { expectAsyncWork } from "../../helpers/async/expectAsyncWork.js"
 import { waitForNextFrame } from "../../helpers/dom.js"
 import { readyGame } from "../../helpers/setup.js"
 import { waitForCondition } from "../../helpers/waitForCondition.js"
@@ -9,7 +10,6 @@ import { waitForDomainStability } from "../../helpers/waitForDomainStability.js"
 export function runTransformationTestSuite({
     runtime,
     mochaFunctions,
-    transformationDef,
     testDef
 })
 {
@@ -18,25 +18,35 @@ export function runTransformationTestSuite({
     {
         this.timeout(10_000)
         let actor
+        let transformationDef
 
         beforeEach(async function()
         {
             await readyGame()
-            actor = await createTestActor()
-            await runtime.services.transformationService.applyTransformation(
-                actor,
-                { definition: transformationDef }
+            actor = await createTestActor({ name: this.currentTest.title + `(${testDef.id})`, options: { race: "humanoid" } })
+            transformationDef = await runtime.services.transformationQueryService.getDefinitionById(testDef.id)
+            await expectAsyncWork(
+                () => runtime.services.transformationService.applyTransformation(
+                    actor,
+                    { definition: transformationDef }
+                ),
+                { trackers: runtime.dependencies.utils.asyncTrackers }
             )
+
+            await waitForCondition(() =>
+                actor.getFlag("transformations", "type") === transformationDef.id
+            )
+
+            await waitForNextFrame()
+
+            if (actor.getFlag("transformations", "stage") != 0) throw new Error("Transformation stage not set to 0 in beforeEach")
+            if (actor.getFlag("transformations", "type") != transformationDef.id) throw new Error(`Transformation type not set to ${transformationDef.id} in beforeEach`)
         })
 
         for (const scenario of testDef.scenarios) {
 
             it(`Scenario: ${scenario.name}`, async function()
             {
-
-                const actor = await createTestActor()
-
-                await runtime.services.transformationService.applyTransformation(actor, { definition: transformationDef })
 
                 if (scenario.setup) {
                     await scenario.setup({ actor })

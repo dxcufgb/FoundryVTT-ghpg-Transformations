@@ -45,10 +45,6 @@ export const Registry = Object.seal({
     }
 })
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Explicit setters (tests only)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
 export function setRegistryDependencies(dependencies, options)
 {
     _logger?.debug?.("setRegistryDependencies", { dependencies, options })

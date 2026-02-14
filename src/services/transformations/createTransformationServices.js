@@ -80,7 +80,7 @@ export function createTransformationService({
                 }
 
                 if ("stage" in transformationsFlags) {
-                    const previousStage = actor?.flags?.transformations?.finishedStage
+                    const previousStage = actor?.flags?.transformations?.finishedStage ?? 0
                     const newStage = actor.flags?.transformations?.stage
                     if (newStage > previousStage) {
                         await handleStageChanged(actor)

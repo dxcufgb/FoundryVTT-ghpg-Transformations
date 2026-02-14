@@ -1,49 +1,68 @@
 // test/definitions/aberrantHorror.testdef.js
 
+import { expectItemsOnActor, expectRaceItemSubTypeOnActor } from "../../../helpers/actors.js"
+
 export const AberrantHorrorTestDef = {
     id: "aberrant-horror",
     scenarios: [
         {
             name: "Basic test stage 1",
-            setup: async ({ actor }) =>
-            {
+            // setup: async ({ actor }) =>
+            // {
 
-            },
+            // },
             steps: [
                 {
                     stage: 1,
                     await: async ({ runtime, actor, waitForCondition }) =>
                     {
-                        await runtime.dependencies.utils.asyncTrackers.whenIdle()
-                        await waitForCondition(() =>
-                        {
-                            const raceItem = runtime.infrastructure.itemRepository.findEmbeddedByType(actor, "race")
-
-                            return Boolean(raceItem?.system?.type?.subtype)
-                        })
+                        await stageAwait(runtime, actor, waitForCondition, 1)
                     }
                 }
             ],
 
-            finalAssertions: async ({ actor, expect }) =>
+            finalAssertions: async ({ runtime, actor, expect }) =>
             {
                 const expectedItemUuids = [
                     "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
                     "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
                     "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT"
                 ]
-                const actorSourceIds = actor.items.map(i =>
-                    i.flags.transformations.sourceUuid
-                )
-                for (const uuid of expectedItemUuids) {
-                    expect(
-                        actorSourceIds.includes(uuid),
-                        `Expected UUID ${uuid} was not found on actor`
-                    ).to.equal(true)
-                }
-                expect(actor.system.type.subtype).to.be.equal("Aberration")
+                expectItemsOnActor(expectedItemUuids, actor, expect)
+                expectRaceItemSubTypeOnActor(runtime, "Aberration", actor, expect)
             }
-        }
+        },
+        // {
+        //     name: "Basic test stage 2 with efficient killer",
+        //     // setup: async ({ actor }) =>
+        //     // {
+
+        //     // },
+        //     steps: [
+        //         {
+        //             stage: 1,
+        //             await: stageAwait(1)
+        //         },
+        //         {
+        //             stage: 2,
+        //             choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
+        //             await: stageAwait(2)
+
+        //         }
+        //     ],
+
+        //     finalAssertions: async ({ runtime, actor, expect }) =>
+        //     {
+        //         const expectedItemUuids = [
+        //             "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+        //             "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+        //             "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT",
+        //             "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+        //             "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
+        //         ]
+        //         expectItemsOnActor(expectedItemUuids, actor)
+        //     }
+        // }
         // ,
         // {
         //     name: "Basic test 1-4",
@@ -150,4 +169,18 @@ export const AberrantHorrorTestDef = {
     //     }
     // }
     // }
+}
+
+async function stageAwait(runtime, actor, waitForCondition, stage)
+{
+    await runtime.dependencies.utils.asyncTrackers.whenIdle()
+    if (stage == 1) {
+        await waitForCondition(() =>
+        {
+            const raceItem = runtime.infrastructure.itemRepository.findEmbeddedByType(actor, "race")
+            return Boolean(raceItem?.system?.type?.subtype)
+        })
+    } else {
+
+    }
 }
