@@ -69,6 +69,8 @@ export function createLocalTransformationMutationAdapter({
                     return
 
                 await applyStage(actor, definition, stage, choice)
+                logger.debug(`settings finishedStage flag to ${stage}`)
+                await actor.setFlag("transformations", "finishedStage", stage)
             })()
         )
     }
@@ -156,9 +158,12 @@ export function createLocalTransformationMutationAdapter({
                     if (grants.creatureSubType) {
                         await creatureTypeService.applyCreatureSubType(actor, grants.creatureSubType)
                     }
+                    logger.debug(`settings finishedStage flag to ${stage}`)
+                    await actor.setFlag("transformations", "finishedStage", stage)
                 })()
             )
         }
-        actor.setFlag("transformations", "finishedStage", stage)
+        logger.debug(`settings finishedStage flag to ${stage}`)
+        await actor.setFlag("transformations", "finishedStage", stage)
     }
 }

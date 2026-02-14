@@ -6,7 +6,7 @@ export const AberrantHorrorTestDef = {
     id: "aberrant-horror",
     scenarios: [
         {
-            name: "Basic test stage 1",
+            name: "stage 1",
             // setup: async ({ actor }) =>
             // {
 
@@ -32,38 +32,43 @@ export const AberrantHorrorTestDef = {
                 expectRaceItemSubTypeOnActor(runtime, "Aberration", actor, expect)
             }
         },
-        // {
-        //     name: "Basic test stage 2 with efficient killer",
-        //     // setup: async ({ actor }) =>
-        //     // {
+        {
+            name: "stage 2 with efficient killer",
+            // setup: async ({ actor }) =>
+            // {
 
-        //     // },
-        //     steps: [
-        //         {
-        //             stage: 1,
-        //             await: stageAwait(1)
-        //         },
-        //         {
-        //             stage: 2,
-        //             choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
-        //             await: stageAwait(2)
+            // },
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await stageAwait(runtime, actor, waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await stageAwait(runtime, actor, waitForCondition, 2)
+                    }
 
-        //         }
-        //     ],
+                }
+            ],
 
-        //     finalAssertions: async ({ runtime, actor, expect }) =>
-        //     {
-        //         const expectedItemUuids = [
-        //             "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
-        //             "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
-        //             "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT",
-        //             "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
-        //             "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
-        //         ]
-        //         expectItemsOnActor(expectedItemUuids, actor)
-        //     }
-        // }
-        // ,
+            finalAssertions: async ({ runtime, actor, expect }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+                    "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                    "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT",
+                    "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+                    "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
+                ]
+                expectItemsOnActor(expectedItemUuids, actor, expect)
+            }
+        },
         // {
         //     name: "Basic test 1-4",
         //     steps: [
@@ -174,13 +179,9 @@ export const AberrantHorrorTestDef = {
 async function stageAwait(runtime, actor, waitForCondition, stage)
 {
     await runtime.dependencies.utils.asyncTrackers.whenIdle()
-    if (stage == 1) {
-        await waitForCondition(() =>
-        {
-            const raceItem = runtime.infrastructure.itemRepository.findEmbeddedByType(actor, "race")
-            return Boolean(raceItem?.system?.type?.subtype)
-        })
-    } else {
-
-    }
+    console.warn(`waiting for finsihedStage to be set to ${stage}`)
+    await waitForCondition(() =>
+    {
+        return actor.getFlag("transformations", "finishedStage") === stage
+    })
 }
