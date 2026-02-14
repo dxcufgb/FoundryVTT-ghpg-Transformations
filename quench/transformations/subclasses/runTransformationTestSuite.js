@@ -95,7 +95,6 @@ export function runTransformationTestSuite({
         for (const [uuid, behavior] of Object.entries(testDef.itemBehaviorTests ?? {})) {
             it(`verifies behavior of ${uuid}`, async function()
             {
-
                 await behavior.test({ actor })
             })
         }

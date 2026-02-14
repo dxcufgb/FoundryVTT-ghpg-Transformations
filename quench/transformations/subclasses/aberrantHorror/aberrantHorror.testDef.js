@@ -1,6 +1,7 @@
 // test/definitions/aberrantHorror.testdef.js
 
 import { expectItemsOnActor, expectRaceItemSubTypeOnActor } from "../../../helpers/actors.js"
+import { waitForStageFinished } from "../../../helpers/awaitStage.js"
 
 export const AberrantHorrorTestDef = {
     id: "aberrant-horror",
@@ -16,7 +17,7 @@ export const AberrantHorrorTestDef = {
                     stage: 1,
                     await: async ({ runtime, actor, waitForCondition }) =>
                     {
-                        await stageAwait(runtime, actor, waitForCondition, 1)
+                        await waitForStageFinished(runtime, actor, waitForCondition, 1)
                     }
                 }
             ],
@@ -33,7 +34,7 @@ export const AberrantHorrorTestDef = {
             }
         },
         {
-            name: "stage 2 with efficient killer",
+            name: "stage 2 with Efficient Killer",
             // setup: async ({ actor }) =>
             // {
 
@@ -43,7 +44,7 @@ export const AberrantHorrorTestDef = {
                     stage: 1,
                     await: async ({ runtime, actor, waitForCondition }) =>
                     {
-                        await stageAwait(runtime, actor, waitForCondition, 1)
+                        await waitForStageFinished(runtime, actor, waitForCondition, 1)
                     }
                 },
                 {
@@ -51,7 +52,7 @@ export const AberrantHorrorTestDef = {
                     choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
                     await: async ({ runtime, actor, waitForCondition }) =>
                     {
-                        await stageAwait(runtime, actor, waitForCondition, 2)
+                        await waitForStageFinished(runtime, actor, waitForCondition, 2)
                     }
 
                 }
@@ -69,92 +70,351 @@ export const AberrantHorrorTestDef = {
                 expectItemsOnActor(expectedItemUuids, actor, expect)
             }
         },
-        // {
-        //     name: "Basic test 1-4",
-        //     steps: [
-        //         { stage: 1 },
-        //         {
-        //             stage: 2,
-        //             choose: 'Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E'
-        //         },
-        //         {
-        //             stage: 3,
-        //             choose: 'Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5'
-        //         },
-        //         {
-        //             stage: 4,
-        //             choose: 'Compendium.transformations.gh-transformations.Item.Q0c1NafrnW9C7tDz'
-        //         }
-        //     ],
-        //     finalAssertions: async ({ actor }) =>
-        //     {
-        //         const expectedItemUuids = [
-        //             "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
-        //             "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
-        //             "Compendium.transformations.gh-transformations.Item.bZIioCqc5wwEUdKG",
-        //             "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
-        //             'Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E',
-        //             'Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5',
-        //             'Compendium.transformations.gh-transformations.Item.Q0c1NafrnW9C7tDz'
-        //         ]
-        //         const actorSourceIds = actor.items.map(i =>
-        //             i.flags.transformations.sourceUuid
-        //         )
-        //         expect(expectedItemUuids.every(uuid =>
-        //             actorSourceIds.includes(uuid)
-        //         )).to.equal(true)
-        //     }
-        // }
-        // ,
+        {
+            name: "stage 2 with Writhing Tendrils",
+            // setup: async ({ actor }) =>
+            // {
 
-        // {
-        //     name: "Prerequisite path through stage 3",
-        //     steps: [
-        //         { stage: 1 },
-        //         {
-        //             stage: 2,
-        //             choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E"
-        //         },
-        //         {
-        //             stage: 3,
-        //             expectDialog: true,
-        //             choose: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5"
-        //         }
-        //     ],
-        //     finalAssertions: async ({ actor }) =>
-        //     {
-        //         expect(actor.items.some(i =>
-        //             i.flags?.core?.sourceId ===
-        //             "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz"
-        //         )).to.equal(true)
-        //     }
-        // },
+            // },
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 2)
+                    }
 
-        // {
-        //     name: "Non-prerequisite path auto-resolves stage 3",
-        //     steps: [
-        //         { stage: 1 },
-        //         {
-        //             stage: 2,
-        //             choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
-        //         },
-        //         {
-        //             stage: 3,
-        //             expectDialog: false
-        //         }
-        //     ],
-        //     finalAssertions: async ({ actor }) =>
-        //     {
-        //         const stage3Choice = actor.getFlag(
-        //             "transformations",
-        //             "stageChoices"
-        //         )?.[AberrantHorrorDefinition.id]?.[3]
+                }
+            ],
 
-        //         expect(stage3Choice).to.equal(
-        //             "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat"
-        //         )
-        //     }
-        // }
+            finalAssertions: async ({ runtime, actor, expect }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+                    "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                    "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT",
+                    "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+                    "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E"
+                ]
+                expectItemsOnActor(expectedItemUuids, actor, expect)
+            }
+        },
+        {
+            name: "stage 3 with Terrifying Visage due to no options",
+            // setup: async ({ actor }) =>
+            // {
+
+            // },
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 2)
+                    }
+
+                },
+                {
+                    stage: 3,
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 3)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ runtime, actor, expect }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+                    "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                    "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz",
+                    "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+                    "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
+                    "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat"
+                ]
+                expectItemsOnActor(expectedItemUuids, actor, expect)
+            }
+        },
+        {
+            name: "stage 3 with Constricting Tendrils",
+            // setup: async ({ actor }) =>
+            // {
+
+            // },
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 2)
+                    }
+
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 3)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ runtime, actor, expect }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+                    "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                    "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz",
+                    "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+                    "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5"
+                ]
+                expectItemsOnActor(expectedItemUuids, actor, expect)
+            }
+        },
+        {
+            name: "stage 3 with Terrifying Visage as an option",
+            // setup: async ({ actor }) =>
+            // {
+
+            // },
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 2)
+                    }
+
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 3)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ runtime, actor, expect }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+                    "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                    "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz",
+                    "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+                    "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat"
+                ]
+                expectItemsOnActor(expectedItemUuids, actor, expect)
+            }
+        },
+        {
+            name: "stage 4 Entropic Abomation with no actor spell slots",
+            // setup: async ({ actor }) =>
+            // {
+
+            // },
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 2)
+                    }
+
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 4)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ runtime, actor, expect }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+                    "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                    "Compendium.transformations.gh-transformations.Item.bZIioCqc5wwEUdKG",
+                    "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+                    "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
+                    "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                ]
+                expectItemsOnActor(expectedItemUuids, actor, expect)
+            }
+        },
+        {
+            name: "stage 4 Entropic Abomation with actor spell slots",
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "system.spells.spell1.override": 1,
+                    "system.spells.spell1.value": 1
+                })
+            },
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 2)
+                    }
+
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz",
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 4)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ runtime, actor, expect }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+                    "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                    "Compendium.transformations.gh-transformations.Item.bZIioCqc5wwEUdKG",
+                    "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+                    "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
+                    "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                ]
+                expectItemsOnActor(expectedItemUuids, actor, expect)
+            }
+        },
+        {
+            name: "stage 4 Poisonouse Mutations with actor spell slots",
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "system.spells.spell1.override": 1,
+                    "system.spells.spell1.value": 1
+                })
+            },
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 2)
+                    }
+
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.Q0c1NafrnW9C7tDz",
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await waitForStageFinished(runtime, actor, waitForCondition, 4)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ runtime, actor, expect }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+                    "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                    "Compendium.transformations.gh-transformations.Item.bZIioCqc5wwEUdKG",
+                    "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+                    "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
+                    "Compendium.transformations.gh-transformations.Item.Q0c1NafrnW9C7tDz"
+                ]
+                expectItemsOnActor(expectedItemUuids, actor, expect)
+            }
+        },
+
     ],
 
     // itemBehaviorTests: {
@@ -174,14 +434,4 @@ export const AberrantHorrorTestDef = {
     //     }
     // }
     // }
-}
-
-async function stageAwait(runtime, actor, waitForCondition, stage)
-{
-    await runtime.dependencies.utils.asyncTrackers.whenIdle()
-    console.warn(`waiting for finsihedStage to be set to ${stage}`)
-    await waitForCondition(() =>
-    {
-        return actor.getFlag("transformations", "finishedStage") === stage
-    })
 }

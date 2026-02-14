@@ -1,7 +1,5 @@
-const isTest = import.meta?.env?.MODE === "test"
-//test related things
 import { cleanupQuenchTestActors } from "./quench/helpers/cleanupActors.js"
-// main.js â€” Composition Root for Transformations Module
+// main.js Composition Root for Transformations Module
 import { finalizeRegistry, Registry, setRegistryDependencies, setRegistryInfrastructure, setRegistryLogger, setRegistryServices } from "./bootstrap/registry.js"
 import { createDependencies } from "./bootstrap/createDependencies.js"
 import { createInfrastructure } from "./bootstrap/createInfrastructure.js"
@@ -94,9 +92,7 @@ setRegistryInfrastructure(infrastructure, { allowOnce: true })
 
 Hooks.once("init", () =>
 {
-    if (!isTest) {
-        console.log("Transformations | Init")
-    }
+    console.log("Transformations | Init")
 
     // Kill legacy facade access explicitly
     Object.defineProperty(globalThis, "TransformationModule", {
@@ -111,9 +107,7 @@ Hooks.once("init", () =>
 
 Hooks.once("setup", async () =>
 {
-    if (!isTest) {
-        console.log("Transformations | Setup")
-    }
+    console.log("Transformations | Setup")
 
     const { dependencies, infrastructure, logger } = Registry
 
@@ -203,9 +197,7 @@ Hooks.once("setup", async () =>
         applyFlags: async ({ dryRun = false } = {}) =>
         {
             if (hasRun && !dryRun) {
-                if (!isTest) {
-                    console.warn("Flags already applied this session")
-                }
+                console.warn("Flags already applied this session")
                 return
             }
             hasRun = true
@@ -225,10 +217,6 @@ Hooks.once("setup", async () =>
         transformationSubTypes,
         constants
     })
-    if (!isTest) {
-        transformationSubTypes,
-            constants
-    }
 
     console.log(`
 ╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
@@ -262,17 +250,13 @@ Hooks.once("setup", async () =>
         }
     }
 
-    if (!isTest) {
-        console.log("Transformations | Setup complete")
-    }
+    console.log("Transformations | Setup complete")
 })
 
 
 Hooks.once("ready", async () =>
 {
-    if (!isTest) {
-        console.log("Transformations | Ready")
-    }
+    console.log("Transformations | Ready")
 
     const macros = bootstrapMacros({
         infrastructure: Registry.infrastructure,

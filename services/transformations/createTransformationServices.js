@@ -170,15 +170,6 @@ export function createTransformationService({
                                     stage
                                 })
                         })
-                        actor.setFlag(
-                            "transformations",
-                            "stageChoices",
-                            {
-                                [definition.id]: {
-                                    [stage]: choice
-                                }
-                            }
-                        )
                     }
                     if (choice === undefined) {
                         await actorRepository.setTransformationStage(
@@ -187,6 +178,15 @@ export function createTransformationService({
                         )
                         return
                     }
+                    actor.setFlag(
+                        "transformations",
+                        "stageChoices",
+                        {
+                            [definition.id]: {
+                                [stage]: choice
+                            }
+                        }
+                    )
                 }
 
                 await mutationGateway.advanceStage({

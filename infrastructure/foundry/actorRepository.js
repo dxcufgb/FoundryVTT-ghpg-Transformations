@@ -99,7 +99,7 @@ export function createActorRepository({
         )
     }
 
-    async function setStage(actor, stage)
+    async function setTransformationStage(actor, stage)
     {
         logger.debug("createActorRepository.setStage", { actor, stage })
         return tracker.track(
@@ -424,7 +424,7 @@ export function createActorRepository({
 
         clearCreatureTypeFlags,
         clearTransformation,
-        setStage,
+        setTransformationStage,
 
         hasMacroExecution,
         setMacroExecution,
