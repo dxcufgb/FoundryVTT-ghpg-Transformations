@@ -1,0 +1,163 @@
+// infrastructure/rolltables/createRollTableService.js
+
+export function createRollTableService({
+    tracker,
+    debouncedTracker,
+    compendiumRepository,
+    logger
+})
+{
+    logger.debug("createRollTableService", {
+        tracker,
+        debouncedTracker,
+        compendiumRepository
+    })
+
+    async function roll({
+        uuid,
+        mode = "normal",
+        context = {}
+    })
+    {
+        logger.debug("createRollTableService.roll", {
+            uuid,
+            mode,
+            context
+        })
+        if (!uuid) {
+            logger.warn("rollTableService.roll called without uuid")
+            return null
+        }
+
+        return tracker.track(
+            (async () =>
+            {
+                const table = await compendiumRepository.getDocumentByUuid(uuid)
+
+                if (!table || table.documentName !== "RollTable") {
+                    logger.warn("Invalid RollTable UUID", uuid)
+                    return null
+                }
+
+                const rollResult = await table.draw()
+                const result = rollResult?.results?.[0]
+
+                if (!result) {
+                    logger.warn("RollTable produced no result", uuid)
+                    return null
+                }
+                const existingKey = result.flags?.transformations?.effectKey
+
+                if (!existingKey) {
+                    debouncedTracker.pulse("applyEffectKey")
+                    await result.setFlag("transformations", "effectKey", result.name.replaceAll(" ", ""))
+                }
+
+                const outcome = normalizeResult({
+                    table,
+                    rollResult,
+                    result,
+                    context
+                })
+
+                if (!passesMode(outcome, mode, context)) {
+                    logger.debug(
+                        "RollTable result rejected by mode",
+                        { mode, outcome }
+                    )
+                    return null
+                }
+
+                return outcome
+            })()
+        )
+    }
+
+    return Object.freeze({
+        whenIdle: tracker.whenIdle,
+        roll
+    })
+
+
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Helpers
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    function passesMode(outcome, mode, context)
+    {
+        logger.debug("createRollTableService.passesMode", { outcome, mode, context })
+        if (mode === "normal") return true
+
+        const currentStage = context?.stage
+        const rolledStage = extractStageFromText(
+            outcome.result.text
+        )
+
+        if (currentStage == null || rolledStage == null) {
+            return true
+        }
+
+        if (mode === "downgradeOnly") {
+            return rolledStage <= currentStage
+        }
+
+        if (mode === "upgradeOnly") {
+            return rolledStage >= currentStage
+        }
+
+        return true
+    }
+
+    function normalizeResult({ table, rollResult, result, context })
+    {
+        logger.debug("createRollTableService.normalizeResult", {
+            table,
+            rollResult,
+            result,
+            context
+        })
+        return {
+            table: {
+                uuid: table.uuid,
+                name: table.name
+            },
+
+            roll: {
+                total: rollResult.roll.total
+            },
+
+            result: {
+                id: result.id,
+                text: result.description,
+                img: result.img,
+                range: result.range
+            },
+
+            // ðŸ‘‡ IMPORTANT: effectKey is just data
+            effectKey: extractEffectKey(result),
+
+            context
+        }
+    }
+
+    function extractEffectKey(result)
+    {
+        logger.debug("createRollTableService.extractEffectKey", { result })
+        // Preferred: explicit flag
+        const flagged = result.flags?.transformations?.effectKey
+
+        if (flagged) return flagged
+
+        // Fallback: [EffectKey] in text
+        const text = result?.text ?? ""
+        const match = text.match(/\[(.+?)\]/)
+        return match ? match[1] : null
+    }
+
+    function extractStageFromText(text = "")
+    {
+        logger.debug("createRollTableService.extractStageFromText", { text })
+        const match = text.match(/stage\s*(\d+)/i)
+        return match ? Number(match[1]) : null
+    }
+}
