@@ -75,11 +75,13 @@ export function createServices({
         transformationRegistry,
         compendiumRepository,
         transformationDefinitionFactory,
-        transformationInstanceFactory
+        transformationInstanceFactory,
+        logger
     })
 
     const actorQueryService = createActorQueryService({
-        actorRepository
+        actorRepository,
+        logger
     })
 
     const actionHandlers = createActionHandlers({

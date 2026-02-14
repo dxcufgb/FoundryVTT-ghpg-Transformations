@@ -123,7 +123,8 @@ Hooks.once("setup", async () =>
 
     const services = createServices({
         dependencies,
-        infrastructure
+        infrastructure,
+        logger
     })
 
     const ui = createUi({
