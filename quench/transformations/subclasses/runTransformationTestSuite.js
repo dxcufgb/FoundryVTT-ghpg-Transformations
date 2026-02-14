@@ -2,6 +2,7 @@ import { createTestActor } from "../../helpers/actors.js"
 import { advanceStageAndChoose } from "../../helpers/adcanceStageAndExpectchoiceDialog.js"
 import { advanceStageAndWait } from "../../helpers/advanceStageAndWait.js"
 import { expectAsyncWork } from "../../helpers/async/expectAsyncWork.js"
+import { waitForStageFinished } from "../../helpers/awaitStage.js"
 import { waitForNextFrame } from "../../helpers/dom.js"
 import { readyGame } from "../../helpers/setup.js"
 import { waitForCondition } from "../../helpers/waitForCondition.js"
@@ -91,12 +92,68 @@ export function runTransformationTestSuite({
             })
         }
 
-        // Item behavior tests
-        for (const [uuid, behavior] of Object.entries(testDef.itemBehaviorTests ?? {})) {
-            it(`verifies behavior of ${uuid}`, async function()
+        for (const behavior of testDef.itemBehaviorTests ?? []) {
+
+            it(`Item behavior: ${behavior.name}`, async function()
             {
-                await behavior.test({ actor })
+                if (behavior.setup) {
+                    await behavior.setup({ actor })
+                }
+
+                for (const step of behavior.requiredPath ?? []) {
+                    if (step.choose) {
+                        await advanceStageAndChoose({
+                            actor,
+                            stage: step.stage,
+                            choiceUuid: step.choose,
+                            asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                        })
+                        await waitForStageFinished(runtime, actor, waitForCondition, step.stage)
+                    } else {
+                        await advanceStageAndWait({
+                            actor,
+                            stage: step.stage,
+                            asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                        })
+                        await waitForStageFinished(runtime, actor, waitForCondition, step.stage)
+                    }
+
+                    await waitForNextFrame()
+                }
+
+                // Ensure item exists on actor
+                const hasItem = actor.items.some(i =>
+                    i.flags?.transformations?.sourceUuid === behavior.uuid
+                )
+
+                if (!hasItem) {
+                    throw new Error(
+                        `Item ${behavior.name} (${behavior.uuid}) not present on actor`
+                    )
+                }
+
+                if (behavior.steps) {
+                    for (const step of behavior.steps) {
+                        await step({ actor, runtime })
+                    }
+                }
+
+                if (behavior.await) {
+                    await behavior.await({
+                        actor,
+                        runtime,
+                        waiters: {
+                            waitForCondition,
+                            waitForDomainStability
+                        }
+                    })
+                }
+
+                if (behavior.assertions) {
+                    await behavior.assertions({ actor, expect, runtime })
+                }
             })
         }
+
     })
 }

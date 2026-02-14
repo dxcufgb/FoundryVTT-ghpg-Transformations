@@ -5,15 +5,7 @@ export async function waitForDomainStability({
     asyncTrackers
 })
 {
-    // Wait for tracked async
     await asyncTrackers.whenIdle()
-
-    // Let Foundry flush document updates
     await waitForNextFrame()
-
-    // Ensure actor re-prepared
-    actor.prepareData?.()
-
-    // One more frame to flush cascading updates
     await waitForNextFrame()
 }
