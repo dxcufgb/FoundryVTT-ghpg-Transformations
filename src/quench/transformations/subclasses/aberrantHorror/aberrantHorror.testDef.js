@@ -5,9 +5,26 @@ export const AberrantHorrorTestDef = {
     scenarios: [
         {
             name: "Basic test stage 1",
+            setup: async ({ actor }) =>
+            {
+
+            },
             steps: [
-                { stage: 1 },
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waitForCondition }) =>
+                    {
+                        await runtime.dependencies.utils.asyncTrackers.whenIdle()
+                        await waitForCondition(() =>
+                        {
+                            const raceItem = runtime.infrastructure.itemRepository.findEmbeddedByType(actor, "race")
+
+                            return Boolean(raceItem?.system?.type?.subtype)
+                        })
+                    }
+                }
             ],
+
             finalAssertions: async ({ actor, expect }) =>
             {
                 const expectedItemUuids = [

@@ -160,5 +160,6 @@ export function createLocalTransformationMutationAdapter({
                 })()
             )
         }
+        actor.setFlag("transformations", "finishedStage", stage)
     }
 }

@@ -38,7 +38,15 @@ export function runTransformationTestSuite({
 
                 await runtime.services.transformationService.applyTransformation(actor, { definition: transformationDef })
 
+                if (scenario.setup) {
+                    await scenario.setup({ actor })
+                }
+
                 for (const step of scenario.steps) {
+
+                    if (step.adjust) {
+                        await step.adjust({ actor })
+                    }
 
                     if (step.choose) {
                         await advanceStageAndChoose({
@@ -54,20 +62,21 @@ export function runTransformationTestSuite({
                             asyncTrackers: runtime.dependencies.utils.asyncTrackers
                         })
                     }
-                    await waitForCondition(() =>
-                        actor.getFlag("transformations", "stage") === step.stage
-                    )
-                    await waitForCondition(() =>
-                        actor.items.some(i => i.flags?.transformations?.stage === step.stage)
-                    )
-                    await waitForDomainStability({
-                        actor,
-                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
-                    })
+                    if (step.await) {
+                        await step.await({
+                            runtime,
+                            actor,
+                            waitForCondition
+                        })
+                    }
+                }
+
+                if (scenario.finalAwait) {
+                    await scenario.finalAwait({ runtime, actor, waitForCondition })
                 }
 
                 if (scenario.finalAssertions) {
-                    await scenario.finalAssertions({ actor, expect })
+                    await scenario.finalAssertions({ runtime, actor, expect })
                 }
             })
         }

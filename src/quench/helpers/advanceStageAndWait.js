@@ -1,4 +1,3 @@
-import { waitForActorConsistency } from "./actors.js"
 import { waitForNextFrame } from "./dom.js"
 
 export async function advanceStageAndWait({
@@ -7,7 +6,9 @@ export async function advanceStageAndWait({
     asyncTrackers
 })
 {
-    await actor.setFlag("transformations", "stage", stage)
+    await actor.update({
+        "flags.transformations.stage": stage
+    })
     await asyncTrackers.whenIdle()
     await waitForNextFrame()
 }

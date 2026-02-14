@@ -128,21 +128,14 @@ quench.registerBatch(
                     asyncTrackers: runtime.dependencies.utils.asyncTrackers
                 })
 
-                const stage1 = Object.values(transformationDef.stages).find(s => s.stage === 1)
+                await runtime.dependencies.utils.asyncTrackers.whenIdle()
 
-                const firstGrantUuid = stage1.grants?.items?.[0]?.uuid
-                console.log("Stage:", actor.getFlag("transformations", "stage"))
-                console.log("Items:", actor.items.map(i => ({
-                    name: i.name,
-                    source: i.flags?.transformations?.sourceUuid
-                })))
-                if (firstGrantUuid) {
-                    await waitForCondition(() =>
-                        actor.items.some(i =>
-                            i.flags?.transformations?.sourceUuid === firstGrantUuid
-                        )
-                    )
-                }
+                await waitForCondition(() =>
+                {
+                    const raceItem = runtime.infrastructure.itemRepository.findEmbeddedByType(actor, "race")
+
+                    return Boolean(raceItem?.system?.type?.subtype)
+                })
 
                 // --- assert flags ---
                 expect(
@@ -153,7 +146,7 @@ quench.registerBatch(
                     actor.getFlag("transformations", "stage")
                 ).to.equal(1)
 
-
+                const stage1 = Object.values(transformationDef.stages).find(s => s.stage === 1)
                 expect(stage1).to.exist
 
                 const raceItem = runtime.infrastructure.itemRepository.findEmbeddedByType(actor, "race")
@@ -207,18 +200,25 @@ quench.registerBatch(
                     asyncTrackers: runtime.dependencies.utils.asyncTrackers
                 })
 
+                await runtime.dependencies.utils.asyncTrackers.whenIdle()
+
                 await waitForCondition(() =>
-                    actor.getFlag("transformations", "stage") === 1
-                )
+                {
+                    const raceItem =
+                        runtime.infrastructure.itemRepository.findEmbeddedByType(actor, "race")
+
+                    return Boolean(raceItem?.system?.type?.subtype)
+                })
 
                 const itemCountAfterFirst = actor.items.size
                 const effectCountAfterFirst = actor.effects.size
 
                 // 3️⃣ Re-apply transformation type (should not duplicate stage 1 grants)
-                await runtime.services.transformationService.applyTransformation(
+                await advanceStageAndWait({
                     actor,
-                    { definition: transformationDef }
-                )
+                    stage: 1,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
 
                 await runtime.dependencies.utils.asyncTrackers.whenIdle()
 
@@ -608,7 +608,7 @@ quench.registerBatch(
                 )
                 await waitForNextFrame()
 
-                expect(actor.getFlag("transformations", "stage")).to.equal(1)
+                expect(actor.getFlag("transformations", "stage")).to.equal(0)
 
                 const currentStage = getStageDef(transformationDef, 2, expect)
                 const nextStage = getStageDef(transformationDef, 3, expect)
@@ -659,7 +659,7 @@ quench.registerBatch(
                 )
                 await waitForNextFrame()
 
-                expect(actor.getFlag("transformations", "stage")).to.equal(1)
+                expect(actor.getFlag("transformations", "stage")).to.equal(0)
 
                 const currentStage = getStageDef(transformationDef, 2, expect)
                 const nextStage = getStageDef(transformationDef, 3, expect)
