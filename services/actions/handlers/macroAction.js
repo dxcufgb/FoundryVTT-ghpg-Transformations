@@ -1,5 +1,3 @@
-// services/actions/macroAction.js
-
 export function createMacroAction({
     directMacroInvoker,
     tracker,
@@ -21,19 +19,20 @@ export function createMacroAction({
             context,
             variables
         })
+
         const data = action.data
 
-        if (!data?.type || !data?.action) {
+        if (!data?.transformationType || !data?.action) {
             logger.warn(
                 "Invalid MACRO action payload",
                 action
             )
-            return
+            return false
         }
 
         logger.debug(
             "Executing MACRO action",
-            data.type,
+            data.transformationType,
             data.action,
             context.trigger
         )
@@ -41,17 +40,25 @@ export function createMacroAction({
         return tracker.track(
             (async () =>
             {
-                await directMacroInvoker.invoke({
-                    actor,
-                    transformationType: data.type,
-                    action: data.action,
-                    context: {
-                        actorUuid: actor.uuid,
-                        ...data.args,
-                        ...variables,
-                        ...context
-                    }
-                })
+                try {
+                    const result = await directMacroInvoker.invoke({
+                        actor,
+                        transformationType: data.transformationType,
+                        action: data.action,
+                        context: {
+                            actorUuid: actor.uuid,
+                            ...data.args,
+                            ...variables,
+                            ...context
+                        }
+                    })
+
+                    return result === true
+                }
+                catch (err) {
+                    logger.warn("MACRO action failed", err)
+                    return false
+                }
             })()
         )
     }

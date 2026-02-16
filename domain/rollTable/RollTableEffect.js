@@ -56,6 +56,7 @@ export class RollTableEffect
         this.activeEffectRepository = activeEffectRepository
         this.stringUtils = stringUtils
         this.moduleFolderPath = moduleFolderPath
+        this.origin = ""
     }
 
     async apply()
@@ -70,7 +71,8 @@ export class RollTableEffect
                 description: this.description,
                 icon: this.getIconPath(),
                 changes: this.effects,
-                flags: this.flags
+                flags: this.flags,
+                origin: this.origin
             })
         }
 

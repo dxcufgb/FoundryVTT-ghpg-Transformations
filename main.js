@@ -149,6 +149,7 @@ Hooks.once("setup", async () =>
     registerDnd5eHooks({
         transformationService: services.transformationService,
         triggerRuntime: services.triggerRuntime,
+        tracker: Registry.dependencies.utils.asyncTrackers.get("mutations"),
         debouncedTracker: Registry.dependencies.utils.asyncTrackers.debounced,
         logger
     })

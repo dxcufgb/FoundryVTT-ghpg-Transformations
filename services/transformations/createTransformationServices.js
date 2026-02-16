@@ -211,9 +211,9 @@ export function createTransformationService({
 
                 if (!transformation) return
 
-                const actions = transformation.getTriggerActions(triggerName)
+                const actionGroups = transformation.getTriggerActionGroups(triggerName)
 
-                if (!actions || actions.length === 0) return
+                if (!actionGroups || actionGroups.length === 0) return
 
                 const rawVariables = transformation.getTriggerVariables(triggerName)
 
@@ -231,12 +231,12 @@ export function createTransformationService({
                     "Executing transformation trigger",
                     actor.id,
                     triggerName,
-                    actions.length
+                    actionGroups.length
                 )
 
                 return mutationGateway.applyTriggerActions({
                     actorId: actor.id,
-                    actions,
+                    actionGroups,
                     context: {
                         trigger: triggerName,
                         stage: transformation.stage

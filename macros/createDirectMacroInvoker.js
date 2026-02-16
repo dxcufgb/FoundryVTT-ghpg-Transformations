@@ -26,35 +26,48 @@ export function createDirectMacroInvoker({
             actor,
             context
         })
-        const entry = macroRegistry.get(transformationType)
-        if (!entry) {
-            throw new Error(`Unknown transformation: ${transformationType}`)
-        }
 
-        const handlers = entry.createHandlers({
-            logger,
-            activeEffectRepository,
-            itemRepository,
-            tracker
-        })
+        try {
+            const entry = macroRegistry.get(transformationType)
+            if (!entry) {
+                logger.warn(`Unknown transformation: ${transformationType}`)
+                return false
+            }
 
-        const handler = handlers[action]
-        if (typeof handler !== "function") {
-            throw new Error(
-                `Handler '${action}' not found for ${transformationType}`
+            const handlers = entry.createHandlers({
+                logger,
+                activeEffectRepository,
+                itemRepository,
+                tracker
+            })
+
+            const handler = handlers[action]
+            if (typeof handler !== "function") {
+                logger.warn(
+                    `Handler '${action}' not found for ${transformationType}`
+                )
+                return false
+            }
+
+            const result = await tracker.track(
+                (async () =>
+                {
+                    return handler({
+                        actor,
+                        trigger: context.trigger,
+                        context
+                    })
+                })()
             )
-        }
 
-        return tracker.track(
-            (async () =>
-            {
-                return handler({
-                    actor,
-                    trigger: context.trigger,
-                    context
-                })
-            })()
-        )
+            if (result === false) return false
+
+            return true
+        }
+        catch (err) {
+            logger.warn("Macro invocation failed", err)
+            return false
+        }
     }
 
     return Object.freeze({

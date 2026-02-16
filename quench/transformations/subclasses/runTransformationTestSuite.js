@@ -1,4 +1,4 @@
-import { createTestActor } from "../../helpers/actors.js"
+import { applyItemActivityEffect, createTestActor, expectItemsOnActor, expectRaceItemSubTypeOnActor } from "../../helpers/actors.js"
 import { advanceStageAndChoose } from "../../helpers/adcanceStageAndExpectchoiceDialog.js"
 import { advanceStageAndWait } from "../../helpers/advanceStageAndWait.js"
 import { expectAsyncWork } from "../../helpers/async/expectAsyncWork.js"
@@ -20,6 +20,8 @@ export function runTransformationTestSuite({
         this.timeout(10_000)
         let actor
         let transformationDef
+        const helpers = { applyItemActivityEffect, expectItemsOnActor, expectRaceItemSubTypeOnActor }
+        const waiters = { waitForCondition, waitForNextFrame, waitForDomainStability, waitForStageFinished }
 
         beforeEach(async function()
         {
@@ -54,6 +56,9 @@ export function runTransformationTestSuite({
                 }
 
                 for (const step of scenario.steps) {
+                    if (step.trigger === "longRest") {
+                        Hooks.call("dnd5e.restCompleted", actor, { longRest: true })
+                    }
 
                     if (step.adjust) {
                         await step.adjust({ actor })
@@ -77,17 +82,17 @@ export function runTransformationTestSuite({
                         await step.await({
                             runtime,
                             actor,
-                            waitForCondition
+                            waiters
                         })
                     }
                 }
 
                 if (scenario.finalAwait) {
-                    await scenario.finalAwait({ runtime, actor, waitForCondition })
+                    await scenario.finalAwait({ runtime, actor, waiters })
                 }
 
                 if (scenario.finalAssertions) {
-                    await scenario.finalAssertions({ runtime, actor, expect })
+                    await scenario.finalAssertions({ runtime, actor, expect, helpers, waiters })
                 }
             })
         }
@@ -134,7 +139,7 @@ export function runTransformationTestSuite({
 
                 if (behavior.steps) {
                     for (const step of behavior.steps) {
-                        await step({ actor, runtime })
+                        await step({ actor, runtime, helpers })
                     }
                 }
 
@@ -142,15 +147,12 @@ export function runTransformationTestSuite({
                     await behavior.await({
                         actor,
                         runtime,
-                        waiters: {
-                            waitForCondition,
-                            waitForDomainStability
-                        }
+                        waiters
                     })
                 }
 
                 if (behavior.assertions) {
-                    await behavior.assertions({ actor, expect, runtime })
+                    await behavior.assertions({ actor, expect, runtime, helpers })
                 }
             })
         }

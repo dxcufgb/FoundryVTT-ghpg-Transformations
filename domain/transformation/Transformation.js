@@ -60,13 +60,13 @@ export class Transformation
         return this.stage
     }
 
-    getTriggerActions(trigger)
+    getTriggerActionGroups(trigger)
     {
-        this.logger?.debug?.("Transformation.getTriggerActions", { trigger })
+        this.logger?.debug?.("Transformation.getTriggerActionGroups", { trigger })
         const triggerDef =
             this.definition.getTrigger(trigger)
 
-        return triggerDef?.actions ?? []
+        return triggerDef?.actionGroups ?? []
     }
 
     getTriggerVariables(trigger)

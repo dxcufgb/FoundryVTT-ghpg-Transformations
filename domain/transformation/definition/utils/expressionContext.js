@@ -14,10 +14,6 @@ export function buildExpressionContext(actor, context = {})
             actor.system?.details?.levels?.level ??
             1,
 
-        transformation: {
-            stage: context?.stage ?? 1
-        },
-
         actor: {
             name: actor.name,
             hp: actor.system?.attributes?.hp?.value ?? 0,

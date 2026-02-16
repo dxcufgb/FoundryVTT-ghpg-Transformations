@@ -149,7 +149,8 @@ export function createActiveEffectRepository({
         changes = [],
         duration = {},
         flags = {},
-        context = {}
+        context = {},
+        origin = ""
     })
     {
         logger.debug("createActiveEffectRepository.create", {
@@ -161,7 +162,8 @@ export function createActiveEffectRepository({
             changes,
             duration,
             flags,
-            context
+            context,
+            origin
         })
         if (!actor || !name) {
             logger.warn("ActiveEffect.create called without actor or name")
@@ -180,6 +182,7 @@ export function createActiveEffectRepository({
             icon,
             changes,
             duration,
+            origin,
             flags: {
                 transformations: {
                     addedByTransformation: true,

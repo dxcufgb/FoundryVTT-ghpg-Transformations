@@ -10,14 +10,14 @@ export function createTokenRepository({
     })
 
     return {
-        getByUuid: async () =>
+        getByUuid: async (uuid) =>
         {
             logger.debug("createTokenRepository.getByUuid", {})
             return tracker.track(
                 (async () =>
                 {
                     debouncedTracker.pulse("fromUUID")
-                    await fromUuid(uuid)
+                    return await fromUuid(uuid)
                 })()
             )
         }

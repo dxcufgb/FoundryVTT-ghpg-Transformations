@@ -63,10 +63,9 @@ export function createTransformationDefinitionFactory({
     function createRollTableEffects(TransformationClass)
     {
         logger.debug("createTransformationDefinitionFactory.createRollTableEffects", { TransformationClass })
-        const entry =
-            transformationRegistry.getEntryByItemId(
-                TransformationClass.itemId
-            )
+        const entry = transformationRegistry.getEntryByItemId(
+            TransformationClass.itemId
+        )
 
         if (!entry?.TransformationRollTableEffects) {
             return null
@@ -74,6 +73,7 @@ export function createTransformationDefinitionFactory({
 
         return new RollTableEffectCatalog({
             effects: entry.TransformationRollTableEffects,
+            origin: entry.TransformationClass.rollTableOrigin,
             logger
         })
     }
@@ -90,15 +90,49 @@ export function createTransformationDefinitionFactory({
         for (const [name, trigger] of Object.entries(rawTriggers)) {
             if (!trigger) continue
 
-            const actions = normalizeTriggerActions(trigger.actions)
+            const actionGroups = normalizeTriggerActionGroups(trigger.actionGroups)
             const variables = normalizeVariables(trigger.variables)
 
-            if (actions.length === 0) continue
+            if (actionGroups.length === 0) continue
 
-            map.set(name, { actions, variables })
+            map.set(name, { actionGroups, variables })
         }
 
         return map
+    }
+
+    function normalizeTriggerActionGroups(rawActionGroups = [])
+    {
+        logger.debug(
+            "createTransformationDefinitionFactory.normalizeTriggerActionGroups",
+            { rawActionGroups }
+        )
+
+        if (!Array.isArray(rawActionGroups)) return []
+
+        return rawActionGroups
+            .map((group, index) =>
+            {
+                if (!group || typeof group !== "object") return null
+
+                const {
+                    name,
+                    when,
+                    once,
+                    actions
+                } = group
+
+                const normalizedActions = normalizeTriggerActions(actions)
+                if (!normalizedActions.length) return null
+
+                return {
+                    name: name ?? `group-${index}`,
+                    when: normalizeWhen(when),
+                    once: normalizeOnce(once),
+                    actions: normalizedActions
+                }
+            })
+            .filter(Boolean)
     }
 
     function normalizeTriggerActions(actions = [])

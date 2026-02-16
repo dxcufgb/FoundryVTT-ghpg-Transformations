@@ -132,3 +132,75 @@ export function expectRaceItemSubTypeOnActor(runtime, subtype, actor, expect)
     const raceItem = runtime.infrastructure.itemRepository.findEmbeddedByType(actor, "race")
     expect(raceItem?.system?.type?.subtype).to.be.equal(subtype)
 }
+
+export async function applyItemActivityEffect({ actor, itemName, effectName, macroTrigger = "manual" })
+{
+    const item = actor.items.find(i => i.name === itemName)
+    const effect = item.effects.find(e => e.name == effectName)
+    await simulateItemMacro(effect, actor, { trigger: macroTrigger })
+    await actor.createEmbeddedDocuments("ActiveEffect", [effect])
+}
+
+export async function simulateItemMacro(effect, actor, {
+    trigger,
+    transformationType,
+    action,
+    args = {}
+} = {})
+{
+
+    const macroChange = effect.changes.find(c =>
+        c.key === "macro.itemMacro"
+    )
+
+    if (!macroChange) return false
+
+    // The value string: "aberrantHorror slimyForm"
+    const [type, act] = macroChange.value.split(" ")
+
+    const tokenDoc = await createTestTokenForActor(actor)
+
+    await game.transformations.executeMacro({
+        trigger,
+        transformationType: transformationType ?? type,
+        action: action ?? act,
+        args: {
+            actorUuid: actor.uuid,
+            tokenUuid: tokenDoc.uuid, // fallback for tests
+            ...args
+        },
+        actor
+    })
+
+    await removeTestToken(tokenDoc)
+
+    return true
+}
+
+export async function createTestTokenForActor(actor)
+{
+    if (!game.scenes.active) {
+        const scene = await Scene.create({
+            name: "Transformation Test Scene",
+            active: true
+        })
+        await scene.activate()
+    }
+
+    const tokenData = await actor.getTokenDocument()
+
+    const created = await game.scenes.active.createEmbeddedDocuments(
+        "Token",
+        [tokenData.toObject()]
+    )
+
+    const tokenDoc = created[0]
+
+    return tokenDoc
+}
+
+export async function removeTestToken(tokenDoc)
+{
+    if (!tokenDoc?.parent) return
+    await tokenDoc.parent.deleteEmbeddedDocuments("Token", [tokenDoc.id])
+}

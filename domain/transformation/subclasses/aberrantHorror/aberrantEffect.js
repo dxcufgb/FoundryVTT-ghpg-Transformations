@@ -1,15 +1,19 @@
-import { RollTableEffect } from "../../../rollTable/RollTableEffect.js";
+import { RollTableEffect } from "../../../rollTable/RollTableEffect.js"
 
-export class AberrantEffect extends RollTableEffect {
-    constructor(args) {
+export class AberrantEffect extends RollTableEffect
+{
+    constructor (args)
+    {
         args?.logger?.debug?.("AberrantEffect.constructor", { args })
-        super(args);
-        this.iconSuffix = "Unstable_Form.png";
+        super(args)
+        this.iconSuffix = "Unstable_Form.png"
         this.addFlag("removeOnLongRest", true)
+        this.origin = "Unstable Form"
     }
 
-    getIconPath() {
+    getIconPath()
+    {
         this.logger?.debug?.("AberrantEffect.getIconPath", {})
-        return super.getIconPath() + "Aberrant%20Horror/" + this.iconSuffix;
+        return super.getIconPath() + "Aberrant%20Horror/" + this.iconSuffix
     }
 }

@@ -12,57 +12,28 @@ export function createItemAction({
         context
     })
     {
-        logger.debug("createItemAction.APPLY_ITEM", {
-            actor,
-            action,
-            context
-        })
-        const {
-            uuid,
-            mode = "add",
-            uses = 1,
-            blocker = false
-        } = action.data ?? {}
-
-        if (!uuid) {
-            logger.warn("Item action missing uuid", action)
-            return
-        }
-
-        logger.debug(
-            "Executing item action",
-            actor.id,
-            mode,
-            uuid
-        )
-
+        const { mode, uuid, uses = 1 } = action.data
         return tracker.track(
             (async () =>
             {
                 switch (mode) {
+
                     case "add": {
-                        await itemRepository.addItemFromUuid(actor, uuid, {
-                            context
-                        })
-                        break
+                        await itemRepository.addItemFromUuid(actor, uuid, { context })
+                        return true
                     }
 
                     case "consume": {
                         const item =
-                            itemRepository.findEmbeddedByUuidFlag(
-                                actor,
-                                uuid
-                            )
+                            itemRepository.findEmbeddedByUuidFlag(actor, uuid)
 
                         if (!item) {
-                            logger.debug(
-                                "Item not found to consume",
-                                uuid
-                            )
-                            return
+                            logger.debug("Item not found to consume", uuid)
+                            return false
                         }
 
-                        const remaining = itemRepository.getRemainingUses(item)
+                        const remaining =
+                            itemRepository.getRemainingUses(item)
 
                         if (remaining < uses) {
                             logger.debug(
@@ -71,36 +42,24 @@ export function createItemAction({
                                 remaining,
                                 uses
                             )
-                            return
+                            return false
                         }
 
-                        await itemRepository.consumeUses(
-                            item,
-                            uses
-                        )
-                        break
+                        await itemRepository.consumeUses(item, uses)
+                        return true
                     }
 
                     case "remove": {
-                        await itemRepository.removeBySourceUuid(
-                            actor,
-                            uuid
-                        )
-                        break
+                        await itemRepository.removeBySourceUuid(actor, uuid)
+                        return true
                     }
 
                     default:
-                        logger.warn(
-                            "Unknown item action mode",
-                            mode,
-                            action
-                        )
-                }
-
-                if (blocker) {
-                    context.blocked = true
+                        logger.warn("Unknown item action mode", mode, action)
+                        return false
                 }
             })()
         )
+
     }
 }
