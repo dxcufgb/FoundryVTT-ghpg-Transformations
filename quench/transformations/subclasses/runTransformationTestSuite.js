@@ -5,6 +5,7 @@ import { expectAsyncWork } from "../../helpers/async/expectAsyncWork.js"
 import { waitForStageFinished } from "../../helpers/awaitStage.js"
 import { waitForNextFrame } from "../../helpers/dom.js"
 import { readyGame } from "../../helpers/setup.js"
+import { triggerFunction } from "../../helpers/triggers.js"
 import { waitForCondition } from "../../helpers/waitForCondition.js"
 import { waitForDomainStability } from "../../helpers/waitForDomainStability.js"
 
@@ -52,12 +53,12 @@ export function runTransformationTestSuite({
             {
 
                 if (scenario.setup) {
-                    await scenario.setup({ actor })
+                    await scenario.setup({ actor, helpers, runtime })
                 }
 
                 for (const step of scenario.steps) {
-                    if (step.trigger === "longRest") {
-                        Hooks.call("dnd5e.restCompleted", actor, { longRest: true })
+                    if (step.trigger) {
+                        await triggerFunction(runtime, step.trigger, actor)
                     }
 
                     if (step.adjust) {
@@ -102,7 +103,7 @@ export function runTransformationTestSuite({
             it(`Item behavior: ${behavior.name}`, async function()
             {
                 if (behavior.setup) {
-                    await behavior.setup({ actor })
+                    await behavior.setup({ actor, helpers })
                 }
 
                 for (const step of behavior.requiredPath ?? []) {
@@ -141,6 +142,10 @@ export function runTransformationTestSuite({
                     for (const step of behavior.steps) {
                         await step({ actor, runtime, helpers })
                     }
+                }
+
+                if (behavior.trigger) {
+                    await triggerFunction(runtime, behavior.trigger, actor)
                 }
 
                 if (behavior.await) {

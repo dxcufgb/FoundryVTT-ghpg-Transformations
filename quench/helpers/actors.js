@@ -1,4 +1,5 @@
 import { getRandomFileInFolder } from "./getRandomFilename.js"
+import { getOrCreateItem } from "./item.js"
 import { waitFor } from "./waitFor.js"
 
 export async function createTestActor({
@@ -19,9 +20,24 @@ export async function createTestActor({
             }
         },
         system: {
+            abilities: {
+                str: { value: 10 },
+                dex: { value: 10 },
+                con: { value: 10 },
+                int: { value: 10 },
+                wis: { value: 10 },
+                cha: { value: 10 }
+            },
             attributes: {
-                hp: { value: 10, max: 10 }
-            }
+                hp: {
+                    value: 10,
+                    max: 10
+                },
+                movement: {
+                    walk: 30
+                }
+            },
+            spells: {}
         }
     }
     handlePreCreationExtras(actorMap, options)
@@ -38,7 +54,7 @@ function handlePreCreationExtras(actorMap, options)
 async function handlePostCreationExtras(actor, options)
 {
     if (options?.race) {
-        const raceItem = await Item.create({
+        const raceItem = await getOrCreateItem({
             name: "Human",
             type: "race",
             system: {}

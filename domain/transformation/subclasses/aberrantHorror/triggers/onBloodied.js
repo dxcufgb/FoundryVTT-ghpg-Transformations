@@ -6,8 +6,16 @@ export const onBloodied = {
             name: "regainedHitPoints",
             type: "formula",
             value: "@prof + @transformation.stage"
+        },
+        {
+            name: "transformationSaveDC",
+            type: "stageDependent",
+            value: {
+                2: 13,
+                3: 16,
+                4: 20
+            }
         }
-        // transformationSaveDC can be reintroduced later
     ],
 
     actionGroups: [
@@ -50,7 +58,7 @@ export const onBloodied = {
             ]
         },
         {
-            name: "hideous-appearance-cleanup",
+            name: "hideous-appearance-save",
             when: {
                 stage: { min: 2 }
             },

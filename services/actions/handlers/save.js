@@ -4,7 +4,7 @@ import { resolveValue } from "../utils/resolveValue.js"
 
 export function createSaveAction({
     tracker,
-    logger
+    logger,
 })
 {
     logger.debug("createSaveAction", { tracker })
@@ -12,54 +12,37 @@ export function createSaveAction({
     return async function SAVE_ACTION({
         actor,
         action,
-        context
+        context,
+        variables
     })
     {
-        logger.debug("createSaveAction.SAVE_ACTION", {
-            actor,
-            action,
-            context
-        })
         const { ability, dc, key } = action.data ?? {}
 
         if (!ability || !key) {
             logger.warn("SAVE action missing ability or key", action)
-            return
+            return false
         }
 
-        // Resolve DC (supports formulas like "@prof + @transformation.stage")
-        const resolvedDC = resolveValue(dc, context)
+        const resolvedDC = resolveValue(dc, context, variables)
 
         if (!Number.isFinite(resolvedDC)) {
             logger.warn("SAVE action has invalid DC", dc)
-            return
+            return false
         }
-
-        logger.debug(
-            "Executing SAVE action",
-            actor.id,
-            ability,
-            resolvedDC,
-            key
-        )
 
         return tracker.track(
             (async () =>
             {
-                const roll = await actor.rollAbilitySave(
-                    ability,
-                    {
-                        dc: resolvedDC,
-                        chatMessage: true,
-                        fastForward: false
-                    }
-                )
+                const roll = await executeSave(actor, ability, {
+                    dc: resolvedDC,
+                    chatMessage: true,
+                    fastForward: false
+                })
 
-                if (!roll) return
+                if (!roll) return false
 
                 const success = roll.total >= resolvedDC
 
-                // Store result in context for downstream actions
                 context.saves ??= {}
                 context.saves[key] = {
                     ability,
@@ -68,13 +51,24 @@ export function createSaveAction({
                     success
                 }
 
-                logger.debug(
-                    "SAVE result",
-                    key,
-                    success ? "SUCCESS" : "FAILURE",
-                    roll.total
-                )
+                return true
             })()
         )
     }
+}
+
+
+// 👇 Production default (unchanged behavior)
+async function executeSave(actor, ability, options)
+{
+    if (globalThis.__TRANSFORMATIONS_TEST__ === true) {
+        globalThis.___TransformationTestEnvironment___.saveRolled = true
+        return { total: globalThis.___TransformationTestEnvironment___?.saveResult }
+    }
+
+    if (typeof actor.rollAbilitySave !== "function") {
+        return null
+    }
+
+    return actor.rollAbilitySave(ability, options)
 }

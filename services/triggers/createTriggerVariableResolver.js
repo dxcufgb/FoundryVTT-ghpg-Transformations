@@ -82,6 +82,10 @@ export function createTriggerVariableResolver({
 
             case "static":
                 return variable.value
+            case "stageDependent":
+                return variable?.value?.[
+                    actor?.flags?.transformations?.stage
+                ] ?? 0
 
             default:
                 throw new Error(

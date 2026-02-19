@@ -84,7 +84,7 @@ export function registerGMOnlyActorHooks({
         switch (effectName) {
             case constants.CONDITION.UNCONSCIOUS:
                 try {
-                    await triggerRuntime.run("bloodied", actor)
+                    await triggerRuntime.run("unconscious", actor)
                 } catch (err) {
                     logger.error(
                         "Error handling unconscious trigger",
@@ -92,7 +92,6 @@ export function registerGMOnlyActorHooks({
                     )
                 }
                 break
-
             default:
                 logger.debug("Unhandled effect", effectName)
                 break

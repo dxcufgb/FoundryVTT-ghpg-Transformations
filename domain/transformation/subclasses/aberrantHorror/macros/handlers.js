@@ -113,18 +113,30 @@ export function createAberrantHorrorMacroHandlers({
         return tracker.track(
             (async () =>
             {
-                const hasEfficientKiller = actorHasEfficientKiller(actor)
-
-                const uuid = hasEfficientKiller ? aberrantMutationConstants.items.eldritchLimbs.withEfficientKiller : aberrantMutationConstants.items.eldritchLimbs.normal
-
-                await itemRepository.addItemFromUuid({
-                    actor,
-                    uuid,
-                    flags: {
-                        removeOnLongRest: true,
-                        removeOnShortRest: true
+                if (actorHasEfficientKiller(actor)) {
+                    for (const uuid of aberrantMutationConstants.items.eldritchLimbs.withEfficientKiller) {
+                        await itemRepository.addItemFromUuid({
+                            actor,
+                            uuid,
+                            flags: {
+                                removeOnLongRest: true,
+                                removeOnShortRest: true
+                            }
+                        })
                     }
-                })
+                } else {
+
+                    const uuid = aberrantMutationConstants.items.eldritchLimbs.normal
+
+                    await itemRepository.addItemFromUuid({
+                        actor,
+                        uuid,
+                        flags: {
+                            removeOnLongRest: true,
+                            removeOnShortRest: true
+                        }
+                    })
+                }
             })()
         )
     }
@@ -135,18 +147,27 @@ export function createAberrantHorrorMacroHandlers({
         return tracker.track(
             (async () =>
             {
-                const hasEfficientKiller = actorHasEfficientKiller(actor)
+                if (actorHasEfficientKiller(actor)) {
+                    for (const uuid of aberrantMutationConstants.items.eldritchLimbs.withEfficientKiller) {
+                        const eldritchLimbs = await itemRepository.findEmbeddedByUuidFlag(actor, uuid)
 
-                const uuid = hasEfficientKiller ? aberrantMutationConstants.items.eldritchLimbs.withEfficientKiller : aberrantMutationConstants.items.eldritchLimbs.normal
+                        if (!eldritchLimbs) return
+                        const id = eldritchLimbs.id
 
-                if (!uuid) return
+                        await itemRepository.deleteEmbedded(actor, [id])
+                    }
+                } else {
+                    const uuid = aberrantMutationConstants.items.eldritchLimbs.normal
 
-                const eldritchLimbs = await itemRepository.findEmbeddedByUuidFlag(actor, uuid)
+                    if (!uuid) return
 
-                if (!eldritchLimbs) return
-                const id = eldritchLimbs.id
+                    const eldritchLimbs = await itemRepository.findEmbeddedByUuidFlag(actor, uuid)
 
-                await itemRepository.deleteEmbedded(actor, [id])
+                    if (!eldritchLimbs) return
+                    const id = eldritchLimbs.id
+
+                    await itemRepository.deleteEmbedded(actor, [id])
+                }
             })()
         )
     }
@@ -170,7 +191,12 @@ export const aberrantMutationConstants = Object.freeze({
     items: {
         eldritchLimbs: {
             normal: 'Compendium.transformations.gh-transformations.Item.6WiJSiBbhYTH80Da',
-            withEfficientKiller: 'Compendium.transformations.gh-transformations.Item.FVXkz256XPi1Uluv'
+            withEfficientKiller: [
+                // 'Compendium.transformations.gh-transformations.Item.FVXkz256XPi1Uluv',
+                "Compendium.transformations.gh-transformations.Item.Xl21IUgjd3Wbsk3m",
+                "Compendium.transformations.gh-transformations.Item.naciCscJgzP21JiY",
+                "Compendium.transformations.gh-transformations.Item.benNIPNjkWikc3pL"
+            ]
         },
         efficientKiller: 'Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq'
     }

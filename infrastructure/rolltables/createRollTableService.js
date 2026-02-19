@@ -12,7 +12,6 @@ export function createRollTableService({
         debouncedTracker,
         compendiumRepository
     })
-
     async function roll({
         uuid,
         mode = "normal",
@@ -39,8 +38,17 @@ export function createRollTableService({
                     return null
                 }
 
+                const testOveridenResult = globalThis.__TRANSFORMATIONS_TEST__ === true ? globalThis.___TransformationTestEnvironment___?.rollTableResult : undefined
+
                 const rollResult = await table.draw()
-                const result = rollResult?.results?.[0]
+                let result
+                if (testOveridenResult != undefined) {
+                    result = table.results.find(r =>
+                        r.range[0] <= testOveridenResult && r.range[1] >= testOveridenResult
+                    )
+                } else {
+                    result = rollResult?.results?.[0]
+                }
 
                 if (!result) {
                     logger.warn("RollTable produced no result", uuid)
@@ -77,11 +85,6 @@ export function createRollTableService({
         whenIdle: tracker.whenIdle,
         roll
     })
-
-
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // Helpers
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     function passesMode(outcome, mode, context)
     {
@@ -133,7 +136,6 @@ export function createRollTableService({
                 range: result.range
             },
 
-            // ðŸ‘‡ IMPORTANT: effectKey is just data
             effectKey: extractEffectKey(result),
 
             context
@@ -143,7 +145,6 @@ export function createRollTableService({
     function extractEffectKey(result)
     {
         logger.debug("createRollTableService.extractEffectKey", { result })
-        // Preferred: explicit flag
         const flagged = result.flags?.transformations?.effectKey
 
         if (flagged) return flagged
