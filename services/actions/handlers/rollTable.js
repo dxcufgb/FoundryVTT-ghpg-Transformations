@@ -27,13 +27,20 @@ export function createRollTableAction({
         return tracker.track(
             (async () =>
             {
+                const currentRollTableEffectLowRange = await actor.getFlag("transformations", "currentRollTableEffectLowRange")
+
                 const outcome = await rollTableService.roll({
                     uuid: action.data.uuid,
                     mode: action.data.mode,
-                    context
+                    context: {
+                        ...context,
+                        currentRollTableEffectLowRange
+                    }
                 })
 
                 if (!outcome || !outcome.effectKey) return
+
+                await actor.setFlag("transformations", "currentRollTableEffectLowRange", outcome.result.range[0])
 
                 const effect = rollTableEffectResolver.resolve({
                     actor,

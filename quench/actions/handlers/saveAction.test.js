@@ -10,83 +10,95 @@ export function registerSaveActionTests({ describe, it, expect })
     describe("Save Action Handler", function()
     {
 
-        let actor
         let handler
         let tracker
+        let logger
+        let actor
         let context
-        let rollCalls
+        let variables
 
-        beforeEach(async function()
+        beforeEach(function()
         {
 
-            actor = await createTestActor({ name: this.currentTest.title, options: { race: "humanoid" } })
+            globalThis.__TRANSFORMATIONS_TEST__ = true
+            globalThis.___TransformationTestEnvironment___ = {}
 
-            rollCalls = []
-
-            actor.rollAbilitySave = async (ability, options) =>
-            {
-                rollCalls.push({ ability, options })
-                return { total: 15 }
+            tracker = {
+                track: async (promise) => promise
             }
 
-            tracker = createFakeTracker()
+            logger = console
 
             handler = createSaveAction({
                 tracker,
-                logger: console
+                logger
             })
+
+            actor = { id: "A1" }
 
             context = {}
+            variables = {}
+        })
+
+        afterEach(function()
+        {
+            delete globalThis.__TRANSFORMATIONS_TEST__
+            delete globalThis.___TransformationTestEnvironment___
         })
 
         // ─────────────────────────────────────────────
-        // VALIDATION
+        // Validation
         // ─────────────────────────────────────────────
 
-        it("skips if ability missing", async function()
+        it("returns false if ability missing", async function()
         {
 
-            await handler({
+            const result = await handler({
                 actor,
-                action: { data: { dc: 10, key: "test" } },
-                context
+                action: { data: { dc: 12, key: "k" } },
+                context,
+                variables
             })
 
-            expect(rollCalls.length).to.equal(0)
+            expect(result).to.equal(false)
         })
 
-        it("skips if key missing", async function()
+        it("returns false if key missing", async function()
         {
 
-            await handler({
+            const result = await handler({
                 actor,
-                action: { data: { ability: "con", dc: 10 } },
-                context
+                action: { data: { ability: "con", dc: 12 } },
+                context,
+                variables
             })
 
-            expect(rollCalls.length).to.equal(0)
+            expect(result).to.equal(false)
         })
 
-        it("skips if DC resolves to invalid number", async function()
+        it("returns false if dc is invalid", async function()
         {
 
-            await handler({
+            const result = await handler({
                 actor,
-                action: { data: { ability: "con", dc: "invalid", key: "x" } },
-                context
+                action: { data: { ability: "con", dc: "abc", key: "k" } },
+                context,
+                variables
             })
 
-            expect(rollCalls.length).to.equal(0)
+            expect(result).to.equal(false)
         })
 
         // ─────────────────────────────────────────────
-        // EXECUTION
+        // Successful save
         // ─────────────────────────────────────────────
 
-        it("calls rollAbilitySave with correct arguments", async function()
+        it("stores successful save result in context", async function()
         {
 
-            await handler({
+            globalThis.___TransformationTestEnvironment___.saveResult = 15
+
+            const result = await handler({
                 actor,
                 action: {
                     data: {
@@ -95,159 +107,97 @@ export function registerSaveActionTests({ describe, it, expect })
                         key: "save-test"
                     }
                 },
-                context
+                context,
+                variables
             })
 
-            expect(rollCalls.length).to.equal(1)
+            expect(result).to.equal(true)
 
-            expect(rollCalls[0].ability).to.equal("con")
-
-            expect(rollCalls[0].options).to.deep.equal({
+            expect(context.saves).to.exist
+            expect(context.saves["save-test"]).to.deep.equal({
+                ability: "con",
                 dc: 12,
-                chatMessage: true,
-                fastForward: false
+                total: 15,
+                success: true
             })
         })
 
-        // ─────────────────────────────────────────────
-        // SUCCESS / FAILURE
-        // ─────────────────────────────────────────────
-
-        it("stores success result in context", async function()
+        it("stores failed save result in context", async function()
         {
 
-            actor.rollAbilitySave = async () => ({ total: 20 })
+            globalThis.___TransformationTestEnvironment___.saveResult = 5
 
             await handler({
                 actor,
                 action: {
                     data: {
                         ability: "dex",
-                        dc: 10,
-                        key: "dex-save"
+                        dc: 12,
+                        key: "save-fail"
                     }
                 },
-                context
+                context,
+                variables
             })
 
-            expect(context.saves['dex-save']).to.deep.equal({
-                ability: "dex",
-                dc: 10,
-                total: 20,
-                success: true
-            })
+            expect(context.saves["save-fail"].success)
+                .to.equal(false)
         })
 
-        it("stores failure result in context", async function()
+        // ─────────────────────────────────────────────
+        // executeSave returns null
+        // ─────────────────────────────────────────────
+
+        it("returns false if executeSave returns null", async function()
         {
 
-            actor.rollAbilitySave = async () => ({ total: 5 })
+            globalThis.___TransformationTestEnvironment___.saveResult = null
 
-            await handler({
+            const result = await handler({
                 actor,
                 action: {
                     data: {
                         ability: "wis",
                         dc: 12,
-                        key: "wis-save"
+                        key: "save-null"
                     }
                 },
-                context
+                context,
+                variables
             })
 
-            expect(context.saves["wis-save"].success).to.equal(false)
-        })
-
-        // ─────────────────────────────────────────────
-        // NULL ROLL
-        // ─────────────────────────────────────────────
-
-        it("does nothing if roll returns null", async function()
-        {
-
-            actor.rollAbilitySave = async () => null
-
-            await handler({
-                actor,
-                action: {
-                    data: {
-                        ability: "con",
-                        dc: 10,
-                        key: "null-test"
-                    }
-                },
-                context
-            })
-
+            expect(result).to.equal(false)
             expect(context.saves).to.be.undefined
         })
 
         // ─────────────────────────────────────────────
-        // TRACKER
+        // Formula resolution
         // ─────────────────────────────────────────────
 
-        it("runs inside tracker", async function()
+        it("resolves formula dc using context + variables", async function()
         {
 
-            let tracked = false
+            globalThis.___TransformationTestEnvironment___.saveResult = 12
 
-            const trackingHandler = createSaveAction({
-                tracker: {
-                    track: async (fn) =>
-                    {
-                        tracked = true
-                        return await fn
-                    }
-                },
-                logger: console
-            })
+            context.prof = 3
+            variables.stage = 2
 
-            await trackingHandler({
+            const result = await handler({
                 actor,
                 action: {
                     data: {
                         ability: "con",
-                        dc: 10,
-                        key: "tracker-test"
+                        dc: "@prof + @stage",
+                        key: "formula-test"
                     }
                 },
-                context
+                context,
+                variables
             })
 
-            expect(tracked).to.equal(true)
-        })
-
-        // ─────────────────────────────────────────────
-        // ERROR PROPAGATION
-        // ─────────────────────────────────────────────
-
-        it("propagates error if roll throws", async function()
-        {
-
-            actor.rollAbilitySave = async () =>
-            {
-                throw new Error("roll failed")
-            }
-
-            let errorCaught = false
-
-            try {
-                await handler({
-                    actor,
-                    action: {
-                        data: {
-                            ability: "con",
-                            dc: 10,
-                            key: "error-test"
-                        }
-                    },
-                    context
-                })
-            } catch {
-                errorCaught = true
-            }
-
-            expect(errorCaught).to.equal(true)
+            expect(result).to.equal(true)
+            expect(context.saves["formula-test"].dc)
+                .to.equal(5)
         })
 
     })

@@ -199,9 +199,9 @@ export function createTransformationService({
         )
     }
 
-    async function onTrigger(actor, triggerName)
+    async function onTrigger(actor, triggerName, context)
     {
-        logger.debug("createTransformationService.onTrigger", { actor, triggerName })
+        logger.debug("createTransformationService.onTrigger", { actor, triggerName, context })
         assertActor(actor)
 
         return tracker.track(
@@ -238,6 +238,7 @@ export function createTransformationService({
                     actorId: actor.id,
                     actionGroups,
                     context: {
+                        ...context,
                         trigger: triggerName,
                         stage: transformation.stage
                     },

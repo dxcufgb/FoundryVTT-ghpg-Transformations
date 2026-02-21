@@ -100,6 +100,14 @@ export function createActiveEffectRepository({
             .filter(Boolean)
     }
 
+    function findByOrigin(actor, origin)
+    {
+        logger.debug("createActiveEffectRepository.findByOrigin", { actor, origin })
+        if (!actor || !origin) return []
+
+        return actor.effects.find(e => e.origin == origin)
+    }
+
     async function removeByIds(actor, effectIds = [])
     {
         logger.debug("createActiveEffectRepository.removeByIds", { actor, effectIds })
@@ -236,7 +244,27 @@ export function createActiveEffectRepository({
         )
     }
 
+    function removeByOrigin(actor, origin)
+    {
+        logger.debug("createActiveEffectRepository.removeByOrigin", { actor, origin })
+        if (!actor || !origin) return
 
+        const existing = findByOrigin(actor, origin)
+
+        if (!existing) return
+
+        return tracker.track(
+            (async () =>
+            {
+                debouncedTracker.pulse("removeByOrigin")
+                await actor.deleteEmbeddedDocuments(
+                    "ActiveEffect",
+                    [existing.id]
+                )
+            })()
+        )
+
+    }
     return Object.freeze({
         whenIdle: tracker.whenIdle,
         getAll,
@@ -251,6 +279,7 @@ export function createActiveEffectRepository({
         hasByName,
         getIdsByName,
         create,
-        removeEffectsOnLongRest
+        removeEffectsOnLongRest,
+        removeByOrigin
     })
 }

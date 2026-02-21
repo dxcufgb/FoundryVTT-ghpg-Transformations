@@ -16,4 +16,11 @@ export class AberrantEffect extends RollTableEffect
         this.logger?.debug?.("AberrantEffect.getIconPath", {})
         return super.getIconPath() + "Aberrant%20Horror/" + this.iconSuffix
     }
+
+    async beforeApply()
+    {
+        super.beforeApply()
+        this.logger?.debug?.("AberrantEffect.beforeApply", {})
+        await this.activeEffectRepository.removeByOrigin(this.actor, this.origin)
+    }
 }

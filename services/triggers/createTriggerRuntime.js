@@ -6,15 +6,15 @@ export function createTriggerRuntime({
 {
     logger.debug("createTriggerRuntime", { tracker, transformationService })
 
-    async function run(triggerName, actor)
+    async function run(triggerName, actor, context = {})
     {
-        logger.debug("createTriggerRuntime.run", { triggerName, actor })
+        logger.debug("createTriggerRuntime.run", { triggerName, actor, context })
         return tracker.track(
             (async () =>
             {
-                logger.debug("TriggerRuntime.run called", triggerName, actor)
+                logger.debug("TriggerRuntime.run called", triggerName, actor, context)
                 if (!actor) return
-                return transformationService.onTrigger(actor, triggerName)
+                return transformationService.onTrigger(actor, triggerName, context)
             })()
         )
     }

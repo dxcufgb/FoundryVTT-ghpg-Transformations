@@ -1601,5 +1601,260 @@ export const AberrantHorrorTestDef = {
                 expect(hideousAppearanceEffect).to.not.exist
             }
         },
+
+        {
+            name: "Terrifying Visage saving throw details",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
+                            3: "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                const actorProf = actor.system.attributes.prof
+                const terrifyingVisage = actor.items.find(i => i.name == "Terrifying Visage")
+                expect(terrifyingVisage).to.exist
+
+                const activities = terrifyingVisage.system.activities.contents
+                expect(activities.length).to.be.equal(1)
+
+                const terrifyCreature = activities[0]
+                expect(terrifyCreature.name).to.be.equal("Terrify Creature")
+                expect(terrifyCreature.save.ability).to.include.members(["wis"])
+                expect(terrifyCreature.save.dc.value).to.be.equal(8 + actorProf + 3)
+            }
+        },
+
+        {
+            name: "Constricting Tendrils saving throw details",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                const actorProf = actor.system.attributes.prof
+                const constrictingTendrils = actor.items.find(i => i.name == "Constricting Tendrils")
+                expect(constrictingTendrils).to.exist
+
+                const activities = constrictingTendrils.system.activities.contents
+                expect(activities.length).to.be.equal(1)
+
+                const constrict = activities[0]
+                expect(constrict.name).to.be.equal("Constrict")
+                expect(constrict.save.ability).to.include.members([
+                    "str",
+                    "dex"
+                ])
+                expect(constrict.save.dc.value).to.be.equal(8 + actorProf + 3)
+            }
+        },
+
+        {
+            name: "Unstable Existence saving throws results of 3 or higher does not trigger roll on unstable form table",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 }
+            ],
+
+            steps: [
+                async ({ actor, runtime, helpers }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                },
+                async ({ actor, runtime, helpers }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 10
+                    await runtime.services.triggerRuntime.run("savingThrow", actor, {
+                        ability: "wis",
+                        isSpell: true,
+                        naturalRoll: 3,
+                        total: 3
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(actor.effects.contents.length).to.be.equal(1)
+                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Powerfull Lower Limbs')
+            }
+        },
+
+        {
+            name: "Unstable Existence saving throws results of 2 triggers roll on unstable form table",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 }
+            ],
+
+            steps: [
+                async ({ actor, runtime, helpers }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                },
+                async ({ actor, runtime, helpers }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 10
+                    await runtime.services.triggerRuntime.run("savingThrow", actor, {
+                        ability: "wis",
+                        isSpell: true,
+                        naturalRoll: 2,
+                        total: 2
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(actor.effects.contents.length).to.be.equal(1)
+                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+            }
+        },
+
+        {
+            name: "Unstable Existence saving throws results of 2 triggers roll on unstable form table, not applied due to not being lower result",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 }
+            ],
+
+            steps: [
+                async ({ actor, runtime, helpers }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 10
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                },
+                async ({ actor, runtime, helpers }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                    await runtime.services.triggerRuntime.run("savingThrow", actor, {
+                        ability: "wis",
+                        isSpell: true,
+                        naturalRoll: 2,
+                        total: 2
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(actor.effects.contents.length).to.be.equal(1)
+                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+            }
+        },
     ]
 }

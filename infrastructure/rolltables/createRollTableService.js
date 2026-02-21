@@ -91,10 +91,8 @@ export function createRollTableService({
         logger.debug("createRollTableService.passesMode", { outcome, mode, context })
         if (mode === "normal") return true
 
-        const currentStage = context?.stage
-        const rolledStage = extractStageFromText(
-            outcome.result.text
-        )
+        const currentStage = context?.currentRollTableEffectLowRange
+        const rolledStage = outcome.result.range[1]
 
         if (currentStage == null || rolledStage == null) {
             return true
@@ -153,12 +151,5 @@ export function createRollTableService({
         const text = result?.text ?? ""
         const match = text.match(/\[(.+?)\]/)
         return match ? match[1] : null
-    }
-
-    function extractStageFromText(text = "")
-    {
-        logger.debug("createRollTableService.extractStageFromText", { text })
-        const match = text.match(/stage\s*(\d+)/i)
-        return match ? Number(match[1]) : null
     }
 }

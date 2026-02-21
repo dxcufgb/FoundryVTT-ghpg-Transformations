@@ -94,9 +94,10 @@ export function registerDnd5eHooks({
         debouncedTracker.pulse("dnd5e.preRollHitDieV2");
         (async () =>
         {
-            return transformationService.onHitDieRoll(
-                context
-            )
+            console.log("not implemented")
+            // return transformationService.onHitDieRoll(
+            //     context
+            // )
         })()
     })
 
@@ -107,24 +108,31 @@ export function registerDnd5eHooks({
         (async () =>
         {
             if (context.workflow?.item?.type !== "spell") return
-            return transformationService.onPreSavingThrow(
-                context
-            )
+            context.subject.setFlag("transformations", "saveIsSpell", true)
         })()
     })
 
     Hooks.on("dnd5e.rollSavingThrow", (rolls, context) =>
     {
         logger.debug("dnd5e.rollSavingThrow called", rolls, context)
-        debouncedTracker.pulse("dnd5e.rollSavingThrow");
-        (async () =>
-        {
-            const roll = rolls?.[0]
-            if (!roll) return
-            transformationService.onSavingThrow(
-                actor,
-                roll
-            )
-        })()
+        debouncedTracker.pulse("dnd5e.rollSavingThrow")
+
+        const actor = context.subject
+        if (!actor) return
+
+        const roll = rolls?.[0]
+        if (!roll) return
+
+        const natural = roll.dice?.[0]?.results?.find(r => r.active == true)?.result
+
+            (async () =>
+            {
+                await triggerRuntime.run("savingThrow", actor, {
+                    ability: context.ability,
+                    isSpell: context?.subject?.getFlag("transformations", "saveIsSpell"),
+                    naturalRoll: natural,
+                    total: roll.total
+                })
+            })()
     })
 }

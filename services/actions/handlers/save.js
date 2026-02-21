@@ -63,7 +63,13 @@ async function executeSave(actor, ability, options)
 {
     if (globalThis.__TRANSFORMATIONS_TEST__ === true) {
         globalThis.___TransformationTestEnvironment___.saveRolled = true
-        return { total: globalThis.___TransformationTestEnvironment___?.saveResult }
+
+        const result =
+            globalThis.___TransformationTestEnvironment___?.saveResult
+
+        if (result == null) return null
+
+        return { total: result }
     }
 
     if (typeof actor.rollAbilitySave !== "function") {

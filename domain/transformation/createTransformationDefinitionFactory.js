@@ -186,6 +186,7 @@ export function createTransformationDefinitionFactory({
         if (when.effects) out.effects = when.effects
         if (when.saveFailed) out.saveFailed = when.saveFailed
         if (when.saveSucceeded) out.saveSucceeded = when.saveSucceeded
+        if (when.custom) out.custom = when.custom
 
         return Object.keys(out).length ? out : undefined
     }
