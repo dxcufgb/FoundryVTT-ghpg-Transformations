@@ -1,11 +1,10 @@
-import { cleanupQuenchTestActors } from "../helpers/cleanupActors.js"
-import { createTestActor, readyGame, openActorControlsMenu, renderActorSheet, withGM, waitForFlagUpdate, asNonGMUser, waitForElementGone } from "../helpers/index.js"
+import { openActorControlsMenu, renderActorSheet, withGM, waitForFlagUpdate, asNonGMUser, waitForElementGone } from "../helpers/index.js"
 import { createMockTransformationService } from "../helpers/mocks/services/createTestTransformationService.js"
-import { createTestRuntime } from "../helpers/testRuntime.js"
 import { wait } from "../helpers/wait.js"
 import { findActorSheetControlsTranformationsItem, findTransformationCardInSpecialTraitsTab, findTransformationPill } from "../selectors/actorSheet.finders.js"
 import { findTransformationTypeSelect } from "../selectors/transformationCardFinders.js"
-import { findTransformationConfigDialog, getTransformationConfigDialogCloseButton, getTransformationConfigDialogConfigSection, getTransformationConfigDialogFooterSection, getTransformationConfigDialogRadioInput, getTransformationConfigDialogRadioInputs, getTransformationConfigDialogSubmit, getTransformationConfigDialogWindowTitle, /* getTransformationConfigDialogCloseButton, getTransformationConfigDialogConfigSection, getTransformationConfigDialogFooterSection, getTransformationConfigDialogRadioInput, getTransformationConfigDialogRadioInputs, getTransformationConfigDialogSubmit, getTransformationConfigDialogWindowTitle  */ } from "../selectors/transformationConfig.finders.js"
+import { findTransformationConfigDialog, getTransformationConfigDialogCloseButton, getTransformationConfigDialogConfigSection, getTransformationConfigDialogFooterSection, getTransformationConfigDialogRadioInput, getTransformationConfigDialogRadioInputs, getTransformationConfigDialogSubmit, getTransformationConfigDialogWindowTitle } from "../selectors/transformationConfig.finders.js"
+import { setupTest, teardownAllTest, tearDownEachTest } from "../testLifecycle.js"
 
 quench.registerBatch(
     "transformations.Dialogs.TransformationConfig",
@@ -16,24 +15,6 @@ quench.registerBatch(
         let dialog
         const existingActorIds = game.actors.map(actor => actor.id)
 
-        async function setupTest(currentTest)
-        {
-            await readyGame()
-            actor = await createTestActor({ name: currentTest.title })
-        }
-
-        async function tearDownTest()
-        {
-            if (dialog) {
-                await dialog.remove()
-                dialog = null
-            }
-            if (sheet) {
-                await sheet.close()
-                sheet = null
-            }
-        }
-
         after(async function()
         {
             await wait(200)
@@ -43,7 +24,7 @@ quench.registerBatch(
                 .filter(actor => !existingIdSet.has(actor.id))
                 .map(actor => actor.id)
 
-            await cleanupQuenchTestActors(testActorIds)
+            await teardownAllTest(testActorIds)
         })
         describe("Transformation Config Dialog – Rendering", function()
         {
@@ -51,12 +32,17 @@ quench.registerBatch(
 
             beforeEach(async function()
             {
-                await setupTest(this.currentTest)
+                ({ actor } = await setupTest({
+                    currentTest: this.currentTest,
+                    createObjects: {
+                        actor: {}
+                    }
+                }))
             })
 
             afterEach(async function()
             {
-                await tearDownTest()
+                await tearDownEachTest({ tearDownExtras: { sheet: sheet, dialog: dialog } })
             })
 
             it("opens the transformation config dialog from the GM control", async function()
@@ -111,12 +97,17 @@ quench.registerBatch(
 
             beforeEach(async function()
             {
-                await setupTest(this.currentTest)
+                ({ actor } = await setupTest({
+                    currentTest: this.currentTest,
+                    createObjects: {
+                        actor: {}
+                    }
+                }))
             })
 
             afterEach(async function()
             {
-                await tearDownTest()
+                await tearDownEachTest({ tearDownExtras: { sheet: sheet, dialog: dialog } })
             })
 
             it("renders with the correct title", async function()
@@ -283,12 +274,17 @@ quench.registerBatch(
 
             beforeEach(async function()
             {
-                await setupTest(this.currentTest)
+                ({ actor } = await setupTest({
+                    currentTest: this.currentTest,
+                    createObjects: {
+                        actor: {}
+                    }
+                }))
             })
 
             afterEach(async function()
             {
-                await tearDownTest()
+                await tearDownEachTest({ tearDownExtras: { sheet: sheet, dialog: dialog } })
             })
 
             async function openDialog()
@@ -360,19 +356,24 @@ quench.registerBatch(
 
             beforeEach(async function()
             {
-                runtime = createTestRuntime({
-                    serviceMocks: {
-                        transformationService: createMockTransformationService()
+                ({ actor, runtime } = await setupTest({
+                    currentTest: this.currentTest,
+                    createObjects: {
+                        actor: {},
+                        runtime: {
+                            serviceMocks: {
+                                transformationService: createMockTransformationService()
+                            }
+                        }
                     }
-                })
+                }))
                 transformations = await runtime.services.transformationQueryService.getAll()
-                await setupTest(this.currentTest)
             })
 
             afterEach(async function()
             {
                 await runtime.services.transformationService.whenIdle()
-                await tearDownTest()
+                await tearDownEachTest({ tearDownExtras: { sheet: sheet, dialog: dialog } })
             })
 
             async function openDialog(actor)

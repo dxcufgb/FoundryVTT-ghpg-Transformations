@@ -8,26 +8,35 @@ import { readyGame } from "../../helpers/setup.js"
 import { triggerFunction } from "../../helpers/triggers.js"
 import { waitForCondition } from "../../helpers/waitForCondition.js"
 import { waitForDomainStability } from "../../helpers/waitForDomainStability.js"
+import { setupTest } from "../../testLifecycle.js"
 
 export function runTransformationTestSuite({
-    runtime,
     mochaFunctions,
     testDef
 })
 {
+
     const { describe, it, assert, expect } = mochaFunctions
     describe(`Transformation: ${testDef.id}`, function()
     {
         this.timeout(10_000)
         let actor
+        let runtime
         let transformationDef
         const helpers = { applyItemActivityEffect, expectItemsOnActor, expectRaceItemSubTypeOnActor }
         const waiters = { waitForCondition, waitForNextFrame, waitForDomainStability, waitForStageFinished }
 
         beforeEach(async function()
         {
-            await readyGame()
-            actor = await createTestActor({ name: this.currentTest.title + `(${testDef.id})`, options: { race: "humanoid" } })
+            ({ actor, runtime } = await setupTest({
+                currentTest: this.currentTest,
+                createObjects: {
+                    actor: {
+                        name: this.currentTest.title + `(${testDef.id})`, options: { race: "humanoid" }
+                    },
+                    runtime: {}
+                }
+            }))
             transformationDef = await runtime.services.transformationQueryService.getDefinitionById(testDef.id)
             await expectAsyncWork(
                 () => runtime.services.transformationService.applyTransformation(
@@ -45,6 +54,7 @@ export function runTransformationTestSuite({
 
             if (actor.getFlag("transformations", "stage") != 0) throw new Error("Transformation stage not set to 0 in beforeEach")
             if (actor.getFlag("transformations", "type") != transformationDef.id) throw new Error(`Transformation type not set to ${transformationDef.id} in beforeEach`)
+            globalThis.___TransformationTestEnvironment___ = {}
         })
 
         for (const scenario of testDef.scenarios) {

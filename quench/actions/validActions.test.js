@@ -1,50 +1,33 @@
-import { createTestActor, waitForActorConsistency } from "../helpers/actors.js"
-import { cleanupQuenchTestActors } from "../helpers/cleanupActors.js"
-import { expectAsyncWork } from "../helpers/async/expectAsyncWork.js"
-import { readyGame } from "../helpers/setup.js"
-import { createTestRuntime } from "../helpers/testRuntime.js"
 import { wait } from "../helpers/wait.js"
-import { findActiveChoiceDescription, findChoiceDialogById, findChoiceDialogDescriptionContainer, findChoiceDialogFooter, findChoiceDialogRadioButtons, findChoiceDialogRadioByUuid, findChoiceFooterButton, getChoiceDialogById } from "../selectors/choiceDialog.finders.js"
-import { waitForElementGone, waitForNextFrame } from "../helpers/dom.js"
-import { assertExpectedItems } from "../helpers/verifyStageItems.js"
-import { advanceStageAndExpectChoiceDialog } from "../helpers/advanceStageAndExpectChoiceDialog.js"
 import { advanceStageAndWait } from "../helpers/advanceStageAndWait.js"
 import { advanceStageAndChoose } from "../helpers/adcanceStageAndExpectchoiceDialog.js"
-import { getDependentChoice, getNonDependentChoice, getNonPrerequisiteChoice, getPrerequisiteChoice, getStageDef } from "../helpers/transformation.js"
 import { waitForCondition } from "../helpers/waitForCondition.js"
-import { createActionExecutor } from "../../infrastructure/actions/createActionExecutor.js"
-import { createFakeTracker } from "../fakes/fakeTracker.js"
 import { conditionsMet } from "../../domain/actions/conditionSchema.js"
-import { createTestActionHandlers } from "../helpers/createTestActionHandlers.js"
 import { waitForDomainStability } from "../helpers/waitForDomainStability.js"
+import { setupTest, teardownAllTest, tearDownEachTest } from "../testLifecycle.js"
 
 quench.registerBatch(
     "transformations.actions",
     ({ describe, it, assert, expect }) =>
     {
         let actor
-        let runtime = createTestRuntime()
+        let runtime
         let transformationDef
-        let executor
-        let realHandlers
+        let actionExecutor
+        let actionHandlers
 
         const existingActorIds = game.actors.map(actor => actor.id)
-        async function setupTest(currentTest, transformationId)
+        async function localSetupTest(currentTest, transformationId)
         {
-            await readyGame()
-            actor = await createTestActor({ name: currentTest.title + `(${transformationId})`, options: { race: "humanoid" } })
+            ({ actor, runtime, actionExecutor, actionHandlers } = await setupTest({
+                currentTest, createObjects: {
+                    actor: { name: currentTest.title + `(${transformationId})`, options: { race: "humanoid" } },
+                    runtime: {},
+                    actionExecutor: {},
+                    actionHandlers: {}
+                }
+            }))
             transformationDef = await runtime.services.transformationQueryService.getDefinitionById(transformationId)
-            executor = createActionExecutor({
-                tracker: createFakeTracker(),
-                actorRepository: runtime.infrastructure.actorRepository,
-                logger
-            })
-            realHandlers = createTestActionHandlers(runtime)
-        }
-
-        async function tearDownTest()
-        {
-
         }
 
         after(async function()
@@ -56,19 +39,19 @@ quench.registerBatch(
                 .filter(actor => !existingIdSet.has(actor.id))
                 .map(actor => actor.id)
 
-            await cleanupQuenchTestActors(testActorIds)
+            await teardownAllTest(testActorIds)
         })
         describe("Transformation Actions", function()
         {
             this.timeout(10_000)
             beforeEach(async function()
             {
-                await setupTest(this.currentTest, "aberrant-horror")
+                await localSetupTest(this.currentTest, "aberrant-horror")
             })
 
             afterEach(async function()
             {
-                await tearDownTest()
+                await tearDownEachTest()
             })
             it("executes handlers sequentially in order", async function()
             {
@@ -82,7 +65,7 @@ quench.registerBatch(
                     }
                 }
 
-                await executor.execute({
+                await actionExecutor.execute({
                     actorId: actor.id,
                     actionGroups: [
                         {
@@ -108,7 +91,7 @@ quench.registerBatch(
                     TEST: async () => { called = true }
                 }
 
-                await executor.execute({
+                await actionExecutor.execute({
                     actorId: actor.id,
                     actionGroups: [
                         {
@@ -128,7 +111,7 @@ quench.registerBatch(
             it("skips action when handler missing", async function()
             {
 
-                await executor.execute({
+                await actionExecutor.execute({
                     actorId: actor.id,
                     actionGroups: [
                         {
@@ -171,7 +154,7 @@ quench.registerBatch(
                     { type: "THIRD" }
                 ]
 
-                await executor.execute({
+                await actionExecutor.execute({
                     actorId: actor.id,
                     actionGroups: [
                         {
@@ -214,7 +197,7 @@ quench.registerBatch(
                 let errorCaught = false
 
                 try {
-                    await executor.execute({
+                    await actionExecutor.execute({
                         actorId: actor.id,
                         actionGroups: [
                             {
@@ -253,7 +236,7 @@ quench.registerBatch(
                     }
                 ]
 
-                await executor.execute({
+                await actionExecutor.execute({
                     actorId: actor.id,
                     actionGroups: [
                         {
@@ -263,11 +246,11 @@ quench.registerBatch(
                     ],
                     context: {},
                     variables: {},
-                    handlers: realHandlers
+                    handlers: actionHandlers
                 })
 
 
-                await executor.execute({
+                await actionExecutor.execute({
                     actorId: actor.id,
                     actionGroups: [
                         {
@@ -277,7 +260,7 @@ quench.registerBatch(
                     ],
                     context: {},
                     variables: {},
-                    handlers: realHandlers
+                    handlers: actionHandlers
                 })
 
 
@@ -303,7 +286,7 @@ quench.registerBatch(
                     }
                 }
 
-                await executor.execute({
+                await actionExecutor.execute({
                     actorId: actor.id,
                     actionGroups: [
                         {
@@ -347,7 +330,7 @@ quench.registerBatch(
                 ]
 
                 // First execution
-                await executor.execute({
+                await actionExecutor.execute({
                     actorId: actor.id,
                     actionGroups,
                     context: {},
@@ -356,7 +339,7 @@ quench.registerBatch(
                 })
 
                 // Second execution (should be ignored)
-                await executor.execute({
+                await actionExecutor.execute({
                     actorId: actor.id,
                     actionGroups,
                     context: {},
@@ -394,7 +377,7 @@ quench.registerBatch(
                 ]
 
                 // First execution
-                await executor.execute({
+                await actionExecutor.execute({
                     actorId: actor.id,
                     actionGroups,
                     context: {},
@@ -416,7 +399,7 @@ quench.registerBatch(
                 )
 
                 // Execute again after reset
-                await executor.execute({
+                await actionExecutor.execute({
                     actorId: actor.id,
                     actionGroups,
                     context: {},

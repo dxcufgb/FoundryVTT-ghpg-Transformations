@@ -1,7 +1,5 @@
-
 import { createHpAction } from "../../../services/actions/handlers/hp.js"
-import { createFakeTracker } from "../../fakes/fakeTracker.js"
-import { createTestActor } from "../../helpers/actors.js"
+import { setupTest, tearDownEachTest } from "../../testLifecycle.js"
 
 export function registerHpActionTests({ describe, it, expect })
 {
@@ -15,8 +13,14 @@ export function registerHpActionTests({ describe, it, expect })
 
         beforeEach(async function()
         {
-
-            actor = await createTestActor({ name: this.currentTest.title, options: { race: "humanoid" } })
+            let fakeTracker
+            ({ actor, fakeTracker } = await setupTest({
+                currentTest: this.currentTest,
+                createObjects: {
+                    actor: { options: { race: "humanoid" } },
+                    fakeTracker: {}
+                }
+            }))
 
             calls = []
 
@@ -45,9 +49,14 @@ export function registerHpActionTests({ describe, it, expect })
 
             handler = createHpAction({
                 actorRepository: fakeRepo,
-                tracker: createFakeTracker(),
+                tracker: fakeTracker,
                 logger: console
             })
+        })
+
+        afterEach(async function()
+        {
+            await tearDownEachTest()
         })
 
         it("applies temporary HP", async function()

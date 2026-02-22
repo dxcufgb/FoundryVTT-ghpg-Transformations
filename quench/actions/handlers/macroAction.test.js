@@ -2,7 +2,7 @@
 
 import { createMacroAction } from "../../../services/actions/handlers/macroAction.js"
 import { createFakeTracker } from "../../fakes/fakeTracker.js"
-import { createTestActor } from "../../helpers/actors.js"
+import { setupTest, tearDownEachTest } from "../../testLifecycle.js"
 
 export function registerMacroActionTests({ describe, it, expect })
 {
@@ -18,9 +18,15 @@ export function registerMacroActionTests({ describe, it, expect })
 
         beforeEach(async function()
         {
-
-            actor = await createTestActor({ name: this.currentTest.title, options: { race: "humanoid" } })
-
+            let fakeTracker
+            ({ actor, fakeTracker } = await setupTest({
+                currentTest: this.currentTest,
+                createObjects: {
+                    actor: { options: { race: "humanoid" } },
+                    fakeTracker: {}
+                }
+            }))
+            tracker = fakeTracker
 
             invokeCalls = []
 
@@ -31,13 +37,16 @@ export function registerMacroActionTests({ describe, it, expect })
                 }
             }
 
-            tracker = createFakeTracker()
-
             handler = createMacroAction({
                 directMacroInvoker: fakeInvoker,
                 tracker,
                 logger: console
             })
+        })
+
+        afterEach(async function()
+        {
+            await tearDownEachTest()
         })
 
         // ─────────────────────────────────────────────

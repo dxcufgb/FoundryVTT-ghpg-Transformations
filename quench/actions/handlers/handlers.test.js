@@ -1,5 +1,7 @@
 // test/actions/handlers.batch.js
 
+import { wait } from "../../helpers/wait.js"
+import { teardownAllTest } from "../../testLifecycle.js"
 import { registerChatActionTests } from "./chatAction.test.js"
 import { registerEffectActionTests } from "./effectAction.test.js"
 import { registerHpActionTests } from "./hpAction.test.js"
@@ -12,7 +14,11 @@ quench.registerBatch(
     "transformations.actions.handlers",
     ({ describe, it, expect }) =>
     {
-
+        after(async function()
+        {
+            await wait(200)
+            await teardownAllTest()
+        })
         registerChatActionTests({ describe, it, expect })
         registerEffectActionTests({ describe, it, expect })
         registerHpActionTests({ describe, it, expect })

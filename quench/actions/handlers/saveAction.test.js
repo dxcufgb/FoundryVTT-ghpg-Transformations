@@ -1,8 +1,6 @@
 // test/actions/saveAction.test.js
 
-import { createSaveAction } from "../../../services/actions/handlers/save.js"
-import { createFakeTracker } from "../../fakes/fakeTracker.js"
-import { createTestActor } from "../../helpers/actors.js"
+import { setupTest, tearDownEachTest } from "../../testLifecycle.js"
 
 export function registerSaveActionTests({ describe, it, expect })
 {
@@ -17,11 +15,16 @@ export function registerSaveActionTests({ describe, it, expect })
         let context
         let variables
 
-        beforeEach(function()
+        beforeEach(async function()
         {
-
-            globalThis.__TRANSFORMATIONS_TEST__ = true
-            globalThis.___TransformationTestEnvironment___ = {}
+            let actionHandlers
+            ({ actor, actionHandlers } = await setupTest({
+                currentTest: this.currentTest,
+                createObjects: {
+                    actionHandlers: {}
+                },
+                initializeTestVariables: true
+            }))
 
             tracker = {
                 track: async (promise) => promise
@@ -29,10 +32,7 @@ export function registerSaveActionTests({ describe, it, expect })
 
             logger = console
 
-            handler = createSaveAction({
-                tracker,
-                logger
-            })
+            handler = actionHandlers.SAVE
 
             actor = { id: "A1" }
 
@@ -40,10 +40,9 @@ export function registerSaveActionTests({ describe, it, expect })
             variables = {}
         })
 
-        afterEach(function()
+        afterEach(async function()
         {
-            delete globalThis.__TRANSFORMATIONS_TEST__
-            delete globalThis.___TransformationTestEnvironment___
+            await tearDownEachTest()
         })
 
         // ─────────────────────────────────────────────

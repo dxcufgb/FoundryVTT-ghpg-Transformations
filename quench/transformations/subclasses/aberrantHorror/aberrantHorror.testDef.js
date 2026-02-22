@@ -1856,5 +1856,61 @@ export const AberrantHorrorTestDef = {
                 expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
             }
         },
+
+        {
+            name: "Eldritch Aberration damage types and dice rolls",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.Q0c1NafrnW9C7tDz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                const eldritchAberration = actor.items.find(i => i.name == "Eldritch Aberration")
+                expect(eldritchAberration).to.exist
+                expect(eldritchAberration.type).to.be.equal("spell")
+
+                const activities = eldritchAberration.system.activities.contents
+                expect(activities.length).to.be.equal(1)
+
+                const activityDamageParts = activities[0].damage.parts[0]
+                expect(activityDamageParts.denomination).to.be.equal(6)
+                expect(activityDamageParts.number).to.be.equal(1)
+
+                const availableDamageTypes = activityDamageParts.types
+                expect(availableDamageTypes).to.include.members([
+                    "acid",
+                    "cold",
+                    "fire",
+                    "force",
+                    "lightning",
+                    "thunder"
+                ])
+            }
+        },
     ]
 }

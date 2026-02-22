@@ -1,8 +1,7 @@
 // test/actions/itemAction.test.js
 
 import { createItemAction } from "../../../services/actions/handlers/item.js"
-import { createFakeTracker } from "../../fakes/fakeTracker.js"
-import { createTestActor } from "../../helpers/actors.js"
+import { setupTest, tearDownEachTest } from "../../testLifecycle.js"
 
 
 export function registerItemActionTests({ describe, it, expect })
@@ -19,7 +18,14 @@ export function registerItemActionTests({ describe, it, expect })
         beforeEach(async function()
         {
 
-            actor = await createTestActor({ name: this.currentTest.title, options: { race: "humanoid" } })
+            let fakeTracker
+            ({ actor, fakeTracker } = await setupTest({
+                currentTest: this.currentTest,
+                createObjects: {
+                    actor: { options: { race: "humanoid" } },
+                    fakeTracker: {}
+                }
+            }))
             calls = []
 
             fakeRepo = {
@@ -53,9 +59,14 @@ export function registerItemActionTests({ describe, it, expect })
 
             handler = createItemAction({
                 itemRepository: fakeRepo,
-                tracker: createFakeTracker(),
+                tracker: fakeTracker,
                 logger: console
             })
+        })
+
+        afterEach(async function()
+        {
+            await tearDownEachTest()
         })
 
         // ─────────────────────────────────────────────

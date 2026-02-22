@@ -1,8 +1,7 @@
 // test/actions/chatAction.test.js
 
 import { createChatAction } from "../../../services/actions/handlers/chat.js"
-import { createFakeTracker } from "../../fakes/fakeTracker.js"
-import { createTestActor } from "../../helpers/actors.js"
+import { setupTest, tearDownEachTest } from "../../testLifecycle.js"
 
 export function registerChatActionTests({ describe, it, expect })
 {
@@ -18,12 +17,16 @@ export function registerChatActionTests({ describe, it, expect })
 
         beforeEach(async function()
         {
-
-            actor = await createTestActor({ name: this.currentTest.title, options: { race: "humanoid" } })
+            let actionHandlers
+            ({ actor, actionHandlers } = await setupTest({
+                currentTest: this.currentTest,
+                createObjects: {
+                    actor: { options: { race: "humanoid" } },
+                    actionHandlers: {}
+                }
+            }))
 
             createdMessages = []
-
-            // Mock ChatMessage
             originalCreate = ChatMessage.create
             originalGetSpeaker = ChatMessage.getSpeaker
 
@@ -36,16 +39,14 @@ export function registerChatActionTests({ describe, it, expect })
                 actor: actor.id
             })
 
-            handler = createChatAction({
-                tracker: createFakeTracker(),
-                logger: console
-            })
+            handler = actionHandlers.CHAT
         })
 
-        afterEach(function()
+        afterEach(async function()
         {
             ChatMessage.create = originalCreate
             ChatMessage.getSpeaker = originalGetSpeaker
+            await tearDownEachTest()
         })
 
         // ─────────────────────────────────────────────

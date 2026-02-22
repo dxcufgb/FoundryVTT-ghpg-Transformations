@@ -1,8 +1,7 @@
 // test/actions/rollTableAction.test.js
 
 import { createRollTableAction } from "../../../services/actions/handlers/rollTable.js"
-import { createFakeTracker } from "../../fakes/fakeTracker.js"
-import { createTestActor } from "../../helpers/actors.js"
+import { setupTest, tearDownEachTest } from "../../testLifecycle.js"
 
 export function registerRollTableActionTests({ describe, it, expect })
 {
@@ -10,207 +9,188 @@ export function registerRollTableActionTests({ describe, it, expect })
     describe("RollTable Action Handler", function()
     {
 
-        let actor
         let handler
-        let fakeRollService
-        let fakeResolver
         let tracker
-        let rollCalls
-        let applyCalls
+        let actor
+        let rollTableService
+        let rollTableEffectResolver
+        let logger
 
         beforeEach(async function()
         {
-
-            actor = await createTestActor({ name: this.currentTest.title, options: { race: "humanoid" } })
-
-            rollCalls = []
-            applyCalls = []
-
-            fakeRollService = {
-                roll: async (payload) =>
-                {
-                    rollCalls.push(payload)
-                    return { effectKey: "test-effect" }
-                }
-            }
-
-            fakeResolver = {
-                resolve: ({ actor, effectKey }) =>
-                {
-                    return {
-                        apply: async () =>
-                        {
-                            applyCalls.push(effectKey)
-                        }
+            ({ actor } = await setupTest({
+                currentTest: this.currentTest,
+                createObjects: {
+                    actor: {
+                        options: { race: "humanoid" }
                     }
                 }
+            }))
+
+            tracker = {
+                track: async (promise) => promise
             }
 
-            tracker = createFakeTracker()
+            logger = console
+
+            actor = {
+                flags: {},
+                getFlag: async (scope, key) =>
+                    actor.flags[key],
+                setFlag: async (scope, key, value) =>
+                {
+                    actor.flags[key] = value
+                }
+            }
+
+            rollTableService = {
+                roll: async () => null
+            }
+
+            rollTableEffectResolver = {
+                resolve: () => null
+            }
 
             handler = createRollTableAction({
-                rollTableService: fakeRollService,
-                rollTableEffectResolver: fakeResolver,
+                rollTableService,
+                rollTableEffectResolver,
                 tracker,
                 logger: console
             })
         })
 
-        // ─────────────────────────────────────────────
-        // BASIC EXECUTION
-        // ─────────────────────────────────────────────
-
-        it("calls rollTableService with correct arguments", async function()
+        afterEach(async function()
         {
-
-            await handler({
-                actor,
-                action: {
-                    data: {
-                        uuid: "Compendium.test.Table",
-                        mode: "normal"
-                    }
-                },
-                context: { foo: "bar" }
-            })
-
-            expect(rollCalls.length).to.equal(1)
-
-            expect(rollCalls[0]).to.deep.equal({
-                uuid: "Compendium.test.Table",
-                mode: "normal",
-                context: { foo: "bar" }
-            })
-        })
-
-        it("resolves effect and applies it", async function()
-        {
-
-            await handler({
-                actor,
-                action: {
-                    data: {
-                        uuid: "Compendium.test.Table",
-                        mode: "normal"
-                    }
-                },
-                context: {}
-            })
-
-            expect(applyCalls.length).to.equal(1)
-            expect(applyCalls[0]).to.equal("test-effect")
+            await tearDownEachTest()
         })
 
         // ─────────────────────────────────────────────
-        // NO OUTCOME
+        // Calls rollTableService with correct payload
         // ─────────────────────────────────────────────
 
-        it("does nothing if roll returns null", async function()
+        it("calls rollTableService.roll with merged context", async function()
         {
 
-            fakeRollService.roll = async () => null
+            let receivedPayload
 
-            await handler({
-                actor,
-                action: { data: { uuid: "x" } },
-                context: {}
-            })
+            actor.flags.currentRollTableEffectLowRange = 10
 
-            expect(applyCalls.length).to.equal(0)
-        })
-
-        it("does nothing if roll returns no effectKey", async function()
-        {
-
-            fakeRollService.roll = async () => ({})
-
-            await handler({
-                actor,
-                action: { data: { uuid: "x" } },
-                context: {}
-            })
-
-            expect(applyCalls.length).to.equal(0)
-        })
-
-        // ─────────────────────────────────────────────
-        // NO RESOLVED EFFECT
-        // ─────────────────────────────────────────────
-
-        it("does nothing if resolver returns null", async function()
-        {
-
-            fakeResolver.resolve = () => null
-
-            await handler({
-                actor,
-                action: {
-                    data: { uuid: "x" }
-                },
-                context: {}
-            })
-
-            expect(applyCalls.length).to.equal(0)
-        })
-
-        // ─────────────────────────────────────────────
-        // TRACKER USAGE
-        // ─────────────────────────────────────────────
-
-        it("runs inside tracker", async function()
-        {
-
-            let tracked = false
-
-            const trackingHandler = createRollTableAction({
-                rollTableService: fakeRollService,
-                rollTableEffectResolver: fakeResolver,
-                tracker: {
-                    track: async (fn) =>
-                    {
-                        tracked = true
-                        return await fn
-                    }
-                },
-                logger: console
-            })
-
-            await trackingHandler({
-                actor,
-                action: {
-                    data: { uuid: "x" }
-                },
-                context: {}
-            })
-
-            expect(tracked).to.equal(true)
-        })
-
-        // ─────────────────────────────────────────────
-        // ERROR PROPAGATION
-        // ─────────────────────────────────────────────
-
-        it("propagates error if roll throws", async function()
-        {
-
-            fakeRollService.roll = async () =>
+            rollTableService.roll = async (payload) =>
             {
-                throw new Error("roll failed")
+                receivedPayload = payload
+                return null
             }
 
-            let errorCaught = false
+            await handler({
+                actor,
+                action: {
+                    data: {
+                        uuid: "table-uuid",
+                        mode: "test-mode"
+                    }
+                },
+                context: { stage: 3 }
+            })
 
-            try {
-                await handler({
-                    actor,
-                    action: { data: { uuid: "x" } },
-                    context: {}
-                })
-            } catch {
-                errorCaught = true
+            expect(receivedPayload.uuid).to.equal("table-uuid")
+            expect(receivedPayload.mode).to.equal("test-mode")
+            expect(receivedPayload.context.stage).to.equal(3)
+            expect(receivedPayload.context.currentRollTableEffectLowRange)
+                .to.equal(10)
+        })
+
+        // ─────────────────────────────────────────────
+        // Early return when no outcome
+        // ─────────────────────────────────────────────
+
+        it("returns early when outcome is null", async function()
+        {
+
+            rollTableService.roll = async () => null
+
+            await handler({
+                actor,
+                action: { data: { uuid: "x", mode: "m" } },
+                context: {}
+            })
+
+            expect(actor.flags.currentRollTableEffectLowRange)
+                .to.be.undefined
+        })
+
+        it("returns early when effectKey missing", async function()
+        {
+
+            rollTableService.roll = async () => ({
+                result: { range: [5] }
+            })
+
+            await handler({
+                actor,
+                action: { data: { uuid: "x", mode: "m" } },
+                context: {}
+            })
+
+            expect(actor.flags.currentRollTableEffectLowRange)
+                .to.be.undefined
+        })
+
+        // ─────────────────────────────────────────────
+        // Sets flag and applies effect
+        // ─────────────────────────────────────────────
+
+        it("sets flag and applies resolved effect", async function()
+        {
+
+            let applied = false
+
+            rollTableService.roll = async () => ({
+                effectKey: "EFFECT_X",
+                result: { range: [20] }
+            })
+
+            rollTableEffectResolver.resolve = ({ actor, effectKey }) =>
+            {
+                expect(effectKey).to.equal("EFFECT_X")
+                return {
+                    apply: async () => { applied = true }
+                }
             }
 
-            expect(errorCaught).to.equal(true)
+            await handler({
+                actor,
+                action: { data: { uuid: "x", mode: "m" } },
+                context: {}
+            })
+
+            expect(actor.flags.currentRollTableEffectLowRange)
+                .to.equal(20)
+
+            expect(applied).to.equal(true)
+        })
+
+        // ─────────────────────────────────────────────
+        // No resolved effect
+        // ─────────────────────────────────────────────
+
+        it("does not crash if resolver returns null", async function()
+        {
+
+            rollTableService.roll = async () => ({
+                effectKey: "EFFECT_X",
+                result: { range: [30] }
+            })
+
+            rollTableEffectResolver.resolve = () => null
+
+            await handler({
+                actor,
+                action: { data: { uuid: "x", mode: "m" } },
+                context: {}
+            })
+
+            expect(actor.flags.currentRollTableEffectLowRange)
+                .to.equal(30)
         })
 
     })

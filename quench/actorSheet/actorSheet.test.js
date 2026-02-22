@@ -1,5 +1,6 @@
-import { cleanupQuenchTestActors } from "../helpers/cleanupActors.js"
-import { createTestActor, createTestRuntime, readyGame, renderActorSheet, wait, withGM } from "../helpers/index.js"
+import { renderActorSheet } from "../helpers/sheets.js"
+import { withGM } from "../helpers/users.js"
+import { wait } from "../helpers/wait.js"
 import
 {
     findTransformationPill,
@@ -10,6 +11,7 @@ import
     findEditModeSlider,
     findSpecialTraitsLink
 } from "../selectors/actorSheet.finders.js"
+import { setupTest, teardownAllTest, tearDownEachTest } from "../testLifecycle.js"
 
 
 quench.registerBatch(
@@ -17,18 +19,8 @@ quench.registerBatch(
     ({ describe, it, assert, expect }) =>
     {
         let actor
-        let runtime = createTestRuntime()
+        let runtime
         const existingActorIds = game.actors.map(actor => actor.id)
-        async function setupTest(currentTest)
-        {
-            await readyGame()
-            actor = await createTestActor({ name: currentTest.title })
-        }
-
-        async function tearDownTest()
-        {
-
-        }
 
         after(async function()
         {
@@ -39,7 +31,7 @@ quench.registerBatch(
                 .filter(actor => !existingIdSet.has(actor.id))
                 .map(actor => actor.id)
 
-            await cleanupQuenchTestActors(testActorIds)
+            await teardownAllTest({ actorsToDeleteIds: testActorIds })
         })
         describe("ActorSheet - Render discipline", function()
         {
@@ -48,12 +40,19 @@ quench.registerBatch(
 
             beforeEach(async function()
             {
-                await setupTest(this.currentTest)
+                ({ actor, runtime } = await setupTest({
+                    currentTest: this.currentTest,
+                    createObjects: {
+                        actor: {},
+                        runtime: {}
+                    }
+                }))
             })
 
             afterEach(async function()
             {
-                await tearDownTest()
+                // sheet.close()
+                await tearDownEachTest({ tearDownExtras: { sheet: sheet } })
             })
             it("does not mutate actor transformation data during render", async function()
             {
@@ -73,7 +72,12 @@ quench.registerBatch(
 
             beforeEach(async function()
             {
-                await setupTest(this.currentTest)
+                ({ actor } = await setupTest({
+                    currentTest: this.currentTest,
+                    createObjects: {
+                        actor: {}
+                    }
+                }))
                 sheet = await renderActorSheet(actor)
                 await runtime.dependencies.utils.asyncTrackers
                     .get("ui")
@@ -82,7 +86,8 @@ quench.registerBatch(
 
             afterEach(async function()
             {
-                await tearDownTest()
+                // sheet.close()
+                await tearDownEachTest({ tearDownExtras: { sheet: sheet } })
             })
 
             it("renders the transformation pill on the actor sheet", async function()
@@ -110,12 +115,18 @@ quench.registerBatch(
 
             beforeEach(async function()
             {
-                await setupTest(this.currentTest)
+                ({ actor } = await setupTest({
+                    currentTest: this.currentTest,
+                    createObjects: {
+                        actor: {}
+                    }
+                }))
             })
 
             afterEach(async function()
             {
-                await tearDownTest()
+                // sheet.close()
+                await tearDownEachTest({ tearDownExtras: { sheet: sheet } })
             })
 
             it("is visible to GMs regardless of transformation state", async function()
@@ -180,19 +191,25 @@ quench.registerBatch(
 
             beforeEach(async function()
             {
-                await setupTest(this.currentTest)
+                ({ actor } = await setupTest({
+                    currentTest: this.currentTest,
+                    createObjects: {
+                        actor: {}
+                    }
+                }))
             })
 
             afterEach(async function()
             {
-                await tearDownTest()
+                // sheet.close()
+                await tearDownEachTest({ tearDownExtras: { sheet: sheet } })
             })
 
             it("renders the transformation card for GMs in the Special Traits tab", async function()
             {
                 await withGM(true, async () =>
                 {
-                    const sheet = await renderActorSheet(actor)
+                    sheet = await renderActorSheet(actor)
 
                     const card = await findTransformationCardInSpecialTraitsTab(sheet)
 
@@ -219,7 +236,7 @@ quench.registerBatch(
             {
                 await withGM(true, async () =>
                 {
-                    const sheet = await renderActorSheet(actor)
+                    sheet = await renderActorSheet(actor)
 
                     const specialTraitsTabLink = await findSpecialTraitsLink(sheet)
                     specialTraitsTabLink.click()
@@ -255,7 +272,7 @@ quench.registerBatch(
             {
                 await withGM(false, async () =>
                 {
-                    const sheet = await renderActorSheet(actor)
+                    sheet = await renderActorSheet(actor)
 
                     const card = await findTransformationCardInSpecialTraitsTab(sheet)
 
@@ -282,7 +299,7 @@ quench.registerBatch(
             {
                 await withGM(false, async () =>
                 {
-                    const sheet = await renderActorSheet(actor)
+                    sheet = await renderActorSheet(actor)
 
                     const specialTraitsTabLink = await findSpecialTraitsLink(sheet)
                     specialTraitsTabLink.click()

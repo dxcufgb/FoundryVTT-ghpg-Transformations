@@ -1,9 +1,9 @@
-import { createTestActor, waitForFlagUpdate } from "../helpers/actors.js"
-import { cleanupQuenchTestActors } from "../helpers/cleanupActors.js"
-import { readyGame, renderActorSheet, withGM, createTestRuntime } from "../helpers/index.js"
+import { waitForFlagUpdate } from "../helpers/actors.js"
+import { renderActorSheet, withGM } from "../helpers/index.js"
 import { wait } from "../helpers/wait.js"
 import { findEditModeSlider, findTransformationCardInSpecialTraitsTab } from "../selectors/actorSheet.finders.js"
 import { findTransformationStageSelect, findTransformationTypeSelect } from "../selectors/transformationCardFinders.js"
+import { setupTest, teardownAllTest, tearDownEachTest } from "../testLifecycle.js"
 
 quench.registerBatch(
     "transformations.ActorSheet.TransformationCard - interactions",
@@ -13,17 +13,6 @@ quench.registerBatch(
         let sheet
         let runtime
         const existingActorIds = game.actors.map(actor => actor.id)
-        async function setupTest(currentTest)
-        {
-            await readyGame()
-            runtime = createTestRuntime()
-            actor = await createTestActor({ name: currentTest.title })
-        }
-
-        async function tearDownTest()
-        {
-            await runtime.services.transformationService.whenIdle()
-        }
 
         after(async function()
         {
@@ -34,7 +23,7 @@ quench.registerBatch(
                 .filter(actor => !existingIdSet.has(actor.id))
                 .map(actor => actor.id)
 
-            await cleanupQuenchTestActors(testActorIds)
+            await teardownAllTest(testActorIds)
         })
 
         describe("TransformationCard - Render", async function()
@@ -42,12 +31,18 @@ quench.registerBatch(
             this.timeout(10_000)
             beforeEach(async function()
             {
-                await setupTest(this.currentTest)
+                ({ actor, runtime } = await setupTest({
+                    currentTest: this.currentTest,
+                    createObjects: {
+                        actor: {},
+                        runtime: {}
+                    }
+                }))
             })
 
             afterEach(async function()
             {
-                await tearDownTest()
+                await tearDownEachTest({ tearDownExtras: { sheet: sheet } })
             })
 
 
@@ -82,12 +77,18 @@ quench.registerBatch(
             this.timeout(10_000)
             beforeEach(async function()
             {
-                await setupTest(this.currentTest)
+                ({ actor, runtime } = await setupTest({
+                    currentTest: this.currentTest,
+                    createObjects: {
+                        actor: {},
+                        runtime: {}
+                    }
+                }))
             })
 
             afterEach(async function()
             {
-                await tearDownTest()
+                await tearDownEachTest({ tearDownExtras: { sheet: sheet } })
             })
 
             it("renders disabled type and stage selects for GMs (edit mode is disabled)", async function()

@@ -12,6 +12,7 @@ import { advanceStageAndWait } from "../helpers/advanceStageAndWait.js"
 import { advanceStageAndChoose } from "../helpers/adcanceStageAndExpectchoiceDialog.js"
 import { getDependentChoice, getNonDependentChoice, getNonPrerequisiteChoice, getPrerequisiteChoice, getStageDef } from "../helpers/transformation.js"
 import { waitForCondition } from "../helpers/waitForCondition.js"
+import { setupTest, teardownAllTest, tearDownEachTest } from "../testLifecycle.js"
 
 quench.registerBatch(
     "transformations.applyStages",
@@ -21,16 +22,22 @@ quench.registerBatch(
         let runtime = createTestRuntime()
         let transformationDef
         const existingActorIds = game.actors.map(actor => actor.id)
-        async function setupTest(currentTest, transformationId)
+        async function localSetupTest(currentTest, transformationId)
         {
-            await readyGame()
-            actor = await createTestActor({ name: currentTest.title + `(${transformationId})`, options: { race: "humanoid" } })
+            ({ actor } = await setupTest({
+                currentTest,
+                createObjects: {
+                    actor: {
+                        name: currentTest.title + `(${transformationId})`, options: { race: "humanoid" }
+                    }
+                }
+            }))
             transformationDef = await runtime.services.transformationQueryService.getDefinitionById(transformationId)
         }
 
         async function tearDownTest()
         {
-
+            await tearDownEachTest()
         }
 
         after(async function()
@@ -42,7 +49,7 @@ quench.registerBatch(
                 .filter(actor => !existingIdSet.has(actor.id))
                 .map(actor => actor.id)
 
-            await cleanupQuenchTestActors(testActorIds)
+            await teardownAllTest(testActorIds)
         })
 
         describe("Transformation Lifecycle – Stage 1 Application", function()
@@ -50,7 +57,7 @@ quench.registerBatch(
             this.timeout(10_000)
             beforeEach(async function()
             {
-                await setupTest(this.currentTest, "aberrant-horror")
+                await localSetupTest(this.currentTest, "aberrant-horror")
             })
 
             afterEach(async function()
@@ -169,7 +176,7 @@ quench.registerBatch(
 
             beforeEach(async function()
             {
-                await setupTest(this.currentTest, "aberrant-horror")
+                await localSetupTest(this.currentTest, "aberrant-horror")
             })
 
             afterEach(async function()
@@ -237,7 +244,7 @@ quench.registerBatch(
 
             beforeEach(async function()
             {
-                await setupTest(this.currentTest, "aberrant-horror")
+                await localSetupTest(this.currentTest, "aberrant-horror")
             })
 
             afterEach(async function()
@@ -277,7 +284,7 @@ quench.registerBatch(
 
             beforeEach(async function()
             {
-                await setupTest(this.currentTest, "aberrant-horror")
+                await localSetupTest(this.currentTest, "aberrant-horror")
             })
 
             afterEach(async function()
@@ -325,7 +332,7 @@ quench.registerBatch(
 
             beforeEach(async function()
             {
-                await setupTest(this.currentTest, "aberrant-horror")
+                await localSetupTest(this.currentTest, "aberrant-horror")
             })
 
             afterEach(async function()
@@ -356,7 +363,7 @@ quench.registerBatch(
 
             beforeEach(async function()
             {
-                await setupTest(this.currentTest, "aberrant-horror")
+                await localSetupTest(this.currentTest, "aberrant-horror")
                 await expectAsyncWork(
                     () => runtime.services.transformationService.applyTransformation(
                         actor,
