@@ -31,8 +31,7 @@ export const onBloodied = {
                         items: {
                             has: [
                                 "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu"
-                            ],
-                            usesRemaining: { min: 1 }
+                            ]
                         }
                     },
                     data: {
@@ -89,7 +88,7 @@ export const onBloodied = {
         {
             name: "bloodied-mutation-roll",
             when: {
-                stage: { min: 4 }
+                stage: { min: 4 },
             },
             actions: [
                 {
@@ -99,7 +98,7 @@ export const onBloodied = {
                         reset: "longRest"
                     },
                     data: {
-                        uuid: "Compendium.transformations.tables.BloodiedMutation",
+                        uuid: "Compendium.transformations.gh-roll-tables.RollTable.bBA81xCQndyJAIPi",
                         mode: "downgradeOnly"
                     }
                 }

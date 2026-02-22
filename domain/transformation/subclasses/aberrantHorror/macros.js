@@ -5,4 +5,4 @@ export const aberrantHorrorMacros = Object.freeze({
     slimyForm: "slimyForm",
     unstableExistence: "unstableExistence",
     removeAberrantMutationEffects: "removeAberrantMutationEffects"
-});
+})

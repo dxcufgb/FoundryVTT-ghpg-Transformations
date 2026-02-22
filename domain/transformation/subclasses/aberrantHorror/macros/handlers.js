@@ -33,6 +33,7 @@ export function createAberrantHorrorMacroHandlers({
                         effectIds.map(e => e.id)
                     )
                     await removeEldritchLimbsItem(actor)
+                    await poisonousMutations({ actor, trigger })
                 })()
             )
         },
@@ -57,6 +58,7 @@ export function createAberrantHorrorMacroHandlers({
                     )
 
                     await addEldritchLimbsItem(actor)
+                    await poisonousMutations({ actor, trigger })
                 })()
             )
         },
@@ -80,6 +82,7 @@ export function createAberrantHorrorMacroHandlers({
                         effectIds.map(e => e.id)
                     )
                     await removeEldritchLimbsItem(actor)
+                    await poisonousMutations({ actor, trigger })
                 })()
             )
         },
@@ -180,13 +183,31 @@ export function createAberrantHorrorMacroHandlers({
             aberrantMutationConstants.items.efficientKiller
         )
     }
+
+    async function poisonousMutations({ actor, trigger })
+    {
+        const currentActorStage = await actor.getFlag("transformations", "stage")
+        if (currentActorStage < 4) return
+        const poisonousMutationsItem = await itemRepository.findEmbeddedByUuidFlag(actor, aberrantMutationConstants.items.poisonousMutations)
+        if (!poisonousMutationsItem) return
+        const poisonousMutations = await activeEffectRepository.findByName(actor, "poisonous Mutations")
+        if (poisonousMutations) return
+        const poisonousMutationsEffect = poisonousMutationsItem.effects.contents.find(e => e.name == "Poisonous Mutations")
+        await activeEffectRepository.create({
+            actor,
+            name: poisonousMutationsEffect.name,
+            description: poisonousMutationsEffect.description,
+            icon: poisonousMutationsEffect.img,
+        })
+    }
 }
 
 export const aberrantMutationConstants = Object.freeze({
     effects: {
         chitinousShell: "Chitinous Shell",
         slimyForm: "Slimy Form",
-        eldritchLimbs: "Eldritch Limbs"
+        eldritchLimbs: "Eldritch Limbs",
+        poisonousMutations: "Poisonous, Mutations"
     },
     items: {
         eldritchLimbs: {
@@ -198,6 +219,7 @@ export const aberrantMutationConstants = Object.freeze({
                 "Compendium.transformations.gh-transformations.Item.benNIPNjkWikc3pL"
             ]
         },
-        efficientKiller: 'Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq'
+        efficientKiller: 'Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq',
+        poisonousMutations: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
     }
 })

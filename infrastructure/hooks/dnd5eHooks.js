@@ -123,16 +123,21 @@ export function registerDnd5eHooks({
         const roll = rolls?.[0]
         if (!roll) return
 
-        const natural = roll.dice?.[0]?.results?.find(r => r.active == true)?.result
+        const natural = roll.dice?.[0]?.results?.find(r => r.active == true).result ?? null;
 
-            (async () =>
-            {
-                await triggerRuntime.run("savingThrow", actor, {
-                    ability: context.ability,
-                    isSpell: context?.subject?.getFlag("transformations", "saveIsSpell"),
-                    naturalRoll: natural,
-                    total: roll.total
-                })
-            })()
+        (async () =>
+        {
+            await triggerRuntime.run("savingThrow", actor, {
+                saves: {
+                    current: {
+                        ability: context.ability,
+                        isSpell: context?.subject?.getFlag("transformations", "saveIsSpell"),
+                        naturalRoll: natural,
+                        total: roll.total,
+                        success: roll.isSuccess
+                    }
+                }
+            })
+        })()
     })
 }

@@ -83,13 +83,17 @@ function itemConditionMet(actor, condition, logger = null)
     if (condition.usesRemaining) {
         const { min = 0, max = Infinity } = condition.usesRemaining
 
-        const item = items.find(i =>
+        let item = items.find(i =>
             condition.has?.includes(
                 i.flags?.transformations?.sourceUuid
             )
         )
 
         if (!item) return false
+
+        if (item) {
+            item = actor.items.get(item.id) // force fresh instance
+        }
 
         const uses = item.system?.uses
         const remaining = (Number(uses?.max) || 0) - (Number(uses?.spent) || 0)
@@ -142,17 +146,48 @@ function saveConditionMet(context, when, logger = null)
     return true
 }
 
-function customConditionsMet(condition, context, logger = null)
+export function customConditionsMet(condition, context, logger = null)
 {
     logger?.debug?.("customConditionsMet", { condition, context })
-    if (!condition) return true
 
-    try {
-        return Function(
-            ...Object.keys(context),
-            `return (${condition})`
-        )(...Object.values(context))
-    } catch {
-        return false
+    if (!condition || typeof condition !== "object") return true
+
+    return matchObject(condition, context)
+}
+
+
+// 🔍 Recursive matcher
+function matchObject(schema, target)
+{
+    if (typeof schema !== "object" || schema === null)
+        return schema === target
+
+    for (const key of Object.keys(schema)) {
+
+        const expected = schema[key]
+        const actual = target?.[key]
+
+        // Nested object → recurse
+        if (typeof expected === "object" && !Array.isArray(expected)) {
+            if (!matchObject(expected, actual)) {
+                return false
+            }
+            continue
+        }
+
+        // Array → includes match
+        if (Array.isArray(expected)) {
+            if (!expected.includes(actual)) {
+                return false
+            }
+            continue
+        }
+
+        // Primitive → strict equality
+        if (actual !== expected) {
+            return false
+        }
     }
+
+    return true
 }

@@ -35,7 +35,8 @@ export function runTransformationTestSuite({
                         name: this.currentTest.title + `(${testDef.id})`, options: { race: "humanoid" }
                     },
                     runtime: {}
-                }
+                },
+                initializeTestVariables: true
             }))
             transformationDef = await runtime.services.transformationQueryService.getDefinitionById(testDef.id)
             await expectAsyncWork(
@@ -150,7 +151,7 @@ export function runTransformationTestSuite({
 
                 if (behavior.steps) {
                     for (const step of behavior.steps) {
-                        await step({ actor, runtime, helpers })
+                        await step({ actor, runtime, helpers, waiters })
                     }
                 }
 

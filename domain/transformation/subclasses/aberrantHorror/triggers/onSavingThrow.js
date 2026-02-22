@@ -6,7 +6,14 @@ export const onSavingThrow = {
             name: "apply lower aberrant effect stage 3",
             when: {
                 stage: [3],
-                custom: "isSpell && (naturalRoll === 1 || naturalRoll === 2)"
+                custom: {
+                    saves: {
+                        current: {
+                            isSpell: true,
+                            naturalRoll: [1, 2]
+                        }
+                    }
+                }
             },
             actions: [
                 {
@@ -29,7 +36,7 @@ export const onSavingThrow = {
             name: "apply lower aberrant effect stage 4",
             when: {
                 stage: [4],
-                custom: "isSpell && (naturalRoll === 1 || naturalRoll === 2)"
+                saveFailed: "current"
             },
             actions: [
                 {

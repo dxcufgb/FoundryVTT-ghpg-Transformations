@@ -24,26 +24,15 @@ export function createItemAction({
                     }
 
                     case "consume": {
-                        const item =
-                            itemRepository.findEmbeddedByUuidFlag(actor, uuid)
+                        let item = actor.items.find(i =>
+                            i.flags.transformations?.sourceUuid === uuid
+                        )
 
-                        if (!item) {
-                            logger.debug("Item not found to consume", uuid)
-                            return false
-                        }
+                        if (!item) return false
 
-                        const remaining =
-                            itemRepository.getRemainingUses(item)
+                        const remaining = item.system.uses.max - item.system.uses.spent
 
-                        if (remaining < uses) {
-                            logger.debug(
-                                "Not enough uses remaining",
-                                item.name,
-                                remaining,
-                                uses
-                            )
-                            return false
-                        }
+                        if (remaining < uses) return false
 
                         await itemRepository.consumeUses(item, uses)
                         return true

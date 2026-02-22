@@ -696,12 +696,9 @@ export const AberrantHorrorTestDef = {
             },
 
             steps: [
-                async ({ actor }) =>
+                async ({ actor, runtime }) =>
                 {
-                    await actor.update({
-                        "system.attributes.hp.value":
-                            Math.floor(actor.system.attributes.hp.max / 2)
-                    })
+                    await runtime.services.triggerRuntime.run("bloodied", actor)
                 }
             ],
 
@@ -725,6 +722,7 @@ export const AberrantHorrorTestDef = {
                 expect(usesLeft).to.be.equal(0)
             }
         },
+
         {
             name: "Aberrant Form only grants temp HP once per rest",
 
@@ -740,15 +738,47 @@ export const AberrantHorrorTestDef = {
             },
 
             steps: [
-                async ({ actor }) =>
+                async ({ actor, runtime, waiters }) =>
                 {
-                    const item = actor.items.find(i => i.flags.transformations?.sourceUuid == "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu")
-                    item.update({
-                        "item.system.uses.spent": item.system.uses.max
+                    // 1️⃣ Find item fresh
+                    let item = actor.items.find(i =>
+                        i.flags.transformations?.sourceUuid ===
+                        "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu"
+                    )
+
+                    if (!item) throw new Error("Aberrant Form item not found")
+
+                    // 2️⃣ Spend all uses
+                    await item.update({
+                        "system.uses.spent": item.system.uses.max
                     })
-                    await actor.update({
-                        "system.attributes.hp.value":
-                            Math.floor(actor.system.attributes.hp.max / 2)
+
+                    // 3️⃣ Wait for Foundry to fully process
+                    await waiters.waitForDomainStability({
+                        actor,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                    })
+
+                    // 4️⃣ Re-fetch item (avoid stale reference)
+                    item = actor.items.get(item.id)
+
+                    // 5️⃣ Ensure update actually applied
+                    await waiters.waitForCondition(() =>
+                    {
+                        const fresh = actor.items.get(item.id)
+                        return fresh?.system.uses.spent === fresh?.system.uses.max
+                    })
+                },
+
+                async ({ actor, runtime, waiters }) =>
+                {
+                    // 6️⃣ Explicitly trigger bloodied
+                    await runtime.services.triggerRuntime.run("bloodied", actor)
+
+                    // 7️⃣ Wait for trigger execution
+                    await waiters.waitForDomainStability({
+                        actor,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
                     })
                 }
             ],
@@ -763,8 +793,8 @@ export const AberrantHorrorTestDef = {
 
             assertions: async ({ actor, expect }) =>
             {
-                expect(actor.system.attributes.hp.temp)
-                    .to.be.equal(0)
+                // Should NOT grant temp HP
+                expect(actor.system.attributes.hp.temp).to.equal(0)
             }
         },
 
@@ -809,7 +839,7 @@ export const AberrantHorrorTestDef = {
                 const walk = actor.system.attributes.movement.walk
 
                 const activityEffects = actor.effects.filter(e =>
-                    e.name == "Chitinous Shell"
+                    e.name == "Chitinous Shell" || e.name == "Poisonous Mutations"
                 )
 
                 expect(activityEffects.length).to.equal(1)
@@ -856,7 +886,7 @@ export const AberrantHorrorTestDef = {
             assertions: async ({ actor, expect }) =>
             {
                 const activityEffects = actor.effects.filter(e =>
-                    e.name == "Eldritch Limbs"
+                    e.name == "Eldritch Limbs" || e.name == "Poisonous Mutations"
                 )
 
                 expect(activityEffects.length).to.equal(1)
@@ -975,7 +1005,7 @@ export const AberrantHorrorTestDef = {
             assertions: async ({ actor, expect }) =>
             {
                 const activityEffects = actor.effects.filter(e =>
-                    e.name == "Slimy Form"
+                    e.name == "Slimy Form" || e.name == "Poisonous Mutations"
                 )
 
                 expect(activityEffects.length).to.equal(1)
@@ -1030,7 +1060,7 @@ export const AberrantHorrorTestDef = {
             assertions: async ({ actor, expect }) =>
             {
                 const activityEffects = actor.effects.filter(e =>
-                    e.name == "Slimy Form"
+                    e.name == "Slimy Form" || e.name == "Poisonous Mutations"
                 )
 
                 expect(activityEffects.length).to.equal(1)
@@ -1091,7 +1121,7 @@ export const AberrantHorrorTestDef = {
             assertions: async ({ actor, expect }) =>
             {
                 const activityEffects = actor.effects.filter(e =>
-                    e.name == "Slimy Form"
+                    e.name == "Slimy Form" || e.name == "Poisonous Mutations"
                 )
 
                 expect(activityEffects.length).to.equal(1)
@@ -1726,10 +1756,14 @@ export const AberrantHorrorTestDef = {
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 10
                     await runtime.services.triggerRuntime.run("savingThrow", actor, {
-                        ability: "wis",
-                        isSpell: true,
-                        naturalRoll: 3,
-                        total: 3
+                        saves: {
+                            current: {
+                                ability: "wis",
+                                isSpell: true,
+                                naturalRoll: 3,
+                                total: 3
+                            }
+                        }
                     })
                 }
             ],
@@ -1780,10 +1814,14 @@ export const AberrantHorrorTestDef = {
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 10
                     await runtime.services.triggerRuntime.run("savingThrow", actor, {
-                        ability: "wis",
-                        isSpell: true,
-                        naturalRoll: 2,
-                        total: 2
+                        saves: {
+                            current: {
+                                ability: "wis",
+                                isSpell: true,
+                                naturalRoll: 2,
+                                total: 2
+                            }
+                        }
                     })
                 }
             ],
@@ -1834,10 +1872,14 @@ export const AberrantHorrorTestDef = {
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 100
                     await runtime.services.triggerRuntime.run("savingThrow", actor, {
-                        ability: "wis",
-                        isSpell: true,
-                        naturalRoll: 2,
-                        total: 2
+                        saves: {
+                            current: {
+                                ability: "wis",
+                                isSpell: true,
+                                naturalRoll: 2,
+                                total: 2
+                            }
+                        }
                     })
                 }
             ],
@@ -1910,6 +1952,504 @@ export const AberrantHorrorTestDef = {
                     "lightning",
                     "thunder"
                 ])
+            }
+        },
+
+        {
+            name: "Poisonous Mutations damage types and dice rolls",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                const poisonousMutations = actor.items.find(i => i.name == "Poisonous Mutations")
+                expect(poisonousMutations).to.exist
+
+                const activities = poisonousMutations.system.activities.contents
+                expect(activities.length).to.be.equal(1)
+
+                const activityDamageParts = activities[0].damage.parts[0]
+                expect(activityDamageParts.denomination).to.be.equal(6)
+                expect(activityDamageParts.number).to.be.equal(3)
+
+                const availableDamageTypes = activityDamageParts.types
+                expect(availableDamageTypes).to.include.members([
+                    "poison",
+                ])
+
+                const effects = poisonousMutations.effects
+                expect(effects.size).to.be.equal(1)
+
+                const effect = effects.contents[0]
+                expect(effect.type).to.be.equal("auraeffects.aura")
+                expect(effect.system.collisionTypes).to.include.members(['move'])
+                expect(effect.system.distanceFormula).to.be.equal("1")
+            }
+        },
+
+        {
+            name: "Poisonous Mutations applied when Chitinous Shell is activated",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Aberrant Mutation",
+                        effectName: "Chitinous Shell",
+                        macroTrigger: "on"
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+            assertions: async ({ actor, expect }) =>
+            {
+                const activityEffects = actor.effects.filter(e =>
+                    e.name == "Chitinous Shell" || e.name == "Poisonous Mutations"
+                )
+
+                expect(activityEffects.length).to.equal(2)
+            }
+        },
+
+        {
+            name: "Poisonous Mutations applied when Eldritch Limbs is activated",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Aberrant Mutation",
+                        effectName: "Eldritch Limbs",
+                        macroTrigger: "on"
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+            assertions: async ({ actor, expect }) =>
+            {
+                const activityEffects = actor.effects.filter(e =>
+                    e.name == "Eldritch Limbs" || e.name == "Poisonous Mutations"
+                )
+
+                expect(activityEffects.length).to.equal(2)
+            }
+        },
+
+        {
+            name: "Poisonous Mutations applied when Slimy Form is activated",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Aberrant Mutation",
+                        effectName: "Slimy Form",
+                        macroTrigger: "on"
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+            assertions: async ({ actor, expect }) =>
+            {
+                const activityEffects = actor.effects.filter(e =>
+                    e.name == "Slimy Form" || e.name == "Poisonous Mutations"
+                )
+
+                expect(activityEffects.length).to.equal(2)
+            }
+        },
+
+        {
+            name: "Entropic Abomination applied when actor is bloodied and result on rolltable is lower than current",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            steps: [
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                },
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 26
+                }
+            ],
+
+            trigger: "bloodied",
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.effects.find(e => e.name == "Aberrant Confusion")
+                )
+            },
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(actor.effects.contents.length).to.be.equal(1)
+                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+            }
+        },
+
+        {
+            name: "Entropic Abomination not applied when actor is bloodied and result on rolltable is not lower than current",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            steps: [
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 26
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                },
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                }
+            ],
+
+            trigger: "bloodied",
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(actor.effects.contents.length).to.be.equal(1)
+                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+            }
+        },
+
+        {
+            name: "Entropic Abomination applied when actor fails saving throw and result on rolltable is lower than current",
+
+            setup: async ({ actor }) =>
+            {
+                globalThis.___TransformationTestEnvironment___.saveResult = 5
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            steps: [
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                },
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 26
+                    await runtime.services.triggerRuntime.run("savingThrow", actor, {
+                        saves: {
+                            current: {
+                                ability: "wis",
+                                naturalRoll: 3,
+                                total: 3,
+                                success: false
+                            }
+                        }
+                    })
+                }
+            ],
+
+            trigger: "savingThrow",
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.effects.find(e => e.name == "Aberrant Confusion")
+                )
+            },
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(actor.effects.contents.length).to.be.equal(1)
+                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+            }
+        },
+
+        {
+            name: "Entropic Abomination not applied when actor fails saving throw and result on rolltable is not lower than current",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            steps: [
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 26
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                },
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                    await runtime.services.triggerRuntime.run("savingThrow", actor, {
+                        saves: {
+                            current: {
+                                ability: "wis",
+                                naturalRoll: 3,
+                                total: 3,
+                                success: false
+                            }
+                        }
+                    })
+                }
+            ],
+
+            trigger: "savingThrow",
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(actor.effects.contents.length).to.be.equal(1)
+                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+            }
+        },
+
+        {
+            name: "Entropic Abomination not applied when actor succeeds saving throw and result on rolltable is lower than current",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            steps: [
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 93
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                    await waiters.waitForCondition(() =>
+                        actor.effects.find(e => e.name == "Aberrant Slow Speech")
+                    )
+                },
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 26
+                    await runtime.services.triggerRuntime.run("savingThrow", actor, {
+                        ability: "wis",
+                        naturalRoll: 20,
+                        total: 20,
+                        success: true
+                    })
+                }
+            ],
+
+            trigger: "savingThrow",
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(actor.effects.contents.length).to.be.equal(1)
+                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Slow Speech')
             }
         },
     ]
