@@ -200,17 +200,14 @@ export function createActiveEffectRepository({
                 ...flags
             }
         }
-
         return tracker.track(
             (async () =>
             {
                 debouncedTracker.pulse("createEmbeddedDocuments")
-                const [effect] =
-                    await actor.createEmbeddedDocuments(
-                        "ActiveEffect",
-                        [effectData]
-                    )
-
+                const [effect] = await actor.createEmbeddedDocuments(
+                    "ActiveEffect",
+                    [effectData]
+                )
                 return effect ?? null
             })()
         )

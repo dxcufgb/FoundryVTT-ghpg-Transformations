@@ -38,7 +38,7 @@ import { TransformationsDebugApplication } from "./ui/applications/transformatio
 //dev-things
 import { applyTransformationFlags } from "./flags/applyTransformationFlags.js"
 import { transformationFlagEntries } from "./flags/index.js"
-import { createModuleApi } from "./bootstrap/createModulApi.js"
+import { createModuleApi } from "./bootstrap/createModuleApi.js"
 
 //hasRun set to false for dev function.
 let hasRun = false
@@ -168,6 +168,7 @@ Hooks.once("setup", async () =>
         transformationQueryService: services.transformationQueryService,
         game,
         ui,
+        renderTemplate: foundry.applications.handlebars.renderTemplate,
         debouncedTracker: Registry.dependencies.utils.asyncTrackers.debounced,
         constants,
         logger

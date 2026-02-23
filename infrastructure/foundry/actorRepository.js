@@ -295,7 +295,7 @@ export function createActorRepository({
         logger.debug("createActorRepository.setActorHp", { actor, hp, type })
         if (!actor) return
 
-        if (!["value", "temp", "max"].includes(type)) {
+        if (!["value", "temp", "effectiveMax"].includes(type)) {
             throw new Error(`Invalid HP type '${type}'`)
         }
 
@@ -307,6 +307,14 @@ export function createActorRepository({
                 await actor.update({
                     [path]: hp
                 })
+
+                if (type == "effectiveMax") {
+                    const valuePath = `system.attributes.hp.value`
+
+                    await actor.update({
+                        [valuePath]: hp
+                    })
+                }
             })()
         )
     }

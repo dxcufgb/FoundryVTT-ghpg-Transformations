@@ -47,6 +47,7 @@ export function registerItemActionTests({ describe, it, expect })
                 consumeUses: async (item, uses) =>
                 {
                     calls.push({ fn: "consume", uses })
+                    item.remaining -= uses
                 },
 
                 removeBySourceUuid: async (a, uuid) =>
@@ -96,13 +97,29 @@ export function registerItemActionTests({ describe, it, expect })
 
         it("consumes item uses when enough remain", async function()
         {
-
-            fakeRepo.__item = { name: "Test Item", remaining: 3 }
+            const uuid = "test-uuid"
+            const tempItem = {
+                name: "Test Item",
+                remaining: 3,
+                flags: {
+                    transformations: {
+                        sourceUuid: uuid
+                    }
+                },
+                uses: 0,
+                system: {
+                    uses: {
+                        max: 3,
+                        spent: 0
+                    }
+                }
+            }
+            fakeRepo.__item = tempItem
 
             const result = await handler({
-                actor,
+                actor: { items: [tempItem] },
                 action: {
-                    data: { mode: "consume", uuid: "test-uuid", uses: 2 }
+                    data: { mode: "consume", uuid: uuid, uses: 2 }
                 }
             })
 

@@ -6,29 +6,29 @@ import { teardownAllTest } from "../../testLifecycle.js"
 import { runTransformationTestSuite } from "./runTransformationTestSuite.js"
 import { TransformationSubclassTestRegistry } from "./subclassesTests.js"
 
-quench.registerBatch(
-    "transformations.subClasses",
-    ({ describe, it, assert, expect }) =>
-    {
-        const existingActorIds = game.actors.map(actor => actor.id)
-
-        after(async function()
+for (const entry of TransformationSubclassTestRegistry) {
+    quench.registerBatch(
+        `transformations.subClasses.${entry.testIdentifier}`,
+        ({ describe, it, assert, expect }) =>
         {
-            await wait(200)
-            const existingIdSet = new Set(existingActorIds)
+            const existingActorIds = game.actors.map(actor => actor.id)
 
-            const testActorIds = game.actors
-                .filter(actor => !existingIdSet.has(actor.id))
-                .map(actor => actor.id)
+            after(async function()
+            {
+                await wait(200)
+                const existingIdSet = new Set(existingActorIds)
 
-            await teardownAllTest(testActorIds)
-        })
-        for (const entry of TransformationSubclassTestRegistry) {
+                const testActorIds = game.actors
+                    .filter(actor => !existingIdSet.has(actor.id))
+                    .map(actor => actor.id)
+
+                await teardownAllTest(testActorIds)
+            })
 
             runTransformationTestSuite({
                 mochaFunctions: { describe, it, assert, expect },
                 testDef: entry.testDefinition
             })
         }
-    }
-)
+    )
+}

@@ -4,6 +4,7 @@ export function registerActorHooks({
     transformationQueryService,
     game,
     ui,
+    renderTemplate,
     debouncedTracker,
     dialogFactory,
     logger,
@@ -51,7 +52,7 @@ export function registerActorHooks({
             transformations
         })
 
-        injectTransformationLegendInTraitsTab(game, ui, app, html, transformationTypes, config.editable, logger)
+        injectTransformationLegendInTraitsTab(renderTemplate, game, ui, app, html, transformationTypes, config.editable, logger)
     })
 
     Hooks.on("updateActor", (actor, diff, options, userId) =>
@@ -84,9 +85,10 @@ function getPillsContainer(app, logger)
 
 }
 
-async function injectTransformationLegendInTraitsTab(game, ui, app, html, transformationTypes, editMode, logger)
+async function injectTransformationLegendInTraitsTab(renderTemplate, game, ui, app, html, transformationTypes, editMode, logger)
 {
     logger.debug("injectTransformationLegendInTraitsTab", {
+        renderTemplate,
         game,
         ui,
         app,

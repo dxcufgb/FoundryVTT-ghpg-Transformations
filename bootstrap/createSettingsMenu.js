@@ -19,7 +19,7 @@ export function createSettingsMenu({
             info: "Info",
             debug: "Debug"
         },
-        default: "Error"
+        default: "Warning"
     })
 
     game.settings.registerMenu(MODULE_ID, "debugMenu", {

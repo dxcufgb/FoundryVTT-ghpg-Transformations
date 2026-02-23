@@ -10,16 +10,18 @@ export class AberrantTemporaryVitalityBoost extends AberrantEffect
         }
     }
 
-    constructor(args) {
+    constructor (args)
+    {
         args?.logger?.debug?.("AberrantTemporaryVitalityBoost.constructor", { args })
         super(args)
         this.description =
             "Your flesh becomes more hardy. You start the day with 4 Temporary Hit Points per Transformation Stage."
     }
 
-    async beforeApply() {
+    async beforeApply()
+    {
         this.logger?.debug?.("AberrantTemporaryVitalityBoost.beforeApply", {})
-        const bonus = this.actor.flags.transformations.stage * 4
+        const bonus = (this.actor.flags.transformations.stage ? this.actor.flags.transformations.stage : 0) * 4
         await this.actorRepository.setActorHp(this.actor, bonus, "temp")
         this.runActiveEffect = false
     }

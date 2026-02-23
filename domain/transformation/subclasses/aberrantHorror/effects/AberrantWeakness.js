@@ -1,6 +1,7 @@
-import { AberrantEffect } from "../aberrantEffect.js";
+import { AberrantEffect } from "../aberrantEffect.js"
 
-export class AberrantWeakness extends AberrantEffect {
+export class AberrantWeakness extends AberrantEffect
+{
     static meta = {
         name: "Aberrant Weakness",
         rollRanges: {
@@ -9,24 +10,27 @@ export class AberrantWeakness extends AberrantEffect {
         }
     }
 
-    constructor(args) {
+    constructor (args)
+    {
         args?.logger?.debug?.("AberrantWeakness.constructor", { args })
-        super(args);
+        super(args)
         this.description =
-            "Your form becomes fragile. Your Hit Point Maximum is half your normal maximum";
+            "Your form becomes fragile. Your Hit Point Maximum is half your normal maximum"
     }
 
-    async beforeApply() {
+    async beforeApply()
+    {
         this.logger?.debug?.("AberrantWeakness.beforeApply", {})
-        const newMax = this.actor.system.attributes.hp.max / 2;
-
+        const newMax = Math.ceil(this.actor.system.attributes.hp.max / 2)
+        const newActorHp = this.actor.system.attributes.hp.max - newMax
+        this.actor.system.attributes.hp.value = newActorHp
         this.addEffects(
-            this.effectChangeBuilder.getSystemEffectChange(
-                this.constants.ATTRIBUTE.HEALT_POINTS_MAX,
-                newMax,
-                CONST.ACTIVE_EFFECT_MODES.OVERRIDE
-            )
-        );
+            {
+                key: "system.attributes.hp.tempmax",
+                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                value: -(newMax)
+            },
+        )
     }
 }
 

@@ -1,6 +1,7 @@
-import { AberrantEffect } from "../aberrantEffect.js";
+import { AberrantEffect } from "../aberrantEffect.js"
 
-export class AberrantPowerfullLowerLimbs extends AberrantEffect {
+export class AberrantPowerfullLowerLimbs extends AberrantEffect
+{
     static meta = {
         name: "Aberrant Powerfull Lower Limbs",
         rollRanges: {
@@ -9,17 +10,22 @@ export class AberrantPowerfullLowerLimbs extends AberrantEffect {
             3: [94, 100]
         }
     }
-    constructor(args) {
+    constructor (args)
+    {
         args?.logger?.debug?.("AberrantPowerfulLowerLimbs.constructor", { args })
-        super(args);
+        super(args)
         this.description =
-            "Your lower limbs become more powerful. Your Speed increases by 5 feet";
+            "Your lower limbs become more powerful. Your Speed increases by 5 feet"
     }
 
-    async beforeApply() {
+    async beforeApply()
+    {
         this.logger?.debug?.("AberrantPowerfulLowerLimbs.beforeApply", {})
-        const effects = this.actorRepository.setMovementBonus(this.actor, 5);
-        this.addEffects(effects);
+        this.addEffects({
+            key: "system.attributes.movement.bonus",
+            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+            value: 5
+        })
     }
 }
 

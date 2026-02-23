@@ -1,7 +1,9 @@
-// test/definitions/aberrantHorror.testdef.js
+import { ABILITY, ATTRIBUTE, ROLL_TYPE, SKILL } from "../../../../config/constants.js"
 
+// test/definitions/aberrantHorror.testdef.js
 export const AberrantHorrorTestDef = {
     id: "aberrant-horror",
+    rollTableOrigin: "Unstable Form",
     scenarios: [
         {
             name: "stage 1",
@@ -2450,6 +2452,249 @@ export const AberrantHorrorTestDef = {
             {
                 expect(actor.effects.contents.length).to.be.equal(1)
                 expect(actor.effects.contents[0].name).to.be.equal('Aberrant Slow Speech')
+            }
+        },
+    ],
+
+    rollTableEffects: [
+        {
+            name: "Aberrant Resilience",
+            key: "AberrantResilience",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .validateDeathSavingThrowAdvantage()
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Temporary Vitality Boost",
+            key: "AberrantTemporaryVitalityBoost",
+            setup: async ({ actor, helpers }) =>
+            {
+                await actor.setFlag("transformations", "stage", 1)
+            },
+            assertion: async ({ origin, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasHp(4, "temp")
+                    .hasNoEffect(origin)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Powerfull Lower Limbs",
+            key: "AberrantPowerfullLowerLimbs",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasMovementBonus(5)
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant No Effect",
+            key: "AberrantNoEffect",
+            assertion: async ({ origin, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasNoEffect(origin)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Slow Speech",
+            key: "AberrantSlowSpeech",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Slow Speech",
+            key: "AberrantSlowSpeech",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Loss Of Vitality",
+            key: "AberrantLossOfVitality",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Clumsiness",
+            key: "AberrantClumsiness",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasDisadvantage(ABILITY.DEXTERITY, ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage(ABILITY.DEXTERITY, ROLL_TYPE.SAVING_THROW)
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Defenseless",
+            key: "AberrantDefenseless",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasDisadvantage(ABILITY.CONSTITUTION, ROLL_TYPE.SAVING_THROW)
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Distraction",
+            key: "AberrantDistraction",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasDisadvantage(SKILL.PERCEPTION)
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Slugginess",
+            key: "AberrantSlugginess",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Slowness",
+            key: "AberrantSlowness",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasMovementBonus(-15)
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Confusion",
+            key: "AberrantConfusion",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Exhaustion",
+            key: "AberrantExhaustion",
+            assertion: async ({ origin, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasNoEffect(origin)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Disadvantage",
+            key: "AberrantDisadvantage",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                let result = helpers.actorValidators({ actor, assert })
+                    .hasEffect(name)
+                    .hasDisadvantage("acr")
+                    .hasDisadvantage("ani")
+                    .hasDisadvantage("arc")
+                    .hasDisadvantage("ath")
+                    .hasDisadvantage("dec")
+                    .hasDisadvantage("his")
+                    .hasDisadvantage("ins")
+                    .hasDisadvantage("itm")
+                    .hasDisadvantage("inv")
+                    .hasDisadvantage("med")
+                    .hasDisadvantage("nat")
+                    .hasDisadvantage("prc")
+                    .hasDisadvantage("prf")
+                    .hasDisadvantage("per")
+                    .hasDisadvantage("rel")
+                    .hasDisadvantage("slt")
+                    .hasDisadvantage("ste")
+                    .hasDisadvantage("sur")
+                    .hasDisadvantage("str", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("dex", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("con", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("int", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("wis", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("cha", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("str", ROLL_TYPE.SAVING_THROW)
+                    .hasDisadvantage("dex", ROLL_TYPE.SAVING_THROW)
+                    .hasDisadvantage("con", ROLL_TYPE.SAVING_THROW)
+                    .hasDisadvantage("int", ROLL_TYPE.SAVING_THROW)
+                    .hasDisadvantage("wis", ROLL_TYPE.SAVING_THROW)
+                    .hasDisadvantage("cha", ROLL_TYPE.SAVING_THROW)
+                    .hasDisadvantage("concentration", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("death", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("init", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("concentration", ROLL_TYPE.SAVING_THROW)
+                    .hasDisadvantage("death", ROLL_TYPE.SAVING_THROW)
+                    .hasDisadvantage("init", ROLL_TYPE.SAVING_THROW)
+
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Weakness",
+            key: "AberrantWeakness",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasHp(5, "effectiveMax")
+                    .hasHp(5, "value")
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Overload",
+            key: "AberrantOverload",
+            assertion: async ({ origin, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasHp(0, "temp")
+                    .hasHp(0, "value")
+                    .hasDeathSaves(-3)
+                    .hasNoEffect(origin)
+                assert.equal(result, true)
             }
         },
     ]

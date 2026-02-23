@@ -3,5 +3,6 @@ import { AberrantHorrorDefinition } from "../../../../domain/transformation/subc
 
 export const AberrantHorrorTests = {
     definition: AberrantHorrorDefinition,
-    testDefinition: AberrantHorrorTestDef
+    testDefinition: AberrantHorrorTestDef,
+    testIdentifier: "AberrantHorror"
 }

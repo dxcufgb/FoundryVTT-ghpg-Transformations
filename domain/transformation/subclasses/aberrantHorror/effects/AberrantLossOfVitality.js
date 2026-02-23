@@ -1,6 +1,7 @@
-import { AberrantEffect } from "../aberrantEffect.js";
+import { AberrantEffect } from "../aberrantEffect.js"
 
-export class AberrantLossOfVitality extends AberrantEffect {
+export class AberrantLossOfVitality extends AberrantEffect
+{
     static meta = {
         name: "Aberrant Loss Of Vitality",
         rollRanges: {
@@ -10,28 +11,11 @@ export class AberrantLossOfVitality extends AberrantEffect {
             4: [80, 87]
         }
     }
-    constructor(args) {
+    constructor (args)
+    {
         args?.logger?.debug?.("AberrantLossOfVitality.constructor", { args })
-        super(args);
-        this.description =
-            "Imposes disadvantage on constitution ability checks and saving throws";
-    }
-
-    async beforeApply() {
-        this.logger?.debug?.("AberrantLossOfVitality.beforeApply", {})
-        this.addEffects(
-            this.effectChangeBuilder.getDisadvantage(
-                this.constants.ABILITY.CONSTITUTION,
-                this.constants.ROLL_TYPE.ABILITY_CHECK
-            )
-        );
-
-        this.addEffects(
-            this.effectChangeBuilder.getDisadvantage(
-                this.constants.ABILITY.CONSTITUTION,
-                this.constants.ROLL_TYPE.SAVING_THROW
-            )
-        );
+        super(args)
+        this.description = "You cannot add your Constitution modifier to any Hit Point Dice spent to regain Hit Points"
     }
 }
 
