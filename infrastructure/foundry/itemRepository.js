@@ -38,10 +38,6 @@ export function createItemRepository({
         return actor.items.find(item => item.type === type) ?? null
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // Mutations
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
     async function addTransformationItem({
         actor,
         sourceItem,
@@ -87,7 +83,6 @@ export function createItemRepository({
                     }
                 }
 
-                // 3ï¸âƒ£ Create embedded item with canonical flags
                 const data = sourceItem.toObject()
                 data.flags ??= {}
                 data.flags.transformations = {
@@ -97,6 +92,7 @@ export function createItemRepository({
                     isPrerequisite: Boolean(isPrerequisite),
                     addedByTransformation: true
                 }
+                data.flags.ddbimporter = { ignoreItemImport: true }
                 debouncedTracker.pulse("createEmbeddedDocuments")
                 const [created] = await actor.createEmbeddedDocuments("Item", [data])
 
@@ -180,6 +176,7 @@ export function createItemRepository({
                     addedByTransformation: true,
                     ...flags
                 }
+                data.flags.ddbimporter = { ignoreItemImport: true }
                 debouncedTracker.pulse("createEmbeddedDocuments")
                 const [created] = await actor.createEmbeddedDocuments("Item", [data])
 
@@ -211,6 +208,7 @@ export function createItemRepository({
                     sourceUuid: sourceItem.uuid,
                     addedByTransformation: true
                 }
+                data.flags.ddbimporter = { ignoreItemImport: true }
                 debouncedTracker.pulse("createEmbeddedDocuments")
                 const [created] = await actor.createEmbeddedDocuments("Item", [itemData])
 
