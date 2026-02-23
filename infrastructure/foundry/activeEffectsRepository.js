@@ -192,6 +192,9 @@ export function createActiveEffectRepository({
             duration,
             origin,
             flags: {
+                ddbimporter: {
+                    ignoreItemImport: true
+                },
                 transformations: {
                     addedByTransformation: true,
                     source,
