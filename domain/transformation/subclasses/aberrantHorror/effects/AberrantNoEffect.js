@@ -2,6 +2,7 @@ import { AberrantEffect } from "../aberrantEffect.js";
 
 export class AberrantNoEffect extends AberrantEffect {
     static meta = {
+        name: "Aberrant No Effect",
         rollRanges: {
             1: [65, 79],
             2: [80, 87],

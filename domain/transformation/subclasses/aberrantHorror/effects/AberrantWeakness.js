@@ -2,6 +2,7 @@ import { AberrantEffect } from "../aberrantEffect.js";
 
 export class AberrantWeakness extends AberrantEffect {
     static meta = {
+        name: "Aberrant Weakness",
         rollRanges: {
             3: [1, 1],
             4: [3, 4]

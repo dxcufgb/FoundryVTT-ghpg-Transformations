@@ -2,6 +2,7 @@ import { AberrantEffect } from "../aberrantEffect.js";
 
 export class AberrantSlowSpeech extends AberrantEffect {
     static meta = {
+        name: "Aberrant Slow Speech",
         rollRanges: {
             1: [57, 64],
             2: [65, 79],

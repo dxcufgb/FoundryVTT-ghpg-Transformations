@@ -5,6 +5,7 @@ import { createDependencies } from "./bootstrap/createDependencies.js"
 import { createInfrastructure } from "./bootstrap/createInfrastructure.js"
 import { createServices } from "./bootstrap/createServices.js"
 import { registerTransformationMacros } from "./bootstrap/registerTransformtaionsMacros.js"
+import { createSettingsMenu } from "./bootstrap/createSettingsMenu.js"
 // constants
 import * as constants from "./config/constants.js"
 
@@ -32,10 +33,12 @@ import { bootstrapMacros } from "./macros/createMacros.js"
 import { createUi } from "./ui/createUi.js"
 import { registerActorSheetControlsAdapter } from "./ui/adapters/actorSheetControlsAdapter.js"
 import { UiAccessor } from "./bootstrap/uiAccessor.js"
+import { TransformationsDebugApplication } from "./ui/applications/transformationsEffectDebugApplication.js"
 
 //dev-things
 import { applyTransformationFlags } from "./flags/applyTransformationFlags.js"
 import { transformationFlagEntries } from "./flags/index.js"
+import { createModuleApi } from "./bootstrap/createModulApi.js"
 
 //hasRun set to false for dev function.
 let hasRun = false
@@ -112,8 +115,6 @@ Hooks.once("setup", async () =>
     const { dependencies, infrastructure, logger } = Registry
 
     await game.ready
-
-    if (game.user.isGM) Registry.logger.setLogLevel(5)
 
     const services = createServices({
         dependencies,
@@ -238,6 +239,7 @@ Hooks.once("setup", async () =>
     mod.api = {
         getTransformations()
         {
+            logger.debug("mod.api.getTransformations called")
             return Registry.services
                 .transformationRegistry
                 .getAllEntries()
@@ -245,11 +247,21 @@ Hooks.once("setup", async () =>
 
         getTransformationById(id)
         {
+            logger.debug("mod.api.getTransformationById called")
             return Registry.services
                 .transformationRegistry
                 .getEntryByItemId(id)
         }
     }
+
+    createSettingsMenu({
+        MODULE_ID: constants.MODULE_NAME,
+        game,
+        TransformationsDebugApplication
+    })
+
+    Registry.logger.setLogLevel(game.settings.get(constants.MODULE_NAME, "loggerLevel"))
+    if (game.user.isGM) Registry.logger.setLogLevel(5)
 
     console.log("Transformations | Setup complete")
 })
@@ -278,7 +290,11 @@ Hooks.once("ready", async () =>
 
         await macros.executeMacro(data.payload)
     })
-    game.transformations = macros
+    createModuleApi({
+        game,
+        macros,
+        Registry
+    })
 
     if (!game.user.isGM) return
 

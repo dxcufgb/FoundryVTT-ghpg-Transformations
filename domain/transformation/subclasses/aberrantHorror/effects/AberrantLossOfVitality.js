@@ -2,6 +2,7 @@ import { AberrantEffect } from "../aberrantEffect.js";
 
 export class AberrantLossOfVitality extends AberrantEffect {
     static meta = {
+        name: "Aberrant Loss Of Vitality",
         rollRanges: {
             1: [49, 56],
             2: [57, 64],

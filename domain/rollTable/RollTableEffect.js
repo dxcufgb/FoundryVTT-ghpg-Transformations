@@ -6,7 +6,7 @@ export class RollTableEffect
         // Ensure meta always exists
         const meta = this._meta ?? {}
 
-        // Default key.name â†’ class name
+        // Default key.name / class name
         meta.key ??= {}
         meta.key.name ??= this.name
 
@@ -18,6 +18,11 @@ export class RollTableEffect
     {
         this._logger?.debug?.("RollTableEffect.meta.set", { value })
         this._meta = value
+    }
+
+    get meta()
+    {
+        return this.constructor.meta
     }
 
     constructor ({

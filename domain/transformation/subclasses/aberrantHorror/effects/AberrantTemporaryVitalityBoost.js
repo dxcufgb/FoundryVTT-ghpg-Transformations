@@ -3,6 +3,7 @@ import { AberrantEffect } from "../aberrantEffect.js"
 export class AberrantTemporaryVitalityBoost extends AberrantEffect
 {
     static meta = {
+        name: "Aberrant Temporary Vitality Boost",
         rollRanges: {
             1: [88, 93],
             2: [94, 100]

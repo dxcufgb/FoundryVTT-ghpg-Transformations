@@ -1,25 +1,29 @@
-import { AberrantEffect } from "../aberrantEffect.js";
+import { AberrantEffect } from "../aberrantEffect.js"
 
-export class AberrantResilience extends AberrantEffect {
-    static meta = {
+export class AberrantResilience extends AberrantEffect
+{
+    static _meta = {
+        name: "Aberrant Resilience",
         rollRanges: {
             1: [94, 100]
         }
     }
-    constructor(args) {
+    constructor (args)
+    {
         args?.logger?.debug?.("AberrantResilience.constructor", { args })
-        super(args);
+        super(args)
         this.description =
-            "Your bodyâ€™s systems are enhanced. You have Advantage on Death Saving Throws";
+            "Your body's systems are enhanced. You have Advantage on Death Saving Throws"
     }
 
-    async beforeApply() {
+    async beforeApply()
+    {
         this.logger?.debug?.("AberrantResilience.beforeApply", {})
         this.addEffects([{
             key: "flags.midi-qol.advantage.deathSave",
             mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
             value: true
-        }]);
+        }])
     }
 }
 

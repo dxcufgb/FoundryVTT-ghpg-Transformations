@@ -2,6 +2,7 @@ import { AberrantEffect } from "../aberrantEffect.js";
 
 export class AberrantPowerfullLowerLimbs extends AberrantEffect {
     static meta = {
+        name: "Aberrant Powerfull Lower Limbs",
         rollRanges: {
             1: [80, 87],
             2: [88, 93],
