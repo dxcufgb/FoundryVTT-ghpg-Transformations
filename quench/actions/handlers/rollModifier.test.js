@@ -1,0 +1,182 @@
+import { createRollModifierAction } from "../../../services/actions/handlers/rollModifier.js"
+import { setupTest, tearDownEachTest } from "../../testLifecycle.js"
+
+export function registerRollModifierActionTests({ describe, it, expect })
+{
+    describe("Roll Modifier Action Handler", function()
+    {
+
+        let actor
+        let handler
+        let fakeTracker
+
+        beforeEach(async function()
+        {
+            ({ actor, fakeTracker } = await setupTest({
+                currentTest: this.currentTest,
+                createObjects: {
+                    actor: { options: { race: "humanoid" } },
+                    fakeTracker: {}
+                }
+            }))
+
+            handler = createRollModifierAction({
+                tracker: fakeTracker,
+                logger: console
+            })
+        })
+
+        afterEach(async function()
+        {
+            await tearDownEachTest()
+        })
+
+        it("removes modifier string from a single roll", async function()
+        {
+            const context = {
+                rolls: [
+                    {
+                        parts: ["1d8 + @abilities.con.mod"]
+                    }
+                ]
+            }
+
+            const result = await handler({
+                actor,
+                action: {
+                    mode: {
+                        type: "remove",
+                        string: "+ @abilities.con.mod"
+                    }
+                },
+                context
+            })
+
+            expect(result).to.equal(true)
+            expect(context.rolls[0].parts[0])
+                .to.equal("1d8")
+        })
+
+        it("removes modifier from multiple rolls", async function()
+        {
+            const context = {
+                rolls: [
+                    { parts: ["1d8 + @abilities.con.mod"] },
+                    { parts: ["1d10 + @abilities.con.mod"] }
+                ]
+            }
+
+            await handler({
+                actor,
+                action: {
+                    mode: {
+                        type: "remove",
+                        string: "+ @abilities.con.mod"
+                    }
+                },
+                context
+            })
+
+            expect(context.rolls[0].parts[0]).to.equal("1d8")
+            expect(context.rolls[1].parts[0]).to.equal("1d10")
+        })
+
+        it("does not modify non-string roll parts", async function()
+        {
+            const context = {
+                rolls: [
+                    {
+                        parts: [
+                            "1d8 + @abilities.con.mod",
+                            5,
+                            { foo: "bar" }
+                        ]
+                    }
+                ]
+            }
+
+            await handler({
+                actor,
+                action: {
+                    mode: {
+                        type: "remove",
+                        string: "+ @abilities.con.mod"
+                    }
+                },
+                context
+            })
+
+            expect(context.rolls[0].parts[1]).to.equal(5)
+            expect(context.rolls[0].parts[2])
+                .to.deep.equal({ foo: "bar" })
+        })
+
+        it("returns false when context.rolls is missing", async function()
+        {
+            const result = await handler({
+                actor,
+                action: {
+                    mode: {
+                        type: "remove",
+                        string: "+ @abilities.con.mod"
+                    }
+                },
+                context: {}
+            })
+
+            expect(result).to.equal(false)
+        })
+
+        it("returns false when mode type does not match", async function()
+        {
+            const context = {
+                rolls: [
+                    { parts: ["1d8 + @abilities.con.mod"] }
+                ]
+            }
+
+            const result = await handler({
+                actor,
+                action: {
+                    mode: {
+                        type: "somethingElse",
+                        string: "+ @abilities.con.mod"
+                    }
+                },
+                context
+            })
+
+            expect(result).to.equal(false)
+            expect(context.rolls[0].parts[0])
+                .to.equal("1d8 + @abilities.con.mod")
+        })
+
+        it("removes all occurrences of the string if present multiple times", async function()
+        {
+            const context = {
+                rolls: [
+                    {
+                        parts: [
+                            "1d8 + @abilities.con.mod + @abilities.con.mod"
+                        ]
+                    }
+                ]
+            }
+
+            await handler({
+                actor,
+                action: {
+                    mode: {
+                        type: "remove",
+                        string: "+ @abilities.con.mod"
+                    }
+                },
+                context
+            })
+
+            expect(context.rolls[0].parts[0])
+                .to.equal("1d8")
+        })
+
+    })
+}

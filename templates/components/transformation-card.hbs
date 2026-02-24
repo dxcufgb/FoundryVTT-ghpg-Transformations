@@ -1,0 +1,44 @@
+<fieldset class="card transformation-card">
+    <legend>Transformation</legend>
+  
+    <div class="form-group">
+      <label>Transformation Type</label>
+  
+      {{#if editable}}
+        <select id="transformation-type" data-action="change-type">
+          {{#each types}}
+            <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>
+              {{this.label}}
+            </option>
+          {{/each}}
+        </select>
+      {{else}}
+        <select id="transformation-type" disabled>
+          <option>{{selectedTypeLabel}}</option>
+        </select>
+      {{/if}}
+  
+      <p class="hint">Current supernatural transformation affecting the character.</p>
+    </div>
+  
+    <div class="form-group">
+      <label>Transformation Stage</label>
+  
+      {{#if editable}}
+        <select id="transformation-stage" data-action="change-stage">
+          {{#each stages}}
+            <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>
+              {{this.label}}
+            </option>
+          {{/each}}
+        </select>
+      {{else}}
+        <select id="transformation-stage" disabled>
+          <option>{{selectedStageLabel}}</option>
+        </select>
+      {{/if}}
+  
+      <p class="hint">Represents progression or control over the transformation.</p>
+    </div>
+  </fieldset>
+  

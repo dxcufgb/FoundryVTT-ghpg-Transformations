@@ -1,0 +1,20 @@
+<div class="transformation-config-stage-wrapper">
+    <section style="margin-top:10px; display: flex; justify-content: center;"
+        class="flexcol transformation-stage-config">
+        <fieldset class="card">
+            <legend>Transformation Stage</legend>
+            <div style="display: flex; justify-content: center; flex-direction: column;" class="form-group">
+                <h4 style="margin:auto">{{selectedTransformationName}}</h4>
+            </div>
+            <div style="display: flex; justify-content: center; flex-direction: column;" class="form-group">
+                <h4 style="margin:auto">Current Stage: {{transformationStage}}</h4>
+            </div>
+        </fieldset>
+    </section>
+
+    <footer style="margin-top:10px; display: flex; justify-content: space-around;" class="sheet-footer">
+        <button style="padding-right: 15px; padding-left: 15px" type="submit" data-action="stageUp">
+            Level up transformation stage
+        </button>
+    </footer>
+</div>

@@ -1,0 +1,46 @@
+<form>
+    <div style="margin-top:15px" class="form-group">
+      <label>Actor</label>
+      <select style="margin-top:5px" id="actor-select">
+        {{#each actors}}
+          <option value="{{this.id}}"
+            {{#if (eq this.id ../selectedActorId)}}selected{{/if}}>
+            {{this.name}}
+          </option>
+        {{/each}}
+      </select>
+    </div>
+  
+    <div style="margin-top:15px" class="form-group">
+      <label>Transformation Type</label>
+      <select style="margin-top:5px" id="transformation-type">
+        <option value="">Select Type</option>
+        {{#each transformationTypes}}
+          <option value="{{this.value}}"
+            {{#if (eq this.value ../selectedType)}}selected{{/if}}>
+            {{this.label}}
+          </option>
+        {{/each}}
+      </select>
+    </div>
+  
+    <div style="margin-top:15px" class="form-group">
+      <label>Effect</label>
+      <select style="margin-top:5px" id="effect-select">
+        <option value="">Select Effect</option>
+        {{#each effects}}
+          <option value="{{this.value}}"
+            {{#if (eq this.value ../selectedEffectId)}}selected{{/if}}>
+            {{this.label}}
+          </option>
+        {{/each}}
+      </select>
+    </div>
+
+    <div style="margin-top:15px">
+        <button type="button" id="apply-effect">
+        Apply Effect to Actor
+        </button>
+    </div>
+  </form>
+  
