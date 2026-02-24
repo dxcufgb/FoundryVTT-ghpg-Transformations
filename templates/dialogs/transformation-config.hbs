@@ -1,0 +1,27 @@
+<div class="transformation-config-wrapper">
+    <section class="flexcol transformation-config">
+        <fieldset class="card">
+            <legend>Transformation</legend>
+            <ol name="transformation" class="unlist form-grid form-grid-50 types-list" style="width:500px; --type-rows: {{ rows }};">
+                {{#each transformations as |t|}}
+                <li class="type-row transformation-option">
+                    <input type="radio" id="transformation-type-{{t.itemId}}" name="transformation" value="{{t.itemId}}"
+                        class="transformation-radio" {{#if t.active }}checked{{/if}}>
+                    <label for="transformation-type-{{t.itemId}}" class="transformation-button">
+                        <img class="transformation-image" src="{{t.img}}" alt="{{t.name}}">
+                        <span class="transformation-label">
+                            {{t.name}}
+                        </span>
+                    </label>
+                </li>
+                {{/each}}
+            </ol>
+        </fieldset>
+    </section>
+
+    <footer style="margin-top:10px; display: flex; justify-content: space-around;" class="sheet-footer">
+        <button style="padding-right: 15px; padding-left: 15px" data-action="save">
+            Set Transformation
+        </button>
+    </footer>
+</div>

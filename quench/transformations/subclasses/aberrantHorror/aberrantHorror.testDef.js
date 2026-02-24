@@ -1,0 +1,2701 @@
+import { ABILITY, ATTRIBUTE, ROLL_TYPE, SKILL } from "../../../../config/constants.js"
+
+// test/definitions/aberrantHorror.testdef.js
+export const AberrantHorrorTestDef = {
+    id: "aberrant-horror",
+    rollTableOrigin: "Unstable Form",
+    scenarios: [
+        {
+            name: "stage 1",
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+                    "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                    "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT"
+                ]
+                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+                helpers.expectRaceItemSubTypeOnActor(runtime, "Aberration", actor, expect)
+            }
+        },
+        {
+            name: "stage 2 with Efficient Killer",
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+
+                }
+            ],
+
+            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+                    "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                    "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT",
+                    "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+                    "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
+                ]
+                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+            }
+        },
+        {
+            name: "stage 2 with Writhing Tendrils",
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+
+                }
+            ],
+
+            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+                    "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                    "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT",
+                    "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+                    "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E"
+                ]
+                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+            }
+        },
+        {
+            name: "stage 3 with Terrifying Visage due to no options",
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+
+                },
+                {
+                    stage: 3,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+                    "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                    "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz",
+                    "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+                    "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
+                    "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat"
+                ]
+                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+            }
+        },
+        {
+            name: "stage 3 with Constricting Tendrils",
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+                    "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                    "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz",
+                    "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+                    "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5"
+                ]
+                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+            }
+        },
+        {
+            name: "stage 3 with Terrifying Visage as an option",
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+                    "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                    "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz",
+                    "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+                    "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat"
+                ]
+                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+            }
+        },
+        {
+            name: "stage 4 Entropic Abomation with no actor spell slots",
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+                    "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                    "Compendium.transformations.gh-transformations.Item.bZIioCqc5wwEUdKG",
+                    "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+                    "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
+                    "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                ]
+                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+            }
+        },
+        {
+            name: "stage 4 Entropic Abomation with actor spell slots",
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "system.spells.spell1.override": 1,
+                    "system.spells.spell1.value": 1
+                })
+            },
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+                    "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                    "Compendium.transformations.gh-transformations.Item.bZIioCqc5wwEUdKG",
+                    "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+                    "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
+                    "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                ]
+                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+            }
+        },
+        {
+            name: "stage 4 Poisonouse Mutations with actor spell slots",
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "system.spells.spell1.override": 1,
+                    "system.spells.spell1.value": 1
+                })
+            },
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.Q0c1NafrnW9C7tDz",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+                    "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                    "Compendium.transformations.gh-transformations.Item.bZIioCqc5wwEUdKG",
+                    "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+                    "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                    "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
+                    "Compendium.transformations.gh-transformations.Item.Q0c1NafrnW9C7tDz"
+                ]
+                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+            }
+        },
+
+        {
+            name: "Long rest triggers mutation roll and applies Aberrant Slow Speech, stage 1",
+
+            setup: async ({ runtime }) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                globalThis.___TransformationTestEnvironment___.rollTableResult = 60
+            },
+
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            1
+                        )
+                    }
+                },
+                {
+                    trigger: "longRest"
+                }
+            ],
+
+            finalAwait: async ({ actor, waiters }) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.effects.filter(e =>
+                        e.origin?.includes("Unstable Form")
+                    ).length > 0
+                )
+            },
+
+            finalAssertions: async ({ actor, expect }) =>
+            {
+                // 1️⃣ Chat message
+                const rollMessages = game.messages.filter(m =>
+                    m.flags?.core?.RollTable !== undefined
+                )
+
+                expect(rollMessages.length).to.equal(1)
+
+                const message = rollMessages[0]
+                expect(message.flavor)
+                    .to.contain("Unstable Form Stage 1")
+
+                // 2️⃣ Effect applied
+                const mutationEffects = actor.effects.filter(e =>
+                    e.origin?.includes("Unstable Form")
+                )
+
+                expect(mutationEffects.length).to.equal(1)
+
+                expect(mutationEffects[0].name)
+                    .to.equal("Aberrant Slow Speech")
+            }
+        },
+
+        {
+            name: "Long rest triggers mutation roll and applies Aberrant Slow Speech, stage 2",
+
+            setup: async ({ actor }) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                globalThis.___TransformationTestEnvironment___.rollTableResult = 70
+            },
+
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+
+                },
+                {
+                    trigger: "longRest",
+                }
+            ],
+
+            finalAwait: async ({ runtime, actor, waiters }) => 
+            {
+                await waiters.waitForCondition(() =>
+                    actor.effects.filter(e =>
+                        e.origin?.includes("Unstable Form")
+                    ).length > 0
+                )
+            },
+
+            finalAssertions: async ({ actor, expect }) =>
+            {
+                // 1️⃣ Chat message
+                const rollMessages = game.messages.filter(m =>
+                    m.flags?.core?.RollTable !== undefined
+                )
+
+                expect(rollMessages.length).to.equal(1)
+
+                const message = rollMessages[0]
+                expect(message.flavor)
+                    .to.contain("Unstable Form Stage 2")
+
+                // 2️⃣ Effect applied
+                const mutationEffects = actor.effects.filter(e =>
+                    e.origin?.includes("Unstable Form")
+                )
+
+                expect(mutationEffects.length).to.equal(1)
+
+                expect(mutationEffects[0].name)
+                    .to.equal("Aberrant Slow Speech")
+            }
+        },
+
+        {
+            name: "Long rest triggers mutation roll and applies Aberrant Slow Speech, stage 3",
+
+            setup: async ({ actor }) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                globalThis.___TransformationTestEnvironment___.rollTableResult = 80
+            },
+
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+
+                },
+                {
+                    stage: 3,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    trigger: "longRest",
+                }
+            ],
+
+            finalAwait: async ({ runtime, actor, waiters }) => 
+            {
+                await waiters.waitForCondition(() =>
+                    actor.effects.filter(e =>
+                        e.origin?.includes("Unstable Form")
+                    ).length > 0
+                )
+            },
+
+            finalAssertions: async ({ actor, expect }) =>
+            {
+                // 1️⃣ Chat message
+                const rollMessages = game.messages.filter(m =>
+                    m.flags?.core?.RollTable !== undefined
+                )
+
+                expect(rollMessages.length).to.equal(1)
+
+                const message = rollMessages[0]
+                expect(message.flavor)
+                    .to.contain("Unstable Form Stage 3")
+
+                // 2️⃣ Effect applied
+                const mutationEffects = actor.effects.filter(e =>
+                    e.origin?.includes("Unstable Form")
+                )
+
+                expect(mutationEffects.length).to.equal(1)
+
+                expect(mutationEffects[0].name)
+                    .to.equal("Aberrant Slow Speech")
+            }
+        },
+
+        {
+            name: "Long rest triggers mutation roll and applies Aberrant Slow Speech, stage 4",
+
+            setup: async ({ actor }) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                globalThis.___TransformationTestEnvironment___.rollTableResult = 90
+            },
+
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+
+                },
+                {
+                    stage: 3,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                },
+                {
+                    trigger: "longRest",
+
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForDomainStability({
+                            actor,
+                            asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                        })
+                    }
+                }
+            ],
+
+            finalAwait: async ({ runtime, actor, waiters }) => 
+            {
+                await waiters.waitForCondition(() =>
+                    actor.effects.filter(e =>
+                        e.origin?.includes("Unstable Form")
+                    ).length > 0
+                )
+            },
+
+            finalAssertions: async ({ actor, expect }) =>
+            {
+                // 1️⃣ Chat message
+                const rollMessages = game.messages.filter(m =>
+                    m.flags?.core?.RollTable !== undefined
+                )
+
+                expect(rollMessages.length).to.equal(1)
+
+                const message = rollMessages[0]
+                expect(message.flavor)
+                    .to.contain("Unstable Form Stage 4")
+
+                // 2️⃣ Effect applied
+                const mutationEffects = actor.effects.filter(e =>
+                    e.origin?.includes("Unstable Form")
+                )
+
+                expect(mutationEffects.length).to.equal(1)
+
+                expect(mutationEffects[0].name)
+                    .to.equal("Aberrant Slow Speech")
+            }
+        }
+
+    ],
+
+    itemBehaviorTests: [
+        {
+            name: "Aberrant Form grants temp HP when bloodied",
+
+            requiredPath: [
+                { stage: 1 }
+            ],
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "system.attributes.movement.walk": 30
+                })
+            },
+
+            steps: [
+                async ({ actor, runtime }) =>
+                {
+                    await runtime.services.triggerRuntime.run("bloodied", actor)
+                }
+            ],
+
+            await: async ({
+                waiters,
+                actor
+            }) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.system.attributes.hp.temp > 0
+                )
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                const actorProf = actor.system.attributes.prof
+                expect(actor.system.attributes.hp.temp)
+                    .to.be.equal(1 + actorProf)
+                const item = actor.items.find(i => i.flags.transformations?.sourceUuid == "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu")
+                const usesLeft = item.system.uses.max - item.system.uses.spent
+                expect(usesLeft).to.be.equal(0)
+            }
+        },
+
+        {
+            name: "Aberrant Form only grants temp HP once per rest",
+
+            requiredPath: [
+                { stage: 1 }
+            ],
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "system.attributes.movement.walk": 30
+                })
+            },
+
+            steps: [
+                async ({ actor, runtime, waiters }) =>
+                {
+                    // 1️⃣ Find item fresh
+                    let item = actor.items.find(i =>
+                        i.flags.transformations?.sourceUuid ===
+                        "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu"
+                    )
+
+                    if (!item) throw new Error("Aberrant Form item not found")
+
+                    // 2️⃣ Spend all uses
+                    await item.update({
+                        "system.uses.spent": item.system.uses.max
+                    })
+
+                    // 3️⃣ Wait for Foundry to fully process
+                    await waiters.waitForDomainStability({
+                        actor,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                    })
+
+                    // 4️⃣ Re-fetch item (avoid stale reference)
+                    item = actor.items.get(item.id)
+
+                    // 5️⃣ Ensure update actually applied
+                    await waiters.waitForCondition(() =>
+                    {
+                        const fresh = actor.items.get(item.id)
+                        return fresh?.system.uses.spent === fresh?.system.uses.max
+                    })
+                },
+
+                async ({ actor, runtime, waiters }) =>
+                {
+                    // 6️⃣ Explicitly trigger bloodied
+                    await runtime.services.triggerRuntime.run("bloodied", actor)
+
+                    // 7️⃣ Wait for trigger execution
+                    await waiters.waitForDomainStability({
+                        actor,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                // Should NOT grant temp HP
+                expect(actor.system.attributes.hp.temp).to.equal(0)
+            }
+        },
+
+        {
+            name: "Aberrant Mutation: Chitinous Shell applies AC +2 and -10 movement",
+
+            requiredPath: [
+                { stage: 1 }
+            ],
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "system.attributes.movement.walk": 30
+                })
+            },
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Aberrant Mutation",
+                        effectName: "Chitinous Shell",
+                        macroTrigger: "on"
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+
+                const ac = actor.system.attributes.ac.value
+                const walk = actor.system.attributes.movement.walk
+
+                const activityEffects = actor.effects.filter(e =>
+                    e.name == "Chitinous Shell" || e.name == "Poisonous Mutations"
+                )
+
+                expect(activityEffects.length).to.equal(1)
+
+                expect(ac).to.be.equal(12) // adjust if base known
+                expect(walk).to.be.equal(20)
+            }
+        },
+
+        {
+            name: "Aberrant Mutation: Eldritch Limbs grants weapon",
+
+            requiredPath: [
+                { stage: 1 }
+            ],
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "system.attributes.movement.walk": 30
+                })
+            },
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Aberrant Mutation",
+                        effectName: "Eldritch Limbs",
+                        macroTrigger: "on"
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                const activityEffects = actor.effects.filter(e =>
+                    e.name == "Eldritch Limbs" || e.name == "Poisonous Mutations"
+                )
+
+                expect(activityEffects.length).to.equal(1)
+
+                const weapon = actor.items.find(i =>
+                    i.name === "Eldritch Limbs"
+                )
+
+                expect(weapon).to.exist
+                expect(weapon.type).to.equal("weapon")
+            }
+        },
+
+        {
+            name: "Aberrant Mutation: Eldritch Limbs weapon attacks",
+
+            requiredPath: [
+                { stage: 1 }
+            ],
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "system.attributes.movement.walk": 30
+                })
+            },
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Aberrant Mutation",
+                        effectName: "Eldritch Limbs",
+                        macroTrigger: "on"
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                const weapon = actor.items.find(i =>
+                    i.name === "Eldritch Limbs"
+                )
+
+                expect(weapon).to.exist
+
+                const activity = weapon.system.activities.contents[0]
+                expect(activity).to.exist
+
+                const attackAbilities = activity.availableAbilities
+                expect(attackAbilities.size).to.be.equal(2)
+                expect(attackAbilities).to.include.members([
+                    "str",
+                    "dex"
+                ])
+
+                const damageParts = activity.damage.parts[0]
+                expect(damageParts).to.exist
+
+                const damageTypes = damageParts.types
+                expect(damageTypes.size).to.be.equal(3)
+                expect(damageTypes).to.include.members([
+                    "bludgeoning",
+                    "piercing",
+                    "slashing"
+                ])
+
+                expect(damageParts.number).to.be.equal(1)
+                expect(damageParts.denomination).to.be.equal(8)
+            }
+        },
+
+        {
+            name: "Aberrant Mutation: Slimy Form grants acid, fire and cold resistance",
+
+            requiredPath: [
+                { stage: 1 }
+            ],
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "system.attributes.movement.walk": 30
+                })
+            },
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Aberrant Mutation",
+                        effectName: "Slimy Form",
+                        macroTrigger: "on"
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                const activityEffects = actor.effects.filter(e =>
+                    e.name == "Slimy Form" || e.name == "Poisonous Mutations"
+                )
+
+                expect(activityEffects.length).to.equal(1)
+
+                const resistances = actor.system.traits.dr.value
+
+                expect(resistances).to.include.members([
+                    "acid",
+                    "fire",
+                    "cold"
+                ])
+            }
+        },
+
+        {
+            name: "Switching activities replaces previous effect",
+
+            requiredPath: [
+                { stage: 1 }
+            ],
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Aberrant Mutation",
+                        effectName: "Chitinous Shell",
+                        macroTrigger: "on"
+                    })
+                },
+
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Aberrant Mutation",
+                        effectName: "Slimy Form",
+                        macroTrigger: "on"
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                const activityEffects = actor.effects.filter(e =>
+                    e.name == "Slimy Form" || e.name == "Poisonous Mutations"
+                )
+
+                expect(activityEffects.length).to.equal(1)
+
+                // AC bonus should be gone
+                const ac = actor.system.attributes.ac.value
+
+                expect(ac).to.not.be.greaterThan(12) // adjust if base known
+
+                // Resistances should now exist
+                const resistances = actor.system.traits.dr.value
+
+                expect(resistances).to.include.members([
+                    "acid",
+                    "fire",
+                    "cold"
+                ])
+            }
+        },
+
+        {
+            name: "Switching activities replaces previous effect",
+
+            requiredPath: [
+                { stage: 1 }
+            ],
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Aberrant Mutation",
+                        effectName: "Chitinous Shell",
+                        macroTrigger: "on"
+                    })
+                },
+
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Aberrant Mutation",
+                        effectName: "Slimy Form",
+                        macroTrigger: "on"
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                const activityEffects = actor.effects.filter(e =>
+                    e.name == "Slimy Form" || e.name == "Poisonous Mutations"
+                )
+
+                expect(activityEffects.length).to.equal(1)
+
+                // AC bonus should be gone
+                const ac = actor.system.attributes.ac.value
+
+                expect(ac).to.not.be.greaterThan(12) // adjust if base known
+
+                // Resistances should now exist
+                const resistances = actor.system.traits.dr.value
+
+                expect(resistances).to.include.members([
+                    "acid",
+                    "fire",
+                    "cold"
+                ])
+            }
+        },
+
+        {
+            name: "Efficient killer grants updated Eldritch Limbs",
+
+            requiredPath: [
+                { stage: 1 },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
+                }
+            ],
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "system.attributes.movement.walk": 30
+                })
+            },
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Aberrant Mutation",
+                        effectName: "Eldritch Limbs",
+                        macroTrigger: "on"
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                const bludgeoning = actor.items.find(i =>
+                    i.name === "Eldritch Limbs (Bludgeoning)"
+                )
+
+                const piercing = actor.items.find(i =>
+                    i.name === "Eldritch Limbs (Piercing)"
+                )
+
+                const slashing = actor.items.find(i =>
+                    i.name === "Eldritch Limbs (Slashing)"
+                )
+
+                expect(bludgeoning).to.exist
+                expect(piercing).to.exist
+                expect(slashing).to.exist
+                const weapons = [
+                    {
+                        object: bludgeoning,
+                        numberOfAttackAbilities: 2,
+                        attackAbilities: [
+                            "str",
+                            "dex"
+                        ],
+                        numberOfDamageTypes: 1,
+                        damageTypes: ["bludgeoning"],
+                        damageDenomination: 8,
+                        damageNumber: 2
+                    },
+                    {
+                        object: piercing,
+                        numberOfAttackAbilities: 2,
+                        attackAbilities: [
+                            "str",
+                            "dex"
+                        ],
+                        numberOfDamageTypes: 1,
+                        damageTypes: ["piercing"],
+                        damageDenomination: 6,
+                        damageNumber: 2
+                    },
+                    {
+                        object: slashing,
+                        numberOfAttackAbilities: 2,
+                        attackAbilities: [
+                            "str",
+                            "dex"
+                        ],
+                        numberOfDamageTypes: 1,
+                        damageTypes: ["slashing"],
+                        damageDenomination: 8,
+                        damageNumber: 2
+                    },
+                ]
+
+                for (const weapon of weapons) {
+                    const activity = weapon.object.system.activities.contents[0]
+                    expect(activity).to.exist
+
+                    const attackAbilities = activity.availableAbilities
+                    expect(attackAbilities.size).to.be.equal(weapon.numberOfAttackAbilities)
+                    expect(attackAbilities).to.include.members(weapon.attackAbilities)
+
+                    const damageParts = activity.damage.parts[0]
+                    expect(damageParts).to.exist
+
+                    const damageTypes = damageParts.types
+                    expect(damageTypes.size).to.be.equal(weapon.numberOfDamageTypes)
+                    expect(damageTypes).to.include.members(weapon.damageTypes)
+
+                    expect(damageParts.number).to.be.equal(weapon.damageNumber)
+                    expect(damageParts.denomination).to.be.equal(weapon.damageDenomination)
+                }
+            }
+        },
+
+        {
+            name: "Writhing Tendrils",
+
+            requiredPath: [
+                { stage: 1 },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E"
+                }
+            ],
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "system.attributes.movement.walk": 30
+                })
+            },
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                const prof = actor.system.attributes.prof
+                const writhingTendrils = actor.items.find(i =>
+                    i.name === "Writhing Tendrils"
+                )
+                expect(writhingTendrils).to.exist
+
+                const activities = writhingTendrils.system.activities.contents
+                expect(activities.length).to.be.equal(3)
+
+                const aberrantPushback = activities.find(a => a.name == "Aberrant Pushback")
+                expect(aberrantPushback).to.exist
+                expect(aberrantPushback.activation.type).to.be.equal("reaction")
+                expect(aberrantPushback.save.ability).to.include.members(["str"])
+                expect(aberrantPushback.save.dc.value).to.be.equal(prof + 2 + 8)
+
+                const aberrantDisengage = activities.find(a => a.name == "Aberrant Disengage")
+                expect(aberrantDisengage).to.exist
+                expect(aberrantDisengage.activation.type).to.be.equal("bonus")
+
+                const aberrantAffliction = activities.find(a => a.name == "Aberrant Affliction")
+                expect(aberrantAffliction).to.exist
+                expect(aberrantAffliction.activation.type).to.be.equal("reaction")
+                expect(aberrantAffliction.spell.uuid).to.be.equal("Compendium.transformations.gh-transformations.Item.5t4cjiimldjKmwlK")
+            }
+        },
+
+        {
+            name: "Hideous Appearance hide hideous form",
+
+            requiredPath: [
+                { stage: 1 },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
+                }
+            ],
+
+            steps: [
+
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Hideous Appearance",
+                        effectName: "Hiding Hideous Appearance",
+                        macroTrigger: "on"
+                    })
+                },
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                const activeEffect = actor.effects.find(i => i.name == "Hiding Hideous Appearance")
+                expect(activeEffect).to.exist
+            }
+        },
+
+        {
+            name: "Hideous Appearance saving throw success on bloodied",
+
+            requiredPath: [
+                { stage: 1 },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
+                }
+            ],
+
+            setup: async ({ actor }) =>
+            {
+                globalThis.___TransformationTestEnvironment___.saveResult = 13
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Hideous Appearance",
+                        effectName: "Hiding Hideous Appearance",
+                        macroTrigger: "on"
+                    })
+                },
+            ],
+
+            trigger: "bloodied",
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(globalThis.___TransformationTestEnvironment___.saveRolled).to.be.equal(true)
+                const hideousAppearanceEffect = actor.effects.find(e => e.name == "Hiding Hideous Appearance")
+                expect(hideousAppearanceEffect).to.exist
+            }
+        },
+
+        {
+            name: "Hideous Appearance saving throw fail on bloodied",
+
+            requiredPath: [
+                { stage: 1 },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
+                }
+            ],
+
+            setup: async ({ actor }) =>
+            {
+                globalThis.___TransformationTestEnvironment___.saveResult = 12
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Hideous Appearance",
+                        effectName: "Hiding Hideous Appearance",
+                        macroTrigger: "on"
+                    })
+                },
+            ],
+
+            trigger: "bloodied",
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(globalThis.___TransformationTestEnvironment___.saveRolled).to.be.equal(true)
+                const hideousAppearanceEffect = actor.effects.find(e => e.name == "Hiding Hideous Appearance")
+                expect(hideousAppearanceEffect).to.not.exist
+            }
+        },
+
+        {
+            name: "Hideous Appearance saving throw success on unconscious",
+
+            requiredPath: [
+                { stage: 1 },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
+                }
+            ],
+
+            setup: async ({ actor }) =>
+            {
+                globalThis.___TransformationTestEnvironment___.saveResult = 13
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Hideous Appearance",
+                        effectName: "Hiding Hideous Appearance",
+                        macroTrigger: "on"
+                    })
+                },
+            ],
+
+            trigger: "unconscious",
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(globalThis.___TransformationTestEnvironment___.saveRolled).to.be.equal(true)
+                const hideousAppearanceEffect = actor.effects.find(e => e.name == "Hiding Hideous Appearance")
+                expect(hideousAppearanceEffect).to.exist
+            }
+        },
+
+        {
+            name: "Hideous Appearance saving throw fail on unconscious",
+
+            requiredPath: [
+                { stage: 1 },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
+                }
+            ],
+
+            setup: async ({ actor }) =>
+            {
+                globalThis.___TransformationTestEnvironment___.saveResult = 12
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Hideous Appearance",
+                        effectName: "Hiding Hideous Appearance",
+                        macroTrigger: "on"
+                    })
+                },
+            ],
+
+            trigger: "unconscious",
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(globalThis.___TransformationTestEnvironment___.saveRolled).to.be.equal(true)
+                const hideousAppearanceEffect = actor.effects.find(e => e.name == "Hiding Hideous Appearance")
+                expect(hideousAppearanceEffect).to.not.exist
+            }
+        },
+
+        {
+            name: "Hideous Appearance saving throw success on beginConcentration",
+
+            requiredPath: [
+                { stage: 1 },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
+                }
+            ],
+
+            setup: async ({ actor }) =>
+            {
+                globalThis.___TransformationTestEnvironment___.saveResult = 13
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Hideous Appearance",
+                        effectName: "Hiding Hideous Appearance",
+                        macroTrigger: "on"
+                    })
+                },
+            ],
+
+            trigger: "concentration",
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(globalThis.___TransformationTestEnvironment___.saveRolled).to.be.equal(true)
+                const hideousAppearanceEffect = actor.effects.find(e => e.name == "Hiding Hideous Appearance")
+                expect(hideousAppearanceEffect).to.exist
+            }
+        },
+
+        {
+            name: "Hideous Appearance saving throw fail on beginConcentration",
+
+            requiredPath: [
+                { stage: 1 },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
+                }
+            ],
+
+            setup: async ({ actor }) =>
+            {
+                globalThis.___TransformationTestEnvironment___.saveResult = 12
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Hideous Appearance",
+                        effectName: "Hiding Hideous Appearance",
+                        macroTrigger: "on"
+                    })
+                },
+            ],
+
+            trigger: "concentration",
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(globalThis.___TransformationTestEnvironment___.saveRolled).to.be.equal(true)
+                const hideousAppearanceEffect = actor.effects.find(e => e.name == "Hiding Hideous Appearance")
+                expect(hideousAppearanceEffect).to.not.exist
+            }
+        },
+
+        {
+            name: "Terrifying Visage saving throw details",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
+                            3: "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                const actorProf = actor.system.attributes.prof
+                const terrifyingVisage = actor.items.find(i => i.name == "Terrifying Visage")
+                expect(terrifyingVisage).to.exist
+
+                const activities = terrifyingVisage.system.activities.contents
+                expect(activities.length).to.be.equal(1)
+
+                const terrifyCreature = activities[0]
+                expect(terrifyCreature.name).to.be.equal("Terrify Creature")
+                expect(terrifyCreature.save.ability).to.include.members(["wis"])
+                expect(terrifyCreature.save.dc.value).to.be.equal(8 + actorProf + 3)
+            }
+        },
+
+        {
+            name: "Constricting Tendrils saving throw details",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                const actorProf = actor.system.attributes.prof
+                const constrictingTendrils = actor.items.find(i => i.name == "Constricting Tendrils")
+                expect(constrictingTendrils).to.exist
+
+                const activities = constrictingTendrils.system.activities.contents
+                expect(activities.length).to.be.equal(1)
+
+                const constrict = activities[0]
+                expect(constrict.name).to.be.equal("Constrict")
+                expect(constrict.save.ability).to.include.members([
+                    "str",
+                    "dex"
+                ])
+                expect(constrict.save.dc.value).to.be.equal(8 + actorProf + 3)
+            }
+        },
+
+        {
+            name: "Unstable Existence saving throws results of 3 or higher does not trigger roll on unstable form table",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 }
+            ],
+
+            steps: [
+                async ({ actor, runtime, helpers }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                },
+                async ({ actor, runtime, helpers }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 10
+                    await runtime.services.triggerRuntime.run("savingThrow", actor, {
+                        saves: {
+                            current: {
+                                ability: "wis",
+                                isSpell: true,
+                                naturalRoll: 3,
+                                total: 3
+                            }
+                        }
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(actor.effects.contents.length).to.be.equal(1)
+                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Powerfull Lower Limbs')
+            }
+        },
+
+        {
+            name: "Unstable Existence saving throws results of 2 triggers roll on unstable form table",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 }
+            ],
+
+            steps: [
+                async ({ actor, runtime, helpers }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                },
+                async ({ actor, runtime, helpers }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 10
+                    await runtime.services.triggerRuntime.run("savingThrow", actor, {
+                        saves: {
+                            current: {
+                                ability: "wis",
+                                isSpell: true,
+                                naturalRoll: 2,
+                                total: 2
+                            }
+                        }
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(actor.effects.contents.length).to.be.equal(1)
+                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+            }
+        },
+
+        {
+            name: "Unstable Existence saving throws results of 2 triggers roll on unstable form table, not applied due to not being lower result",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 }
+            ],
+
+            steps: [
+                async ({ actor, runtime, helpers }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 10
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                },
+                async ({ actor, runtime, helpers }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                    await runtime.services.triggerRuntime.run("savingThrow", actor, {
+                        saves: {
+                            current: {
+                                ability: "wis",
+                                isSpell: true,
+                                naturalRoll: 2,
+                                total: 2
+                            }
+                        }
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(actor.effects.contents.length).to.be.equal(1)
+                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+            }
+        },
+
+        {
+            name: "Eldritch Aberration damage types and dice rolls",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.Q0c1NafrnW9C7tDz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                const eldritchAberration = actor.items.find(i => i.name == "Eldritch Aberration")
+                expect(eldritchAberration).to.exist
+                expect(eldritchAberration.type).to.be.equal("spell")
+
+                const activities = eldritchAberration.system.activities.contents
+                expect(activities.length).to.be.equal(1)
+
+                const activityDamageParts = activities[0].damage.parts[0]
+                expect(activityDamageParts.denomination).to.be.equal(6)
+                expect(activityDamageParts.number).to.be.equal(1)
+
+                const availableDamageTypes = activityDamageParts.types
+                expect(availableDamageTypes).to.include.members([
+                    "acid",
+                    "cold",
+                    "fire",
+                    "force",
+                    "lightning",
+                    "thunder"
+                ])
+            }
+        },
+
+        {
+            name: "Poisonous Mutations damage types and dice rolls",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, expect }) =>
+            {
+                const poisonousMutations = actor.items.find(i => i.name == "Poisonous Mutations")
+                expect(poisonousMutations).to.exist
+
+                const activities = poisonousMutations.system.activities.contents
+                expect(activities.length).to.be.equal(1)
+
+                const activityDamageParts = activities[0].damage.parts[0]
+                expect(activityDamageParts.denomination).to.be.equal(6)
+                expect(activityDamageParts.number).to.be.equal(3)
+
+                const availableDamageTypes = activityDamageParts.types
+                expect(availableDamageTypes).to.include.members([
+                    "poison",
+                ])
+
+                const effects = poisonousMutations.effects
+                expect(effects.size).to.be.equal(1)
+
+                const effect = effects.contents[0]
+                expect(effect.type).to.be.equal("auraeffects.aura")
+                expect(effect.system.collisionTypes).to.include.members(['move'])
+                expect(effect.system.distanceFormula).to.be.equal("1")
+            }
+        },
+
+        {
+            name: "Poisonous Mutations applied when Chitinous Shell is activated",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Aberrant Mutation",
+                        effectName: "Chitinous Shell",
+                        macroTrigger: "on"
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+            assertions: async ({ actor, expect }) =>
+            {
+                const activityEffects = actor.effects.filter(e =>
+                    e.name == "Chitinous Shell" || e.name == "Poisonous Mutations"
+                )
+
+                expect(activityEffects.length).to.equal(2)
+            }
+        },
+
+        {
+            name: "Poisonous Mutations applied when Eldritch Limbs is activated",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Aberrant Mutation",
+                        effectName: "Eldritch Limbs",
+                        macroTrigger: "on"
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+            assertions: async ({ actor, expect }) =>
+            {
+                const activityEffects = actor.effects.filter(e =>
+                    e.name == "Eldritch Limbs" || e.name == "Poisonous Mutations"
+                )
+
+                expect(activityEffects.length).to.equal(2)
+            }
+        },
+
+        {
+            name: "Poisonous Mutations applied when Slimy Form is activated",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            steps: [
+                async ({ actor, helpers }) =>
+                {
+                    await helpers.applyItemActivityEffect({
+                        actor,
+                        itemName: "Aberrant Mutation",
+                        effectName: "Slimy Form",
+                        macroTrigger: "on"
+                    })
+                }
+            ],
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+            assertions: async ({ actor, expect }) =>
+            {
+                const activityEffects = actor.effects.filter(e =>
+                    e.name == "Slimy Form" || e.name == "Poisonous Mutations"
+                )
+
+                expect(activityEffects.length).to.equal(2)
+            }
+        },
+
+        {
+            name: "Entropic Abomination applied when actor is bloodied and result on rolltable is lower than current",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            steps: [
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                },
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 26
+                }
+            ],
+
+            trigger: "bloodied",
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.effects.find(e => e.name == "Aberrant Confusion")
+                )
+            },
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(actor.effects.contents.length).to.be.equal(1)
+                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+            }
+        },
+
+        {
+            name: "Entropic Abomination not applied when actor is bloodied and result on rolltable is not lower than current",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            steps: [
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 26
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                },
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                }
+            ],
+
+            trigger: "bloodied",
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(actor.effects.contents.length).to.be.equal(1)
+                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+            }
+        },
+
+        {
+            name: "Entropic Abomination applied when actor fails saving throw and result on rolltable is lower than current",
+
+            setup: async ({ actor }) =>
+            {
+                globalThis.___TransformationTestEnvironment___.saveResult = 5
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            steps: [
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                },
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 26
+                    await runtime.services.triggerRuntime.run("savingThrow", actor, {
+                        saves: {
+                            current: {
+                                ability: "wis",
+                                naturalRoll: 3,
+                                total: 3,
+                                success: false
+                            }
+                        }
+                    })
+                }
+            ],
+
+            trigger: "savingThrow",
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.effects.find(e => e.name == "Aberrant Confusion")
+                )
+            },
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(actor.effects.contents.length).to.be.equal(1)
+                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+            }
+        },
+
+        {
+            name: "Entropic Abomination not applied when actor fails saving throw and result on rolltable is not lower than current",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            steps: [
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 26
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                },
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                    await runtime.services.triggerRuntime.run("savingThrow", actor, {
+                        saves: {
+                            current: {
+                                ability: "wis",
+                                naturalRoll: 3,
+                                total: 3,
+                                success: false
+                            }
+                        }
+                    })
+                }
+            ],
+
+            trigger: "savingThrow",
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(actor.effects.contents.length).to.be.equal(1)
+                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+            }
+        },
+
+        {
+            name: "Entropic Abomination not applied when actor succeeds saving throw and result on rolltable is lower than current",
+
+            setup: async ({ actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "aberrant-horror": {
+                            2: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+                            3: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
+                            4: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                { stage: 1 },
+                { stage: 2 },
+                { stage: 3 },
+                { stage: 4 }
+            ],
+
+            steps: [
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 93
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                    await waiters.waitForCondition(() =>
+                        actor.effects.find(e => e.name == "Aberrant Slow Speech")
+                    )
+                },
+                async ({ actor, runtime, waiters }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.rollTableResult = 26
+                    await runtime.services.triggerRuntime.run("savingThrow", actor, {
+                        ability: "wis",
+                        naturalRoll: 20,
+                        total: 20,
+                        success: true
+                    })
+                }
+            ],
+
+            trigger: "savingThrow",
+
+            await: async ({ runtime, waiters, actor }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+            assertions: async ({ actor, expect }) =>
+            {
+                expect(actor.effects.contents.length).to.be.equal(1)
+                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Slow Speech')
+            }
+        },
+    ],
+
+    rollTableEffects: [
+        {
+            name: "Aberrant Resilience",
+            key: "AberrantResilience",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .validateDeathSavingThrowAdvantage()
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Temporary Vitality Boost",
+            key: "AberrantTemporaryVitalityBoost",
+            setup: async ({ actor, helpers }) =>
+            {
+                await actor.setFlag("transformations", "stage", 1)
+            },
+            assertion: async ({ origin, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasHp(4, "temp")
+                    .hasNoEffect(origin)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Powerfull Lower Limbs",
+            key: "AberrantPowerfullLowerLimbs",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasMovementBonus(5)
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant No Effect",
+            key: "AberrantNoEffect",
+            assertion: async ({ origin, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasNoEffect(origin)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Slow Speech",
+            key: "AberrantSlowSpeech",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Slow Speech",
+            key: "AberrantSlowSpeech",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Loss Of Vitality",
+            key: "AberrantLossOfVitality",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Clumsiness",
+            key: "AberrantClumsiness",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasDisadvantage(ABILITY.DEXTERITY, ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage(ABILITY.DEXTERITY, ROLL_TYPE.SAVING_THROW)
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Defenseless",
+            key: "AberrantDefenseless",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasDisadvantage(ABILITY.CONSTITUTION, ROLL_TYPE.SAVING_THROW)
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Distraction",
+            key: "AberrantDistraction",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasDisadvantage(SKILL.PERCEPTION)
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Slugginess",
+            key: "AberrantSlugginess",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Slowness",
+            key: "AberrantSlowness",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasMovementBonus(-15)
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Confusion",
+            key: "AberrantConfusion",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Exhaustion",
+            key: "AberrantExhaustion",
+            assertion: async ({ origin, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasNoEffect(origin)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Disadvantage",
+            key: "AberrantDisadvantage",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                let result = helpers.actorValidators({ actor, assert })
+                    .hasEffect(name)
+                    .hasDisadvantage("acr")
+                    .hasDisadvantage("ani")
+                    .hasDisadvantage("arc")
+                    .hasDisadvantage("ath")
+                    .hasDisadvantage("dec")
+                    .hasDisadvantage("his")
+                    .hasDisadvantage("ins")
+                    .hasDisadvantage("itm")
+                    .hasDisadvantage("inv")
+                    .hasDisadvantage("med")
+                    .hasDisadvantage("nat")
+                    .hasDisadvantage("prc")
+                    .hasDisadvantage("prf")
+                    .hasDisadvantage("per")
+                    .hasDisadvantage("rel")
+                    .hasDisadvantage("slt")
+                    .hasDisadvantage("ste")
+                    .hasDisadvantage("sur")
+                    .hasDisadvantage("str", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("dex", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("con", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("int", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("wis", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("cha", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("str", ROLL_TYPE.SAVING_THROW)
+                    .hasDisadvantage("dex", ROLL_TYPE.SAVING_THROW)
+                    .hasDisadvantage("con", ROLL_TYPE.SAVING_THROW)
+                    .hasDisadvantage("int", ROLL_TYPE.SAVING_THROW)
+                    .hasDisadvantage("wis", ROLL_TYPE.SAVING_THROW)
+                    .hasDisadvantage("cha", ROLL_TYPE.SAVING_THROW)
+                    .hasDisadvantage("concentration", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("death", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("init", ROLL_TYPE.ABILITY_CHECK)
+                    .hasDisadvantage("concentration", ROLL_TYPE.SAVING_THROW)
+                    .hasDisadvantage("death", ROLL_TYPE.SAVING_THROW)
+                    .hasDisadvantage("init", ROLL_TYPE.SAVING_THROW)
+
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Weakness",
+            key: "AberrantWeakness",
+            assertion: async ({ name, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasHp(5, "effectiveMax")
+                    .hasHp(5, "value")
+                    .hasEffect(name)
+                assert.equal(result, true)
+            }
+        },
+
+        {
+            name: "Aberrant Overload",
+            key: "AberrantOverload",
+            assertion: async ({ origin, actor, assert, helpers }) =>
+            {
+                const result = helpers.actorValidators({ actor, assert })
+                    .hasHp(0, "temp")
+                    .hasHp(0, "value")
+                    .hasDeathSaves(-3)
+                    .hasNoEffect(origin)
+                assert.equal(result, true)
+            }
+        },
+    ]
+}

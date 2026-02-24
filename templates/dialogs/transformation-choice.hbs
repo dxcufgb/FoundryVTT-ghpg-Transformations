@@ -1,0 +1,43 @@
+<div class="choice-wrapper">
+
+  <!-- RADIO BUTTONS -->
+  <fieldset class="choice-radio-group">
+    {{#each choices}}
+      <label class="choice-radio">
+        <input
+          type="radio"
+          name="choice"
+          value="{{id}}"
+          data-uuid="{{uuid}}"
+          data-name="{{name}}"
+          {{#if checked}}checked{{/if}}
+        />
+
+        <img src="{{img}}" alt="{{name}}">
+        <span class="choice-name">{{name}}</span>
+      </label>
+    {{/each}}
+  </fieldset>
+
+  <!-- SCROLLABLE DESCRIPTION PANEL -->
+  <div class="choice-description-container" hidden>
+    {{#each choices}}
+      <div
+        class="choice-description"
+        data-choice-uuid="{{uuid}}"
+        hidden
+      >
+      <h2>{{name}}</h2>
+        {{{description}}}
+      </div>
+    {{/each}}
+  </div>
+
+  <!-- CHOOSE BUTTON -->
+  <footer class="choice-footer" hidden>
+    <button type="button" data-action="choose" data-uuid="{{uuid}}" class="choice-confirm">
+      Choose
+    </button>
+  </footer>
+
+</div>
