@@ -149,6 +149,7 @@ Hooks.once("setup", async () =>
 
     registerDnd5eHooks({
         transformationService: services.transformationService,
+        transformationRegistry: services.transformationRegistry,
         triggerRuntime: services.triggerRuntime,
         tracker: Registry.dependencies.utils.asyncTrackers.get("mutations"),
         debouncedTracker: Registry.dependencies.utils.asyncTrackers.debounced,
@@ -330,8 +331,6 @@ Hooks.once("socketlib.ready", () =>
 Hooks.once("quenchReady", () =>
 {
     console.log("Transformations | Quench Ready")
-
     globalThis.cleanupTestActors = cleanupQuenchTestActors
-
     import("./quench/quench.js")
 })

@@ -1,5 +1,6 @@
 export function registerDnd5eHooks({
     transformationService,
+    transformationRegistry,
     triggerRuntime,
     tracker,
     debouncedTracker,
@@ -91,14 +92,13 @@ export function registerDnd5eHooks({
     Hooks.on("dnd5e.preRollHitDieV2", (context) =>
     {
         logger.debug("dnd5e.preRollHitDieV2 called", context)
-        debouncedTracker.pulse("dnd5e.preRollHitDieV2");
-        (async () =>
-        {
-            console.log("not implemented")
-            // return transformationService.onHitDieRoll(
-            //     context
-            // )
-        })()
+        debouncedTracker.pulse("dnd5e.preRollHitDieV2")
+        const actor = context?.subject
+
+        if (!actor) return
+
+        const transformation = transformationRegistry.getEntryForActor(actor)
+        transformation.TransformationClass.onPreRollHitDie(context, actor)
     })
 
     Hooks.on("dnd5e.preRollSavingThrow", (context, options, data) =>

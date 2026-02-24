@@ -131,7 +131,7 @@ export class Transformation
     {
         this.logger?.debug?.("Transformation.onConcentration", {})
     }
-    onHitDieRoll()
+    static onPreRollHitDie(context, actor)
     {
         this.logger?.debug?.("Transformation.onHitDieRoll", {})
     }

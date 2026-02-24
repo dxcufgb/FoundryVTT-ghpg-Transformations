@@ -7,6 +7,7 @@ import { registerEffectActionTests } from "./effectAction.test.js"
 import { registerHpActionTests } from "./hpAction.test.js"
 import { registerItemActionTests } from "./itemAction.test.js"
 import { registerMacroActionTests } from "./macroAction.test.js"
+import { registerRollModifierActionTests } from "./rollModifier.test.js"
 import { registerRollTableActionTests } from "./rollTable.test.js"
 import { registerSaveActionTests } from "./saveAction.test.js"
 
@@ -26,5 +27,6 @@ quench.registerBatch(
         registerMacroActionTests({ describe, it, expect })
         registerRollTableActionTests({ describe, it, expect })
         registerSaveActionTests({ describe, it, expect })
+        registerRollModifierActionTests({ describe, it, expect })
     }
 )

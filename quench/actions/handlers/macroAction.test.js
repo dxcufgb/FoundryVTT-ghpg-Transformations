@@ -1,7 +1,6 @@
 // test/actions/macroAction.test.js
 
 import { createMacroAction } from "../../../services/actions/handlers/macroAction.js"
-import { createFakeTracker } from "../../fakes/fakeTracker.js"
 import { setupTest, tearDownEachTest } from "../../testLifecycle.js"
 
 export function registerMacroActionTests({ describe, it, expect })

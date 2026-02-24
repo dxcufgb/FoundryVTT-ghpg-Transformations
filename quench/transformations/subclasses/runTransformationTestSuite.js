@@ -27,6 +27,7 @@ export function runTransformationTestSuite({
             let actor
             let runtime
             let transformationDef
+            let staticVars = {}
 
             beforeEach(async function()
             {
@@ -58,6 +59,7 @@ export function runTransformationTestSuite({
                 if (actor.getFlag("transformations", "stage") != 0) throw new Error("Transformation stage not set to 0 in beforeEach")
                 if (actor.getFlag("transformations", "type") != transformationDef.id) throw new Error(`Transformation type not set to ${transformationDef.id} in beforeEach`)
                 globalThis.___TransformationTestEnvironment___ = {}
+                staticVars = {}
             })
 
             for (const scenario of testDef.scenarios) {
@@ -65,16 +67,16 @@ export function runTransformationTestSuite({
                 {
 
                     if (scenario.setup) {
-                        await scenario.setup({ actor, helpers, runtime })
+                        await scenario.setup({ game, actor, helpers, runtime, staticVars })
                     }
 
                     for (const step of scenario.steps) {
                         if (step.trigger) {
-                            await triggerFunction(runtime, step.trigger, actor)
+                            await triggerFunction(runtime, step.trigger, actor, staticVars)
                         }
 
                         if (step.adjust) {
-                            await step.adjust({ actor })
+                            await step.adjust({ actor, staticVars })
                         }
 
                         if (step.choose) {
@@ -82,30 +84,33 @@ export function runTransformationTestSuite({
                                 actor,
                                 stage: step.stage,
                                 choiceUuid: step.choose,
-                                asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                                asyncTrackers: runtime.dependencies.utils.asyncTrackers,
+                                staticVars
                             })
                         } else {
                             await advanceStageAndWait({
                                 actor,
                                 stage: step.stage,
-                                asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                                asyncTrackers: runtime.dependencies.utils.asyncTrackers,
+                                staticVars
                             })
                         }
                         if (step.await) {
                             await step.await({
                                 runtime,
                                 actor,
-                                waiters
+                                waiters,
+                                staticVars
                             })
                         }
                     }
 
                     if (scenario.finalAwait) {
-                        await scenario.finalAwait({ runtime, actor, waiters })
+                        await scenario.finalAwait({ runtime, actor, waiters, staticVars })
                     }
 
                     if (scenario.finalAssertions) {
-                        await scenario.finalAssertions({ runtime, actor, expect, helpers, waiters })
+                        await scenario.finalAssertions({ runtime, actor, expect, helpers, waiters, staticVars })
                     }
                 })
             }

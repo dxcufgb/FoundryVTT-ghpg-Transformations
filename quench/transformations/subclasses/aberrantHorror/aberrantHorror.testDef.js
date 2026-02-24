@@ -678,8 +678,78 @@ export const AberrantHorrorTestDef = {
                 expect(mutationEffects[0].name)
                     .to.equal("Aberrant Slow Speech")
             }
-        }
+        },
 
+        {
+            name: "Aberrant Loss Of Vitality removes all modifiers from hit die rolls",
+
+            setup: async ({ game, actor, staticVars }) =>
+            {
+                staticVars.context = {
+                    rolls: [
+                        {
+                            parts: [
+                                "max(1, 1d8 + @abilities.con.mod)"
+                            ]
+                        }
+                    ]
+                }
+                const effect = game.transformations.getEffectInstance(actor, "AberrantLossOfVitality")
+                await effect.apply(actor)
+            },
+
+            steps: [
+                {
+                    await: async ({ runtime, actor, waiters, staticVars }) =>
+                    {
+                        const transformation = runtime.services.transformationRegistry.getEntryForActor(actor)
+                        transformation.TransformationClass.onPreRollHitDie(staticVars.context, actor)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ actor, expect, staticVars }) =>
+            {
+                const changedPart = staticVars.context.rolls[0].parts[0]
+                expect(changedPart).to.be.equal("max(1, 1d8 )")
+            }
+        },
+
+        {
+            name: "Aberrant Confusion adds stunned for first round of combat after initiative",
+
+            setup: async ({ game, actor, staticVars }) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                const effect = game.transformations.getEffectInstance(actor, "AberrantConfusion")
+                await effect.apply(actor)
+            },
+
+            steps: [
+                {
+                    trigger: "initiative",
+                    await: async ({ runtime, actor, waiters, staticVars }) =>
+                    {
+                        await waiters.waitForDomainStability({
+                            actor,
+                            asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                        })
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ actor, expect, staticVars }) =>
+            {
+                const stunned = actor.effects.find(e => e.name == "Stunned")
+                expect(stunned).to.exist
+
+                const messages = game.messages.contents
+                expect(messages.length).to.be.equal(1)
+                expect(messages[0].content).to.be.equal(`Due to Aberrant Confusion ${actor.name} is stunned for the first round!`)
+            }
+        },
     ],
 
     itemBehaviorTests: [

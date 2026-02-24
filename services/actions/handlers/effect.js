@@ -22,7 +22,7 @@ export function createEffectAction({
             action,
             context
         })
-        const { mode, name, source } = action.data ?? {}
+        const { mode, name, active, source } = action.data ?? {}
 
         if (!mode || !name) {
             logger.warn("EFFECT action missing mode or name", action)
@@ -57,6 +57,9 @@ export function createEffectAction({
                         })
                         break
 
+                    case "toggle":
+                        actor.toggleStatusEffect(name, { active: active })
+                        break
                     default:
                         logger.warn("Unknown EFFECT action mode", mode)
                 }
