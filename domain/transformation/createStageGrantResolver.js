@@ -1,10 +1,15 @@
 export function createStageGrantResolver({
+    requiresService,
     logger
 })
 {
     logger.debug("createStageGrantResolver", {})
 
-    function resolve({ definition, stage })
+    function resolve({
+        actor,
+        definition,
+        stage
+    })
     {
         logger.debug("createStageGrantResolver.resolve", { definition, stage })
         if (!definition || !stage) {
@@ -19,8 +24,19 @@ export function createStageGrantResolver({
             return empty()
         }
 
+        const validItemGrants = stageDef.grants.items.filter(grant =>
+            checkRequirements({
+                actor,
+                stageDef,
+                grantUuid: grant.uuid,
+                grantType: "items"
+            })
+        )
+
+        if (!validItemGrants.length && !stageDef.grants?.actor?.creatureSubType) return null
+
         return {
-            items: normalizeItems(stageDef.grants?.items),
+            items: normalizeItems(validItemGrants),
             creatureSubType: stageDef.grants?.actor?.creatureSubType ?? null
         }
     }
@@ -48,4 +64,31 @@ export function createStageGrantResolver({
     return Object.freeze({
         resolve
     })
+
+    function checkRequirements({
+        actor,
+        stageDef,
+        grantUuid,
+        grantType
+    })
+    {
+        logger.debug("createStageChoiceResolver.isChoiceRuntimeValid", {
+            actor,
+            stageDef,
+            grantUuid
+        })
+        const grantsDef = stageDef?.grants?.[grantType]?.find(c => c.uuid === grantUuid)
+
+        if (!grantsDef) return false
+
+        if (grantsDef.requires?.items?.length) {
+            requiresService.actorHasItems(actor, grantsDef.requires.items)
+        }
+
+        if (grantsDef.requires?.actor) {
+            requiresService.actorHasRequirement(actor, grantsDef.requires.actor)
+        }
+
+        return true
+    }
 }

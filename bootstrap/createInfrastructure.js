@@ -14,6 +14,8 @@ import { createActionExecutor } from "../infrastructure/actions/createActionExec
 import { createChatService } from "../infrastructure/foundry/createChatService.js"
 import { createNotifier } from "../infrastructure/foundry/createNotifier.js"
 import { createOnceService } from "../infrastructure/foundry/createOnceService.js"
+import { createConditionService } from "../services/actor/createConditionService.js"
+import { createRequiresService } from "../services/actor/createRequiresService.js"
 
 export function createInfrastructure({
     getGame,
@@ -74,7 +76,20 @@ export function createInfrastructure({
         logger
     })
 
-    const stageGrantResolver = createStageGrantResolver({ logger })
+    const conditionService = createConditionService({
+        logger
+    })
+
+    const requiresService = createRequiresService({
+        conditionService,
+        logger
+    })
+
+    const stageGrantResolver = createStageGrantResolver({
+        requiresService,
+        logger
+    })
+
     const creatureTypeService = createCreatureTypeService({
         tracker: trackers.mutations,
         debouncedTracker,
@@ -151,6 +166,7 @@ export function createInfrastructure({
         actionExecutor,
         directMacroInvoker,
         onceService,
+        requiresService,
         notifier
     })
 }

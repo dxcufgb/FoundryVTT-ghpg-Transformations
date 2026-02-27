@@ -1,14 +1,14 @@
 export function createStageChoiceResolver({
     tracker,
     compendiumRepository,
-    logger,
-    conditionService
+    requiresService,
+    logger
 })
 {
     logger.debug("createStageChoiceResolver", {
         tracker,
         compendiumRepository,
-        conditionService
+        requiresService
     })
 
     async function resolve({
@@ -124,29 +124,39 @@ export function createStageChoiceResolver({
         // --- requires.items ---------------------------------------------
 
         if (choiceDef.requires?.items?.length) {
-            const hasAll = choiceDef.requires.items.every(reqUuid =>
-                actor.items.some(actorItem =>
-                    actorItem.flags?.transformations?.sourceUuid === reqUuid
-                )
-            )
+            // const hasAll = choiceDef.requires.items.every(reqUuid =>
+            //     actor.items.some(actorItem =>
+            //         actorItem.flags?.transformations?.sourceUuid === reqUuid
+            //     )
+            // )
+            // if (!hasAll) return false
+            const hasAll = requiresService.actorHasItems({
+                actor,
+                items: choiceDef.requires.items
+            })
             if (!hasAll) return false
         }
 
         // --- requires.actor ---------------------------------------------
 
         if (choiceDef.requires?.actor) {
-            const requirements = Array.isArray(choiceDef.requires.actor)
-                ? choiceDef.requires.actor
-                : [choiceDef.requires.actor]
+            // const requirements = Array.isArray(choiceDef.requires.actor)
+            //     ? choiceDef.requires.actor
+            //     : [choiceDef.requires.actor]
 
-            for (const requirement of requirements) {
-                if (!conditionService.checkActorRequirement({
-                    actor,
-                    requirement
-                })) {
-                    return false
-                }
-            }
+            // for (const requirement of requirements) {
+            //     if (!conditionService.checkActorRequirement({
+            //         actor,
+            //         requirement
+            //     })) {
+            //         return false
+            //     }
+            // }
+            const hasRequirement = requiresService.actorHasRequirement({
+                actor,
+                choiceDef
+            })
+            if (!hasRequirement) return false
         }
 
         return true

@@ -123,6 +123,7 @@ export function createLocalTransformationMutationAdapter({
         logger.debug("createLocalTransformationMutationAdapter.applyStage", { actor, definition, stage, choice })
         if (stage != 0) {
             const grants = stageGrantResolver.resolve({
+                actor,
                 definition,
                 stage
             })

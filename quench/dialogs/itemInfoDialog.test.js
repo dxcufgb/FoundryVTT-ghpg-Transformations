@@ -31,7 +31,7 @@ quench.registerBatch(
             {
                 const item = {
                     name: "Sword of Responsibility",
-                    img: "icons/sword.webp",
+                    img: "systems/dnd5e/icons/svg/items/weapon.svg",
                     system: {
                         description: {
                             value: "<p>Sharp and morally complex.</p>"
@@ -42,7 +42,7 @@ quench.registerBatch(
                 const vm = createItemInfoViewModel({ item })
 
                 expect(vm.name).to.equal("Sword of Responsibility")
-                expect(vm.icon).to.equal("icons/sword.webp")
+                expect(vm.icon).to.equal("systems/dnd5e/icons/svg/items/weapon.svg")
                 expect(vm.description).to.equal("<p>Sharp and morally complex.</p>")
             })
 
@@ -50,7 +50,7 @@ quench.registerBatch(
             {
                 const item = {
                     name: "Mysterious Pebble",
-                    img: "icons/rock.webp",
+                    img: "systems/dnd5e/icons/svg/items/tool.svg",
                     system: {}
                 }
 
@@ -119,7 +119,7 @@ quench.registerBatch(
 
                 const viewModel = {
                     name: "Sword of Testing",
-                    icon: "icons/sword.webp",
+                    icon: "systems/dnd5e/icons/svg/items/weapon.svg",
                     description: "<p>A blade forged in CI pipelines.</p>"
                 }
 
@@ -138,7 +138,7 @@ quench.registerBatch(
                 const button = dialog.element.querySelector("[data-action='continue']")
 
                 expect(icon).to.exist
-                expect(icon.getAttribute("src")).to.equal("icons/sword.webp")
+                expect(icon.getAttribute("src")).to.equal("systems/dnd5e/icons/svg/items/weapon.svg")
 
                 expect(description).to.exist
                 expect(description.innerHTML.trim()).to.equal("<p>A blade forged in CI pipelines.</p>")
@@ -165,7 +165,7 @@ quench.registerBatch(
 
                 const viewModel = {
                     name: "Unclicked Relic",
-                    icon: "icons/relic.webp",
+                    icon: "systems/dnd5e/icons/svg/activity/cast.svg",
                     description: "<p>Ignored by fate.</p>"
                 }
 
