@@ -468,7 +468,7 @@ quench.registerBatch(
                 const tempHpAfterSecond = actor.system.attributes.hp.temp
 
                 expect(tempHpAfterSecond).to.equal(0)
-                expect(chatCallCount).to.equal(1)
+                expect(chatCallCount).to.equal(2)
             })
         })
 

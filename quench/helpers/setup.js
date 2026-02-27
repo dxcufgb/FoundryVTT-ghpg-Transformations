@@ -54,6 +54,7 @@ export function setupMocks(mocks = {})
 
     // 4️⃣ Services (override only what is provided)
     const services = createServices({
+        getGame: () => game,
         dependencies,
         infrastructure,
         overrides: {

@@ -1,7 +1,7 @@
 export function registerGMOnlyActorHooks({
     game,
     ActorClass,
-    ui,
+    moduleUi,
     actorRepository,
     triggerRuntime,
     transformationQueryService,
@@ -14,7 +14,7 @@ export function registerGMOnlyActorHooks({
     logger.debug("registerGMOnlyActorHooks", {
         game,
         ActorClass,
-        ui,
+        moduleUi,
         actorRepository,
         triggerRuntime,
         transformationQueryService,
@@ -28,7 +28,7 @@ export function registerGMOnlyActorHooks({
         ActorClass,
         debouncedTracker,
         transformationQueryService,
-        ui,
+        moduleUi,
         logger
     })
 

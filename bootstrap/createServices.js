@@ -18,6 +18,7 @@ import { createStageChoiceResolver } from "../domain/transformation/createStageC
 import { createConditionService } from "../services/actor/createConditionService.js"
 
 export function createServices({
+    getGame,
     dependencies,
     infrastructure,
     triggerNotification
@@ -92,6 +93,7 @@ export function createServices({
 
     const actionHandlers = createActionHandlers({
         trackers,
+        getGame,
         directMacroInvoker,
         activeEffectRepository,
         actorRepository,

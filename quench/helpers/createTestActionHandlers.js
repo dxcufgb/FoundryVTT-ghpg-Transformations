@@ -12,6 +12,7 @@ export function createTestActionHandlers(runtime)
     }
     return createActionHandlers({
         trackers,
+        getDialogFactory: () => game.transformations.dialogFactory,
         directMacroInvoker: runtime.infrastructure.directMacroInvoker,
         actorRepository: runtime.infrastructure.actorRepository,
         itemRepository: runtime.infrastructure.itemRepository,

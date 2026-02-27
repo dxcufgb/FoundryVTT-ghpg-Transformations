@@ -4,7 +4,9 @@ import { advanceStageAndChoose } from "../../helpers/adcanceStageAndExpectchoice
 import { advanceStageAndWait } from "../../helpers/advanceStageAndWait.js"
 import { expectAsyncWork } from "../../helpers/async/expectAsyncWork.js"
 import { waitForStageFinished } from "../../helpers/awaitStage.js"
-import { waitForNextFrame } from "../../helpers/dom.js"
+import { waitForElement, waitForElementGone, waitForNextFrame } from "../../helpers/dom.js"
+import { chooseDamageResistanceOnLongRest } from "../../helpers/fey/chooseDamageResistanceOnLongRest.js"
+import { getPreRollSavingThrowContext } from "../../helpers/foundryObjecStructures/preRollSavingThrowContext.js"
 import { triggerFunction } from "../../helpers/triggers.js"
 import { waitForCondition } from "../../helpers/waitForCondition.js"
 import { waitForDomainStability } from "../../helpers/waitForDomainStability.js"
@@ -17,8 +19,24 @@ export function runTransformationTestSuite({
 {
 
     const { describe, it, assert, expect } = mochaFunctions
-    const helpers = { applyItemActivityEffect, expectItemsOnActor, expectRaceItemSubTypeOnActor, actorValidators }
-    const waiters = { waitForCondition, waitForNextFrame, waitForDomainStability, waitForStageFinished }
+    const helpers = {
+        applyItemActivityEffect,
+        expectItemsOnActor,
+        expectRaceItemSubTypeOnActor,
+        actorValidators,
+        getPreRollSavingThrowContext,
+        fey: {
+            chooseDamageResistanceOnLongRest
+        }
+    }
+    const waiters = {
+        waitForCondition,
+        waitForNextFrame,
+        waitForDomainStability,
+        waitForStageFinished,
+        waitForElementGone,
+        waitForElement
+    }
 
     if (testDef.scenarios?.length > 0) {
         describe(`${testDef.id} scenarios`, function()

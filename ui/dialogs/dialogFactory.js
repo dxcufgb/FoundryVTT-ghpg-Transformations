@@ -1,5 +1,9 @@
 import { TransformationConfigDialog } from "./TransformationConfigDialog.js"
 import { TransformationChoiceDialog } from "./TransformationChoiceDialog.js"
+import { TransformationGeneralChoiceDialog } from "./transformationGeneralChoiceDialog.js"
+import { ItemInfoDialog } from "./ItemInfoDialog.js"
+import { createItemInfoViewModel } from "../viewModels/ItemInfoViewModel.js"
+import { createItemInfoController } from "../controllers/ItemInfoController.js"
 
 export function createDialogFactory({
     controllers,
@@ -33,7 +37,7 @@ export function createDialogFactory({
             logger.warn(
                 "openTransformationConfig called without actor"
             )
-            return
+            return false
         }
 
         closeExistingDialog(TransformationConfigDialog)
@@ -77,7 +81,7 @@ export function createDialogFactory({
             stage
         })
         if (!actor || !choices?.length) {
-            return undefined
+            return false
         }
 
         closeExistingDialog(TransformationChoiceDialog)
@@ -85,18 +89,16 @@ export function createDialogFactory({
         return new Promise(async resolve =>
         {
 
-            const viewModel =
-                viewModels.createTransformationStageChoiceViewModel({
-                    choices,
-                    selectedId: null
-                })
+            const viewModel = viewModels.createTransformationStageChoiceViewModel({
+                choices,
+                selectedId: null
+            })
 
-            const controller =
-                controllers.createTransformationStageChoiceController({
-                    actor,
-                    resolve,
-                    logger
-                })
+            const controller = controllers.createTransformationStageChoiceController({
+                actor,
+                resolve,
+                logger
+            })
 
             const dialog = new TransformationChoiceDialog({
                 actor,
@@ -112,11 +114,88 @@ export function createDialogFactory({
         })
     }
 
+    async function openTransformationGeneralChoiceDialog({
+        actor,
+        choices,
+        description,
+        title
+    })
+    {
+        logger.debug("openTransformationGeneralChoiceDialog", {
+            actor,
+            choices,
+            description
+        })
 
+        if (!actor || !choices?.length) {
+            return false
+        }
+
+        closeExistingDialog(TransformationGeneralChoiceDialog)
+
+        return new Promise(async resolve =>
+        {
+            const viewModel = viewModels.createTransformationGeneralChoiceViewModel({
+                choices,
+                description,
+                title,
+                logger
+            })
+
+            const controller = controllers.createTransformationGeneralChoiceController({
+                actor,
+                resolve,
+                logger
+            })
+
+            const dialog = new TransformationGeneralChoiceDialog({
+                actor,
+                viewModel,
+                controller,
+                options: {
+                    id: `transformation-general-choice-${actor.id}`,
+                    title: viewModel.title
+                },
+                logger
+            })
+
+            await dialog.render(true)
+        })
+    }
+
+    async function showItemInfoDialog({ item })
+    {
+        logger.debug("openDamageTypeChoiceDialog", {
+            item
+        })
+
+        if (!item) {
+            return false
+        }
+
+        closeExistingDialog(ItemInfoDialog)
+
+        return new Promise(resolve =>
+        {
+            const viewModel = createItemInfoViewModel({ item, logger })
+            const controller = createItemInfoController({ resolve, logger })
+
+            const dialog = new ItemInfoDialog({
+                item,
+                viewModel,
+                controller,
+                logger
+            })
+
+            dialog.render(true)
+        })
+    }
 
     return Object.freeze({
         openTransformationConfig,
-        openStageChoiceDialog
+        openStageChoiceDialog,
+        openTransformationGeneralChoiceDialog,
+        showItemInfoDialog
     })
 
     function closeExistingDialog(dialog)

@@ -5,9 +5,11 @@ import { createChatAction } from "./chat.js"
 import { createSaveAction } from "./save.js"
 import { createEffectAction } from "./effect.js"
 import { createMacroAction } from "./macroAction.js"
+import { createDialogAction } from "./dialog.js"
 
 export function createActionHandlers({
     trackers,
+    getGame,
     directMacroInvoker,
     actorRepository,
     itemRepository,
@@ -19,6 +21,7 @@ export function createActionHandlers({
 {
     logger.debug("createActionHandlers", {
         trackers,
+        getGame,
         directMacroInvoker,
         actorRepository,
         itemRepository,
@@ -56,6 +59,11 @@ export function createActionHandlers({
         MACRO: createMacroAction({
             tracker: trackers.macros,
             directMacroInvoker,
+            logger
+        }),
+        DIALOG: createDialogAction({
+            getGame,
+            tracker: trackers.ui,
             logger
         }),
         SAVE: createSaveAction({

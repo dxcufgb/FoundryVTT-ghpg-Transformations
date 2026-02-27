@@ -3,7 +3,7 @@ export function registerActorHooks({
     transformationService,
     transformationQueryService,
     game,
-    ui,
+    moduleUi,
     renderTemplate,
     debouncedTracker,
     dialogFactory,
@@ -15,7 +15,7 @@ export function registerActorHooks({
         transformationService,
         transformationQueryService,
         game,
-        ui,
+        moduleUi,
         debouncedTracker,
         dialogFactory
     })
@@ -29,13 +29,13 @@ export function registerActorHooks({
         const transformations = await transformationQueryService.getAll()
         const transformationStage = actor.getFlag("transformations", "stage")
 
-        const viewModel = ui.viewModels.createTransformationPillViewModel({
+        const viewModel = moduleUi.viewModels.createTransformationPillViewModel({
             actor,
             transformation,
             editable: (config.editable && transformationStage <= 3)
         })
 
-        const pillHtml = await ui.renderers.pillRenderer.render(viewModel)
+        const pillHtml = await moduleUi.renderers.pillRenderer.render(viewModel)
 
         if (!pillHtml) return
         const fragment = document.createRange().createContextualFragment(pillHtml)
@@ -44,7 +44,7 @@ export function registerActorHooks({
 
         const pillElement = container.querySelector('.pills-lg > .transformation')
 
-        await ui.controllers.pillController.bind({
+        await moduleUi.controllers.pillController.bind({
             app,
             pillElement,
             viewModel,
@@ -52,7 +52,7 @@ export function registerActorHooks({
             transformations
         })
 
-        injectTransformationLegendInTraitsTab(renderTemplate, game, ui, app, html, transformationTypes, config.editable, logger)
+        injectTransformationLegendInTraitsTab(renderTemplate, game, moduleUi, app, html, transformationTypes, config.editable, logger)
     })
 
     Hooks.on("updateActor", (actor, diff, options, userId) =>
@@ -85,12 +85,12 @@ function getPillsContainer(app, logger)
 
 }
 
-async function injectTransformationLegendInTraitsTab(renderTemplate, game, ui, app, html, transformationTypes, editMode, logger)
+async function injectTransformationLegendInTraitsTab(renderTemplate, game, moduleUi, app, html, transformationTypes, editMode, logger)
 {
     logger.debug("injectTransformationLegendInTraitsTab", {
         renderTemplate,
         game,
-        ui,
+        moduleUi,
         app,
         html,
         transformationTypes,
@@ -109,7 +109,7 @@ async function injectTransformationLegendInTraitsTab(renderTemplate, game, ui, a
 
     const isGM = game.user.isGM
 
-    const viewModel = ui.viewModels.createTransformationCardViewModel(
+    const viewModel = moduleUi.viewModels.createTransformationCardViewModel(
         actor,
         transformationTypes,
         isGM,
@@ -123,5 +123,5 @@ async function injectTransformationLegendInTraitsTab(renderTemplate, game, ui, a
 
     const afterFirst = tab.children[1] || null
     tab.insertBefore(card[0], afterFirst)
-    ui.controllers.cardController.activateTransformationCardListeners(card, actor)
+    moduleUi.controllers.cardController.activateTransformationCardListeners(card, actor)
 }

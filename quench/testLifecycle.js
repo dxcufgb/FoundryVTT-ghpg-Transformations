@@ -15,8 +15,8 @@ export async function setupTest({
     let returnObjects = {}
     await readyGame()
 
+    globalThis.__TRANSFORMATIONS_TEST__ = true
     if (initializeTestVariables) {
-        globalThis.__TRANSFORMATIONS_TEST__ = true
         globalThis.___TransformationTestEnvironment___ = {}
     }
 
@@ -43,6 +43,7 @@ export async function setupTest({
         returnObjects.actionExecutor = createActionExecutor({
             tracker: returnObjects.fakeTracker !== undefined ? returnObjects.fakeTracker : createFakeTracker(),
             actorRepository: returnObjects.runtime.infrastructure.actorRepository,
+            onceService: returnObjects.runtime.infrastructure.onceService,
             logger
         })
     }
@@ -64,7 +65,6 @@ export async function tearDownEachTest({
     try {
 
         // 1️⃣ Clear global override flags
-        delete globalThis.__TRANSFORMATIONS_TEST__
         delete globalThis.___TransformationTestEnvironment___
 
         // 2️⃣ Clear Chat log

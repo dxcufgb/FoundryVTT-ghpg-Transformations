@@ -2,6 +2,7 @@ export function registerDnd5eHooks({
     transformationService,
     transformationRegistry,
     triggerRuntime,
+    onceService,
     tracker,
     debouncedTracker,
     logger
@@ -32,33 +33,35 @@ export function registerDnd5eHooks({
             const isLong = result.longRest === true
             const isShort = result.shortRest === true || result.type === "short"
 
-            const onceFlags = actor.getFlag("transformations", "once")
-            if (onceFlags) {
-                const updated = { ...onceFlags }
-                let changed = false
+            // const onceFlags = actor.getFlag("transformations", "once")
+            // if (onceFlags) {
+            //     const updated = { ...onceFlags }
+            //     let changed = false
 
-                for (const [key, entry] of Object.entries(updated)) {
+            //     for (const [key, entry] of Object.entries(updated)) {
 
-                    if (!Array.isArray(entry.reset)) continue
+            //         if (!Array.isArray(entry.reset)) continue
 
-                    const shouldReset =
-                        (isLong && entry.reset.includes("longRest")) ||
-                        (isShort && entry.reset.includes("shortRest"))
+            //         const shouldReset =
+            //             (isLong && entry.reset.includes("longRest")) ||
+            //             (isShort && entry.reset.includes("shortRest"))
 
-                    if (shouldReset) {
-                        delete updated[key]
-                        changed = true
-                    }
-                }
+            //         if (shouldReset) {
+            //             delete updated[key]
+            //             changed = true
+            //         }
+            //     }
 
-                if (changed) {
-                    if (Object.keys(updated).length === 0) {
-                        await actor.unsetFlag("transformations", "once")
-                    } else {
-                        await actor.setFlag("transformations", "once", updated)
-                    }
-                }
-            }
+            //     if (changed) {
+            //         if (Object.keys(updated).length === 0) {
+            //             await actor.unsetFlag("transformations", "once")
+            //         } else {
+            //             await actor.setFlag("transformations", "once", updated)
+            //         }
+            //     }
+            // }
+
+            onceService.resetFlagsOnRest(actor, { isLong, isShort })
             if (isShort) {
                 await triggerRuntime.run("shortRest", actor)
             } else if (isLong) {
@@ -107,8 +110,12 @@ export function registerDnd5eHooks({
         debouncedTracker.pulse("dnd5e.preRollSavingThrow");
         (async () =>
         {
-            if (context.workflow?.item?.type !== "spell") return
-            context.subject.setFlag("transformations", "saveIsSpell", true)
+            const actor = context?.subject
+
+            if (!actor) return
+
+            const transformation = transformationRegistry.getEntryForActor(actor)
+            await transformation.TransformationClass.onPreRollSavingThrow(context, actor, { onceService })
         })()
     })
 

@@ -111,40 +111,12 @@ export class Transformation
         ]
     }
 
-    onDamage()
-    {
-        this.logger?.debug?.("Transformation.onDamage", {})
-    }
-    onShortRest()
-    {
-        this.logger?.debug?.("Transformation.onShortRest", {})
-    }
-    onLongRest()
-    {
-        this.logger?.debug?.("Transformation.onLongRest", {})
-    }
-    onInitiative()
-    {
-        this.logger?.debug?.("Transformation.onInitiative", {})
-    }
-    onConcentration()
-    {
-        this.logger?.debug?.("Transformation.onConcentration", {})
-    }
     static onPreRollHitDie(context, actor)
     {
         this.logger?.debug?.("Transformation.onHitDieRoll", {})
     }
-    onSavingThrow()
+    static onPreRollSavingThrow(actor, context, options = {})
     {
-        this.logger?.debug?.("Transformation.onSavingThrow", {})
-    }
-    onBloodied()
-    {
-        this.logger?.debug?.("Transformation.onBloodied", {})
-    }
-    onUnconscious()
-    {
-        this.logger?.debug?.("Transformation.onUnconscious", {})
+        this.logger?.debug?.("Transformation.onSavingThrow", actor, context, options)
     }
 }

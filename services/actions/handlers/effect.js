@@ -1,5 +1,7 @@
 // services/actions/effect.js
 
+import { interpolate } from "../utils/interpolate.js"
+
 export function createEffectAction({
     activeEffectRepository,
     tracker,
@@ -49,7 +51,13 @@ export function createEffectAction({
                             context
                         })
                         break
-
+                    case "create":
+                        await createCustomEffect({
+                            actor,
+                            data: action.data,
+                            context
+                        })
+                        break
                     case "remove":
                         await removeEffect({
                             actor,
@@ -117,6 +125,72 @@ export function createEffectAction({
             {
 
                 await activeEffectRepository.removeByIds(actor, ids)
+            })()
+        )
+    }
+
+    async function createCustomEffect({
+        actor,
+        data,
+        context
+    })
+    {
+        logger.debug("createEffectAction.createCustomEffect", {
+            actor,
+            data,
+            context
+        })
+
+        if (!actor || !data?.name) {
+            logger.warn("Custom effect missing actor or name")
+            return
+        }
+        let changes = []
+        for (const change of data.changes) {
+            changes.push({
+                key: change.key,
+                mode: change.mode,
+                value: interpolate(change.value, {
+                    actor,
+                    transformation: context.transformation,
+                    variables: {}
+                })
+            })
+        }
+        const origin = interpolate(data.origin ? data.origin : "", {
+            actor,
+            transformation: context.transformation,
+            variables: {}
+        })
+
+        const description = interpolate(data.description ? data.description : "", {
+            actor,
+            transformation: context.transformation,
+            variables: {}
+        })
+
+        const {
+            name,
+            icon,
+            duration = {},
+            flags = {},
+            source
+        } = data
+        return tracker.track(
+            (async () =>
+            {
+                await activeEffectRepository.create({
+                    actor,
+                    name,
+                    description,
+                    icon,
+                    changes,
+                    duration,
+                    flags,
+                    origin,
+                    source: source ?? "custom",
+                    context
+                })
             })()
         )
     }

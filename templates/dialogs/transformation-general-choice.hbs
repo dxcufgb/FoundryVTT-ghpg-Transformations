@@ -1,0 +1,41 @@
+<div class="transformation-general-choices-wrapper">
+    <div class="transformation-general-choices-content">
+
+        {{#if description}}
+            <div class="transformation-general-choices-description">
+                {{{description}}}
+            </div>
+        {{/if}}
+
+        <div class="transformation-general-choices">
+
+            <ol class="choices-list">
+
+                {{#each choices as |type|}}
+                <li class="type-row choice-option">
+
+                    <button
+                        type="button"
+                        class="choice-button"
+                        data-choice-id="{{type.id}}"
+                        aria-pressed="false">
+
+                        <img
+                            class="choice-image"
+                            src="{{type.icon}}"
+                            alt="{{type.label}}">
+
+                        <span class="choice-label">
+                            {{type.label}}
+                        </span>
+
+                    </button>
+
+                </li>
+                {{/each}}
+
+            </ol>
+
+        </div>
+    </div>
+</div>

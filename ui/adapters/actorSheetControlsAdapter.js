@@ -3,7 +3,7 @@ export function registerActorSheetControlsAdapter({
     ActorClass,
     transformationQueryService,
     debouncedTracker,
-    ui,
+    moduleUi,
     logger,
 })
 {
@@ -12,14 +12,14 @@ export function registerActorSheetControlsAdapter({
         ActorClass,
         transformationQueryService,
         debouncedTracker,
-        ui
+        moduleUi
     })
 
     Hooks.on("getHeaderControlsApplicationV2", (app, controls) =>
     {
         logger.debug("registerActorSheetControlsAdapter.getHeaderControlsApplicationV2", { app, controls })
         debouncedTracker.pulse("getHeaderControlsApplicationV2")
-        if (!ui.policies.canShowTransformationControls({ app, game, ActorClass })) {
+        if (!moduleUi.policies.canShowTransformationControls({ app, game, ActorClass })) {
             return
         }
 
@@ -35,7 +35,7 @@ export function registerActorSheetControlsAdapter({
 
                     try {
                         const transformations = await transformationQueryService.getAll()
-                        await ui.dialogs.openTransformationConfig({
+                        await moduleUi.dialogs.openTransformationConfig({
                             actor: app.actor,
                             transformations
                         })

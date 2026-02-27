@@ -62,10 +62,12 @@ export function createSaveAction({
 async function executeSave(actor, ability, options)
 {
     if (globalThis.__TRANSFORMATIONS_TEST__ === true) {
-        globalThis.___TransformationTestEnvironment___.saveRolled = true
+        const env = globalThis.___TransformationTestEnvironment___
+        if (env && typeof env === "object") {
+            env.saveRolled = true
+        }
 
-        const result =
-            globalThis.___TransformationTestEnvironment___?.saveResult
+        const result = globalThis.___TransformationTestEnvironment___?.saveResult
 
         if (result == null) return null
 

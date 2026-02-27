@@ -117,12 +117,13 @@ Hooks.once("setup", async () =>
     await game.ready
 
     const services = createServices({
+        getGame: () => game,
         dependencies,
         infrastructure,
         logger
     })
 
-    const ui = createUi({
+    const moduleUi = createUi({
         services,
         infrastructure,
         renderTemplate: foundry.applications.handlebars.renderTemplate,
@@ -131,7 +132,7 @@ Hooks.once("setup", async () =>
         logger: Registry.logger
     })
 
-    UiAccessor.dialogs = ui.dialogs
+    UiAccessor.dialogs = moduleUi.dialogs
 
     setRegistryServices(services, { allowOnce: true })
 
@@ -151,6 +152,7 @@ Hooks.once("setup", async () =>
         transformationService: services.transformationService,
         transformationRegistry: services.transformationRegistry,
         triggerRuntime: services.triggerRuntime,
+        onceService: infrastructure.onceService,
         tracker: Registry.dependencies.utils.asyncTrackers.get("mutations"),
         debouncedTracker: Registry.dependencies.utils.asyncTrackers.debounced,
         logger
@@ -168,7 +170,7 @@ Hooks.once("setup", async () =>
         transformationService: services.transformationService,
         transformationQueryService: services.transformationQueryService,
         game,
-        ui,
+        moduleUi,
         renderTemplate: foundry.applications.handlebars.renderTemplate,
         debouncedTracker: Registry.dependencies.utils.asyncTrackers.debounced,
         constants,
@@ -186,7 +188,7 @@ Hooks.once("setup", async () =>
         registerGMOnlyActorHooks({
             game,
             ActorClass: Actor,
-            ui,
+            moduleUi,
             triggerRuntime: services.triggerRuntime,
             transformationQueryService: services.transformationQueryService,
             actorRepository: infrastructure.actorRepository,
@@ -292,6 +294,7 @@ Hooks.once("ready", async () =>
 
         await macros.executeMacro(data.payload)
     })
+
     createModuleApi({
         game,
         macros,

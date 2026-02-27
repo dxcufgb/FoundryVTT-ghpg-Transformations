@@ -13,6 +13,7 @@ import { createRollTableService } from "../infrastructure/rolltables/createRollT
 import { createActionExecutor } from "../infrastructure/actions/createActionExecutor.js"
 import { createChatService } from "../infrastructure/foundry/createChatService.js"
 import { createNotifier } from "../infrastructure/foundry/createNotifier.js"
+import { createOnceService } from "../infrastructure/foundry/createOnceService.js"
 
 export function createInfrastructure({
     getGame,
@@ -41,6 +42,10 @@ export function createInfrastructure({
         services: utils.asyncTrackers.get("services")
     }
     const debouncedTracker = utils.asyncTrackers.debounced
+
+    const onceService = createOnceService({
+        logger
+    })
 
     const chatService = createChatService({
         tracker: trackers.ui,
@@ -111,6 +116,7 @@ export function createInfrastructure({
     const actionExecutor = createActionExecutor({
         tracker: trackers.mutations,
         actorRepository,
+        onceService,
         logger
     })
 
@@ -144,6 +150,7 @@ export function createInfrastructure({
         localMutationAdapter,
         actionExecutor,
         directMacroInvoker,
+        onceService,
         notifier
     })
 }
