@@ -373,6 +373,7 @@ quench.registerBatch(
             afterEach(async function()
             {
                 await runtime.services.transformationService.whenIdle()
+                await actor.delete()
                 await tearDownEachTest({ tearDownExtras: { sheet: sheet, dialog: dialog } })
             })
 
@@ -555,7 +556,6 @@ quench.registerBatch(
                     )
 
                     expect(actor.flags.transformations).to.deep.equal(before)
-                    wait(200)
                 })
             })
             it("updates transformation card after dialog applies transformation", async function()

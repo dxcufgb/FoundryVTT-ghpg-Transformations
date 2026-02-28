@@ -313,6 +313,9 @@ Hooks.once("ready", async () =>
         )
     )
 
+    // CONFIG.debug.hooks = true
+    // CONFIG.debug.rollParsing = true
+
 })
 
 Hooks.once("socketlib.ready", () =>

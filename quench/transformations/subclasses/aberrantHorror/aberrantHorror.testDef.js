@@ -740,6 +740,13 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
+            finalAwait: async ({ actor, waiters }) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.effects.find(e => e.name == "Stunned")
+                )
+            },
+
             finalAssertions: async ({ actor, expect, staticVars }) =>
             {
                 const stunned = actor.effects.find(e => e.name == "Stunned")
@@ -2700,44 +2707,11 @@ export const AberrantHorrorTestDef = {
             {
                 let result = helpers.actorValidators({ actor, assert })
                     .hasEffect(name)
-                    .hasDisadvantage("acr")
-                    .hasDisadvantage("ani")
-                    .hasDisadvantage("arc")
-                    .hasDisadvantage("ath")
-                    .hasDisadvantage("dec")
-                    .hasDisadvantage("his")
-                    .hasDisadvantage("ins")
-                    .hasDisadvantage("itm")
-                    .hasDisadvantage("inv")
-                    .hasDisadvantage("med")
-                    .hasDisadvantage("nat")
-                    .hasDisadvantage("prc")
-                    .hasDisadvantage("prf")
-                    .hasDisadvantage("per")
-                    .hasDisadvantage("rel")
-                    .hasDisadvantage("slt")
-                    .hasDisadvantage("ste")
-                    .hasDisadvantage("sur")
-                    .hasDisadvantage("str", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("dex", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("con", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("int", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("wis", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("cha", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("str", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("dex", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("con", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("int", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("wis", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("cha", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("concentration", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("death", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("init", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("concentration", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("death", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("init", ROLL_TYPE.SAVING_THROW)
 
                 assert.equal(result, true)
+
+                let result2 = helpers.validateAllD20Disadvantage(actor, helpers.actorValidators, assert)
+                assert.equal(result2, true)
             }
         },
 

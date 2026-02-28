@@ -28,8 +28,7 @@ export function createStageGrantResolver({
             checkRequirements({
                 actor,
                 stageDef,
-                grantUuid: grant.uuid,
-                grantType: "items"
+                grantUuid: grant.uuid
             })
         )
 
@@ -48,7 +47,8 @@ export function createStageGrantResolver({
 
         return items.map(item => ({
             uuid: item.uuid,
-            replacesUuid: item.replaces?.uuid ?? null
+            replacesUuid: item.replaces?.uuid ?? null,
+            overrides: item.overrides ?? null
         }))
     }
 
@@ -68,8 +68,7 @@ export function createStageGrantResolver({
     function checkRequirements({
         actor,
         stageDef,
-        grantUuid,
-        grantType
+        grantUuid
     })
     {
         logger.debug("createStageChoiceResolver.isChoiceRuntimeValid", {
@@ -77,16 +76,13 @@ export function createStageGrantResolver({
             stageDef,
             grantUuid
         })
-        const grantsDef = stageDef?.grants?.[grantType]?.find(c => c.uuid === grantUuid)
+        const grantsDef = stageDef?.grants?.items?.find(c => c.uuid === grantUuid)
 
         if (!grantsDef) return false
 
         if (grantsDef.requires?.items?.length) {
-            requiresService.actorHasItems(actor, grantsDef.requires.items)
-        }
-
-        if (grantsDef.requires?.actor) {
-            requiresService.actorHasRequirement(actor, grantsDef.requires.actor)
+            const actorHasItems = requiresService.actorHasItems({ actor, items: grantsDef.requires.items })
+            if (!actorHasItems) return false
         }
 
         return true

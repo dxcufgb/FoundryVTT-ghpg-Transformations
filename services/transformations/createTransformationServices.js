@@ -152,20 +152,6 @@ export function createTransformationService({
 
                 const definition = transformation.definition
 
-                if (!globalThis.__TRANSFORMATIONS_TEST__) {
-                    for (const grantedItem of Object.values(definition.stages[stage].grants.items)) {
-                        const item = await fromUuid(grantedItem.uuid)
-
-                        if (!item) continue
-
-                        const confirmed = await game.transformations
-                            .getDialogFactory()
-                            .showItemInfoDialog({ item })
-
-                        if (!confirmed) break
-                    }
-                }
-
                 let choice = null
                 if (definition.stages[stage].choices !== undefined) {
                     choice = actor.getFlag(

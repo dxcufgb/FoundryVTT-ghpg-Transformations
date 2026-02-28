@@ -70,6 +70,15 @@ export function actorValidators({ actor, assert, logger = null })
             return api
         },
 
+        hasToolsDisadvantage()
+        {
+            safe(() =>
+            {
+                assert.equal(actor.flags["midi-qol"].disadvantage.tool.all, true)
+            })
+            return api
+        },
+
         hasAdvantage(identifier, type = null)
         {
             safe(() =>

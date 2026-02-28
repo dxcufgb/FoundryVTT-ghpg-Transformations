@@ -1,3 +1,5 @@
+import { disadvantageOnAllD20Rolls } from "../config/disadvantageOnAllD20Rolls.js"
+
 export function createGeneralHandlers({
     activeEffectRepository,
     itemRepository,
@@ -17,6 +19,11 @@ export function createGeneralHandlers({
             if (trigger !== "longRest") return
             await itemRepository.removeItemsOnLongRest(actor)
             await activeEffectRepository.removeEffectsOnLongRest(actor)
+        },
+
+        getDisadvantageOnAllD20Rolls({ effect })
+        {
+            effect.changes = disadvantageOnAllD20Rolls
         }
     })
 }

@@ -13,8 +13,7 @@ export const stage2 = {
                 uuid: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
             },
             {
-                uuid: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
-                prerequisite: true
+                uuid: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E"
             }
         ]
     }

@@ -57,12 +57,9 @@ export function createMacroExecutor({
                     return
                 }
 
-                const actor = await actorRepository.getByUuid(
-                    payload.args.actorUuid
-                )
-                const token = await tokenRepository.getByUuid(
-                    payload.args.tokenUuid
-                )
+                const actor = await actorRepository.getByUuid(payload.args.actorUuid)
+                const token = await tokenRepository.getByUuid(payload.args.tokenUuid)
+                const effect = payload.args.efData
 
                 if (!actor || !token) {
                     logger.warn(
@@ -96,8 +93,7 @@ export function createMacroExecutor({
                     return
                 }
 
-                const context =
-                    macroContextFactory.createFromToken(token)
+                const context = macroContextFactory.createFromToken(token)
 
                 if (!context) return
 
@@ -107,6 +103,7 @@ export function createMacroExecutor({
                         transformationType,
                         action,
                         trigger,
+                        effect,
                         logger
                     },
                     async () =>
@@ -115,6 +112,7 @@ export function createMacroExecutor({
                             actor,
                             token,
                             trigger,
+                            effect,
                             context
                         })
                     },

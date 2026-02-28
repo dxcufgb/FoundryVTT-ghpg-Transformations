@@ -20,12 +20,14 @@ quench.registerBatch(
         async function localSetupTest(currentTest, transformationId)
         {
             ({ actor, runtime, actionExecutor, actionHandlers } = await setupTest({
-                currentTest, createObjects: {
+                currentTest,
+                createObjects: {
                     actor: { name: currentTest.title + `(${transformationId})`, options: { race: "humanoid" } },
                     runtime: {},
                     actionExecutor: {},
                     actionHandlers: {}
-                }
+                },
+                initializeTestVariables: true
             }))
             transformationDef = await runtime.services.transformationQueryService.getDefinitionById(transformationId)
         }
@@ -412,6 +414,7 @@ quench.registerBatch(
 
             it("full aberrant horror journey behaves correctly", async function()
             {
+                globalThis.___TransformationTestEnvironment___.rollTableResult = 100
                 let chatCallCount = 0
 
                 const originalCreate = ChatMessage.create
@@ -468,7 +471,7 @@ quench.registerBatch(
                 const tempHpAfterSecond = actor.system.attributes.hp.temp
 
                 expect(tempHpAfterSecond).to.equal(0)
-                expect(chatCallCount).to.equal(2)
+                expect(chatCallCount).to.equal(1)
             })
         })
 

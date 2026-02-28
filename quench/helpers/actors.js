@@ -1,3 +1,4 @@
+import { ROLL_TYPE } from "../../config/constants.js"
 import { getRandomFileInFolder } from "./getRandomFilename.js"
 import { getOrCreateItem } from "./item.js"
 import { waitFor } from "./waitFor.js"
@@ -219,4 +220,43 @@ export async function removeTestToken(tokenDoc)
 {
     if (!tokenDoc?.parent) return
     await tokenDoc.parent.deleteEmbeddedDocuments("Token", [tokenDoc.id])
+}
+
+export function validateAllD20Disadvantage(actor, actorValidators, assert)
+{
+    return actorValidators({ actor, assert })
+        .hasDisadvantage("acr")
+        .hasDisadvantage("ani")
+        .hasDisadvantage("arc")
+        .hasDisadvantage("ath")
+        .hasDisadvantage("dec")
+        .hasDisadvantage("his")
+        .hasDisadvantage("ins")
+        .hasDisadvantage("itm")
+        .hasDisadvantage("inv")
+        .hasDisadvantage("med")
+        .hasDisadvantage("nat")
+        .hasDisadvantage("prc")
+        .hasDisadvantage("prf")
+        .hasDisadvantage("per")
+        .hasDisadvantage("rel")
+        .hasDisadvantage("slt")
+        .hasDisadvantage("ste")
+        .hasDisadvantage("sur")
+        .hasDisadvantage("str", ROLL_TYPE.ABILITY_CHECK)
+        .hasDisadvantage("dex", ROLL_TYPE.ABILITY_CHECK)
+        .hasDisadvantage("con", ROLL_TYPE.ABILITY_CHECK)
+        .hasDisadvantage("int", ROLL_TYPE.ABILITY_CHECK)
+        .hasDisadvantage("wis", ROLL_TYPE.ABILITY_CHECK)
+        .hasDisadvantage("cha", ROLL_TYPE.ABILITY_CHECK)
+        .hasDisadvantage("str", ROLL_TYPE.SAVING_THROW)
+        .hasDisadvantage("dex", ROLL_TYPE.SAVING_THROW)
+        .hasDisadvantage("con", ROLL_TYPE.SAVING_THROW)
+        .hasDisadvantage("int", ROLL_TYPE.SAVING_THROW)
+        .hasDisadvantage("wis", ROLL_TYPE.SAVING_THROW)
+        .hasDisadvantage("cha", ROLL_TYPE.SAVING_THROW)
+        .hasDisadvantage("concentration")
+        .hasDisadvantage("death")
+        .hasDisadvantage("init")
+        .hasToolsDisadvantage()
 }
