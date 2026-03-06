@@ -30,7 +30,8 @@ export class TransformationGeneralChoiceDialog
         tag: "form",
         classes: ["sheet", "dnd5e2", "standard-form", "transformation-general-choice-dialog"],
         window: {
-            resizable: false
+            resizable: false,
+            closeOnSubmit: true
         }
     }
 
@@ -63,7 +64,7 @@ export class TransformationGeneralChoiceDialog
             button.addEventListener('click', async () =>
             {
                 await this.controller.choose(button.dataset.choiceId)
-                this.close()
+                await this.close({ force: true })
             })
         })
     }

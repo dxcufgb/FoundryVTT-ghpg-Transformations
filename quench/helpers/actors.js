@@ -1,6 +1,7 @@
 import { ROLL_TYPE } from "../../config/constants.js"
 import { getRandomFileInFolder } from "./getRandomFilename.js"
 import { getOrCreateItem } from "./item.js"
+import { actorValidator } from "./validators/actorValidator.js"
 import { waitFor } from "./waitFor.js"
 
 export async function createTestActor({
@@ -133,21 +134,14 @@ export async function waitForActorConsistency(actor, {
 
 export function expectItemsOnActor(expectedItemUuids, actor, expect)
 {
-    const actorSourceIds = actor.items.map(i =>
-        i.flags.transformations?.sourceUuid
-    )
-    for (const uuid of expectedItemUuids) {
-        expect(
-            actorSourceIds.includes(uuid),
-            `Expected UUID ${uuid} was not found on actor`
-        ).to.equal(true)
-    }
+    console.error("Transformations TEST | OLD Method called, migrate to new actorValidator function!")
+    return actorValidator({ actor, expect }).expectItemsOnActor(expectedItemUuids)
 }
 
 export function expectRaceItemSubTypeOnActor(runtime, subtype, actor, expect)
 {
-    const raceItem = runtime.infrastructure.itemRepository.findEmbeddedByType(actor, "race")
-    expect(raceItem?.system?.type?.subtype).to.be.equal(subtype)
+    console.error("Transformations TEST | OLD Method called, migrate to new actorValidator function!")
+    return actorValidator({ runtime, actor, expect }).expectRaceItemSubTypeOnActor(runtime, subtype, actor, expect)
 }
 
 export async function applyItemActivityEffect({ actor, itemName, effectName, macroTrigger = "manual" })
@@ -222,41 +216,8 @@ export async function removeTestToken(tokenDoc)
     await tokenDoc.parent.deleteEmbeddedDocuments("Token", [tokenDoc.id])
 }
 
-export function validateAllD20Disadvantage(actor, actorValidators, assert)
+export function validateAllD20Disadvantage(actor, actorEffectValidator, assert)
 {
-    return actorValidators({ actor, assert })
-        .hasDisadvantage("acr")
-        .hasDisadvantage("ani")
-        .hasDisadvantage("arc")
-        .hasDisadvantage("ath")
-        .hasDisadvantage("dec")
-        .hasDisadvantage("his")
-        .hasDisadvantage("ins")
-        .hasDisadvantage("itm")
-        .hasDisadvantage("inv")
-        .hasDisadvantage("med")
-        .hasDisadvantage("nat")
-        .hasDisadvantage("prc")
-        .hasDisadvantage("prf")
-        .hasDisadvantage("per")
-        .hasDisadvantage("rel")
-        .hasDisadvantage("slt")
-        .hasDisadvantage("ste")
-        .hasDisadvantage("sur")
-        .hasDisadvantage("str", ROLL_TYPE.ABILITY_CHECK)
-        .hasDisadvantage("dex", ROLL_TYPE.ABILITY_CHECK)
-        .hasDisadvantage("con", ROLL_TYPE.ABILITY_CHECK)
-        .hasDisadvantage("int", ROLL_TYPE.ABILITY_CHECK)
-        .hasDisadvantage("wis", ROLL_TYPE.ABILITY_CHECK)
-        .hasDisadvantage("cha", ROLL_TYPE.ABILITY_CHECK)
-        .hasDisadvantage("str", ROLL_TYPE.SAVING_THROW)
-        .hasDisadvantage("dex", ROLL_TYPE.SAVING_THROW)
-        .hasDisadvantage("con", ROLL_TYPE.SAVING_THROW)
-        .hasDisadvantage("int", ROLL_TYPE.SAVING_THROW)
-        .hasDisadvantage("wis", ROLL_TYPE.SAVING_THROW)
-        .hasDisadvantage("cha", ROLL_TYPE.SAVING_THROW)
-        .hasDisadvantage("concentration")
-        .hasDisadvantage("death")
-        .hasDisadvantage("init")
-        .hasToolsDisadvantage()
+    console.error("Transformations TEST | OLD Method called, migrate to new actorValidator function!")
+    return actorValidator({ actor, assert }).validateAllD20Disadvantage()
 }

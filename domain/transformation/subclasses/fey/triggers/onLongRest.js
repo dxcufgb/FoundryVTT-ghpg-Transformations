@@ -3,6 +3,20 @@ export const onLongRest = {
     name: "longRest",
     actionGroups: [
         {
+            name: "remove-fey-effects",
+            actions: [
+                {
+                    type: "MACRO",
+                    data: {
+                        trigger: "transformations.onLongRest",
+                        transformationType: "General",
+                        action: "removeOnLongRest",
+                        args: {}
+                    }
+                },
+            ]
+        },
+        {
             name: "choose-damage-resistance",
             when: {
                 items: {

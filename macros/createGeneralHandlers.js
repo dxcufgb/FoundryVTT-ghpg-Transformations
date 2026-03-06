@@ -1,4 +1,4 @@
-import { disadvantageOnAllD20Rolls } from "../config/disadvantageOnAllD20Rolls.js"
+import { disadvantageOnAllD20RollsEffectChanges } from "../config/disadvantageOnAllD20Rolls.js"
 
 export function createGeneralHandlers({
     activeEffectRepository,
@@ -23,7 +23,7 @@ export function createGeneralHandlers({
 
         getDisadvantageOnAllD20Rolls({ effect })
         {
-            effect.changes = disadvantageOnAllD20Rolls
+            effect.changes = disadvantageOnAllD20RollsEffectChanges
         }
     })
 }

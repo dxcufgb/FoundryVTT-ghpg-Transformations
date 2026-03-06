@@ -1,5 +1,4 @@
 import { applyItemActivityEffect, expectItemsOnActor, expectRaceItemSubTypeOnActor, validateAllD20Disadvantage } from "../../helpers/actors.js"
-import { actorValidators } from "../../helpers/actorValidators.js"
 import { advanceStageAndChoose } from "../../helpers/adcanceStageAndExpectchoiceDialog.js"
 import { advanceStageAndWait } from "../../helpers/advanceStageAndWait.js"
 import { expectAsyncWork } from "../../helpers/async/expectAsyncWork.js"
@@ -11,6 +10,14 @@ import { triggerFunction } from "../../helpers/triggers.js"
 import { waitForCondition } from "../../helpers/waitForCondition.js"
 import { waitForDomainStability } from "../../helpers/waitForDomainStability.js"
 import { setupTest } from "../../testLifecycle.js"
+// import { ActivityDTOValidator } from "../../helpers/DTOValidators/ActivityDTOValidator.js"
+// import { ActorDTOValidator } from "../../helpers/DTOValidators/ActorDTOValidator.js"
+// import { ConsumptionTargetDTOValidator } from "../../helpers/DTOValidators/ConsumptionTargetDTOValidator.js"
+// import { ContextDTOValidator } from "../../helpers/DTOValidators/ContextDTOValidator.js"
+// import { DamagePartDTOValidator } from "../../helpers/DTOValidators/DamagePartDTOValidator.js"
+// import { EffectDTOValidator } from "../../helpers/DTOValidators/EffectDTOValidator.js"
+// import { ItemDTOValidator } from "../../helpers/DTOValidators/ItemDTOValidator.js"
+// import { MessageDTOValidator } from "../../helpers/DTOValidators/MessageDTOValidator.js"
 
 export function runTransformationTestSuite({
     mochaFunctions,
@@ -24,7 +31,6 @@ export function runTransformationTestSuite({
         expectItemsOnActor,
         expectRaceItemSubTypeOnActor,
         validateAllD20Disadvantage,
-        actorValidators,
         getPreRollSavingThrowContext,
         fey: {
             chooseDamageResistanceOnLongRest
@@ -37,6 +43,16 @@ export function runTransformationTestSuite({
         waitForStageFinished,
         waitForElementGone,
         waitForElement
+    }
+    const validators = {
+        // activity: ({ assert, strict = true }) => new ActivityDTOValidator({ assert, path: "activity", strict }),
+        // actor: ({ assert, strict = true }) => new ActorDTOValidator({ assert, path: "actor", strict }),
+        // consumptionTarget:({ assert, strict = true }) => new ConsumptionTargetDTOValidator({ assert, path: "consumptionTarget", strict }),
+        // context: ({ assert, strict = true }) => new ContextDTOValidator({ assert, path: "context", strict }),
+        // damagePart:({ assert, strict = true }) => new DamagePartDTOValidator({ assert, path: "damagePart", strict }),
+        // effect: ({ assert, strict = true }) => new EffectDTOValidator({ assert, path: "effect", strict }),
+        // item: ({ assert, strict = true }) => new ItemDTOValidator({ assert, path: "item", strict }),
+        // message: ({ assert, strict = true }) => new MessageDTOValidator({ assert, path: "message", strict })
     }
 
     if (testDef.scenarios?.length > 0) {
@@ -149,10 +165,12 @@ export function runTransformationTestSuite({
                                 runtime,
                                 actor,
                                 expect,
+                                assert,
                                 helpers,
                                 waiters,
                                 staticVars,
-                                loopVars
+                                loopVars,
+                                validators
                             })
                         }
                     })
@@ -290,9 +308,11 @@ export function runTransformationTestSuite({
                             await behavior.assertions({
                                 actor,
                                 expect,
+                                assert,
                                 runtime,
                                 helpers,
-                                loopVars
+                                loopVars,
+                                validators
                             })
                         }
                     })
@@ -347,7 +367,7 @@ export function runTransformationTestSuite({
                     }
                     const effect = game.transformations.getEffectInstance(actor, effectTest.key)
                     await effect.apply(actor)
-                    await effectTest.assertion({ name: effectTest.name, origin: testDef.rollTableOrigin, actor, assert, helpers })
+                    await effectTest.assertion({ name: effectTest.name, origin: testDef.rollTableOrigin, actor, assert, helpers, validators })
                 })
             }
         })

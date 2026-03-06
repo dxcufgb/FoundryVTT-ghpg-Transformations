@@ -1,4 +1,4 @@
-import { disadvantageOnAllD20Rolls } from "../../../../../config/disadvantageOnAllD20Rolls.js"
+import { disadvantageOnAllD20RollsEffectChanges } from "../../../../../config/disadvantageOnAllD20Rolls.js"
 import { AberrantEffect } from "../aberrantEffect.js"
 
 export class AberrantDisadvantage extends AberrantEffect
@@ -23,7 +23,7 @@ export class AberrantDisadvantage extends AberrantEffect
     async beforeApply()
     {
         this.logger?.debug?.("AberrantDisadvantage.beforeApply", {})
-        this.effects = disadvantageOnAllD20Rolls
+        this.effects = disadvantageOnAllD20RollsEffectChanges
         // Object.values(this.constants.ABILITY).forEach(ability =>
         // {
         //     this.addEffects(

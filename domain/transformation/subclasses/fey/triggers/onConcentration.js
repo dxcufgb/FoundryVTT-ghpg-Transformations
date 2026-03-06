@@ -1,22 +1,11 @@
 export const onConcentration = {
     name: "concentration",
-    variables: [
-        {
-            name: "transformationSaveDC",
-            type: "stageDependent",
-            value: {
-                2: 13,
-                3: 16,
-                4: 20
-            }
-        }
-    ],
 
     actionGroups: [
         {
-            name: "hideous-appearance-save",
+            name: "reset-weakend-constitution-save",
             when: {
-                stage: { min: 2 }
+                stage: { min: 3 }
             },
             actions: [
                 {

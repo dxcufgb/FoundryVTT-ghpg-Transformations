@@ -1,6 +1,8 @@
 export function registerDnd5eHooks({
     transformationService,
     transformationRegistry,
+    actorRepository,
+    dialogFactory,
     triggerRuntime,
     onceService,
     tracker,
@@ -116,6 +118,38 @@ export function registerDnd5eHooks({
                         success: roll.isSuccess
                     }
                 }
+            })
+        })()
+    })
+
+    Hooks.on("dnd5e.preUseActivity", (activity, config, options) =>
+    {
+        logger.debug("dnd5e.preUseActivity called", activity, config, options)
+        debouncedTracker.pulse("dnd5e.preUseActivity")
+
+    })
+
+    Hooks.on("renderChatMessage", (message, html) =>
+    {
+        logger.debug("renderChatMessage called", message)
+        debouncedTracker.pulse("renderChatMessage");
+
+        (async () =>
+        {
+            const actor = game.actors.get(message?.speaker?.actor)
+            if (!actor) return
+
+            const transformation = transformationRegistry.getEntryForActor(actor)
+
+            if (!transformation?.TransformationClass?.onRenderChatMessage) return
+
+            await transformation.TransformationClass.onRenderChatMessage({
+                message,
+                html,
+                actor,
+                actorRepository,
+                dialogFactory,
+                logger
             })
         })()
     })

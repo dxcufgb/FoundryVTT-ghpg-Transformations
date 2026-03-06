@@ -1,177 +1,74 @@
-export const disadvantageOnAllD20Rolls = [
-    //Ability checks
-    {
-        "key": "system.abilities.cha.check.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.abilities.con.check.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.abilities.dex.check.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.abilities.int.check.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.abilities.str.check.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.abilities.wis.check.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    //Ability Saving throws
-    {
-        "key": "system.abilities.cha.save.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.abilities.con.save.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.abilities.dex.save.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.abilities.int.save.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.abilities.str.save.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.abilities.wis.save.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    //Attributes
-    {
-        "key": "system.attributes.init.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.attributes.concentration.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.attributes.death.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    //Skills
-    {
-        "key": "system.skills.acr.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.skills.ani.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.skills.arc.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.skills.ath.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.skills.dec.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.skills.his.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.skills.ins.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.skills.inv.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.skills.itm.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.skills.med.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.skills.nat.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.skills.per.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.skills.prc.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.skills.prf.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.skills.rel.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.skills.slt.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.skills.ste.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    {
-        "key": "system.skills.sur.roll.mode",
-        "value": "-1",
-        "mode": 2
-    },
-    //tools
-    {
-        "key": "flags.midi-qol.disadvantage.tool.all",
-        "value": "1",
-        "mode": 0
-    }
+export const D20Identifiers = {
+    abilities: [
+        "cha",
+        "con",
+        "dex",
+        "int",
+        "str",
+        "wis"
+    ],
+    attributes: [
+        "init",
+        "concentration",
+        "death"
+    ],
+    skills: [
+        "acr",
+        "ani",
+        "arc",
+        "ath",
+        "dec",
+        "his",
+        "ins",
+        "inv",
+        "itm",
+        "med",
+        "nat",
+        "per",
+        "prc",
+        "prf",
+        "rel",
+        "slt",
+        "ste",
+        "sur"
+    ],
+    Tools: [
+        "flags.midi-qol.disadvantage.tool.all"
+    ]
+}
+const abilityCheckKeys = D20Identifiers.abilities.map(ability =>
+    `system.abilities.${ability}.check.roll.mode`
+)
+
+const abilitySaveKeys = D20Identifiers.abilities.map(ability =>
+    `system.abilities.${ability}.save.roll.mode`
+)
+
+const attributeRollKeys = D20Identifiers.attributes.map(attribute =>
+    `system.attributes.${attribute}.roll.mode`
+)
+
+const skillRollKeys = D20Identifiers.skills.map(skill =>
+    `system.skills.${skill}.roll.mode`
+)
+
+const toolRollKeys = [...D20Identifiers.Tools]
+
+export const D20RollKeys = [
+    ...abilityCheckKeys,
+    ...abilitySaveKeys,
+    ...attributeRollKeys,
+    ...skillRollKeys,
+    ...toolRollKeys
 ]
+
+export const disadvantageOnAllD20RollsEffectChanges = D20RollKeys.map(key =>
+{
+    const isToolKey = D20Identifiers.Tools.includes(key)
+
+    return {
+        "key": key,
+        "value": isToolKey ? "1" : "-1",
+        "mode": isToolKey ? 0 : 2
+    }
+})

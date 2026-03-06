@@ -1,4 +1,4 @@
-import { disadvantageOnAllD20Rolls } from "../../config/disadvantageOnAllD20Rolls.js"
+import { disadvantageOnAllD20RollsEffectChanges } from "../../config/disadvantageOnAllD20Rolls.js"
 
 export function registerGMOnlyActorHooks({
     game,
@@ -110,7 +110,7 @@ export function registerGMOnlyActorHooks({
             c.key === "system.abilities.cha.check.roll.mode"
         )) return
 
-        data.changes = disadvantageOnAllD20Rolls
+        data.changes = disadvantageOnAllD20RollsEffectChanges
 
         foundry.utils.setProperty(
             data,

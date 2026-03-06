@@ -54,8 +54,15 @@ export function createInfrastructure({
         logger
     })
 
+    const itemRepository = createItemRepository({
+        tracker: trackers.repositories,
+        debouncedTracker,
+        logger
+    })
+
     const actorRepository = createActorRepository({
         tracker: trackers.repositories,
+        itemRepository,
         debouncedTracker,
         getGame,
         logger
@@ -65,11 +72,7 @@ export function createInfrastructure({
         debouncedTracker,
         logger
     })
-    const itemRepository = createItemRepository({
-        tracker: trackers.repositories,
-        debouncedTracker,
-        logger
-    })
+
     const activeEffectRepository = createActiveEffectRepository({
         tracker: trackers.repositories,
         debouncedTracker,

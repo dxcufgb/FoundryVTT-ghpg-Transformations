@@ -153,6 +153,8 @@ Hooks.once("setup", async () =>
         transformationRegistry: services.transformationRegistry,
         triggerRuntime: services.triggerRuntime,
         onceService: infrastructure.onceService,
+        actorRepository: infrastructure.actorRepository,
+        dialogFactory: moduleUi.dialogs,
         tracker: Registry.dependencies.utils.asyncTrackers.get("mutations"),
         debouncedTracker: Registry.dependencies.utils.asyncTrackers.debounced,
         logger

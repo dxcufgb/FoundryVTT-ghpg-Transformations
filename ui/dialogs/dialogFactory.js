@@ -4,6 +4,9 @@ import { TransformationGeneralChoiceDialog } from "./transformationGeneralChoice
 import { ItemInfoDialog } from "./ItemInfoDialog.js"
 import { createItemInfoViewModel } from "../viewModels/ItemInfoViewModel.js"
 import { createItemInfoController } from "../controllers/ItemInfoController.js"
+import { createFeyExhaustionRecoveryViewModel } from "../viewModels/createFeyExhaustionRecoveryViewModel.js"
+import { createFeyExhaustionRecoveryController } from "../controllers/feyExhaustionRecoveryController.js"
+import { FeyExhaustionRecoveryDialog } from "./feyExhaustionRecoveryDialog.js"
 
 export function createDialogFactory({
     controllers,
@@ -191,11 +194,51 @@ export function createDialogFactory({
         })
     }
 
+    async function openFeyExhaustionRecovery({
+        stage,
+        exhaustion,
+        hitDiceAvailable
+    })
+    {
+        logger.debug("openFeyExhaustionRecovery", {
+            stage,
+            exhaustion,
+            hitDiceAvailable
+        })
+        return new Promise(resolve =>
+        {
+
+            const viewModel =
+                createFeyExhaustionRecoveryViewModel({
+                    stage,
+                    exhaustion,
+                    hitDiceAvailable,
+                    logger
+                })
+
+            const controller =
+                createFeyExhaustionRecoveryController({
+                    resolve,
+                    logger
+                })
+
+            const dialog =
+                new FeyExhaustionRecoveryDialog({
+                    viewModel,
+                    controller,
+                    logger
+                })
+
+            dialog.render(true)
+        })
+    }
+
     return Object.freeze({
         openTransformationConfig,
         openStageChoiceDialog,
         openTransformationGeneralChoiceDialog,
-        showItemInfoDialog
+        showItemInfoDialog,
+        openFeyExhaustionRecovery
     })
 
     function closeExistingDialog(dialog)

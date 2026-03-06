@@ -83,6 +83,12 @@ export function setupMocks(mocks = {})
 
     UiAccessor.dialogs = ui.dialogs
 
+    registerTransformationMacros({
+        macroRegistry: infrastructure.macroRegistry,
+        activeEffectRepository: infrastructure.activeEffectRepository,
+        itemRepository: infrastructure.itemRepository,
+        logger: logger
+    })
     // 7️⃣ Return for direct test access if needed
     return {
         logger,

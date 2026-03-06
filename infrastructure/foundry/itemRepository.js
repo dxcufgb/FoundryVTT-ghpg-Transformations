@@ -38,6 +38,12 @@ export function createItemRepository({
         return actor.items.find(item => item.type === type) ?? null
     }
 
+    function findAllEmbeddedByType(actor, type)
+    {
+        logger.debug("createItemRepository.findAllEmbeddedByType", { actor, type })
+        return actor.items.filter(item => item.type === type) ?? null
+    }
+
     async function addTransformationItem({
         actor,
         sourceItem,
@@ -384,6 +390,7 @@ export function createItemRepository({
         findEmbeddedByUuidFlag,
         getEmbeddedAddedByTransformation,
         findEmbeddedByType,
+        findAllEmbeddedByType,
         getRemainingUses,
         consumeUses,
 

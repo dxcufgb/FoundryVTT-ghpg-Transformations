@@ -81,15 +81,19 @@ export const feyTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ runtime, actor, expect, helpers, loopVars }) =>
+            finalAssertions: async ({ runtime, actor, assert, validators, loopVars }) =>
             {
                 const expectedItemUuids = [
                     "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
                     "Compendium.transformations.gh-transformations.Item.tcI2u7gfaXjg2Orr",
                     loopVars.servantUuid
                 ]
-                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
-                helpers.expectRaceItemSubTypeOnActor(runtime, "Fey", actor, expect)
+                assert.isTrue(
+                    validators.actorValidator({ runtime, actor, assert })
+                        .validateItemsOnActor({ expectedItemUuids })
+                        .validateRaceItemSubTypeOnActor("Fey")
+                        .validate()
+                )
             }
         },
 
@@ -120,7 +124,7 @@ export const feyTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ runtime, actor, expect, helpers, loopVars }) =>
+            finalAssertions: async ({ runtime, actor, assert, validators, loopVars }) =>
             {
                 const expectedItemUuids = [
                     "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
@@ -131,7 +135,68 @@ export const feyTestDef = {
                     loopVars.twoFacedUuid,
                     ...loopVars.magicTricksSpells
                 ]
-                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+                assert.isTrue(
+                    validators.actorValidator({ actor, assert })
+                        .validateItemsOnActor({ expectedItemUuids })
+                        .validate()
+                )
+            }
+        },
+
+        {
+            name: (loopVars) => `stage 3 with Servant of the ${loopVars.name}  Court`,
+            loop: () => [
+                seasons.winter,
+                seasons.spring,
+                seasons.summer,
+                seasons.autumn
+            ],
+
+            steps: [
+                {
+                    stage: 1,
+                    choose: (loopVars) => loopVars.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ runtime, actor, assert, validators, loopVars }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
+                    "Compendium.transformations.gh-transformations.Item.tcI2u7gfaXjg2Orr",
+                    "Compendium.transformations.gh-transformations.Item.Ge8HWhiAqbjKhhZJ",
+                    "Compendium.transformations.gh-transformations.Item.2OaLTqox7kaidOxP",
+                    "Compendium.transformations.gh-transformations.Item.rID40yYHDRry6TJ5",
+                    "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
+                    "Compendium.transformations.gh-transformations.Item.Uo86wtOs7PMOFlav",
+                    loopVars.servantUuid,
+                    loopVars.magicTricksUuid,
+                    loopVars.twoFacedUuid,
+                    ...loopVars.magicTricksSpells
+                ]
+                assert.isTrue(
+                    validators.actorValidator({ actor, assert })
+                        .validateItemsOnActor({ expectedItemUuids })
+                        .validate()
+                )
             }
         },
     ],
@@ -183,17 +248,95 @@ export const feyTestDef = {
                 )
             },
 
-            assertions: async ({ actor, expect, loopVars }) =>
+            assertions: async ({ actor, assert, validators, loopVars }) =>
             {
-                const actorResistances = actor.system.traits.dr.value
-                expect(actorResistances.size).to.be.equal(1)
-                expect(actorResistances).to.include.members([
-                    loopVars.damageType
-                ])
+                assert.isTrue(
+                    validators.actorValidator({ actor, assert })
+                        .validateNumberOfDamageResistances(1)
+                        .hasDamageResistances([loopVars.damageType])
+                        .validateNumberOfEffects(1)
+                        .hasEffect("Fey Form Resistance")
+                        .validate()
+                )
+            }
+        },
 
-                const actorEffects = actor.effects
-                expect(actorEffects.size).to.be.equal(1)
-                expect(actorEffects.contents[0].name).to.be.equal("Fey Form Resistance")
+        {
+            name: (vars) => `Fey Form removes previous resistance on longrest`,
+
+            setup: async ({ actor }) => 
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fey": {
+                            1: seasons.winter.servantUuid
+                        }
+                    }
+                })
+            },
+
+            requiredPath: [
+                {
+                    stage: 1,
+                }
+            ],
+
+            steps: [
+                async ({ actor, runtime, helpers, waiters, loopVars }) =>
+                {
+
+                    await runtime.infrastructure.activeEffectRepository.create({
+                        actor,
+                        name: "Fey Form Resistance",
+                        description: "Your Fey Form grants you resistance to acid",
+                        icon: "modules/transformations/icons/Transformations/Fey/Fey_Form.png",
+                        changes: [
+                            {
+                                key: "system.traits.dr.value",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: "acid"
+                            }
+                        ],
+
+                        flags: {
+                            transformations: {
+                                removeOnLongRest: true
+                            }
+                        },
+                        origin: actor.uuid,
+                        source: "Fey Form"
+                    })
+
+                    await waiters.waitForCondition(() =>
+                        actor.system.traits.dr.value.has("acid")
+                    )
+
+                    await waiters.waitForNextFrame()
+
+                    await helpers.fey.chooseDamageResistanceOnLongRest({ waiters, runtime, actor, choice: "cold" })
+                },
+            ],
+
+            await: async ({
+                waiters,
+                actor
+            }) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.system.traits.dr.value.has("cold")
+                )
+            },
+
+            assertions: async ({ actor, assert, validators, loopVars }) =>
+            {
+                assert.isTrue(
+                    validators.actorValidator({ actor, assert })
+                        .validateNumberOfDamageResistances(1)
+                        .hasDamageResistances(["cold"])
+                        .validateNumberOfEffects(1)
+                        .hasEffect("Fey Form Resistance")
+                        .validate()
+                )
             }
         },
 
@@ -231,21 +374,23 @@ export const feyTestDef = {
                 )
             },
 
-            assertions: async ({ actor, expect, runtime, loopVars }) =>
+            assertions: async ({ actor, assert, validators, runtime, loopVars }) =>
             {
-                const courtItem = actor.items.find(i => i.name == `Servant of the ${loopVars.name} Court`)
-                expect(courtItem).to.exist
+                assert.isTrue(
+                    validators.actorValidator({ actor, assert })
+                        .validateItemsOnActor({ itemName: `Servant of the ${loopVars.name} Court` })
 
-                const activities = courtItem.system.activities.contents
-                expect(activities.length).to.be.equal(1)
+                        .item.hasNumberOfActivities(1)
+                        .hasActivity("Fey Teleport")
 
-                const feyTeleport = activities.find(a => a.name == "Fey Teleport")
-                expect(feyTeleport).to.exist
-                expect(feyTeleport.activation.type).to.be.equal("bonus")
-                expect(feyTeleport.damage.parts[0].number).to.be.equal(1)
-                expect(feyTeleport.damage.parts[0].denomination).to.be.equal(6)
-                expect(feyTeleport.damage.parts[0].types).to.include.members([loopVars.feyTeleportDamageType])
-                expect(feyTeleport.range.value).to.be.equal(30)
+                        .activity.validateActivationType("bonus")
+                        .validateRangeValue(30)
+                        .hasDamagePart()
+
+                        .damagePart.validateIncludesDamageTypes([loopVars.feyTeleportDamageType])
+                        .validateDamageRoll("1d6")
+                        .validate()
+                )
             }
         },
 
@@ -266,7 +411,7 @@ export const feyTestDef = {
                 }
             ],
 
-            assertions: async ({ actor, expect, runtime, helpers }) =>
+            assertions: async ({ actor, assert, validators, runtime, helpers }) =>
             {
                 const transformation = runtime.services.transformationRegistry.getEntryForActor(actor)
                 const context = helpers.getPreRollSavingThrowContext({
@@ -275,91 +420,18 @@ export const feyTestDef = {
                 })
                 await transformation.TransformationClass.onPreRollSavingThrow(actor, context, { onceService: runtime.infrastructure.onceService })
 
-                expect(context.disadvantage).to.be.true
-                expect(context.advantage).to.be.null
+                assert.isTrue(
+                    validators.contextValidator({ context, assert })
+                        .validateSavingThrowDisadvantage(true)
+                        .validateSavingThrowAdvantage(null)
+                        .validate()
+                )
 
-                const actorOnceFlags = actor.flags.transformations.once
-                expect(actorOnceFlags["fey-plannar-binding-disadvantage"]).to.exist
-                expect(actorOnceFlags["fey-plannar-binding-disadvantage"].executed).to.be.true
-                expect(actorOnceFlags["fey-plannar-binding-disadvantage"].reset.length).to.be.equal(2)
-                expect(actorOnceFlags["fey-plannar-binding-disadvantage"].reset).to.include.members(["longRest", "shortRest"])
-            }
-        },
-
-        {
-            name: "Planar Bindings no disadvantage on saving throw when item type is not spell",
-
-            requiredPath: [
-                {
-                    stage: 1,
-                    choose: seasons.winter.servantUuid
-                }
-            ],
-
-            steps: [
-                async ({ actor, runtime, helpers, waiters }) =>
-                {
-                    await helpers.fey.chooseDamageResistanceOnLongRest({ waiters, runtime, actor, choice: "acid" })
-                }
-            ],
-
-            assertions: async ({ actor, expect, runtime, helpers }) =>
-            {
-                const transformation = runtime.services.transformationRegistry.getEntryForActor(actor)
-                const context = helpers.getPreRollSavingThrowContext({
-                    ability: "dex",
-                    originType: "not spell"
-                })
-                await transformation.TransformationClass.onPreRollSavingThrow(actor, context, { onceService: runtime.infrastructure.onceService })
-
-                expect(context.disadvantage).to.be.null
-                expect(context.advantage).to.be.null
-
-                const actorTransformationsFlags = actor.flags.transformations
-                expect(actorTransformationsFlags.once).to.not.exist
-            }
-        },
-
-        {
-            name: "Planar Bindings no disadvantage on saving throw when item type is not spell",
-
-            requiredPath: [
-                {
-                    stage: 1,
-                    choose: seasons.winter.servantUuid
-                }
-            ],
-
-            steps: [
-                async ({ actor, runtime, helpers, waiters }) =>
-                {
-                    await helpers.fey.chooseDamageResistanceOnLongRest({ waiters, runtime, actor, choice: "acid" })
-                    const transformation = runtime.services.transformationRegistry.getEntryForActor(actor)
-                    const context = helpers.getPreRollSavingThrowContext({
-                        ability: "dex",
-                        originType: "spell"
-                    })
-                    await transformation.TransformationClass.onPreRollSavingThrow(actor, context, { onceService: runtime.infrastructure.onceService })
-                }
-            ],
-
-            assertions: async ({ actor, expect, runtime, helpers }) =>
-            {
-                const transformation = runtime.services.transformationRegistry.getEntryForActor(actor)
-                const context = helpers.getPreRollSavingThrowContext({
-                    ability: "dex",
-                    originType: "spell"
-                })
-                await transformation.TransformationClass.onPreRollSavingThrow(actor, context, { onceService: runtime.infrastructure.onceService })
-
-                expect(context.disadvantage).to.be.null
-                expect(context.advantage).to.be.null
-
-                const actorOnceFlags = actor.flags.transformations.once
-                expect(actorOnceFlags["fey-plannar-binding-disadvantage"]).to.exist
-                expect(actorOnceFlags["fey-plannar-binding-disadvantage"].executed).to.be.true
-                expect(actorOnceFlags["fey-plannar-binding-disadvantage"].reset.length).to.be.equal(2)
-                expect(actorOnceFlags["fey-plannar-binding-disadvantage"].reset).to.include.members(["longRest", "shortRest"])
+                assert.isTrue(
+                    validators.actorValidator({ actor, assert })
+                        .validateActorOnceFlag("fey-plannar-binding-disadvantage", { executed: true, reset: ["longRest", "shortRest"] })
+                        .validate()
+                )
             }
         },
 
@@ -390,30 +462,36 @@ export const feyTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect, runtime, helpers, loopVars }) =>
+            assertions: async ({ actor, assert, runtime, validators, loopVars }) =>
             {
-                const twoFaced = actor.items.find(i => i.name == "Two-Faced")
-                expect(twoFaced).to.exist
+                assert.isTrue(
+                    validators.actorValidator({ actor, assert })
+                        .validateItemsOnActor({ itemName: "Two-Faced" })
 
-                const activities = twoFaced.system.activities.contents
-                expect(activities.length).to.be.equal(1)
+                        .item.hasNumberOfActivities(1)
+                        .hasActivity("Transform Face")
 
-                const save = activities.find(a => a.name == "Transform face")
-                expect(save.activation.type).to.be.equal("action")
+                        .activity.validateActivationType("action")
+                        .hasNumberOfConsumptionTargets(1)
+                        .hasConsumptionTarget()
 
-                const consumption = save.consumption
-                expect(consumption.targets.length).to.be.equal(1)
+                        .consumptionTarget.validateType("itemUses")
+                        .validateValue("1")
+                        .validate()
+                )
 
-                const consumptionTarget = consumption.targets[0]
-                expect(consumptionTarget.type).to.be.equal("itemUses")
-                expect(consumptionTarget.value).to.be.equal("1")
+                assert.isTrue(
+                    validators.actorValidator({ actor, assert })
+                        .validateItemsOnActor({ itemName: "Two-Faced" })
 
-                const saveEffects = save.effects
-                expect(saveEffects.length).to.be.equal(1)
+                        .item.hasActivity("Transform Face")
 
-                const saveEffect = saveEffects[0].effect
-                expect(saveEffect.name).to.be.equal(runtime.dependencies.utils.stringUtils.capitalize(loopVars.twoFacedStatusEffect))
-                expect(saveEffect.statuses).to.include.members([loopVars.twoFacedStatusEffect])
+                        .activity.hasNumberOfEffects(1)
+                        .hasEffect(loopVars.twoFacedStatusEffect)
+
+                        .effect.validateStatuses([loopVars.twoFacedStatusEffect])
+                        .validate()
+                )
             }
         },
 
@@ -444,8 +522,17 @@ export const feyTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect, runtime, helpers, loopVars }) =>
+            assertions: async ({ actor, assert, runtime, validators, loopVars }) =>
             {
+                assert.isTrue(
+                    validators.actorValidator({ actor, assert })
+                        .validateItemsOnActor(loopVars.magicTricksUuid)
+
+                        .item.validateNumberOfAdvancements(1)
+                        .hasAdvancement()
+
+                        .advancement.validateNumberOfConfigurationItems(3)
+                )
                 const magicTricks = actor.items.find(i => i.flags.transformations.sourceUuid == loopVars.magicTricksUuid)
                 expect(magicTricks).to.exist
 
@@ -549,7 +636,7 @@ export const feyTestDef = {
             assertions: async ({ actor, expect, assert, runtime, helpers }) =>
             {
                 const queensCommand = actor.items.find(i => i.name == "Queen's Command")
-                const itemEffects = queensCommand.effects.contents[0]
+                const itemEffects = queensCommand.effects.contents
 
                 expect(queensCommand).to.exist
 
@@ -557,7 +644,46 @@ export const feyTestDef = {
                 expect(itemEffects[0].changes.length).to.be.equal(34)
                 expect(itemEffects[0].flags.transformations.addDisadvantageAllD20).to.exist
                 expect(itemEffects[0].flags.transformations.addDisadvantageAllD20).to.be.equal(false)
-                helpers.validateAllD20Disadvantage(actor, helpers.actorValidators, assert)
+                helpers.validateAllD20Disadvantage(actor, helpers.actorValidator, assert)
+            }
+        },
+
+        {
+            name: "Illusionary Cloak effect gets all the changes and sets flag to false on update",
+
+            requiredPath: [
+                {
+                    stage: 1,
+                    choose: seasons.winter.servantUuid
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                }
+            ],
+
+            await: async ({ actor, runtime, helpers, waiters }) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.items.find(i => i.name === "Illusionary Cloak")
+                )
+            },
+
+            assertions: async ({ actor, expect, assert, runtime, helpers }) =>
+            {
+                const spell = actor.items.find(i => i.name == "Illusionary Cloak")
+                expect(spell).to.exist
+                expect(spell.type).to.be.equal("spell")
+
+                const effects = spell.effects.contents
+                expect(effects.size).to.be.equal(1)
+
+                const effect = effects[0]
+                expect(effect.duration.seconds).to.be.equal(3600)
+
+                const spellSystem = spell.system
             }
         },
 

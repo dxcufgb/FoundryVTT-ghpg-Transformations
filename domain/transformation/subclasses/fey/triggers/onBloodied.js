@@ -1,28 +1,11 @@
 export const onBloodied = {
     name: "bloodied",
 
-    variables: [
-        {
-            name: "regainedHitPoints",
-            type: "formula",
-            value: "@prof + @transformation.stage"
-        },
-        {
-            name: "transformationSaveDC",
-            type: "stageDependent",
-            value: {
-                2: 13,
-                3: 16,
-                4: 20
-            }
-        }
-    ],
-
     actionGroups: [
         {
-            name: "aberrant-form-temp-hp",
+            name: "weakend-constitution-saving-throw",
             when: {
-                stage: { min: 1 }
+                stage: { min: 3 },
             },
             actions: [
                 {
@@ -30,76 +13,39 @@ export const onBloodied = {
                     when: {
                         items: {
                             has: [
-                                "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu"
+                                "Compendium.transformations.gh-transformations.Item.Uo86wtOs7PMOFlav"
                             ]
                         }
                     },
                     data: {
-                        uuid: "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
+                        uuid: "Compendium.transformations.gh-transformations.Item.Uo86wtOs7PMOFlav",
                         mode: "consume",
                         blocker: true,
                         uses: 1
                     }
                 },
                 {
-                    type: "HP",
+                    type: "SAVE",
                     data: {
-                        mode: "temp",
-                        value: "@regainedHitPoints"
+                        ability: "con",
+                        dc: "20",
+                        key: "weakend-constitution-con-save"
+                    }
+                },
+                {
+                    type: "EXHAUSTION",
+                    when: {
+                        saveFailed: "weakend-constitution-con-save"
+                    },
+                    data: {
+                        mode: "add",
+                        value: 1
                     }
                 },
                 {
                     type: "CHAT",
                     data: {
-                        message: "Aberrant Form activates and gives @regainedHitPoints temporary hit points!"
-                    }
-                }
-            ]
-        },
-        {
-            name: "hideous-appearance-save",
-            when: {
-                stage: { min: 2 }
-            },
-            actions: [
-                {
-                    type: "SAVE",
-                    when: {
-                        effects: { name: "Hiding Hideous Appearance" }
-                    },
-                    data: {
-                        ability: "con",
-                        dc: "@transformationSaveDC",
-                        key: "hideous-appearance-con-save"
-                    }
-                },
-                {
-                    type: "EFFECT",
-                    when: {
-                        saveFailed: "hideous-appearance-con-save"
-                    },
-                    data: {
-                        mode: "remove",
-                        name: "Hiding Hideous Appearance"
-                    }
-                }
-            ]
-        },
-        {
-            name: "bloodied-mutation-roll",
-            when: {
-                stage: { min: 4 },
-            },
-            actions: [
-                {
-                    type: "APPLY_ROLLTABLE",
-                    once: {
-                        key: "bloodied-roll",
-                        reset: "longRest"
-                    },
-                    data: {
-                        uuid: "Compendium.transformations.gh-roll-tables.RollTable.bBA81xCQndyJAIPi",
-                        mode: "downgradeOnly"
+                        message: "@actor.name gain one level of exhaustion due to their fey forms weakend constitution!"
                     }
                 }
             ]

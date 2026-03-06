@@ -6,6 +6,8 @@ import { createSaveAction } from "./save.js"
 import { createEffectAction } from "./effect.js"
 import { createMacroAction } from "./macroAction.js"
 import { createDialogAction } from "./dialog.js"
+import { createActorFlagAction } from "./actorFlags.js"
+import { createExhaustionAction } from "./actorExhaustion.js"
 
 export function createActionHandlers({
     trackers,
@@ -31,6 +33,10 @@ export function createActionHandlers({
     })
 
     return Object.freeze({
+        ACTOR_FLAG: createActorFlagAction({
+            tracker: trackers.mutations,
+            logger
+        }),
         APPLY_ROLLTABLE: createRollTableAction({
             tracker: trackers.mutations,
             rollTableService,
@@ -44,6 +50,10 @@ export function createActionHandlers({
         EFFECT: createEffectAction({
             tracker: trackers.mutations,
             activeEffectRepository,
+            logger
+        }),
+        EXHAUSTION: createExhaustionAction({
+            tracker: trackers.mutations,
             logger
         }),
         HP: createHpAction({

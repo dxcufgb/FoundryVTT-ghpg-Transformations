@@ -1,3 +1,4 @@
+import { registerTransformationMacros } from "../bootstrap/registerTransformtaionsMacros.js"
 import { createActionExecutor } from "../infrastructure/actions/createActionExecutor.js"
 import { createFakeTracker } from "./fakes/fakeTracker.js"
 import { createTestActor } from "./helpers/actors.js"
@@ -25,6 +26,12 @@ export async function setupTest({
             serviceMocks: createObjects.runtime.serviceMocks != undefined ? createObjects.runtime.serviceMocks : {},
             infrastructureMocks: createObjects.runtime.infrastructureMocks != undefined ? createObjects.runtime.infrastructureMocks : {},
             loggerLevel: createObjects.runtime.loggerLevel != undefined ? createObjects.runtime.loggerLevel : {}
+        })
+        registerTransformationMacros({
+            macroRegistry: returnObjects.runtime.infrastructure.macroRegistry,
+            activeEffectRepository: returnObjects.runtime.infrastructure.activeEffectRepository,
+            itemRepository: returnObjects.runtime.infrastructure.itemRepository,
+            logger: logger
         })
     }
 
