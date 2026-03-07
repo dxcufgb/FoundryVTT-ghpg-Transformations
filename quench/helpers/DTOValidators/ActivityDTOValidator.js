@@ -31,7 +31,7 @@ export class ActivityDTOValidator extends BaseDTOValidator
         super.validate(dto, { activity })
 
         this.validateDamageParts(activity, dto.damageParts)
-        this.validateConsumption(activity, dto.consumption)
+        // this.validateConsumption(activity, dto.consumption)
         this.validateEffects(activity, dto.effects)
 
         return true
@@ -88,11 +88,16 @@ export class ActivityDTOValidator extends BaseDTOValidator
                 `[${this.path}.effects[${index}]] Effect not found`
             )
 
+            const effectContext = {
+                effectObject: effect,
+                effectType: "activity"
+            }
+
             new EffectDTOValidator({
                 assert: this.assert,
                 path: `${this.path}.effects[${index}]`,
                 strict: this.strict
-            }).validate(effect, effectDTO)
+            }).validate(effectContext, effectDTO)
         })
     }
 }

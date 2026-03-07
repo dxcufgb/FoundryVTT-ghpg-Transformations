@@ -14,6 +14,8 @@ export class ActorDTOValidator extends BaseDTOValidator
 
     validate(dto)
     {
+        console.log("Transformations | ActorDTOValidator.validate called with:", dto)
+
         const actor = dto.actor
 
         if (!actor)

@@ -2136,6 +2136,7 @@ export const AberrantHorrorTestDef = {
                     })
                     item.addEffect(effect =>
                     {
+                        effect.name = "Poisonous Mutations"
                         effect.type = "auraeffects.aura"
                         effect.collisionTypes = ["move"]
                         effect.distanceFormula = "1"

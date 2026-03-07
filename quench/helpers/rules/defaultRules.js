@@ -240,3 +240,78 @@ RuleRegistry.register("allRollModes", ({ expected, actual, path }) =>
         }
     })
 })
+
+RuleRegistry.register("partialDeepMatch", ({ actual, expected, path }) =>
+{
+    if (!expected?.length) return
+
+    let index = 0
+
+    expected.forEach(entry =>
+    {
+        const actualValue = actual[index]
+        index++
+        const { expected: expectedValue, path: flagPath } = entry
+
+        if (actualValue === null || actualValue === undefined) {
+            throw new Error(
+                `[${path}.${flagPath}] Flag path not found.\n` +
+                `Expected structure:\n${JSON.stringify(expectedValue, null, 2)}`
+            )
+        }
+
+        const mismatches = []
+        const missing = []
+        const extra = []
+
+        for (const [key, expectedVal] of Object.entries(expectedValue)) {
+            if (!(key in actualValue)) {
+                missing.push(key)
+                continue
+            }
+
+            const actualVal = actualValue[key]
+
+            if (JSON.stringify(actualVal) !== JSON.stringify(expectedVal)) {
+                mismatches.push({
+                    key,
+                    expected: expectedVal,
+                    actual: actualVal
+                })
+            }
+        }
+
+        for (const key of Object.keys(actualValue)) {
+            if (!(key in expectedValue))
+                extra.push(key)
+        }
+
+        if (mismatches.length || missing.length) {
+            const lines = []
+
+            if (missing.length)
+                lines.push(`Missing keys: ${missing.join(", ")}`)
+
+            if (mismatches.length) {
+                lines.push("Value mismatches:")
+                mismatches.forEach(m =>
+                {
+                    lines.push(
+                        `  ${m.key}: expected ${JSON.stringify(m.expected)} but got ${JSON.stringify(m.actual)}`
+                    )
+                })
+            }
+
+            if (extra.length)
+                lines.push(`Extra keys present: ${extra.join(", ")}`)
+
+            lines.push(`Actual object:`)
+            lines.push(JSON.stringify(actualValue, null, 2))
+
+            throw new Error(
+                `[${path}.${flagPath}] Flag structure mismatch\n` +
+                lines.join("\n")
+            )
+        }
+    })
+})

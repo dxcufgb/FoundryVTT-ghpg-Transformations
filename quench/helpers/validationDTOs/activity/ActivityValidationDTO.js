@@ -2,6 +2,7 @@ import { ActivityDTOValidator } from "../../DTOValidators/ActivityDTOValidator.j
 import { ConsumptionValidationDTO } from "../consumption/ConsumptionValidationDTO.js"
 import { DamagePartValidationDTO } from "../damagePart/DamagePartValidationDTO.js"
 import { EffectValidationDTO } from "../effect/EffectValidationDTO.js"
+import { RangeValidationDTO } from "../range/RangeValidationDTO.js"
 
 // @ts-check
 export class ActivityValidationDTO
@@ -21,6 +22,7 @@ export class ActivityValidationDTO
         this.damageParts = [] // DamagePartValidationDTO[]
         this.consumption = new ConsumptionValidationDTO()
         this.effects = []
+        this.range = new RangeValidationDTO()
     }
 
     addDamagePart(configure)

@@ -2,6 +2,7 @@ import { ActorDTOValidator } from "../../DTOValidators/ActorDTOValidator.js"
 import { ActorRollModeDTOValidator } from "../../DTOValidators/ActorRollModeDTOValidator.js"
 import { ActorStatsDTOValidator } from "../../DTOValidators/ActorStatsDTOValidator.js"
 import { EffectValidationDTO } from "../effect/EffectValidationDTO.js"
+import { FlagValidationDTO } from "../flag/FlagValidationDTO.js"
 import { ItemValidationDTO } from "../item/ItemValidationDTO.js"
 
 
@@ -21,6 +22,7 @@ export class ActorValidationDTO
         this.effects = new EffectValidationDTO()
         this.items = [] // ItemValidationDTO[]
         this.rollModes = new ActorRollModeDTO()
+        this.flags = new FlagValidationDTO()
     }
 
     /**

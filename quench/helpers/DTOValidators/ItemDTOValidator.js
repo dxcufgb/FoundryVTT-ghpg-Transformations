@@ -1,4 +1,5 @@
 import { path, resolve } from "../rules/RuleBuilder.js"
+import { AdvancementDTOValidator } from "./AdvancementDTOValidator.js"
 import { BaseDTOValidator } from "./BaseDTOValidator.js"
 import { ActivityDTOValidator } from "./ActivityDTOValidator.js"
 import { EffectDTOValidator } from "./EffectDTOValidator.js"
@@ -33,6 +34,7 @@ export class ItemDTOValidator extends BaseDTOValidator
         super.validate(dto, { item })
 
         this.validateActivities(item, dto.activities)
+        this.validateAdvancements(item, dto.advancements)
         this.validateEffects(item, dto.effects)
 
         return true
@@ -65,6 +67,29 @@ export class ItemDTOValidator extends BaseDTOValidator
                 path: `${this.path}.activities[${index}]`,
                 strict: this.strict
             }).validate(activity, activityDTO)
+        })
+    }
+
+    validateAdvancements(item, advancements)
+    {
+        if (!advancements?.length) return
+
+        const itemAdvancements = item.system?.advancement ?? []
+
+        advancements.forEach((advancementDTO, index) =>
+        {
+            const advancement = itemAdvancements[index]
+
+            this.assert.isOk(
+                advancement,
+                `[${this.path}.advancements[${index}]] Advancement not found`
+            )
+
+            new AdvancementDTOValidator({
+                assert: this.assert,
+                path: `${this.path}.advancements[${index}]`,
+                strict: this.strict
+            }).validate(advancement, advancementDTO)
         })
     }
 

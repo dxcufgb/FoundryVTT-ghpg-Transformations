@@ -1,10 +1,24 @@
 export function getByPath(obj, path)
 {
-    return path.split(".").reduce((acc, key) =>
-    {
-        if (Array.isArray(acc))
-            return acc.map(v => v?.[key])
+    if (!path) return obj
 
-        return acc?.[key]
-    }, obj)
+    const segments = path
+        .replace(/\[(.*?)\]/g, ".$1")
+        .split(".")
+        .filter(Boolean)
+
+    let current = obj
+    let resolvedPath = ""
+
+    for (const seg of segments) {
+        resolvedPath += (resolvedPath ? "." : "") + seg
+
+        if (current == null || !(seg in current)) {
+            return undefined
+        }
+
+        current = current[seg]
+    }
+
+    return current
 }

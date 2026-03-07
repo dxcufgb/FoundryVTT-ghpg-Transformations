@@ -1,4 +1,5 @@
 import { ABILITY, ATTRIBUTE, ROLL_TYPE, SKILL } from "../../../../config/constants.js"
+import { D20Identifiers } from "../../../../config/disadvantageOnAllD20Rolls.js"
 import { validate } from "../../../helpers/DTOValidators/validate.js"
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js"
 import { ContextValidationDTO } from "../../../helpers/validationDTOs/context/ContextValidationDTO.js"
@@ -14,9 +15,21 @@ const seasons = {
         twoFacedStatusEffect: "frightened",
         magicTricksUuid: "Compendium.transformations.gh-transformations.Item.H1unaVkxHYemhwF5",
         magicTricksSpells: [
-            "Compendium.transformations.gh-transformations.Item.Z39OZS5HrubgAbJL",
-            "Compendium.transformations.gh-transformations.Item.dgYEkwNt7bp9F6Yj",
-            "Compendium.transformations.gh-transformations.Item.CvnXPXDMoNw6XyLy",
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.Z39OZS5HrubgAbJL",
+                level: 0,
+                saveActivityName: false,
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.dgYEkwNt7bp9F6Yj",
+                level: 1,
+                saveActivityName: "Shard Explosion",
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.CvnXPXDMoNw6XyLy",
+                level: 2,
+                saveActivityName: false,
+            }
         ],
         feyTeleportDamageType: "cold"
     },
@@ -28,9 +41,21 @@ const seasons = {
         twoFacedStatusEffect: "stunned",
         magicTricksUuid: "Compendium.transformations.gh-transformations.Item.GfXOtsRa8JYaiUeH",
         magicTricksSpells: [
-            "Compendium.transformations.gh-transformations.Item.aF8b9e0KBKhBb2Af",
-            "Compendium.transformations.gh-transformations.Item.JfL1yuWjDiJAac2V",
-            "Compendium.transformations.gh-transformations.Item.Pcn3yjh4NbYs2Ec7",
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.aF8b9e0KBKhBb2Af",
+                level: 2,
+                saveActivityName: false,
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.JfL1yuWjDiJAac2V",
+                level: 0,
+                saveActivityName: false,
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.Pcn3yjh4NbYs2Ec7",
+                level: 1,
+                saveActivityName: false,
+            },
         ],
         feyTeleportDamageType: "thunder"
     },
@@ -42,9 +67,21 @@ const seasons = {
         twoFacedStatusEffect: "charmed",
         magicTricksUuid: "Compendium.transformations.gh-transformations.Item.65VksuhlhiIJINcM",
         magicTricksSpells: [
-            "Compendium.transformations.gh-transformations.Item.eOoj2xXW0beg0DPt",
-            "Compendium.transformations.gh-transformations.Item.D7TUKogaloUL97E7",
-            "Compendium.transformations.gh-transformations.Item.pSZsUoI3D1V9Bot2",
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.eOoj2xXW0beg0DPt",
+                level: 0,
+                saveActivityName: false,
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.D7TUKogaloUL97E7",
+                level: 2,
+                saveActivityName: false,
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.pSZsUoI3D1V9Bot2",
+                level: 1,
+                saveActivityName: "Midi Save",
+            }
         ],
         feyTeleportDamageType: "fire"
     },
@@ -56,13 +93,50 @@ const seasons = {
         twoFacedStatusEffect: "poisoned",
         magicTricksUuid: "Compendium.transformations.gh-transformations.Item.xOebV0euA9zB8qeY",
         magicTricksSpells: [
-            "Compendium.transformations.gh-transformations.Item.6rTGRPz9LTviIN0P",
-            "Compendium.transformations.gh-transformations.Item.JJWjhhJEgnV0xFnT",
-            "Compendium.transformations.gh-transformations.Item.usF8FEGtQuKhEjeH",
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.6rTGRPz9LTviIN0P",
+                level: 1,
+                saveActivityName: "Midi Save",
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.JJWjhhJEgnV0xFnT",
+                level: 0,
+                saveActivityName: false,
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.usF8FEGtQuKhEjeH",
+                level: 2,
+                saveActivityName: "Midi Save",
+            }
         ],
         feyTeleportDamageType: "poison"
     },
 
+}
+
+function getMagickTrickItem(actor, itemUuid, awardedByItemUuid, spellLevel, saveActivityName, item)
+{
+    const actorProf = actor.system.attributes.prof
+    const transformationStage = actor.flags.transformations.stage
+    item.expectedItemUuids = [itemUuid]
+    item.awardedByItem = awardedByItemUuid
+    item.prepared = 2
+    item.level
+    if (spellLevel > 0) {
+        item.uses.max = 1
+        item.uses.value = 1
+        item.uses.recovery.period = "lr"
+        item.uses.recovery.type = "recoverAll"
+    }
+
+    if (saveActivityName) {
+        item.addActivity(activity =>
+        {
+            activity.name = saveActivityName
+            activity.saveDc = actorProf + transformationStage + 8
+        })
+    }
+    return item
 }
 export const feyTestDef = {
     id: "fey",
@@ -142,7 +216,9 @@ export const feyTestDef = {
                     loopVars.servantUuid,
                     loopVars.magicTricksUuid,
                     loopVars.twoFacedUuid,
-                    ...loopVars.magicTricksSpells
+                    loopVars.magicTricksSpells[0].uuid,
+                    loopVars.magicTricksSpells[1].uuid,
+                    loopVars.magicTricksSpells[2].uuid
                 ]
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = expectedItemUuids
@@ -197,7 +273,9 @@ export const feyTestDef = {
                     loopVars.servantUuid,
                     loopVars.magicTricksUuid,
                     loopVars.twoFacedUuid,
-                    ...loopVars.magicTricksSpells
+                    loopVars.magicTricksSpells[0].uuid,
+                    loopVars.magicTricksSpells[1].uuid,
+                    loopVars.magicTricksSpells[2].uuid
                 ]
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = expectedItemUuids
@@ -382,6 +460,8 @@ export const feyTestDef = {
                     {
                         activity.name = "Fey Teleport"
                         activity.activationType = "bonus"
+                        activity.range.value = 30
+                        activity.range.units = "ft"
                         activity.addDamagePart(part =>
                         {
                             part.damageTypes = [loopVars.feyTeleportDamageType]
@@ -390,13 +470,6 @@ export const feyTestDef = {
                     })
                 })
                 validate(actorDto, { assert })
-
-                const feyTeleport = actor.items
-                    .find(i => i.name === `Servant of the ${loopVars.name} Court`)
-                    ?.system?.activities?.contents
-                    ?.find(a => a.name === "Fey Teleport")
-
-                assert.equal(feyTeleport?.range?.value, 30)
             }
         },
 
@@ -431,10 +504,12 @@ export const feyTestDef = {
                 contextDto.advantage = null
                 validate(contextDto, { assert })
 
-                assert.deepEqual(
-                    actor.flags.transformations.once["fey-plannar-binding-disadvantage"],
-                    { executed: true, reset: ["longRest", "shortRest"] }
-                )
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.flags.match.push({
+                    path: "transformations.once.fey-plannar-binding-disadvantage",
+                    expected: { executed: true, reset: ["longRest", "shortRest"] }
+                })
+                validate(actorDto, { assert })
             }
         },
 
@@ -525,43 +600,45 @@ export const feyTestDef = {
             assertions: async ({ actor, assert, loopVars, validators }) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
-                actorDto.hasItemWithSourceUuids = [loopVars.magicTricksUuid, ...loopVars.magicTricksSpells]
+                actorDto.hasItemWithSourceUuids = [
+                    loopVars.magicTricksUuid,
+                    loopVars.magicTricksSpells[0].uuid,
+                    loopVars.magicTricksSpells[1].uuid,
+                    loopVars.magicTricksSpells[2].uuid
+                ]
                 actorDto.addItem(item =>
                 {
                     item.expectedItemUuids = [loopVars.magicTricksUuid]
+                    item.addAdvancement(advancement =>
+                    {
+                        advancement.addConfiguration(configuration =>
+                        {
+                            configuration.items = [
+                                loopVars.magicTricksSpells[0].uuid,
+                                loopVars.magicTricksSpells[1].uuid,
+                                loopVars.magicTricksSpells[2].uuid
+                            ]
+                            configuration.spell.method = "atwill"
+                            configuration.spell.prepared = 0
+                            configuration.spell.uses.max = "1"
+                            configuration.spell.uses.per = "lr"
+                            configuration.spell.uses.requireSlot = false
+                        })
+                    })
+                })
+                actorDto.addItem(item =>
+                {
+                    getMagickTrickItem(actor, loopVars.magicTricksSpells[0].uuid, loopVars.magicTricksUuid, loopVars.magicTricksSpells[0].level, loopVars.magicTricksSpells[0].saveActivityName, item)
+                })
+                actorDto.addItem(item =>
+                {
+                    getMagickTrickItem(actor, loopVars.magicTricksSpells[1].uuid, loopVars.magicTricksUuid, loopVars.magicTricksSpells[1].level, loopVars.magicTricksSpells[1].saveActivityName, item)
+                })
+                actorDto.addItem(item =>
+                {
+                    getMagickTrickItem(actor, loopVars.magicTricksSpells[2].uuid, loopVars.magicTricksUuid, loopVars.magicTricksSpells[2].level, loopVars.magicTricksSpells[2].saveActivityName, item)
                 })
                 validate(actorDto, { assert })
-
-                const magicTricks = actor.items.find(i => i.flags.transformations.sourceUuid == loopVars.magicTricksUuid)
-
-                const advancements = magicTricks?.system?.advancement
-                assert.equal(advancements?.length, 1)
-
-                const configurationItems = advancements?.[0]?.configuration?.items ?? []
-                assert.equal(configurationItems.length, 3)
-                for (const item of configurationItems) {
-                    const actorItem = actor.items.find(i => i.flags.transformations.sourceUuid == item.uuid)
-                    assert.equal(actorItem?.flags?.transformations?.awardedByItem, magicTricks?.uuid)
-                    assert.includeMembers(loopVars.magicTricksSpells, [actorItem?.flags?.transformations?.sourceUuid])
-
-                    const itemSystem = actorItem?.system
-                    assert.equal(itemSystem?.prepared, 2)
-
-                    if (itemSystem?.level > 0) {
-                        const itemUses = itemSystem?.uses
-                        assert.equal(itemUses?.max, 1)
-                        assert.equal(itemUses?.value, 1)
-                        assert.equal(itemUses?.recovery?.[0]?.period, "lr")
-                        assert.equal(itemUses?.recovery?.[0]?.type, "recoverAll")
-                    }
-
-                    if (actorItem?.hasSave) {
-                        const saveActivity = actorItem?.system?.activities?.find(a => a.type == "save")
-                        assert.equal(saveActivity?.save?.dc?.formula, "8 + @prof + @flags.transformations.stage")
-                        assert.equal(saveActivity?.save?.dc?.value, 11)
-                    }
-
-                }
             }
         },
 
@@ -586,14 +663,18 @@ export const feyTestDef = {
                 {
                     item.itemName = "Queen's Command"
                     item.numberOfEffects = 1
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Queen's Disdain"
+                        effect.count = 0
+                        effect.changes.count = 0
+                        effect.flags.match.push({
+                            path: "transformations.addDisadvantageAllD20",
+                            expected: true
+                        })
+                    })
                 })
                 validate(actorDto, { assert })
-
-                const itemEffects = actor.items.find(i => i.name == "Queen's Command")?.effects?.contents ?? []
-                assert.equal(itemEffects.length, 1)
-                assert.equal(itemEffects[0]?.changes?.length, 0)
-                assert.property(itemEffects[0]?.flags?.transformations ?? {}, "addDisadvantageAllD20")
-                assert.equal(itemEffects[0]?.flags?.transformations?.addDisadvantageAllD20, true)
             }
         },
 
@@ -636,20 +717,40 @@ export const feyTestDef = {
             assertions: async ({ actor, assert, helpers, validators }) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects.count = 1
                 actorDto.addItem(item =>
                 {
                     item.itemName = "Queen's Command"
                     item.numberOfEffects = 1
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Queen's Disdain"
+                        effect.count = 0
+                        effect.changes.count = 34
+                        effect.flags.match.push({
+                            path: "transformations.addDisadvantageAllD20",
+                            expected: false
+                        })
+                    })
                 })
+                for (const ability of D20Identifiers.abilities) {
+                    actorDto.rollModes.disadvantage.push(
+                        { identifier: ability, type: ROLL_TYPE.ABILITY_CHECK },
+                        { identifier: ability, type: ROLL_TYPE.SAVING_THROW }
+                    )
+                }
+                for (const attribute of D20Identifiers.attributes) {
+                    actorDto.rollModes.disadvantage.push(
+                        { identifier: attribute }
+                    )
+                }
+                for (const skill of D20Identifiers.skills) {
+                    actorDto.rollModes.disadvantage.push(
+                        { identifier: skill }
+                    )
+                }
+                actorDto.rollModes.toolDisadvantage = "1"
                 validate(actorDto, { assert })
-
-                const itemEffects = actor.items.find(i => i.name == "Queen's Command")?.effects?.contents ?? []
-
-                assert.equal(itemEffects.length, 1)
-                assert.equal(itemEffects[0]?.changes?.length, 34)
-                assert.property(itemEffects[0]?.flags?.transformations ?? {}, "addDisadvantageAllD20")
-                assert.equal(itemEffects[0]?.flags?.transformations?.addDisadvantageAllD20, false)
-                helpers.validateAllD20Disadvantage(actor, helpers.actorValidator, assert)
             }
         },
 
@@ -684,15 +785,13 @@ export const feyTestDef = {
                     item.itemName = "Illusionary Cloak"
                     item.type = "spell"
                     item.numberOfEffects = 1
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Illusionary Cloak"
+                        effect.duration.seconds = 3600
+                    })
                 })
                 validate(actorDto, { assert })
-
-                const effects = actor.items.find(i => i.name == "Illusionary Cloak")?.effects?.contents ?? []
-                const effectsCount = effects?.size ?? effects?.length ?? 0
-                assert.equal(effectsCount, 1)
-
-                const effect = effects[0]
-                assert.equal(effect?.duration?.seconds, 3600)
             }
         },
 
