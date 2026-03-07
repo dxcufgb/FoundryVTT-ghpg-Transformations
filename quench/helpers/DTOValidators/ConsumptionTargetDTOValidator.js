@@ -1,37 +1,25 @@
-export class ConsumptionTargetDTOValidator
+import { path } from "../rules/RuleBuilder.js"
+import { BaseDTOValidator } from "./BaseDTOValidator.js"
+
+// @ts-check
+export class ConsupmtionTargetDTOValidator extends BaseDTOValidator
 {
-    constructor ({ assert })
-    {
-        this.assert = assert
+    static rules = {
+        type: path("target.type").equals(),
+        value: path("target.value").equals()
     }
 
-    validate(dto)
+    /**
+     * @param {any} target
+     * @param {import("../validationDTOs/consumptionTarget/ConsumptionTargetValidationDTO.js").ConsumptionTargetValidationDTO} dto
+     */
+    validate(target, dto)
     {
-        const target = dto.consumptionTarget
+        if (!target)
+            throw new Error(`[${this.path}] Missing consumption target`)
 
-        this.validateType(target, dto.type)
-        this.validateValue(target, dto.value)
-    }
+        super.validate(dto, { target })
 
-    validateType(target, expectedType)
-    {
-        if (expectedType !== null) {
-            this.assert.equal(
-                target.type,
-                expectedType,
-                `Actual type of consumption target (${target.type}) did not match expected (${expectedType})`
-            )
-        }
-    }
-
-    validateValue(target, expectedValue)
-    {
-        if (expectedValue !== null) {
-            this.assert.equal(
-                target.value,
-                expectedValue,
-                `Actual value of consumption target (${target.value}) did not match expected (${expectedValue})`
-            )
-        }
+        return true
     }
 }

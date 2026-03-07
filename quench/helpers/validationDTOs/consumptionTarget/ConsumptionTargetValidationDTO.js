@@ -1,11 +1,11 @@
+import { ConsupmtionTargetDTOValidator } from "../../DTOValidators/ConsumptionTargetDTOValidator.js"
+
 // @ts-check
 export class ConsumptionTargetValidationDTO
 {
-    // @ts-ignore
-    constructor (consumptionTarget)
+    static validator = ConsupmtionTargetDTOValidator
+    constructor ()
     {
-        this.consumptionTarget = consumptionTarget
-
         this.type = null    // string
         this.value = null   // number | string
     }

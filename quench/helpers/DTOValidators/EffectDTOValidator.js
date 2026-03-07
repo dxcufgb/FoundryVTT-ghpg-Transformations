@@ -19,6 +19,8 @@ export class EffectDTOValidator extends BaseDTOValidator
 
     validate(effect, dto)
     {
+        console.log("Transformations | EffectDTOValidator.validate called with:", effect, dto)
+
         if (!effect)
             throw new Error(`[${this.path}] Missing effect`)
 

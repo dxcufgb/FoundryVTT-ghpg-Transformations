@@ -1,5 +1,7 @@
 import { ActivityDTOValidator } from "../../DTOValidators/ActivityDTOValidator.js"
+import { ConsumptionValidationDTO } from "../consumption/ConsumptionValidationDTO.js"
 import { DamagePartValidationDTO } from "../damagePart/DamagePartValidationDTO.js"
+import { EffectValidationDTO } from "../effect/EffectValidationDTO.js"
 
 // @ts-check
 export class ActivityValidationDTO
@@ -17,6 +19,8 @@ export class ActivityValidationDTO
         this.spellUuid = null
 
         this.damageParts = [] // DamagePartValidationDTO[]
+        this.consumption = new ConsumptionValidationDTO()
+        this.effects = []
     }
 
     addDamagePart(configure)
@@ -24,6 +28,26 @@ export class ActivityValidationDTO
         const dto = new DamagePartValidationDTO()
         configure(dto)
         this.damageParts.push(dto)
+        return this
+    }
+
+    addConsumptionTarget(configure)
+    {
+        this.consumption.addTarget(configure)
+        return this
+    }
+
+    addConsumption(configure)
+    {
+        configure(this.consumption)
+        return this
+    }
+
+    addEffect(configure)
+    {
+        const dto = new EffectValidationDTO()
+        configure(dto)
+        this.effects.push(dto)
         return this
     }
 }

@@ -1,4 +1,7 @@
 import { ABILITY, ATTRIBUTE, ROLL_TYPE, SKILL } from "../../../../config/constants.js"
+import { validate } from "../../../helpers/DTOValidators/validate.js"
+import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js"
+import { ContextValidationDTO } from "../../../helpers/validationDTOs/context/ContextValidationDTO.js"
 import { findTransformationGeneralChoiceButtonById, findTransformationGeneralChoiceDialog } from "../../../selectors/transformationGeneralChoiceDialog.finders.js"
 
 // test/definitions/aberrantHorror.testdef.js
@@ -7,6 +10,7 @@ const seasons = {
         name: "Winter",
         servantUuid: "Compendium.transformations.gh-transformations.Item.H8lRQe1N60tJ5Yf5",
         twoFacedUuid: "Compendium.transformations.gh-transformations.Item.b8QaSuxO1nh8XHAY",
+        twoFacedStatusEffectName: "Frightened",
         twoFacedStatusEffect: "frightened",
         magicTricksUuid: "Compendium.transformations.gh-transformations.Item.H1unaVkxHYemhwF5",
         magicTricksSpells: [
@@ -20,6 +24,7 @@ const seasons = {
         name: "Spring",
         servantUuid: "Compendium.transformations.gh-transformations.Item.Xyi6Tr9bECEaphLf",
         twoFacedUuid: "Compendium.transformations.gh-transformations.Item.K62U8AeluSIM9oeI",
+        twoFacedStatusEffectName: "Stunned",
         twoFacedStatusEffect: "stunned",
         magicTricksUuid: "Compendium.transformations.gh-transformations.Item.GfXOtsRa8JYaiUeH",
         magicTricksSpells: [
@@ -33,6 +38,7 @@ const seasons = {
         name: "Summer",
         servantUuid: "Compendium.transformations.gh-transformations.Item.5kw0TvhNgqsrOhR3",
         twoFacedUuid: "Compendium.transformations.gh-transformations.Item.WH4ZBcfktnkAZhhp",
+        twoFacedStatusEffectName: "Charmed",
         twoFacedStatusEffect: "charmed",
         magicTricksUuid: "Compendium.transformations.gh-transformations.Item.65VksuhlhiIJINcM",
         magicTricksSpells: [
@@ -46,6 +52,7 @@ const seasons = {
         name: "Autumn",
         servantUuid: "Compendium.transformations.gh-transformations.Item.t2LwdWDsPyKrEBoP",
         twoFacedUuid: "Compendium.transformations.gh-transformations.Item.I1PqqMLyPa6jPagx",
+        twoFacedStatusEffectName: "Poisoned",
         twoFacedStatusEffect: "poisoned",
         magicTricksUuid: "Compendium.transformations.gh-transformations.Item.xOebV0euA9zB8qeY",
         magicTricksSpells: [
@@ -81,19 +88,21 @@ export const feyTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ runtime, actor, assert, validators, loopVars }) =>
+            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
             {
-                const expectedItemUuids = [
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
                     "Compendium.transformations.gh-transformations.Item.tcI2u7gfaXjg2Orr",
                     loopVars.servantUuid
                 ]
-                assert.isTrue(
-                    validators.actorValidator({ runtime, actor, assert })
-                        .validateItemsOnActor({ expectedItemUuids })
-                        .validateRaceItemSubTypeOnActor("Fey")
-                        .validate()
-                )
+                actorDto.addItem(item =>
+                {
+                    item.type = "race"
+                    item.systemType = "humanoid"
+                    item.systemSubType = "Fey"
+                })
+                validate(actorDto, { assert })
             }
         },
 
@@ -124,7 +133,7 @@ export const feyTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ runtime, actor, assert, validators, loopVars }) =>
+            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
             {
                 const expectedItemUuids = [
                     "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
@@ -135,11 +144,9 @@ export const feyTestDef = {
                     loopVars.twoFacedUuid,
                     ...loopVars.magicTricksSpells
                 ]
-                assert.isTrue(
-                    validators.actorValidator({ actor, assert })
-                        .validateItemsOnActor({ expectedItemUuids })
-                        .validate()
-                )
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = expectedItemUuids
+                validate(actorDto, { assert })
             }
         },
 
@@ -177,7 +184,7 @@ export const feyTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ runtime, actor, assert, validators, loopVars }) =>
+            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
             {
                 const expectedItemUuids = [
                     "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
@@ -192,11 +199,9 @@ export const feyTestDef = {
                     loopVars.twoFacedUuid,
                     ...loopVars.magicTricksSpells
                 ]
-                assert.isTrue(
-                    validators.actorValidator({ actor, assert })
-                        .validateItemsOnActor({ expectedItemUuids })
-                        .validate()
-                )
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = expectedItemUuids
+                validate(actorDto, { assert })
             }
         },
     ],
@@ -248,16 +253,12 @@ export const feyTestDef = {
                 )
             },
 
-            assertions: async ({ actor, assert, validators, loopVars }) =>
+            assertions: async ({ actor, assert, loopVars, validators }) =>
             {
-                assert.isTrue(
-                    validators.actorValidator({ actor, assert })
-                        .validateNumberOfDamageResistances(1)
-                        .hasDamageResistances([loopVars.damageType])
-                        .validateNumberOfEffects(1)
-                        .hasEffect("Fey Form Resistance")
-                        .validate()
-                )
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.stats.resistances = [loopVars.damageType]
+                actorDto.effects.has.push("Fey Form Resistance")
+                validate(actorDto, { assert })
             }
         },
 
@@ -327,16 +328,12 @@ export const feyTestDef = {
                 )
             },
 
-            assertions: async ({ actor, assert, validators, loopVars }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                assert.isTrue(
-                    validators.actorValidator({ actor, assert })
-                        .validateNumberOfDamageResistances(1)
-                        .hasDamageResistances(["cold"])
-                        .validateNumberOfEffects(1)
-                        .hasEffect("Fey Form Resistance")
-                        .validate()
-                )
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.stats.resistances = ["cold"]
+                actorDto.effects.has.push("Fey Form Resistance")
+                validate(actorDto, { assert })
             }
         },
 
@@ -374,23 +371,32 @@ export const feyTestDef = {
                 )
             },
 
-            assertions: async ({ actor, assert, validators, runtime, loopVars }) =>
+            assertions: async ({ actor, assert, loopVars, validators }) =>
             {
-                assert.isTrue(
-                    validators.actorValidator({ actor, assert })
-                        .validateItemsOnActor({ itemName: `Servant of the ${loopVars.name} Court` })
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.addItem(item =>
+                {
+                    item.itemName = `Servant of the ${loopVars.name} Court`
+                    item.numberOfActivities = 1
+                    item.addActivity(activity =>
+                    {
+                        activity.name = "Fey Teleport"
+                        activity.activationType = "bonus"
+                        activity.addDamagePart(part =>
+                        {
+                            part.damageTypes = [loopVars.feyTeleportDamageType]
+                            part.roll = "1d6"
+                        })
+                    })
+                })
+                validate(actorDto, { assert })
 
-                        .item.hasNumberOfActivities(1)
-                        .hasActivity("Fey Teleport")
+                const feyTeleport = actor.items
+                    .find(i => i.name === `Servant of the ${loopVars.name} Court`)
+                    ?.system?.activities?.contents
+                    ?.find(a => a.name === "Fey Teleport")
 
-                        .activity.validateActivationType("bonus")
-                        .validateRangeValue(30)
-                        .hasDamagePart()
-
-                        .damagePart.validateIncludesDamageTypes([loopVars.feyTeleportDamageType])
-                        .validateDamageRoll("1d6")
-                        .validate()
-                )
+                assert.equal(feyTeleport?.range?.value, 30)
             }
         },
 
@@ -411,7 +417,7 @@ export const feyTestDef = {
                 }
             ],
 
-            assertions: async ({ actor, assert, validators, runtime, helpers }) =>
+            assertions: async ({ actor, assert, runtime, helpers }) =>
             {
                 const transformation = runtime.services.transformationRegistry.getEntryForActor(actor)
                 const context = helpers.getPreRollSavingThrowContext({
@@ -420,17 +426,14 @@ export const feyTestDef = {
                 })
                 await transformation.TransformationClass.onPreRollSavingThrow(actor, context, { onceService: runtime.infrastructure.onceService })
 
-                assert.isTrue(
-                    validators.contextValidator({ context, assert })
-                        .validateSavingThrowDisadvantage(true)
-                        .validateSavingThrowAdvantage(null)
-                        .validate()
-                )
+                const contextDto = new ContextValidationDTO(context)
+                contextDto.disadvantage = true
+                contextDto.advantage = null
+                validate(contextDto, { assert })
 
-                assert.isTrue(
-                    validators.actorValidator({ actor, assert })
-                        .validateActorOnceFlag("fey-plannar-binding-disadvantage", { executed: true, reset: ["longRest", "shortRest"] })
-                        .validate()
+                assert.deepEqual(
+                    actor.flags.transformations.once["fey-plannar-binding-disadvantage"],
+                    { executed: true, reset: ["longRest", "shortRest"] }
                 )
             }
         },
@@ -462,36 +465,33 @@ export const feyTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, runtime, validators, loopVars }) =>
+            assertions: async ({ actor, assert, loopVars, validators }) =>
             {
-                assert.isTrue(
-                    validators.actorValidator({ actor, assert })
-                        .validateItemsOnActor({ itemName: "Two-Faced" })
-
-                        .item.hasNumberOfActivities(1)
-                        .hasActivity("Transform Face")
-
-                        .activity.validateActivationType("action")
-                        .hasNumberOfConsumptionTargets(1)
-                        .hasConsumptionTarget()
-
-                        .consumptionTarget.validateType("itemUses")
-                        .validateValue("1")
-                        .validate()
-                )
-
-                assert.isTrue(
-                    validators.actorValidator({ actor, assert })
-                        .validateItemsOnActor({ itemName: "Two-Faced" })
-
-                        .item.hasActivity("Transform Face")
-
-                        .activity.hasNumberOfEffects(1)
-                        .hasEffect(loopVars.twoFacedStatusEffect)
-
-                        .effect.validateStatuses([loopVars.twoFacedStatusEffect])
-                        .validate()
-                )
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Two-Faced"
+                    item.numberOfActivities = 1
+                    item.addActivity(activity =>
+                    {
+                        activity.name = "Transform Face"
+                        activity.activationType = "action"
+                        activity.addConsumption(consumption =>
+                        {
+                            consumption.addTarget(target =>
+                            {
+                                target.type = "itemUses"
+                                target.value = "1"
+                            })
+                        })
+                        activity.addEffect(effect =>
+                        {
+                            effect.name = loopVars.twoFacedStatusEffectName
+                            effect.statuses = [loopVars.twoFacedStatusEffect]
+                        })
+                    })
+                })
+                validate(actorDto, { assert })
             }
         },
 
@@ -522,46 +522,43 @@ export const feyTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, runtime, validators, loopVars }) =>
+            assertions: async ({ actor, assert, loopVars, validators }) =>
             {
-                assert.isTrue(
-                    validators.actorValidator({ actor, assert })
-                        .validateItemsOnActor(loopVars.magicTricksUuid)
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [loopVars.magicTricksUuid, ...loopVars.magicTricksSpells]
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = [loopVars.magicTricksUuid]
+                })
+                validate(actorDto, { assert })
 
-                        .item.validateNumberOfAdvancements(1)
-                        .hasAdvancement()
-
-                        .advancement.validateNumberOfConfigurationItems(3)
-                )
                 const magicTricks = actor.items.find(i => i.flags.transformations.sourceUuid == loopVars.magicTricksUuid)
-                expect(magicTricks).to.exist
 
-                const advancements = magicTricks.system.advancement
-                expect(advancements.length).to.be.equal(1)
+                const advancements = magicTricks?.system?.advancement
+                assert.equal(advancements?.length, 1)
 
-                const configurationItems = advancements[0].configuration.items
-                expect(configurationItems.length).to.be.equal(3)
+                const configurationItems = advancements?.[0]?.configuration?.items ?? []
+                assert.equal(configurationItems.length, 3)
                 for (const item of configurationItems) {
                     const actorItem = actor.items.find(i => i.flags.transformations.sourceUuid == item.uuid)
-                    expect(actorItem).to.exist
-                    expect(actorItem.flags.transformations.awardedByItem).to.be.equal(magicTricks.uuid)
-                    expect(loopVars.magicTricksSpells).to.include.members([actorItem.flags.transformations.sourceUuid])
+                    assert.equal(actorItem?.flags?.transformations?.awardedByItem, magicTricks?.uuid)
+                    assert.includeMembers(loopVars.magicTricksSpells, [actorItem?.flags?.transformations?.sourceUuid])
 
-                    const itemSystem = actorItem.system
-                    expect(itemSystem.prepared).to.be.equal(2)
+                    const itemSystem = actorItem?.system
+                    assert.equal(itemSystem?.prepared, 2)
 
-                    if (itemSystem.level > 0) {
-                        const itemUses = itemSystem.uses
-                        expect(itemUses.max).to.be.equal(1)
-                        expect(itemUses.value).to.be.equal(1)
-                        expect(itemUses.recovery[0].period).to.be.equal("lr")
-                        expect(itemUses.recovery[0].type).to.be.equal("recoverAll")
+                    if (itemSystem?.level > 0) {
+                        const itemUses = itemSystem?.uses
+                        assert.equal(itemUses?.max, 1)
+                        assert.equal(itemUses?.value, 1)
+                        assert.equal(itemUses?.recovery?.[0]?.period, "lr")
+                        assert.equal(itemUses?.recovery?.[0]?.type, "recoverAll")
                     }
 
-                    if (actorItem.hasSave) {
-                        const saveActivity = actorItem.system.activities.find(a => a.type == "save")
-                        expect(saveActivity.save.dc.formula).to.be.equal("8 + @prof + @flags.transformations.stage")
-                        expect(saveActivity.save.dc.value).to.be.equal(11)
+                    if (actorItem?.hasSave) {
+                        const saveActivity = actorItem?.system?.activities?.find(a => a.type == "save")
+                        assert.equal(saveActivity?.save?.dc?.formula, "8 + @prof + @flags.transformations.stage")
+                        assert.equal(saveActivity?.save?.dc?.value, 11)
                     }
 
                 }
@@ -581,19 +578,22 @@ export const feyTestDef = {
                 }
             ],
 
-            assertions: async ({ actor, expect, assert, runtime, helpers }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                const queensCommand = actor.items.find(i => i.name == "Queen's Command")
-                expect(queensCommand).to.exist
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects.count = 0
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Queen's Command"
+                    item.numberOfEffects = 1
+                })
+                validate(actorDto, { assert })
 
-                const actorEffects = actor.effects.contents
-                expect(actorEffects.length).to.be.equal(0)
-
-                const itemEffects = queensCommand.effects.contents
-                expect(itemEffects.length).to.be.equal(1)
-                expect(itemEffects[0].changes.length).to.be.equal(0)
-                expect(itemEffects[0].flags.transformations.addDisadvantageAllD20).to.exist
-                expect(itemEffects[0].flags.transformations.addDisadvantageAllD20).to.be.equal(true)
+                const itemEffects = actor.items.find(i => i.name == "Queen's Command")?.effects?.contents ?? []
+                assert.equal(itemEffects.length, 1)
+                assert.equal(itemEffects[0]?.changes?.length, 0)
+                assert.property(itemEffects[0]?.flags?.transformations ?? {}, "addDisadvantageAllD20")
+                assert.equal(itemEffects[0]?.flags?.transformations?.addDisadvantageAllD20, true)
             }
         },
 
@@ -633,17 +633,22 @@ export const feyTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect, assert, runtime, helpers }) =>
+            assertions: async ({ actor, assert, helpers, validators }) =>
             {
-                const queensCommand = actor.items.find(i => i.name == "Queen's Command")
-                const itemEffects = queensCommand.effects.contents
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Queen's Command"
+                    item.numberOfEffects = 1
+                })
+                validate(actorDto, { assert })
 
-                expect(queensCommand).to.exist
+                const itemEffects = actor.items.find(i => i.name == "Queen's Command")?.effects?.contents ?? []
 
-                expect(itemEffects.length).to.be.equal(1)
-                expect(itemEffects[0].changes.length).to.be.equal(34)
-                expect(itemEffects[0].flags.transformations.addDisadvantageAllD20).to.exist
-                expect(itemEffects[0].flags.transformations.addDisadvantageAllD20).to.be.equal(false)
+                assert.equal(itemEffects.length, 1)
+                assert.equal(itemEffects[0]?.changes?.length, 34)
+                assert.property(itemEffects[0]?.flags?.transformations ?? {}, "addDisadvantageAllD20")
+                assert.equal(itemEffects[0]?.flags?.transformations?.addDisadvantageAllD20, false)
                 helpers.validateAllD20Disadvantage(actor, helpers.actorValidator, assert)
             }
         },
@@ -671,19 +676,23 @@ export const feyTestDef = {
                 )
             },
 
-            assertions: async ({ actor, expect, assert, runtime, helpers }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                const spell = actor.items.find(i => i.name == "Illusionary Cloak")
-                expect(spell).to.exist
-                expect(spell.type).to.be.equal("spell")
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Illusionary Cloak"
+                    item.type = "spell"
+                    item.numberOfEffects = 1
+                })
+                validate(actorDto, { assert })
 
-                const effects = spell.effects.contents
-                expect(effects.size).to.be.equal(1)
+                const effects = actor.items.find(i => i.name == "Illusionary Cloak")?.effects?.contents ?? []
+                const effectsCount = effects?.size ?? effects?.length ?? 0
+                assert.equal(effectsCount, 1)
 
                 const effect = effects[0]
-                expect(effect.duration.seconds).to.be.equal(3600)
-
-                const spellSystem = spell.system
+                assert.equal(effect?.duration?.seconds, 3600)
             }
         },
 

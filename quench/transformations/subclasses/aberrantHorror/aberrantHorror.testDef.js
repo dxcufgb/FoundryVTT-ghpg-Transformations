@@ -30,6 +30,12 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
                     "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT"
                 ]
+                actorDto.addItem(item =>
+                {
+                    item.type = "race"
+                    item.systemType = "humanoid"
+                    item.systemSubType = "Aberration"
+                })
                 validate(actorDto, { assert })
             }
         },

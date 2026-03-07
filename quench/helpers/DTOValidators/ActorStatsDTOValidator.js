@@ -22,20 +22,22 @@ export class ActorStatsDTOValidator extends BaseDTOValidator
         }).equals()
     }
 
-    // validate(actor, dto)
-    // {
-    //     if (!actor)
-    //         throw new Error(`[${this.path}] Missing actor`)
+    validate(actor, dto)
+    {
+        console.log("Transformations | ActorStatsDTOValidator.validate called with:", actor, dto)
 
-    //     // run rule DSL
-    //     super.validate(dto, { actor })
+        if (!actor)
+            throw new Error(`[${this.path}] Missing actor`)
 
-    //     // structured validations
-    //     this.validateHp(actor, dto.hp)
-    //     this.validateMovementSpeed(actor, dto.movementSpeed)
+        // run rule DSL
+        super.validate(dto, { actor })
 
-    //     return true
-    // }
+        //     // structured validations
+        //     this.validateHp(actor, dto.hp)
+        //     this.validateMovementSpeed(actor, dto.movementSpeed)
+
+        return true
+    }
 
     // // ------------------------------------------------
     // // HP

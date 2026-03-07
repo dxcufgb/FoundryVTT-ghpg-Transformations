@@ -23,6 +23,8 @@ export class ContextDTOValidator extends BaseDTOValidator
 
     validate(dto)
     {
+        console.log("Transformations | ContextDTOValidator.validate called with:", dto)
+
         const context = dto.context
 
         if (!context) {

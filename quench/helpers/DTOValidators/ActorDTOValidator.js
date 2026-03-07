@@ -72,6 +72,10 @@ export class ActorDTOValidator extends BaseDTOValidator
             return actorItems.find(i => i.name === dto.itemName) ?? null
         }
 
+        if (dto.type) {
+            return actorItems.find(i => i.type === dto.type) ?? null
+        }
+
         return null
     }
 }

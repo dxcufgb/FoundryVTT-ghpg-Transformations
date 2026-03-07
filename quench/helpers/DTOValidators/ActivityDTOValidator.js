@@ -1,6 +1,8 @@
 import { path, resolve } from "../rules/RuleBuilder.js"
 import { BaseDTOValidator } from "./BaseDTOValidator.js"
+import { ConsumptionDTOValidator } from "./ConsumptionDTOValidator.js"
 import { DamagePartDTOValidator } from "./DamagePartDTOValidator.js"
+import { EffectDTOValidator } from "./EffectDTOValidator.js"
 
 // @ts-check
 export class ActivityDTOValidator extends BaseDTOValidator
@@ -20,42 +22,77 @@ export class ActivityDTOValidator extends BaseDTOValidator
      */
     validate(activity, dto)
     {
+        console.log("Transformations | ActivityDTOValidator.validate called with:", activity, dto)
+
         if (!activity)
             throw new Error(`[${this.path}] Missing activity`)
 
         // run rule DSL
         super.validate(dto, { activity })
 
-        // nested validation
         this.validateDamageParts(activity, dto.damageParts)
+        this.validateConsumption(activity, dto.consumption)
+        this.validateEffects(activity, dto.effects)
 
         return true
     }
-
-    // ------------------------------------------------
-    // DAMAGE PARTS
-    // ------------------------------------------------
 
     validateDamageParts(activity, damageParts)
     {
         if (!damageParts?.length) return
 
-        const parts = activity.damage?.parts ?? []
+        const activityDamageParts = activity.damage?.parts ?? []
 
-        damageParts.forEach((damageDTO, index) =>
+        damageParts.forEach((damagePartDTO, index) =>
         {
-            const part = parts[index]
+            const damagePart = activityDamageParts[index]
 
             this.assert.isOk(
-                part,
-                `[${this.path}.damageParts[${index}]] Missing damage part`
+                damagePart,
+                `[${this.path}.damageParts[${index}]] Damage part not found`
             )
 
             new DamagePartDTOValidator({
                 assert: this.assert,
                 path: `${this.path}.damageParts[${index}]`,
                 strict: this.strict
-            }).validate(part, damageDTO)
+            }).validate(damagePart, damagePartDTO)
+        })
+    }
+
+    validateConsumption(activity, consumption)
+    {
+        if (!consumption) return
+
+        new ConsumptionDTOValidator({
+            assert: this.assert,
+            path: `${this.path}.consumption`,
+            strict: this.strict
+        }).validate(activity.consumption, consumption)
+    }
+
+    validateEffects(activity, effects)
+    {
+        if (!effects?.length) return
+
+        const activityEffects = activity.effects
+
+        effects.forEach((effectDTO, index) =>
+        {
+            const effect = activityEffects.find(e =>
+                !effectDTO.name || e.effect.name === effectDTO.name
+            )
+
+            this.assert.isOk(
+                effect,
+                `[${this.path}.effects[${index}]] Effect not found`
+            )
+
+            new EffectDTOValidator({
+                assert: this.assert,
+                path: `${this.path}.effects[${index}]`,
+                strict: this.strict
+            }).validate(effect, effectDTO)
         })
     }
 }

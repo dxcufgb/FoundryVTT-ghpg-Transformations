@@ -9,6 +9,8 @@ export class ItemDTOValidator extends BaseDTOValidator
     static rules = {
 
         type: path("item.type").equals(),
+        systemSubType: path("item.system.type.subtype").equals(),
+        systemType: path("item.system.type.value").equals(),
         usesLeft: resolve(ctx =>
         {
             const uses = ctx.item.system?.uses
@@ -22,13 +24,14 @@ export class ItemDTOValidator extends BaseDTOValidator
 
     validate(item, dto)
     {
+        console.log("Transformations | ItemDTOValidator.validate called with:", item, dto)
+
         if (!item)
             throw new Error(`[${this.path}] Missing item`)
 
         // rule engine
         super.validate(dto, { item })
 
-        // nested validation
         this.validateActivities(item, dto.activities)
         this.validateEffects(item, dto.effects)
 
