@@ -1,8 +1,11 @@
 import { ActivityDTOValidator } from "../../DTOValidators/ActivityDTOValidator.js"
+import { AffectsDTOValidator } from "../../DTOValidators/AffectsDTOValidator.js"
 import { ConsumptionValidationDTO } from "../consumption/ConsumptionValidationDTO.js"
 import { DamagePartValidationDTO } from "../damagePart/DamagePartValidationDTO.js"
 import { EffectValidationDTO } from "../effect/EffectValidationDTO.js"
 import { RangeValidationDTO } from "../range/RangeValidationDTO.js"
+import { TargetDTOValidator } from "../../DTOValidators/TargetDTOValidator.js"
+import { TemplateDTOValidator } from "../../DTOValidators/TemplateDTOValidator.js"
 
 // @ts-check
 export class ActivityValidationDTO
@@ -13,6 +16,7 @@ export class ActivityValidationDTO
         this.name = null
         this.abilityTypes = null
         this.activationType = null
+        this.isConcentration = null
 
         this.saveAbility = null
         this.saveDc = null
@@ -23,6 +27,7 @@ export class ActivityValidationDTO
         this.consumption = new ConsumptionValidationDTO()
         this.effects = []
         this.range = new RangeValidationDTO()
+        this.target = new TargetValidationDTO()
     }
 
     addDamagePart(configure)
@@ -51,5 +56,49 @@ export class ActivityValidationDTO
         configure(dto)
         this.effects.push(dto)
         return this
+    }
+}
+
+class TargetValidationDTO
+{
+    static validator = TargetDTOValidator
+
+    constructor ()
+    {
+        this.affects = new AffectsValidationDTO()
+        this.template = new TemplateValidationDTO()
+
+        this.override = null
+        this.prompt = null
+    }
+}
+
+class AffectsValidationDTO
+{
+    static validator = AffectsDTOValidator
+
+    constructor ()
+    {
+        this.choice = null
+        this.count = null
+        this.scalar = null
+        this.special = null
+        this.type = null
+    }
+}
+
+class TemplateValidationDTO
+{
+    static validator = TemplateDTOValidator
+
+    constructor ()
+    {
+        this.contiguous = null
+        this.count = null
+        this.height = null
+        this.size = null
+        this.type = null
+        this.units = null
+        this.width = null
     }
 }

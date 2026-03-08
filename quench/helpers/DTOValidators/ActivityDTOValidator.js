@@ -12,8 +12,10 @@ export class ActivityDTOValidator extends BaseDTOValidator
         activationType: path("activity.activation.type").equals(),
         saveDc: path("activity.save.dc.value").equals(),
         spellUuid: path("activity.spell.uuid").equals(),
+        attackBonus: path("activity.attack.bonus").equals(),
         abilityTypes: resolve(ctx => Array.from(ctx.activity.availableAbilities ?? [])).equalsArray(),
-        saveAbility: resolve(ctx => Array.from(ctx.activity.save?.ability ?? [])).equalsArray()
+        saveAbility: resolve(ctx => Array.from(ctx.activity.save?.ability ?? [])).equalsArray(),
+        isConcentration: path("activity.duration.concentration").equals()
     }
 
     /**

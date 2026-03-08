@@ -19,6 +19,7 @@ export class ItemValidationDTO
         this.usesLeft = null
         this.uses = new ItemUsesValidationDTO()
 
+        this.numberOfActivities = null
         this.activities = [] // ActivityValidationDTO[]
         this.effects = []    // EffectValidationDTO[]
         this.advancements = []

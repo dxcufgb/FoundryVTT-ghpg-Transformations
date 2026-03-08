@@ -795,5 +795,336 @@ export const feyTestDef = {
             }
         },
 
+        {
+            name: "Tooth and Claw Manifested attacks",
+
+            requiredPath: [
+                {
+                    stage: 1,
+                    choose: seasons.winter.servantUuid
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                }
+            ],
+
+            await: async ({ actor, runtime, helpers, waiters }) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.items.find(i => i.name === "Tooth and Claw")
+                )
+            },
+
+            assertions: async ({ actor, assert, validators }) =>
+            {
+                const actorProf = actor.system.attributes.prof
+                const transformationStage = actor.flags.transformations.stage
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Tooth and Claw"
+                    item.type = "weapon"
+                    item.numberOfEffects = 1
+                    item.uses.max = actorProf + transformationStage
+                    item.uses.recovery.period = "lr"
+                    item.uses.recovery.type = "recoverAll"
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Stunned"
+                        effect.duration.turns = 1
+                        effect.statuses = ["stunned"]
+                    })
+                    item.numberOfActivities = 3
+                    item.addActivity(activity =>
+                    {
+                        activity.name = "Attack as Action"
+                        activity.activationType = "action"
+                        activity.attackBonus = "@mod"
+
+                        activity.addConsumption(consumption =>
+                        {
+                            consumption.spellSlot = true
+                            consumption.numberOfTargets = 2
+                            consumption.addTarget(target =>
+                            {
+                                target.type = "activityUses"
+                                target.value = "1"
+                            })
+                            consumption.addTarget(target =>
+                            {
+                                target.type = "itemUses"
+                                target.value = "1"
+                            })
+                        })
+                        activity.addDamagePart(damagePart =>
+                        {
+                            damagePart.bonus = "@mod"
+                            damagePart.roll = "1d6"
+                            damagePart.numberOfTypes = 1
+                            damagePart.damageTypes = ["slashing"]
+                        })
+                    })
+                    item.addActivity(activity =>
+                    {
+                        activity.name = "Attack as Bonus Action"
+                        activity.activationType = "bonus"
+                        activity.attackBonus = "@mod"
+
+                        activity.addConsumption(consumption =>
+                        {
+                            consumption.spellSlot = true
+                            consumption.numberOfTargets = 2
+                            consumption.addTarget(target =>
+                            {
+                                target.type = "activityUses"
+                                target.value = "1"
+                            })
+                            consumption.addTarget(target =>
+                            {
+                                target.type = "itemUses"
+                                target.value = "1"
+                            })
+                        })
+                        activity.addDamagePart(damagePart =>
+                        {
+                            damagePart.bonus = "@mod"
+                            damagePart.roll = "1d6"
+                            damagePart.numberOfTypes = 1
+                            damagePart.damageTypes = ["slashing"]
+                        })
+                    })
+                    item.addActivity(activity =>
+                    {
+                        activity.name = "Psychic Damage"
+                        activity.activationType = "special"
+                        activity.addConsumption(consumption =>
+                        {
+                            consumption.spellSlot = true
+                            consumption.numberOfTargets = 2
+                            consumption.addTarget(target =>
+                            {
+                                target.type = "activityUses"
+                                target.value = "1"
+                            })
+                            consumption.addTarget(target =>
+                            {
+                                target.type = "itemUses"
+                                target.value = "1"
+                            })
+                        })
+                        activity.addDamagePart(damagePart =>
+                        {
+                            damagePart.bonus = "@mod"
+                            damagePart.roll = "2d6"
+                            damagePart.numberOfTypes = 1
+                            damagePart.damageTypes = ["psychic"]
+                        })
+                        activity.addEffect(effect =>
+                        {
+                            effect.name = "Stunned"
+                            effect.statuses = ["stunned"]
+                        })
+                    })
+                })
+                validate(actorDto, { assert })
+            }
+        },
+
+        {
+            name: "Dreams and Nightmares ability",
+
+            requiredPath: [
+                {
+                    stage: 1,
+                    choose: seasons.winter.servantUuid
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                }
+            ],
+
+            await: async ({ actor, runtime, helpers, waiters }) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.items.find(i => i.name === "Dreams and Nightmares")
+                )
+            },
+
+            assertions: async ({ actor, assert, validators }) =>
+            {
+                const actorProf = actor.system.attributes.prof
+                const transformationStage = actor.flags.transformations.stage
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Dreams and Nightmares"
+                    item.type = "feat"
+                    item.numberOfEffects = 1
+                    item.uses.max = actorProf
+                    item.uses.recovery.period = "lr"
+                    item.uses.recovery.type = "recoverAll"
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Dream or Nightmare"
+                        effect.duration.turns = 10
+                        effect.statuses = ["paralyzed"]
+                    })
+                    item.numberOfActivities = 2
+                    item.addActivity(activity =>
+                    {
+                        activity.name = "Manipulate Mind"
+                        activity.activationType = "bonus"
+                        activity.type = "save"
+                        activity.isConcentration = false
+
+                        activity.addConsumption(consumption =>
+                        {
+                            consumption.spellSlot = true
+                            consumption.numberOfTargets = 1
+                            consumption.addTarget(target =>
+                            {
+                                target.type = "itemUses"
+                                target.value = "1"
+                            })
+                        })
+                        activity.range.units = "ft"
+                        activity.range.values = 300
+                        activity.saveDc = 8 + actorProf + transformationStage
+                        activity.saveAbility = ["wis"]
+                        activity.target.affects.count = 1
+                        activity.target.affects.special = "Humanoid"
+                        activity.target.affects.type = "creature"
+                    })
+
+                    item.addActivity(activity =>
+                    {
+                        activity.name = "Manipulate Mind (with concentration)"
+                        activity.activationType = "bonus"
+                        activity.type = "save"
+                        activity.isConcentration = true
+
+                        activity.addConsumption(consumption =>
+                        {
+                            consumption.spellSlot = true
+                            consumption.numberOfTargets = 1
+                            consumption.addTarget(target =>
+                            {
+                                target.type = "itemUses"
+                                target.value = "1"
+                            })
+                        })
+                        activity.range.units = "ft"
+                        activity.range.values = 300
+                        activity.saveDc = 8 + actorProf + transformationStage
+                        activity.saveAbility = ["wis"]
+                        activity.target.affects.count = 1
+                        activity.target.affects.special = "Humanoid"
+                        activity.target.affects.type = "creature"
+                    })
+
+                })
+                validate(actorDto, { assert })
+            }
+        },
+
+        {
+            name: "Weakend Constitution activity triggers message",
+
+            requiredPath: [
+                {
+                    stage: 1,
+                    choose: seasons.winter.servantUuid
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                }
+            ],
+
+            await: async ({ actor, runtime, helpers, waiters }) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.items.find(i => i.name === "Weakend Constitution")
+                )
+            },
+
+            assertions: async ({ actor, assert, validators }) =>
+            {
+                const actorProf = actor.system.attributes.prof
+                const transformationStage = actor.flags.transformations.stage
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Weakend Constitution"
+                    item.type = "feat"
+                    item.numberOfEffects = 0
+                    item.uses.max = 1
+                    item.uses.recovery.period = "initiative"
+                    item.uses.recovery.type = "recoverAll"
+                    item.numberOfActivities = 1
+                    item.addActivity(activity =>
+                    {
+                        activity.name = "Fey Exhaustion Recovery"
+                        activity.activationType = "special"
+                    })
+                })
+                validate(actorDto, { assert })
+            }
+        },
+
+        {
+            name: "Weakend Constitution use of activity ",
+
+            requiredPath: [
+                {
+                    stage: 1,
+                    choose: seasons.winter.servantUuid
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                }
+            ],
+
+            steps: [
+
+                async ({ actor, helpers }) =>
+                {
+                    await ChatMessage.deleteDocuments(
+                        game.messages.contents.map(m => m.id)
+                    )
+                    actor.items.find(i => i.name === "Weakend Constitution").system.activities.find(a => a.name == "Fey Exhaustion Recovery").use
+                },
+            ],
+
+            await: async ({ actor, runtime, helpers, waiters }) =>
+            {
+                await waiters.waitForCondition(() =>
+                    game.messages.contents > 0
+                )
+            },
+
+            assertions: async ({ actor, assert, validators }) =>
+            {
+                const actorProf = actor.system.attributes.prof
+                const transformationStage = actor.flags.transformations.stage
+
+                const messageDto = new MessageValidationDTO("RollTable")
+                messageDto.count = 1
+                messageDto.flavors.values = ["Unstable Form Stage 1"]
+                validate(messageDto, { assert })
+            }
+        },
+
     ]
 }

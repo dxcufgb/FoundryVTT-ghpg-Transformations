@@ -7,6 +7,7 @@ export class ConsumptionValidationDTO
 
     constructor ()
     {
+        this.numberOfTargets = null
         this.targets = []
     }
 
