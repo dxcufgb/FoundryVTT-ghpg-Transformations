@@ -139,7 +139,7 @@ quench.registerBatch(
                 {
                     const raceItem = runtime.infrastructure.itemRepository.findEmbeddedByType(actor, "race")
 
-                    return Boolean(raceItem?.system?.type?.subtype)
+                    return Boolean(raceItem?.system?.type?.subtype != "human")
                 })
 
                 // --- assert flags ---
@@ -310,7 +310,7 @@ quench.registerBatch(
                     const raceItem =
                         runtime.infrastructure.itemRepository.findEmbeddedByType(actor, "race")
 
-                    return Boolean(raceItem?.system?.type?.subtype)
+                    return Boolean(raceItem?.system?.type?.subtype != "human")
                 })
 
                 const stage1 = Object.values(transformationDef.stages)
