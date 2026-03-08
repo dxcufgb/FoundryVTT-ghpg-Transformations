@@ -8,6 +8,7 @@ export class MessageValidationDTO
     constructor (messageType = "NA")
     {
         this.messageType = messageType
+        this.title = null
 
         this.count = 0
 

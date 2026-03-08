@@ -22,7 +22,7 @@ export class DamagePartDTOValidator extends BaseDTOValidator
         if (!part)
             throw new Error(`[${this.path}] Missing damage part`)
 
-        super.validate(dto, { part })
+        super.validate(this.buildValidationDTO(dto), { part })
 
         return true
     }

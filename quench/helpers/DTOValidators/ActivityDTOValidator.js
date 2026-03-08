@@ -30,7 +30,7 @@ export class ActivityDTOValidator extends BaseDTOValidator
             throw new Error(`[${this.path}] Missing activity`)
 
         // run rule DSL
-        super.validate(dto, { activity })
+        super.validate(this.buildValidationDTO(dto), { activity })
 
         this.validateDamageParts(activity, dto.damageParts)
         // this.validateConsumption(activity, dto.consumption)

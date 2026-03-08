@@ -20,7 +20,7 @@ export class ConsupmtionTargetDTOValidator extends BaseDTOValidator
         if (!target)
             throw new Error(`[${this.path}] Missing consumption target`)
 
-        super.validate(dto, { target })
+        super.validate(this.buildValidationDTO(dto), { target })
 
         return true
     }

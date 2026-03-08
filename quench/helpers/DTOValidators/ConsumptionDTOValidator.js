@@ -19,7 +19,7 @@ export class ConsumptionDTOValidator extends BaseDTOValidator
             throw new Error(`[${this.path}] Missing consumption`)
         }
 
-        super.validate(dto, { consumption })
+        super.validate(this.buildValidationDTO(dto), { consumption })
         this.validateTargets(consumption, dto.targets)
 
         return true

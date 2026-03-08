@@ -31,15 +31,7 @@ export class ContextDTOValidator extends BaseDTOValidator
             throw new Error(`[${this.path}] Missing context in DTO`)
         }
 
-        const ruleKeys = Object.keys(this.constructor.rules)
-        const ruleDto = {}
-
-        for (const key of ruleKeys) {
-            if (dto[key] !== undefined && dto[key] !== null)
-                ruleDto[key] = dto[key]
-        }
-
-        super.validate(ruleDto, { context })
+        super.validate(this.buildValidationDTO(dto), { context })
 
         return true
     }

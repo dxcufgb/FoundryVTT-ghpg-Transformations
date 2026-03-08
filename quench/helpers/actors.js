@@ -56,15 +56,19 @@ function handlePreCreationExtras(actorMap, options)
 async function handlePostCreationExtras(actor, options)
 {
     if (options?.race) {
-        const raceItem = await getOrCreateItem({
-            name: "Human",
-            type: "race",
-            system: {}
-        })
+        const raceItem = await getCharacterRace("Human")
 
         await actor.createEmbeddedDocuments("Item", [
             raceItem.toObject()
         ])
+    }
+    if (options?.classes) {
+        for (const characterClass of options.classes) {
+            const foundCharacterClass = await getCharacterClass(characterClass)
+            await actor.createEmbeddedDocuments("Item", [
+                foundCharacterClass.toObject()
+            ])
+        }
     }
 }
 
@@ -220,4 +224,27 @@ export function validateAllD20Disadvantage(actor, actorEffectValidator, assert)
 {
     console.error("Transformations TEST | OLD Method called, migrate to new actorValidator function!")
     return actorValidator({ actor, assert }).validateAllD20Disadvantage()
+}
+
+export async function getCharacterClass(characterClass)
+{
+    const pack = game.packs.get("dnd5e.classes24")
+
+    await pack.getIndex()
+
+    const classEntry = pack.index.find(e => e.name === characterClass)
+
+    return await pack.getDocument(classEntry._id)
+}
+
+export async function getCharacterRace(characterRace)
+{
+    const pack = game.packs.get("dnd5e.races")
+
+    await pack.getIndex()
+
+    const raceEntry = pack.index.find(e => e.name === characterRace)
+    const raceDocument = await pack.getDocument(raceEntry._id)
+
+    return raceDocument
 }

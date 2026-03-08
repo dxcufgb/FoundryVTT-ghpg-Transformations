@@ -21,7 +21,7 @@ export class AdvancementConfigurationDTOValidator extends BaseDTOValidator
         if (!configuration)
             throw new Error(`[${this.path}] Missing advancement configuration`)
 
-        super.validate(dto, { configuration })
+        super.validate(this.buildValidationDTO(dto), { configuration })
 
         return true
     }
@@ -51,7 +51,7 @@ export class AdvancementConfigurationSpellDTOValidator extends BaseDTOValidator
             throw new Error(`[${this.path}] Missing advancement configuration spell`)
         }
 
-        super.validate(dto, { spell })
+        super.validate(this.buildValidationDTO(dto), { spell })
 
         return true
     }
@@ -82,7 +82,7 @@ export class AdvancementConfigurationSpellUsesDTOValidator extends BaseDTOValida
             throw new Error(`[${this.path}] Missing advancement configuration spell uses`)
         }
 
-        super.validate(dto, { uses })
+        super.validate(this.buildValidationDTO(dto), { uses })
 
         return true
     }

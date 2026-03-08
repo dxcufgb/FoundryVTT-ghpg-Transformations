@@ -31,7 +31,7 @@ export class ItemDTOValidator extends BaseDTOValidator
             throw new Error(`[${this.path}] Missing item`)
 
         // rule engine
-        super.validate(dto, { item })
+        super.validate(this.buildValidationDTO(dto), { item })
 
         this.validateActivities(item, dto.activities)
         this.validateAdvancements(item, dto.advancements)

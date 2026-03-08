@@ -22,7 +22,7 @@ export class ActorDTOValidator extends BaseDTOValidator
             throw new Error(`[${this.path}] Missing actor in DTO`)
 
         // run rule DSL
-        super.validate(dto, { actor })
+        super.validate(this.buildValidationDTO(dto), { actor })
 
         // nested validation
         this.validateItems(actor, dto.items)

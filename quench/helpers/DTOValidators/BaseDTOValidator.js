@@ -128,6 +128,22 @@ export class BaseDTOValidator
         }
     }
 
+    buildValidationDTO(dto)
+    {
+        const rules = this.constructor.rules ?? {}
+        const validationDTO = {}
+
+        for (const [key, value] of Object.entries(dto ?? {})) {
+            const hasRule = key in rules
+            const hasNestedValidator = Boolean(value?.constructor?.validator)
+
+            if (hasRule || hasNestedValidator)
+                validationDTO[key] = value
+        }
+
+        return validationDTO
+    }
+
     buildPath(segment)
     {
         if (!segment)

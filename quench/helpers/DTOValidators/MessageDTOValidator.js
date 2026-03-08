@@ -8,6 +8,7 @@ export class MessageDTOValidator extends BaseDTOValidator
 {
     static rules = {
         count: path("messages").count().equals(),
+        title: path("messages").pluck("title").equals(),
         flavors: path("messages").pluck("flavor").map(v => v ?? "").indexedStringMatch(),
         contents: path("messages").pluck("content").map(v => v ?? "").indexedStringMatch()
     }
@@ -18,7 +19,7 @@ export class MessageDTOValidator extends BaseDTOValidator
 
         const messages = this.getMessagesByType(dto.messageType)
 
-        super.validate(dto, { messages })
+        super.validate(this.buildValidationDTO(dto), { messages })
 
         return true
     }
@@ -30,6 +31,11 @@ export class MessageDTOValidator extends BaseDTOValidator
             case "RollTable":
                 return game.messages.contents.filter(m =>
                     m.flags?.core?.RollTable !== undefined
+                )
+
+            case "base":
+                return game.messages.contents.filter(m =>
+                    m.type == "base"
                 )
 
             case "NA":

@@ -97,32 +97,22 @@ export class Fey extends Transformation
     {
         logger?.debug?.("Fey.handleFeyRecoveryClick", { actor })
 
-        const stage =
-            actor.getFlag("transformations", "stage") ?? 1
-
-        const exhaustion =
-            actorRepository.getExhaustion(actor)
-
-        const hitDiceAvailable =
-            actorRepository.getAvailableHitDice(actor)
-
-        const maxByHitDice =
-            Math.floor(hitDiceAvailable / stage)
-
-        const maxRecoverable =
-            Math.min(exhaustion, maxByHitDice)
+        const stage = actor.getFlag("transformations", "stage") ?? 1
+        const exhaustion = actorRepository.getExhaustion(actor)
+        const hitDiceAvailable = actorRepository.getAvailableHitDice(actor)
+        const maxByHitDice = Math.floor(hitDiceAvailable / stage)
+        const maxRecoverable = Math.min(exhaustion, maxByHitDice)
 
         if (maxRecoverable <= 0) {
             ui.notifications.warn("No exhaustion can be recovered.")
             return
         }
 
-        const chosen =
-            await dialogFactory.openFeyExhaustionRecovery({
-                stage,
-                exhaustion,
-                hitDiceAvailable
-            })
+        const chosen = await dialogFactory.openFeyExhaustionRecovery({
+            stage,
+            exhaustion,
+            hitDiceAvailable
+        })
 
         if (!chosen) return
 

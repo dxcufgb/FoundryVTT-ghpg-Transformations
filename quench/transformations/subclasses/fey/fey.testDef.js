@@ -1,8 +1,10 @@
+import { UiAccessor } from "../../../../bootstrap/uiAccessor.js"
 import { ABILITY, ATTRIBUTE, ROLL_TYPE, SKILL } from "../../../../config/constants.js"
 import { D20Identifiers } from "../../../../config/disadvantageOnAllD20Rolls.js"
 import { validate } from "../../../helpers/DTOValidators/validate.js"
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js"
 import { ContextValidationDTO } from "../../../helpers/validationDTOs/context/ContextValidationDTO.js"
+import { MessageValidationDTO } from "../../../helpers/validationDTOs/message/MessageValidationDTO.js"
 import { findTransformationGeneralChoiceButtonById, findTransformationGeneralChoiceDialog } from "../../../selectors/transformationGeneralChoiceDialog.finders.js"
 
 // test/definitions/aberrantHorror.testdef.js
@@ -1073,7 +1075,6 @@ export const feyTestDef = {
                     item.addActivity(activity =>
                     {
                         activity.name = "Fey Exhaustion Recovery"
-                        activity.activationType = "special"
                     })
                 })
                 validate(actorDto, { assert })
@@ -1081,7 +1082,7 @@ export const feyTestDef = {
         },
 
         {
-            name: "Weakend Constitution use of activity ",
+            name: "Weakend Constitution use of activity triggers chat message",
 
             requiredPath: [
                 {
@@ -1103,14 +1104,16 @@ export const feyTestDef = {
                     await ChatMessage.deleteDocuments(
                         game.messages.contents.map(m => m.id)
                     )
-                    actor.items.find(i => i.name === "Weakend Constitution").system.activities.find(a => a.name == "Fey Exhaustion Recovery").use
+                    const weakendConstitution = actor.items.find(i => i.name === "Weakend Constitution")
+                    const activity = weakendConstitution.system.activities.find(a => a.name == "Fey Exhaustion Recovery")
+                    activity.use()
                 },
             ],
 
             await: async ({ actor, runtime, helpers, waiters }) =>
             {
                 await waiters.waitForCondition(() =>
-                    game.messages.contents > 0
+                    game.messages.contents.length > 0
                 )
             },
 
@@ -1119,12 +1122,103 @@ export const feyTestDef = {
                 const actorProf = actor.system.attributes.prof
                 const transformationStage = actor.flags.transformations.stage
 
-                const messageDto = new MessageValidationDTO("RollTable")
+                const messageDto = new MessageValidationDTO("base")
                 messageDto.count = 1
-                messageDto.flavors.values = ["Unstable Form Stage 1"]
+                messageDto.contents.values = ["As a Magic action, you can expend a number of Hit Point Dice equal to your Transformation Stage to remove one level of Exhaustion gained in this manner. You gain no other benefit from those expended Hit Point Dice."]
+                messageDto.contents.mode = "includes"
+                messageDto.title = "Weakend Constitution - Fey Exhaustion Recovery"
                 validate(messageDto, { assert })
             }
         },
 
+        {
+            name: "Weakend Constitution bloodied triggers constitution saving throw, sucess means no exhaustion levels",
+
+            requiredPath: [
+                {
+                    stage: 1,
+                    choose: seasons.winter.servantUuid
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                }
+            ],
+
+            steps: [
+
+                async ({ actor, helpers }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.saveResult = 20
+                    globalThis.___TransformationTestEnvironment___.saveRolled = false
+                },
+            ],
+
+            trigger: "bloodied",
+
+            await: async ({ actor, runtime, helpers, waiters }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, assert, validators }) =>
+            {
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.stats.exhaustion = 0
+                validate(actorDto, { assert })
+            }
+        },
+
+        {
+            name: "Weakend Constitution bloodied triggers constitution saving throw, sucess means no exhaustion levels",
+
+            requiredPath: [
+                {
+                    stage: 1,
+                    choose: seasons.winter.servantUuid
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                }
+            ],
+
+            steps: [
+
+                async ({ actor, helpers }) =>
+                {
+                    globalThis.___TransformationTestEnvironment___.saveResult = 19
+                    globalThis.___TransformationTestEnvironment___.saveRolled = false
+                },
+            ],
+
+            trigger: "bloodied",
+
+            await: async ({ actor, runtime, helpers, waiters }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, assert, validators }) =>
+            {
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.stats.exhaustion = 1
+                validate(actorDto, { assert })
+            }
+        },
     ]
 }

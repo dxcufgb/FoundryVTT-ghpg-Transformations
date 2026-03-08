@@ -37,7 +37,7 @@ export class EffectDTOValidator extends BaseDTOValidator
         if (!effect)
             throw new Error(`[${this.path}] Missing effect`)
 
-        super.validate(dto, { effect })
+        super.validate(this.buildValidationDTO(dto), { effect })
 
         return true
     }
