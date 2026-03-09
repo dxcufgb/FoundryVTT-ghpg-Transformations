@@ -54,6 +54,8 @@ export class ActorStatsDTO
         this.movementSpeed = null    // { type, value }
         this.movementBonus = null
         this.resistances = []
+        this.vulnerabilities = []
+        this.immunities = []
     }
 }
 

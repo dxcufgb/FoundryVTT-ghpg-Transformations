@@ -3,6 +3,13 @@ export const stage2 = {
     grants: {
         items: [
             {
+                uuid: "Compendium.transformations.gh-transformations.Item.Ge8HWhiAqbjKhhZJ"
+            }
+        ]
+    },
+    choices: {
+        items: [
+            {
                 uuid: "Compendium.transformations.gh-transformations.Item.K62U8AeluSIM9oeI",
                 requires: {
                     items: [
@@ -66,9 +73,6 @@ export const stage2 = {
                     ]
                 }
             },
-            {
-                uuid: "Compendium.transformations.gh-transformations.Item.Ge8HWhiAqbjKhhZJ"
-            }
         ]
     }
 }

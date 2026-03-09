@@ -33,7 +33,27 @@ const seasons = {
                 saveActivityName: false,
             }
         ],
-        feyTeleportDamageType: "cold"
+        feyTeleportDamageType: "cold",
+        seasonallyAffectedUuid: "Compendium.transformations.gh-transformations.Item.6PW6iYp8v7UoREu4",
+        seasonallyAffectedDamageVulnerability: "fire",
+        greaterMagicTricksUuid: "Compendium.transformations.gh-transformations.Item.gy5fj1wcUtnAR5yE",
+        greaterMagicTricksSpells: [
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.ohE2j7tJ9OdnYtbK",
+                level: 3,
+                saveActivityName: false,
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.XBhEOfOXg987Oryu",
+                level: 4,
+                saveActivityName: "Midi Save",
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.TdEFNeRQPS3Ys95k",
+                level: 5,
+                saveActivityName: "Midi Save",
+            }
+        ],
     },
     spring: {
         name: "Spring",
@@ -59,7 +79,27 @@ const seasons = {
                 saveActivityName: false,
             },
         ],
-        feyTeleportDamageType: "thunder"
+        feyTeleportDamageType: "thunder",
+        seasonallyAffectedUuid: "Compendium.transformations.gh-transformations.Item.Zk0cqrKQcOcnzYPz",
+        seasonallyAffectedDamageVulnerability: "necrotic",
+        greaterMagicTricksUuid: "Compendium.transformations.gh-transformations.Item.gbC98FWfZURNMRHm",
+        greaterMagicTricksSpells: [
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.7MHP4HCodAvWMxap",
+                level: 3,
+                saveActivityName: "Start of Turn Save",
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.wT4Tp9WQ8Qi9oH85",
+                level: 4,
+                saveActivityName: "Midi Save",
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.cG7yegCP2pLGjcXW",
+                level: 5,
+                saveActivityName: "Midi Save",
+            }
+        ],
     },
     summer: {
         name: "Summer",
@@ -85,7 +125,27 @@ const seasons = {
                 saveActivityName: "Midi Save",
             }
         ],
-        feyTeleportDamageType: "fire"
+        feyTeleportDamageType: "fire",
+        seasonallyAffectedUuid: "Compendium.transformations.gh-transformations.Item.AHxp5W4k9UpOKgEC",
+        seasonallyAffectedDamageVulnerability: "cold",
+        greaterMagicTricksUuid: "Compendium.transformations.gh-transformations.Item.PhJXnqeDYAzH2RCB",
+        greaterMagicTricksSpells: [
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.nRYfP6VNoFbJi2Cl",
+                level: 3,
+                saveActivityName: "Midi Save",
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.oW1ImnWFEeQ58m8M",
+                level: 4,
+                saveActivityName: false,
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.ZnuyJAuZauk8atLn",
+                level: 5,
+                saveActivityName: "Midi Save",
+            }
+        ],
     },
     autumn: {
         name: "Autumn",
@@ -111,7 +171,27 @@ const seasons = {
                 saveActivityName: "Midi Save",
             }
         ],
-        feyTeleportDamageType: "poison"
+        feyTeleportDamageType: "poison",
+        seasonallyAffectedUuid: "Compendium.transformations.gh-transformations.Item.CLeYAvf7sMEZacSL",
+        seasonallyAffectedDamageVulnerability: "radiant",
+        greaterMagicTricksUuid: "Compendium.transformations.gh-transformations.Item.dDBjm4vBlFRpXKVx",
+        greaterMagicTricksSpells: [
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.8tmFyQ0LbPZe93c9",
+                level: 3,
+                saveActivityName: "Midi save",
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.DgNsvwAXjTtvfcXw",
+                level: 4,
+                saveActivityName: "Midi Save",
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.cK1cNO4jj5GtBBMW",
+                level: 5,
+                saveActivityName: "Midi Save",
+            }
+        ],
     },
 
 }
@@ -183,7 +263,7 @@ export const feyTestDef = {
         },
 
         {
-            name: (loopVars) => `stage 2 with Servant of the ${loopVars.name}  Court`,
+            name: (loopVars) => `stage 2 with Servant of the ${loopVars.name} Court choosing Two-Faced`,
             loop: () => [
                 seasons.winter,
                 seasons.spring,
@@ -202,6 +282,51 @@ export const feyTestDef = {
                 },
                 {
                     stage: 2,
+                    choose: (loopVars) => loopVars.twoFacedUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
+                    "Compendium.transformations.gh-transformations.Item.tcI2u7gfaXjg2Orr",
+                    "Compendium.transformations.gh-transformations.Item.Ge8HWhiAqbjKhhZJ",
+                    loopVars.servantUuid,
+                    loopVars.twoFacedUuid
+                ]
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = expectedItemUuids
+                validate(actorDto, { assert })
+            }
+        },
+
+
+        {
+            name: (loopVars) => `stage 2 with Servant of the ${loopVars.name} Court choosing Magic tricks`,
+            loop: () => [
+                seasons.winter,
+                seasons.spring,
+                seasons.summer,
+                seasons.autumn
+            ],
+
+            steps: [
+                {
+                    stage: 1,
+                    choose: (loopVars) => loopVars.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: (loopVars) => loopVars.magicTricksUuid,
                     await: async ({ runtime, actor, waiters }) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
@@ -217,7 +342,6 @@ export const feyTestDef = {
                     "Compendium.transformations.gh-transformations.Item.Ge8HWhiAqbjKhhZJ",
                     loopVars.servantUuid,
                     loopVars.magicTricksUuid,
-                    loopVars.twoFacedUuid,
                     loopVars.magicTricksSpells[0].uuid,
                     loopVars.magicTricksSpells[1].uuid,
                     loopVars.magicTricksSpells[2].uuid
@@ -229,7 +353,7 @@ export const feyTestDef = {
         },
 
         {
-            name: (loopVars) => `stage 3 with Servant of the ${loopVars.name}  Court`,
+            name: (loopVars) => `stage 3 with Servant of the ${loopVars.name} Court choosing Illusionary cloak`,
             loop: () => [
                 seasons.winter,
                 seasons.spring,
@@ -248,6 +372,7 @@ export const feyTestDef = {
                 },
                 {
                     stage: 2,
+                    choose: (loopVars) => loopVars.twoFacedUuid,
                     await: async ({ runtime, actor, waiters }) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
@@ -255,6 +380,7 @@ export const feyTestDef = {
                 },
                 {
                     stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.2OaLTqox7kaidOxP",
                     await: async ({ runtime, actor, waiters }) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
@@ -269,18 +395,318 @@ export const feyTestDef = {
                     "Compendium.transformations.gh-transformations.Item.tcI2u7gfaXjg2Orr",
                     "Compendium.transformations.gh-transformations.Item.Ge8HWhiAqbjKhhZJ",
                     "Compendium.transformations.gh-transformations.Item.2OaLTqox7kaidOxP",
-                    "Compendium.transformations.gh-transformations.Item.rID40yYHDRry6TJ5",
-                    "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
                     "Compendium.transformations.gh-transformations.Item.Uo86wtOs7PMOFlav",
                     loopVars.servantUuid,
-                    loopVars.magicTricksUuid,
-                    loopVars.twoFacedUuid,
-                    loopVars.magicTricksSpells[0].uuid,
-                    loopVars.magicTricksSpells[1].uuid,
-                    loopVars.magicTricksSpells[2].uuid
+                    loopVars.twoFacedUuid
                 ]
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = expectedItemUuids
+                validate(actorDto, { assert })
+            }
+        },
+
+        {
+            name: (loopVars) => `stage 3 with Servant of the ${loopVars.name} Court choosing Tooth and Claw`,
+            loop: () => [
+                seasons.winter,
+                seasons.spring,
+                seasons.summer,
+                seasons.autumn
+            ],
+
+            steps: [
+                {
+                    stage: 1,
+                    choose: (loopVars) => loopVars.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: (loopVars) => loopVars.twoFacedUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.rID40yYHDRry6TJ5",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
+                    "Compendium.transformations.gh-transformations.Item.tcI2u7gfaXjg2Orr",
+                    "Compendium.transformations.gh-transformations.Item.Ge8HWhiAqbjKhhZJ",
+                    "Compendium.transformations.gh-transformations.Item.rID40yYHDRry6TJ5",
+                    "Compendium.transformations.gh-transformations.Item.Uo86wtOs7PMOFlav",
+                    loopVars.servantUuid,
+                    loopVars.twoFacedUuid
+                ]
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = expectedItemUuids
+                validate(actorDto, { assert })
+            }
+        },
+
+        {
+            name: (loopVars) => `stage 3 with Servant of the ${loopVars.name} Court choosing Dreams and Nightmares`,
+            loop: () => [
+                seasons.winter,
+                seasons.spring,
+                seasons.summer,
+                seasons.autumn
+            ],
+
+            steps: [
+                {
+                    stage: 1,
+                    choose: (loopVars) => loopVars.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: (loopVars) => loopVars.twoFacedUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
+                    "Compendium.transformations.gh-transformations.Item.tcI2u7gfaXjg2Orr",
+                    "Compendium.transformations.gh-transformations.Item.Ge8HWhiAqbjKhhZJ",
+                    "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
+                    "Compendium.transformations.gh-transformations.Item.Uo86wtOs7PMOFlav",
+                    loopVars.servantUuid,
+                    loopVars.twoFacedUuid
+                ]
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = expectedItemUuids
+                validate(actorDto, { assert })
+            }
+        },
+
+        {
+            name: (loopVars) => `stage 4 with Servant of the ${loopVars.name} Court choosing Two-Faced on stage 2 leading to no choice on stage 4`,
+            loop: () => [
+                seasons.winter,
+                seasons.spring,
+                seasons.summer,
+                seasons.autumn
+            ],
+
+            steps: [
+                {
+                    stage: 1,
+                    choose: (loopVars) => loopVars.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: (loopVars) => loopVars.twoFacedUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
+                    "Compendium.transformations.gh-transformations.Item.tcI2u7gfaXjg2Orr",
+                    "Compendium.transformations.gh-transformations.Item.Ge8HWhiAqbjKhhZJ",
+                    "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
+                    "Compendium.transformations.gh-transformations.Item.Uo86wtOs7PMOFlav",
+                    "Compendium.transformations.gh-transformations.Item.5IJKGifkWQIVrNgN",
+                    loopVars.servantUuid,
+                    loopVars.twoFacedUuid,
+                    loopVars.seasonallyAffectedUuid
+                ]
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = expectedItemUuids
+                actorDto.stats.vulnerabilities = [loopVars.seasonallyAffectedDamageVulnerability]
+                validate(actorDto, { assert })
+            }
+        },
+
+        {
+            name: (loopVars) => `stage 4 with Servant of the ${loopVars.name} Court choosing Magic Tricks on stage 2 and Greater Magic Tricks on stage 4`,
+            loop: () => [
+                seasons.winter,
+                seasons.spring,
+                seasons.summer,
+                seasons.autumn
+            ],
+
+            steps: [
+                {
+                    stage: 1,
+                    choose: (loopVars) => loopVars.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: (loopVars) => loopVars.magicTricksUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: (loopVars) => loopVars.greaterMagicTricksUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
+                    "Compendium.transformations.gh-transformations.Item.tcI2u7gfaXjg2Orr",
+                    "Compendium.transformations.gh-transformations.Item.Ge8HWhiAqbjKhhZJ",
+                    "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
+                    "Compendium.transformations.gh-transformations.Item.Uo86wtOs7PMOFlav",
+                    loopVars.servantUuid,
+                    loopVars.seasonallyAffectedUuid,
+                    loopVars.magicTricksUuid,
+                    loopVars.magicTricksSpells[0].uuid,
+                    loopVars.magicTricksSpells[1].uuid,
+                    loopVars.magicTricksSpells[2].uuid,
+                    loopVars.greaterMagicTricksUuid,
+                    loopVars.greaterMagicTricksSpells[0].uuid,
+                    loopVars.greaterMagicTricksSpells[1].uuid,
+                    loopVars.greaterMagicTricksSpells[2].uuid
+                ]
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = expectedItemUuids
+                actorDto.stats.vulnerabilities = [loopVars.seasonallyAffectedDamageVulnerability]
+                validate(actorDto, { assert })
+            }
+        },
+
+        {
+            name: (loopVars) => `stage 4 with Servant of the ${loopVars.name} Court choosing Magic Tricks on stage 2 and Twilight Glamour on stage 4`,
+            loop: () => [
+                seasons.winter,
+                seasons.spring,
+                seasons.summer,
+                seasons.autumn
+            ],
+
+            steps: [
+                {
+                    stage: 1,
+                    choose: (loopVars) => loopVars.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: (loopVars) => loopVars.magicTricksUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.5IJKGifkWQIVrNgN",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
+            {
+                const expectedItemUuids = [
+                    "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
+                    "Compendium.transformations.gh-transformations.Item.tcI2u7gfaXjg2Orr",
+                    "Compendium.transformations.gh-transformations.Item.Ge8HWhiAqbjKhhZJ",
+                    "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
+                    "Compendium.transformations.gh-transformations.Item.Uo86wtOs7PMOFlav",
+                    "Compendium.transformations.gh-transformations.Item.5IJKGifkWQIVrNgN",
+                    loopVars.servantUuid,
+                    loopVars.seasonallyAffectedUuid,
+                    loopVars.magicTricksUuid,
+                    loopVars.magicTricksSpells[0].uuid,
+                    loopVars.magicTricksSpells[1].uuid,
+                    loopVars.magicTricksSpells[2].uuid,
+                ]
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = expectedItemUuids
+                actorDto.stats.vulnerabilities = [loopVars.seasonallyAffectedDamageVulnerability]
                 validate(actorDto, { assert })
             }
         },
