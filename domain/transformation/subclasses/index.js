@@ -1,1 +1,2 @@
-export { AberrantHorror } from "./aberrantHorror/index.js";
+export { AberrantHorror } from "./aberrantHorror/index.js"
+export { Fey } from "./fey/index.js"

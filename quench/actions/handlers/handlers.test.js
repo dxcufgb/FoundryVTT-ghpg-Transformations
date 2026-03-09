@@ -3,6 +3,7 @@
 import { wait } from "../../helpers/wait.js"
 import { teardownAllTest } from "../../testLifecycle.js"
 import { registerChatActionTests } from "./chatAction.test.js"
+import { registerDialogActionTests } from "./dialogAction.test.js"
 import { registerEffectActionTests } from "./effectAction.test.js"
 import { registerHpActionTests } from "./hpAction.test.js"
 import { registerItemActionTests } from "./itemAction.test.js"
@@ -28,5 +29,6 @@ quench.registerBatch(
         registerRollTableActionTests({ describe, it, expect })
         registerSaveActionTests({ describe, it, expect })
         registerRollModifierActionTests({ describe, it, expect })
+        registerDialogActionTests({ describe, it, expect })
     }
 )

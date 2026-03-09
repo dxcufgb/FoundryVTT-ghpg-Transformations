@@ -1,6 +1,7 @@
 export function createActorRepository({
     tracker,
     debouncedTracker,
+    itemRepository,
     getGame,
     logger
 })
@@ -418,6 +419,115 @@ export function createActorRepository({
         )
     }
 
+    function getAvailableHitDice(actor)
+    {
+        const hitDiePerClass = getHitDiePerClass(actor)
+
+        const total = Object.values(hitDiePerClass)
+            .reduce((sum, entry) => sum + (entry?.value ?? 0), 0)
+
+        logger?.debug?.("HitDieService.getAvailable", { total })
+
+        return total
+    }
+
+    function getHitDiePerClass(actor)
+    {
+        const classItems = itemRepository.findAllEmbeddedByType(actor, "class")
+        let hitDieSummary = Object.fromEntries(
+            [...classItems]
+                .sort((a, b) => Number.parseInt(b.system.hd.denomination.replace("d", "")) - Number.parseInt(a.system.hd.denomination.replace("d", "")))
+                .map(n => [n.name, {
+                    denomination: n.system.hd.denomination,
+                    max: n.system.hd.max,
+                    spent: n.system.hd.spent,
+                    additional: n.system.hd.additional,
+                    value: n.system.hd.value
+                }])
+        )
+        return hitDieSummary
+    }
+
+    async function consumeHitDie(actor, amount)
+    {
+        if (!actor || amount <= 0) return
+        let remainingToConsume = amount
+        const classItems = itemRepository.findAllEmbeddedByType(actor, "class")
+
+        const hitDiePerClass = getHitDiePerClass(actor)
+
+        const updatePromises = []
+
+        for (const [key, entry] of Object.entries(hitDiePerClass)) {
+
+            if (remainingToConsume <= 0) break
+
+            const currentClassItem =
+                classItems.find(c => c.name === key) // fixed comparison
+
+            if (!currentClassItem) continue
+
+            const available = entry?.value ?? 0
+            if (available <= 0) continue
+
+            const spend = Math.min(available, remainingToConsume)
+            remainingToConsume -= spend
+
+            updatePromises.push(
+                currentClassItem.update({
+                    "system.hd.spent": spend,
+                    "system.hd.value": (available - spend)
+                })
+            )
+
+            logger?.debug?.("actorRepository.consumeHitDie", {
+                class: key,
+                classRemaining: available,
+                requestedTotal: amount,
+                currentRemainingToConsume: remainingToConsume
+            })
+        }
+
+        // Await all updates at once
+        if (updatePromises.length > 0) {
+            await Promise.all(updatePromises)
+        }
+
+        if (remainingToConsume > 0) {
+            logger?.warn?.(
+                "actorRepository.consumeHitDie: Not enough hit dice to fulfill request"
+            )
+        }
+
+    }
+
+    function getExhaustion(actor)
+    {
+        const value = actor?.system?.attributes?.exhaustion ?? 0
+        logger?.debug?.("actorRepository.getExhaustion", { value })
+        return value
+    }
+
+    async function removeExhaustion(actor, amount)
+    {
+        if (!actor || amount <= 0) return
+
+        const current = getExhaustion(actor)
+        const next = Math.max(current - amount, 0)
+
+        logger?.debug?.("actorRepository.removeExhaustion", {
+            current,
+            amount,
+            next
+        })
+
+        if (next === current) return
+
+        await actor.update({
+            "system.attributes.exhaustion": next
+        })
+    }
+
     return Object.freeze({
         whenIdle: tracker.whenIdle,
         getById,
@@ -447,7 +557,11 @@ export function createActorRepository({
         addTempHp,
         applyDamage,
         setMovementBonus,
-        hasAnySpellSlotCapacity
+        hasAnySpellSlotCapacity,
+        getAvailableHitDice,
+        consumeHitDie,
+        getExhaustion,
+        removeExhaustion
     })
 
     async function getClearTransformationUpdates(actor)

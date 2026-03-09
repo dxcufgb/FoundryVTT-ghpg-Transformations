@@ -54,6 +54,7 @@ export function setupMocks(mocks = {})
 
     // 4️⃣ Services (override only what is provided)
     const services = createServices({
+        getGame: () => game,
         dependencies,
         infrastructure,
         overrides: {
@@ -82,6 +83,12 @@ export function setupMocks(mocks = {})
 
     UiAccessor.dialogs = ui.dialogs
 
+    registerTransformationMacros({
+        macroRegistry: infrastructure.macroRegistry,
+        activeEffectRepository: infrastructure.activeEffectRepository,
+        itemRepository: infrastructure.itemRepository,
+        logger: logger
+    })
     // 7️⃣ Return for direct test access if needed
     return {
         logger,

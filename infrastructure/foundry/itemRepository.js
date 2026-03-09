@@ -38,10 +38,15 @@ export function createItemRepository({
         return actor.items.find(item => item.type === type) ?? null
     }
 
+    function findAllEmbeddedByType(actor, type)
+    {
+        logger.debug("createItemRepository.findAllEmbeddedByType", { actor, type })
+        return actor.items.filter(item => item.type === type) ?? null
+    }
+
     async function addTransformationItem({
         actor,
         sourceItem,
-        context,
         replacesUuid,
         isPrerequisite
     })
@@ -49,7 +54,6 @@ export function createItemRepository({
         logger.debug("createItemRepository.addTransformationItem", {
             actor,
             sourceItem,
-            context,
             replacesUuid,
             isPrerequisite
         })
@@ -60,10 +64,9 @@ export function createItemRepository({
             {
                 logger.trace("addTransformationItem called", actor,
                     sourceItem,
-                    context,
                     replacesUuid,
                     isPrerequisite)
-                // 1ï¸âƒ£ Prevent duplicates
+                // Prevent duplicates
                 const existing = findEmbeddedByUuidFlag(actor, sourceItem.uuid)
 
                 if (existing) {
@@ -74,7 +77,7 @@ export function createItemRepository({
                     return existing
                 }
 
-                // 2ï¸âƒ£ Handle replacement
+                // Handle replacement
                 if (replacesUuid) {
                     const toRemove = findEmbeddedByUuidFlag(actor, replacesUuid)
 
@@ -83,19 +86,7 @@ export function createItemRepository({
                     }
                 }
 
-                const data = sourceItem.toObject()
-                data.flags ??= {}
-                data.flags.transformations = {
-                    sourceUuid: sourceItem.uuid,
-                    definitionId: context.definitionId,
-                    stage: context.stage,
-                    isPrerequisite: Boolean(isPrerequisite),
-                    addedByTransformation: true
-                }
-                data.flags.ddbimporter = { ignoreItemImport: true }
-                debouncedTracker.pulse("createEmbeddedDocuments")
-                const [created] = await actor.createEmbeddedDocuments("Item", [data])
-
+                const created = createObjectOnActor(actor, sourceItem)
                 return created ?? null
             })()
         )
@@ -168,17 +159,7 @@ export function createItemRepository({
                     return null
                 }
 
-                const data = source.toObject()
-
-                data.flags ??= {}
-                data.flags.transformations = {
-                    sourceUuid: uuid,
-                    addedByTransformation: true,
-                    ...flags
-                }
-                data.flags.ddbimporter = { ignoreItemImport: true }
-                debouncedTracker.pulse("createEmbeddedDocuments")
-                const [created] = await actor.createEmbeddedDocuments("Item", [data])
+                const created = createObjectOnActor(actor, source)
 
                 logger?.trace?.(
                     "Transformation item added",
@@ -202,16 +183,7 @@ export function createItemRepository({
         return tracker.track(
             (async () =>
             {
-                const data = itemData.toObject()
-                data.flags ??= {}
-                data.flags.transformations = {
-                    sourceUuid: sourceItem.uuid,
-                    addedByTransformation: true
-                }
-                data.flags.ddbimporter = { ignoreItemImport: true }
-                debouncedTracker.pulse("createEmbeddedDocuments")
-                const [created] = await actor.createEmbeddedDocuments("Item", [itemData])
-
+                const created = createObjectOnActor(actor, itemData)
                 return created ?? null
             })()
         )
@@ -418,6 +390,7 @@ export function createItemRepository({
         findEmbeddedByUuidFlag,
         getEmbeddedAddedByTransformation,
         findEmbeddedByType,
+        findAllEmbeddedByType,
         getRemainingUses,
         consumeUses,
 
@@ -438,4 +411,40 @@ export function createItemRepository({
         setTransformationFlags,
         clearTransformationFlags
     })
+
+    async function applyAdvancements(actor, advancements, parentItemUuid)
+    {
+        logger.debug("itemRepository.applyAdvancements", advancements, context)
+        for (const advancement of advancements) {
+            const advancementConfiguration = advancement.configuration
+            if (advancementConfiguration.items) {
+                for (const item of advancementConfiguration.items) {
+                    const sourceItem = await fromUuid(item.uuid)
+                    await createObjectOnActor(actor, sourceItem, parentItemUuid)
+                }
+            }
+        }
+    }
+
+    async function createObjectOnActor(actor, sourceItem, awardedByItem = "")
+    {
+        const data = sourceItem.toObject()
+        data.flags ??= {}
+        data.flags.transformations = {
+            sourceUuid: sourceItem.uuid,
+            definitionId: actor.flags.transformations.type,
+            stage: actor.flags.transformations.stage,
+            addedByTransformation: true,
+            awardedByItem: awardedByItem
+        }
+        data.flags.ddbimporter = { ignoreItemImport: true }
+        debouncedTracker.pulse("createEmbeddedDocuments")
+        const [created] = await actor.createEmbeddedDocuments("Item", [data])
+
+        if (created && data.system.advancement && data.system.advancement.length > 0) {
+            await applyAdvancements(actor, data.system.advancement, created.uuid)
+        }
+
+        return created
+    }
 }

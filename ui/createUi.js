@@ -10,6 +10,8 @@ import { createTransformationPillRenderer } from "./renderers/transformationPill
 import { canShowTransformationControls } from "./policies/canShowTransformationControls.js"
 import { createTransformationCardViewModel } from "./viewModels/createTransformationCardViewModel.js"
 import { createTransformationCardController } from "./controllers/transformationCard.controller.js"
+import { createTransformationGeneralChoiceViewModel } from "./viewModels/createTransformationGeneralChoiceViewModel.js"
+import { createTransformationGeneralChoiceController } from "./controllers/transformationGeneralChoiceController.js"
 
 export function createUi({
     services,
@@ -20,6 +22,11 @@ export function createUi({
     logger
 })
 {
+    let resolveReady
+    const readyPromise = new Promise(resolve =>
+    {
+        resolveReady = resolve
+    })
     logger.debug("createUi", {
         services,
         infrastructure,
@@ -32,11 +39,13 @@ export function createUi({
     const dialogs = createDialogFactory({
         viewModels: {
             createTransformationConfigViewModel,
-            createTransformationStageChoiceViewModel
+            createTransformationStageChoiceViewModel,
+            createTransformationGeneralChoiceViewModel
         },
         controllers: {
             createTransformationConfigController,
-            createTransformationStageChoiceController
+            createTransformationStageChoiceController,
+            createTransformationGeneralChoiceController
         },
         transformationService,
         transformationQueryService,
@@ -64,7 +73,7 @@ export function createUi({
         debouncedTracker,
         logger
     })
-
+    resolveReady()
     return Object.freeze({
         dialogs,
         controllers: {
@@ -80,7 +89,10 @@ export function createUi({
         },
         policies: {
             canShowTransformationControls
+        },
+        ready()
+        {
+            return readyPromise
         }
-
     })
 }

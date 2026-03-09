@@ -1,0 +1,26 @@
+<div class="fey-exhaustion-recovery">
+    <p>
+      Current Exhaustion: {{exhaustion}}<br>
+      Available Hit Dice: {{hitDiceAvailable}}<br>
+      Stage Multiplier: {{stage}}
+    </p>
+  
+    {{#if maxRecoverable}}
+      <div class="form-group">
+        <label>Recover Exhaustion</label>
+        <select data-action="amount">
+          {{#each options}}
+            <option value="{{value}}">
+              {{value}} level(s) (cost: {{cost}} hit dice)
+            </option>
+          {{/each}}
+        </select>
+      </div>
+  
+      <button type="button" data-action="confirm">
+        OK
+      </button>
+    {{else}}
+      <p>No exhaustion can be recovered.</p>
+    {{/if}}
+  </div>

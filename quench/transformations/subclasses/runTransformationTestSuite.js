@@ -1,10 +1,11 @@
-import { applyItemActivityEffect, expectItemsOnActor, expectRaceItemSubTypeOnActor } from "../../helpers/actors.js"
-import { actorValidators } from "../../helpers/actorValidators.js"
+import { applyItemActivityEffect, expectItemsOnActor, expectRaceItemSubTypeOnActor, getCharacterClass, validateAllD20Disadvantage } from "../../helpers/actors.js"
 import { advanceStageAndChoose } from "../../helpers/adcanceStageAndExpectchoiceDialog.js"
 import { advanceStageAndWait } from "../../helpers/advanceStageAndWait.js"
 import { expectAsyncWork } from "../../helpers/async/expectAsyncWork.js"
 import { waitForStageFinished } from "../../helpers/awaitStage.js"
-import { waitForNextFrame } from "../../helpers/dom.js"
+import { waitForElement, waitForElementGone, waitForNextFrame } from "../../helpers/dom.js"
+import { chooseDamageResistanceOnLongRest } from "../../helpers/fey/chooseDamageResistanceOnLongRest.js"
+import { getPreRollSavingThrowContext } from "../../helpers/foundryObjecStructures/preRollSavingThrowContext.js"
 import { triggerFunction } from "../../helpers/triggers.js"
 import { waitForCondition } from "../../helpers/waitForCondition.js"
 import { waitForDomainStability } from "../../helpers/waitForDomainStability.js"
@@ -17,8 +18,25 @@ export function runTransformationTestSuite({
 {
 
     const { describe, it, assert, expect } = mochaFunctions
-    const helpers = { applyItemActivityEffect, expectItemsOnActor, expectRaceItemSubTypeOnActor, actorValidators }
-    const waiters = { waitForCondition, waitForNextFrame, waitForDomainStability, waitForStageFinished }
+    const helpers = {
+        getCharacterClass,
+        applyItemActivityEffect,
+        expectItemsOnActor,
+        expectRaceItemSubTypeOnActor,
+        validateAllD20Disadvantage,
+        getPreRollSavingThrowContext,
+        fey: {
+            chooseDamageResistanceOnLongRest
+        }
+    }
+    const waiters = {
+        waitForCondition,
+        waitForNextFrame,
+        waitForDomainStability,
+        waitForStageFinished,
+        waitForElementGone,
+        waitForElement
+    }
 
     if (testDef.scenarios?.length > 0) {
         describe(`${testDef.id} scenarios`, function()
@@ -63,56 +81,82 @@ export function runTransformationTestSuite({
             })
 
             for (const scenario of testDef.scenarios) {
-                it(`Scenario: ${scenario.name}`, async function()
-                {
 
-                    if (scenario.setup) {
-                        await scenario.setup({ game, actor, helpers, runtime, staticVars })
-                    }
+                const loopContexts = scenario.loop
+                    ? scenario.loop({ game, actor, helpers, runtime, staticVars })
+                    : [undefined]
 
-                    for (const step of scenario.steps) {
-                        if (step.trigger) {
-                            await triggerFunction(runtime, step.trigger, actor, staticVars)
+                for (const loopVars of loopContexts) {
+
+                    const testName =
+                        typeof scenario.name === "function"
+                            ? scenario.name(loopVars)
+                            : scenario.loop && loopVars
+                                ? `${scenario.name} [${formatLoopVars(loopVars)}]`
+                                : scenario.name
+
+                    it(`Scenario: ${testName}`, async function()
+                    {
+
+                        if (scenario.setup) {
+                            await scenario.setup({ game, actor, helpers, runtime, staticVars, loopVars })
                         }
 
-                        if (step.adjust) {
-                            await step.adjust({ actor, staticVars })
+                        for (const step of scenario.steps) {
+                            if (step.trigger) {
+                                await triggerFunction(runtime, step.trigger, actor, staticVars, loopVars)
+                            }
+
+                            if (step.adjust) {
+                                await step.adjust({ actor, staticVars, loopVars })
+                            }
+
+                            if (step.choose) {
+                                await advanceStageAndChoose({
+                                    actor,
+                                    stage: step.stage,
+                                    choiceUuid: typeof step.choose === "function"
+                                        ? step.choose(loopVars)
+                                        : step.choose,
+                                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                                })
+                            } else {
+                                await advanceStageAndWait({
+                                    actor,
+                                    stage: step.stage,
+                                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                                })
+                            }
+
+                            if (step.await) {
+                                await step.await({
+                                    runtime,
+                                    actor,
+                                    waiters,
+                                    staticVars,
+                                    loopVars
+                                })
+                            }
                         }
 
-                        if (step.choose) {
-                            await advanceStageAndChoose({
-                                actor,
-                                stage: step.stage,
-                                choiceUuid: step.choose,
-                                asyncTrackers: runtime.dependencies.utils.asyncTrackers,
-                                staticVars
-                            })
-                        } else {
-                            await advanceStageAndWait({
-                                actor,
-                                stage: step.stage,
-                                asyncTrackers: runtime.dependencies.utils.asyncTrackers,
-                                staticVars
-                            })
+                        if (scenario.finalAwait) {
+                            await scenario.finalAwait({ runtime, actor, waiters, staticVars, loopVars })
                         }
-                        if (step.await) {
-                            await step.await({
+
+                        if (scenario.finalAssertions) {
+                            await scenario.finalAssertions({
                                 runtime,
                                 actor,
+                                expect,
+                                assert,
+                                helpers,
                                 waiters,
-                                staticVars
+                                staticVars,
+                                loopVars
                             })
                         }
-                    }
-
-                    if (scenario.finalAwait) {
-                        await scenario.finalAwait({ runtime, actor, waiters, staticVars })
-                    }
-
-                    if (scenario.finalAssertions) {
-                        await scenario.finalAssertions({ runtime, actor, expect, helpers, waiters, staticVars })
-                    }
-                })
+                    })
+                }
             }
         })
     }
@@ -156,66 +200,104 @@ export function runTransformationTestSuite({
                 globalThis.___TransformationTestEnvironment___ = {}
             })
             for (const behavior of testDef.itemBehaviorTests ?? []) {
-                it(`Item behavior: ${behavior.name}`, async function()
-                {
-                    if (behavior.setup) {
-                        await behavior.setup({ actor, helpers })
-                    }
 
-                    for (const step of behavior.requiredPath ?? []) {
-                        if (step.choose) {
-                            await advanceStageAndChoose({
-                                actor,
-                                stage: step.stage,
-                                choiceUuid: step.choose,
-                                asyncTrackers: runtime.dependencies.utils.asyncTrackers
-                            })
-                            await waitForStageFinished(runtime, actor, waitForCondition, step.stage)
-                        } else {
-                            await advanceStageAndWait({
-                                actor,
-                                stage: step.stage,
-                                asyncTrackers: runtime.dependencies.utils.asyncTrackers
-                            })
-                            await waitForStageFinished(runtime, actor, waitForCondition, step.stage)
+                const loopContexts = behavior.loop
+                    ? behavior.loop({ actor, helpers, runtime })
+                    : [undefined]
+
+                for (const loopVars of loopContexts) {
+
+                    const testName =
+                        typeof behavior.name === "function"
+                            ? behavior.name(loopVars)
+                            : behavior.loop && loopVars
+                                ? `${behavior.name} [${formatLoopVars(loopVars)}]`
+                                : behavior.name
+
+                    it(`Item behavior: ${testName}`, async function()
+                    {
+
+                        if (behavior.setup) {
+                            await behavior.setup({ actor, helpers, loopVars })
                         }
 
-                        await waitForNextFrame()
-                    }
+                        for (const step of behavior.requiredPath ?? []) {
 
-                    // Ensure item exists on actor
-                    const hasItem = actor.items.some(i =>
-                        i.flags?.transformations?.sourceUuid === behavior.uuid
-                    )
+                            const choiceUuid =
+                                typeof step.choose === "function"
+                                    ? step.choose(loopVars)
+                                    : step.choose
 
-                    if (!hasItem) {
-                        throw new Error(
-                            `Item ${behavior.name} (${behavior.uuid}) not present on actor`
+                            if (choiceUuid) {
+                                await advanceStageAndChoose({
+                                    actor,
+                                    stage: step.stage,
+                                    choiceUuid,
+                                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                                })
+                            } else {
+                                await advanceStageAndWait({
+                                    actor,
+                                    stage: step.stage,
+                                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                                })
+                            }
+
+                            await waitForStageFinished(runtime, actor, waitForCondition, step.stage)
+                            await waitForNextFrame()
+                        }
+
+                        const expectedUuid =
+                            typeof behavior.uuid === "function"
+                                ? behavior.uuid(loopVars)
+                                : behavior.uuid
+
+                        const hasItem = actor.items.some(i =>
+                            i.flags?.transformations?.sourceUuid === expectedUuid
                         )
-                    }
 
-                    if (behavior.steps) {
-                        for (const step of behavior.steps) {
-                            await step({ actor, runtime, helpers, waiters })
+                        if (!hasItem) {
+                            throw new Error(
+                                `Item ${behavior.name} (${expectedUuid}) not present on actor`
+                            )
                         }
-                    }
 
-                    if (behavior.trigger) {
-                        await triggerFunction(runtime, behavior.trigger, actor)
-                    }
+                        if (behavior.steps) {
+                            for (const step of behavior.steps) {
+                                await step({ actor, runtime, helpers, waiters, loopVars })
+                            }
+                        }
 
-                    if (behavior.await) {
-                        await behavior.await({
-                            actor,
-                            runtime,
-                            waiters
-                        })
-                    }
+                        if (behavior.trigger) {
+                            const triggerValue =
+                                typeof behavior.trigger === "function"
+                                    ? behavior.trigger(loopVars)
+                                    : behavior.trigger
 
-                    if (behavior.assertions) {
-                        await behavior.assertions({ actor, expect, runtime, helpers })
-                    }
-                })
+                            await triggerFunction(runtime, triggerValue, actor)
+                        }
+
+                        if (behavior.await) {
+                            await behavior.await({
+                                actor,
+                                runtime,
+                                waiters,
+                                loopVars
+                            })
+                        }
+
+                        if (behavior.assertions) {
+                            await behavior.assertions({
+                                actor,
+                                expect,
+                                assert,
+                                runtime,
+                                helpers,
+                                loopVars
+                            })
+                        }
+                    })
+                }
             }
         })
     }

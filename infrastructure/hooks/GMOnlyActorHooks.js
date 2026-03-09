@@ -1,7 +1,9 @@
+import { disadvantageOnAllD20RollsEffectChanges } from "../../config/disadvantageOnAllD20Rolls.js"
+
 export function registerGMOnlyActorHooks({
     game,
     ActorClass,
-    ui,
+    moduleUi,
     actorRepository,
     triggerRuntime,
     transformationQueryService,
@@ -14,7 +16,7 @@ export function registerGMOnlyActorHooks({
     logger.debug("registerGMOnlyActorHooks", {
         game,
         ActorClass,
-        ui,
+        moduleUi,
         actorRepository,
         triggerRuntime,
         transformationQueryService,
@@ -28,7 +30,7 @@ export function registerGMOnlyActorHooks({
         ActorClass,
         debouncedTracker,
         transformationQueryService,
-        ui,
+        moduleUi,
         logger
     })
 
@@ -96,5 +98,25 @@ export function registerGMOnlyActorHooks({
                 logger.debug("Unhandled effect", effectName)
                 break
         }
+    })
+
+    Hooks.on("preUpdateActiveEffect", (effect, data) =>
+    {
+        logger.debug("preUpdateActiveEffect", effect, data)
+        if (data.disabled !== false) return
+        if (!effect.getFlag("transformations", "addDisadvantageAllD20")) return
+
+        if (effect.changes?.some(c =>
+            c.key === "system.abilities.cha.check.roll.mode"
+        )) return
+
+        data.changes = disadvantageOnAllD20RollsEffectChanges
+
+        foundry.utils.setProperty(
+            data,
+            "flags.transformations.addDisadvantageAllD20",
+            false
+        )
+
     })
 }

@@ -20,7 +20,7 @@ export class AberrantResilience extends AberrantEffect
     {
         this.logger?.debug?.("AberrantResilience.beforeApply", {})
         this.addEffects([{
-            key: "flags.midi-qol.advantage.deathSave",
+            key: "system.attributes.death.roll.mode",
             mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
             value: true
         }])

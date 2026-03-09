@@ -13,6 +13,9 @@ import { createRollTableService } from "../infrastructure/rolltables/createRollT
 import { createActionExecutor } from "../infrastructure/actions/createActionExecutor.js"
 import { createChatService } from "../infrastructure/foundry/createChatService.js"
 import { createNotifier } from "../infrastructure/foundry/createNotifier.js"
+import { createOnceService } from "../infrastructure/foundry/createOnceService.js"
+import { createConditionService } from "../services/actor/createConditionService.js"
+import { createRequiresService } from "../services/actor/createRequiresService.js"
 
 export function createInfrastructure({
     getGame,
@@ -42,13 +45,24 @@ export function createInfrastructure({
     }
     const debouncedTracker = utils.asyncTrackers.debounced
 
+    const onceService = createOnceService({
+        logger
+    })
+
     const chatService = createChatService({
         tracker: trackers.ui,
         logger
     })
 
+    const itemRepository = createItemRepository({
+        tracker: trackers.repositories,
+        debouncedTracker,
+        logger
+    })
+
     const actorRepository = createActorRepository({
         tracker: trackers.repositories,
+        itemRepository,
         debouncedTracker,
         getGame,
         logger
@@ -58,18 +72,27 @@ export function createInfrastructure({
         debouncedTracker,
         logger
     })
-    const itemRepository = createItemRepository({
-        tracker: trackers.repositories,
-        debouncedTracker,
-        logger
-    })
+
     const activeEffectRepository = createActiveEffectRepository({
         tracker: trackers.repositories,
         debouncedTracker,
         logger
     })
 
-    const stageGrantResolver = createStageGrantResolver({ logger })
+    const conditionService = createConditionService({
+        logger
+    })
+
+    const requiresService = createRequiresService({
+        conditionService,
+        logger
+    })
+
+    const stageGrantResolver = createStageGrantResolver({
+        requiresService,
+        logger
+    })
+
     const creatureTypeService = createCreatureTypeService({
         tracker: trackers.mutations,
         debouncedTracker,
@@ -111,6 +134,7 @@ export function createInfrastructure({
     const actionExecutor = createActionExecutor({
         tracker: trackers.mutations,
         actorRepository,
+        onceService,
         logger
     })
 
@@ -144,6 +168,8 @@ export function createInfrastructure({
         localMutationAdapter,
         actionExecutor,
         directMacroInvoker,
+        onceService,
+        requiresService,
         notifier
     })
 }

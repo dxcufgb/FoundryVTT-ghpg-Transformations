@@ -8,16 +8,6 @@ export function getStageDef(definition, stageNumber, expect)
     return stage
 }
 
-export function getPrerequisiteChoice(stageDef, expect)
-{
-    const choice = stageDef.choices?.items
-        ?.find(c => c.prerequisite === true)
-
-    expect(choice, "No prerequisite choice defined").to.exist
-
-    return choice
-}
-
 export function getNonPrerequisiteChoice(stageDef, expect)
 {
     const choice = stageDef.choices?.items

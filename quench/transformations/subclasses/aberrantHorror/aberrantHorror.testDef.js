@@ -1,5 +1,10 @@
 import { ABILITY, ATTRIBUTE, ROLL_TYPE, SKILL } from "../../../../config/constants.js"
-
+import { D20Identifiers } from "../../../../config/disadvantageOnAllD20Rolls.js"
+import { validate } from "../../../helpers/DTOValidators/validate.js"
+import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js"
+import { ContextValidationDTO } from "../../../helpers/validationDTOs/context/ContextValidationDTO.js"
+import { EffectValidationDTO } from "../../../helpers/validationDTOs/effect/EffectValidationDTO.js"
+import { MessageValidationDTO } from "../../../helpers/validationDTOs/message/MessageValidationDTO.js"
 // test/definitions/aberrantHorror.testdef.js
 export const AberrantHorrorTestDef = {
     id: "aberrant-horror",
@@ -17,17 +22,24 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            finalAssertions: async ({ actor, assert, validators }) =>
             {
-                const expectedItemUuids = [
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
                     "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
                     "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT"
                 ]
-                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
-                helpers.expectRaceItemSubTypeOnActor(runtime, "Aberration", actor, expect)
+                actorDto.addItem(item =>
+                {
+                    item.type = "race"
+                    item.systemType = "humanoid"
+                    item.systemSubType = "Aberration"
+                })
+                validate(actorDto, { assert })
             }
         },
+
         {
             name: "stage 2 with Efficient Killer",
             steps: [
@@ -49,18 +61,20 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            finalAssertions: async ({ actor, assert, validators }) =>
             {
-                const expectedItemUuids = [
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
                     "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
                     "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT",
                     "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
                     "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
                 ]
-                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+                validate(actorDto, { assert })
             }
         },
+
         {
             name: "stage 2 with Writhing Tendrils",
             steps: [
@@ -82,18 +96,20 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            finalAssertions: async ({ actor, assert, validators }) =>
             {
-                const expectedItemUuids = [
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
                     "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
                     "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT",
                     "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
                     "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E"
                 ]
-                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+                validate(actorDto, { assert })
             }
         },
+
         {
             name: "stage 3 with Terrifying Visage due to no options",
             steps: [
@@ -122,9 +138,10 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            finalAssertions: async ({ actor, assert, validators }) =>
             {
-                const expectedItemUuids = [
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
                     "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
                     "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz",
@@ -132,9 +149,10 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
                     "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat"
                 ]
-                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+                validate(actorDto, { assert })
             }
         },
+
         {
             name: "stage 3 with Constricting Tendrils",
             steps: [
@@ -164,9 +182,10 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            finalAssertions: async ({ actor, assert, validators }) =>
             {
-                const expectedItemUuids = [
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
                     "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
                     "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz",
@@ -174,9 +193,10 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
                     "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5"
                 ]
-                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+                validate(actorDto, { assert })
             }
         },
+
         {
             name: "stage 3 with Terrifying Visage as an option",
             steps: [
@@ -206,9 +226,10 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            finalAssertions: async ({ actor, assert, validators }) =>
             {
-                const expectedItemUuids = [
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
                     "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
                     "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz",
@@ -216,9 +237,10 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
                     "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat"
                 ]
-                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+                validate(actorDto, { assert })
             }
         },
+
         {
             name: "stage 4 Entropic Abomation with no actor spell slots",
             steps: [
@@ -255,9 +277,10 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            finalAssertions: async ({ actor, assert, validators }) =>
             {
-                const expectedItemUuids = [
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
                     "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
                     "Compendium.transformations.gh-transformations.Item.bZIioCqc5wwEUdKG",
@@ -266,9 +289,10 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
                     "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
                 ]
-                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+                validate(actorDto, { assert })
             }
         },
+
         {
             name: "stage 4 Entropic Abomation with actor spell slots",
             setup: async ({ actor }) =>
@@ -313,9 +337,10 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            finalAssertions: async ({ actor, assert, validators }) =>
             {
-                const expectedItemUuids = [
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
                     "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
                     "Compendium.transformations.gh-transformations.Item.bZIioCqc5wwEUdKG",
@@ -324,9 +349,10 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
                     "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
                 ]
-                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+                validate(actorDto, { assert })
             }
         },
+
         {
             name: "stage 4 Poisonouse Mutations with actor spell slots",
             setup: async ({ actor }) =>
@@ -371,9 +397,10 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ runtime, actor, expect, helpers }) =>
+            finalAssertions: async ({ actor, assert, validators }) =>
             {
-                const expectedItemUuids = [
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
                     "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
                     "Compendium.transformations.gh-transformations.Item.bZIioCqc5wwEUdKG",
@@ -382,7 +409,7 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
                     "Compendium.transformations.gh-transformations.Item.Q0c1NafrnW9C7tDz"
                 ]
-                helpers.expectItemsOnActor(expectedItemUuids, actor, expect)
+                validate(actorDto, { assert })
             }
         },
 
@@ -424,28 +451,21 @@ export const AberrantHorrorTestDef = {
                 )
             },
 
-            finalAssertions: async ({ actor, expect }) =>
+            finalAssertions: async ({ actor, assert, validators }) =>
             {
-                // 1️⃣ Chat message
-                const rollMessages = game.messages.filter(m =>
-                    m.flags?.core?.RollTable !== undefined
-                )
+                const effectsDto = new EffectValidationDTO()
+                effectsDto.count = 1
+                effectsDto.has = ["Aberrant Slow Speech"]
+                effectsDto.withOrigin = { origin: "Unstable Form", expected: 1 }
 
-                expect(rollMessages.length).to.equal(1)
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects = effectsDto
+                validate(actorDto, { assert })
 
-                const message = rollMessages[0]
-                expect(message.flavor)
-                    .to.contain("Unstable Form Stage 1")
-
-                // 2️⃣ Effect applied
-                const mutationEffects = actor.effects.filter(e =>
-                    e.origin?.includes("Unstable Form")
-                )
-
-                expect(mutationEffects.length).to.equal(1)
-
-                expect(mutationEffects[0].name)
-                    .to.equal("Aberrant Slow Speech")
+                const messageDto = new MessageValidationDTO("RollTable")
+                messageDto.count = 1
+                messageDto.flavors.values = ["Unstable Form Stage 1"]
+                validate(messageDto, { assert })
             }
         },
 
@@ -492,28 +512,22 @@ export const AberrantHorrorTestDef = {
                 )
             },
 
-            finalAssertions: async ({ actor, expect }) =>
+            finalAssertions: async ({ actor, assert, validators }) =>
             {
-                // 1️⃣ Chat message
-                const rollMessages = game.messages.filter(m =>
-                    m.flags?.core?.RollTable !== undefined
-                )
+                const messageDto = new MessageValidationDTO("RollTable")
+                messageDto.count = 1
+                messageDto.flavors.values = ["Unstable Form Stage 2"]
 
-                expect(rollMessages.length).to.equal(1)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.has = ["Aberrant Slow Speech"]
+                effectDto.withOrigin = { origin: "Unstable Form", expected: 1 }
 
-                const message = rollMessages[0]
-                expect(message.flavor)
-                    .to.contain("Unstable Form Stage 2")
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects = effectDto
 
-                // 2️⃣ Effect applied
-                const mutationEffects = actor.effects.filter(e =>
-                    e.origin?.includes("Unstable Form")
-                )
-
-                expect(mutationEffects.length).to.equal(1)
-
-                expect(mutationEffects[0].name)
-                    .to.equal("Aberrant Slow Speech")
+                validate(messageDto, { assert })
+                validate(actorDto, { assert })
             }
         },
 
@@ -566,28 +580,22 @@ export const AberrantHorrorTestDef = {
                 )
             },
 
-            finalAssertions: async ({ actor, expect }) =>
+            finalAssertions: async ({ actor, assert, validators }) =>
             {
-                // 1️⃣ Chat message
-                const rollMessages = game.messages.filter(m =>
-                    m.flags?.core?.RollTable !== undefined
-                )
+                const messageDto = new MessageValidationDTO("RollTable")
+                messageDto.count = 1
+                messageDto.flavors.values = ["Unstable Form Stage 3"]
 
-                expect(rollMessages.length).to.equal(1)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.has = ["Aberrant Slow Speech"]
+                effectDto.withOrigin = { origin: "Unstable Form", expected: 1 }
 
-                const message = rollMessages[0]
-                expect(message.flavor)
-                    .to.contain("Unstable Form Stage 3")
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects = effectDto
 
-                // 2️⃣ Effect applied
-                const mutationEffects = actor.effects.filter(e =>
-                    e.origin?.includes("Unstable Form")
-                )
-
-                expect(mutationEffects.length).to.equal(1)
-
-                expect(mutationEffects[0].name)
-                    .to.equal("Aberrant Slow Speech")
+                validate(messageDto, { assert })
+                validate(actorDto, { assert })
             }
         },
 
@@ -655,28 +663,22 @@ export const AberrantHorrorTestDef = {
                 )
             },
 
-            finalAssertions: async ({ actor, expect }) =>
+            finalAssertions: async ({ actor, assert, validators }) =>
             {
-                // 1️⃣ Chat message
-                const rollMessages = game.messages.filter(m =>
-                    m.flags?.core?.RollTable !== undefined
-                )
+                const messageDto = new MessageValidationDTO("RollTable")
+                messageDto.count = 1
+                messageDto.flavors.values = ["Unstable Form Stage 4"]
 
-                expect(rollMessages.length).to.equal(1)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.has = ["Aberrant Slow Speech"]
+                effectDto.withOrigin = { origin: "Unstable Form", expected: 1 }
 
-                const message = rollMessages[0]
-                expect(message.flavor)
-                    .to.contain("Unstable Form Stage 4")
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects = effectDto
 
-                // 2️⃣ Effect applied
-                const mutationEffects = actor.effects.filter(e =>
-                    e.origin?.includes("Unstable Form")
-                )
-
-                expect(mutationEffects.length).to.equal(1)
-
-                expect(mutationEffects[0].name)
-                    .to.equal("Aberrant Slow Speech")
+                validate(messageDto, { assert })
+                validate(actorDto, { assert })
             }
         },
 
@@ -708,10 +710,12 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ actor, expect, staticVars }) =>
+            finalAssertions: async ({ staticVars, assert, validators }) =>
             {
-                const changedPart = staticVars.context.rolls[0].parts[0]
-                expect(changedPart).to.be.equal("max(1, 1d8 )")
+                const contextDto = new ContextValidationDTO(staticVars.context)
+                contextDto.rolls.values = [{ parts: ["max(1, 1d8 )"] }]
+
+                validate(contextDto, { assert })
             }
         },
 
@@ -740,14 +744,27 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ actor, expect, staticVars }) =>
+            finalAwait: async ({ actor, waiters }) =>
             {
-                const stunned = actor.effects.find(e => e.name == "Stunned")
-                expect(stunned).to.exist
+                await waiters.waitForCondition(() =>
+                    actor.effects.find(e => e.name == "Stunned")
+                )
+            },
 
-                const messages = game.messages.contents
-                expect(messages.length).to.be.equal(1)
-                expect(messages[0].content).to.be.equal(`Due to Aberrant Confusion ${actor.name} is stunned for the first round!`)
+            finalAssertions: async ({ actor, assert, validators }) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasEffect = "Stunned"
+
+                const messageDto = new MessageValidationDTO("NA")
+                messageDto.count = 1
+                messageDto.contents.values = [
+                    `Due to Aberrant Confusion ${actor.name} is stunned for the first round!`
+                ]
+                messageDto.contents.mode = "equal"
+
+                validate(messageDto, { assert })
+                validate(actorDto, { assert })
             }
         },
     ],
@@ -784,14 +801,17 @@ export const AberrantHorrorTestDef = {
                 )
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                const actorProf = actor.system.attributes.prof
-                expect(actor.system.attributes.hp.temp)
-                    .to.be.equal(1 + actorProf)
-                const item = actor.items.find(i => i.flags.transformations?.sourceUuid == "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu")
-                const usesLeft = item.system.uses.max - item.system.uses.spent
-                expect(usesLeft).to.be.equal(0)
+                const prof = actor.system.attributes.prof
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.stats.hp = [{ value: 1 + prof, variant: "temp" }]
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = ["Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu"]
+                    item.usesLeft = 0
+                })
+                validate(actorDto, { assert })
             }
         },
 
@@ -863,10 +883,11 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                // Should NOT grant temp HP
-                expect(actor.system.attributes.hp.temp).to.equal(0)
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.stats.hp = [{ value: 0, variant: "temp" }]
+                validate(actorDto, { assert })
             }
         },
 
@@ -904,20 +925,26 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
+                const actorDto = new ActorValidationDTO(actor)
 
-                const ac = actor.system.attributes.ac.value
-                const walk = actor.system.attributes.movement.walk
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.match = {
+                    expected: 1,
+                    matchMode: "or",
+                    filters: [
+                        { key: "name", value: "Chitinous Shell" },
+                        { key: "name", value: "Poisonous Mutations" }
+                    ]
+                }
 
-                const activityEffects = actor.effects.filter(e =>
-                    e.name == "Chitinous Shell" || e.name == "Poisonous Mutations"
-                )
+                actorDto.stats.ac = 12
+                actorDto.stats.movementSpeed = [{ type: "walk", value: 20 }]
+                actorDto.effects = effectDto
 
-                expect(activityEffects.length).to.equal(1)
-
-                expect(ac).to.be.equal(12) // adjust if base known
-                expect(walk).to.be.equal(20)
+                validate(actorDto, { assert })
             }
         },
 
@@ -955,20 +982,27 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                const activityEffects = actor.effects.filter(e =>
-                    e.name == "Eldritch Limbs" || e.name == "Poisonous Mutations"
-                )
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO(actor)
 
-                expect(activityEffects.length).to.equal(1)
+                effectDto.match = {
+                    expected: 1,
+                    matchMode: "or",
+                    filters: [
+                        { key: "name", value: "Eldritch Limbs" },
+                        { key: "name", value: "Poisonous Mutations" }
+                    ]
+                }
 
-                const weapon = actor.items.find(i =>
-                    i.name === "Eldritch Limbs"
-                )
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Eldritch Limbs"
+                    item.type = "weapon"
+                })
 
-                expect(weapon).to.exist
-                expect(weapon.type).to.equal("weapon")
+                validate(actorDto, { assert })
             }
         },
 
@@ -1006,37 +1040,25 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                const weapon = actor.items.find(i =>
-                    i.name === "Eldritch Limbs"
-                )
+                const actorDto = new ActorValidationDTO(actor)
 
-                expect(weapon).to.exist
-
-                const activity = weapon.system.activities.contents[0]
-                expect(activity).to.exist
-
-                const attackAbilities = activity.availableAbilities
-                expect(attackAbilities.size).to.be.equal(2)
-                expect(attackAbilities).to.include.members([
-                    "str",
-                    "dex"
-                ])
-
-                const damageParts = activity.damage.parts[0]
-                expect(damageParts).to.exist
-
-                const damageTypes = damageParts.types
-                expect(damageTypes.size).to.be.equal(3)
-                expect(damageTypes).to.include.members([
-                    "bludgeoning",
-                    "piercing",
-                    "slashing"
-                ])
-
-                expect(damageParts.number).to.be.equal(1)
-                expect(damageParts.denomination).to.be.equal(8)
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Eldritch Limbs"
+                    item.type = "weapon"
+                    item.addActivity(activity =>
+                    {
+                        activity.abilityTypes = ["str", "dex"]
+                        activity.addDamagePart(damagePart =>
+                        {
+                            damagePart.damageTypes = ["bludgeoning", "piercing", "slashing"]
+                            damagePart.roll = "1d8"
+                        })
+                    })
+                })
+                validate(actorDto, { assert })
             }
         },
 
@@ -1074,26 +1096,31 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                const activityEffects = actor.effects.filter(e =>
-                    e.name == "Slimy Form" || e.name == "Poisonous Mutations"
-                )
+                const actorDto = new ActorValidationDTO(actor)
 
-                expect(activityEffects.length).to.equal(1)
+                actorDto.stats.resistances = ["acid", "fire", "cold"]
 
-                const resistances = actor.system.traits.dr.value
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.match = {
+                    expected: 1,
+                    matchMode: "or",
+                    filters: [
+                        { key: "name", value: "Slimy Form" },
+                        { key: "name", value: "Poisonous Mutations" }
+                    ]
+                }
 
-                expect(resistances).to.include.members([
-                    "acid",
-                    "fire",
-                    "cold"
-                ])
+                actorDto.effects = effectDto
+
+                validate(actorDto, { assert })
             }
         },
 
         {
-            name: "Switching activities replaces previous effect",
+            name: "Switching activities replaces previous effect Chitinous shell -> Slimy Form",
 
             requiredPath: [
                 { stage: 1 }
@@ -1129,32 +1156,32 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                const activityEffects = actor.effects.filter(e =>
-                    e.name == "Slimy Form" || e.name == "Poisonous Mutations"
-                )
+                const actorDto = new ActorValidationDTO(actor)
 
-                expect(activityEffects.length).to.equal(1)
+                actorDto.stats.resistances = ["acid", "fire", "cold"]
+                actorDto.stats.ac = 10
 
-                // AC bonus should be gone
-                const ac = actor.system.attributes.ac.value
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.match = {
+                    expected: 1,
+                    matchMode: "or",
+                    filters: [
+                        { key: "name", value: "Slimy Form" },
+                        { key: "name", value: "Poisonous Mutations" }
+                    ]
+                }
 
-                expect(ac).to.not.be.greaterThan(12) // adjust if base known
+                actorDto.effects = effectDto
 
-                // Resistances should now exist
-                const resistances = actor.system.traits.dr.value
-
-                expect(resistances).to.include.members([
-                    "acid",
-                    "fire",
-                    "cold"
-                ])
+                validate(actorDto, { assert })
             }
         },
 
         {
-            name: "Switching activities replaces previous effect",
+            name: "Switching activities replaces previous effect Slimy Form -> Chitinous shell",
 
             requiredPath: [
                 { stage: 1 }
@@ -1166,7 +1193,7 @@ export const AberrantHorrorTestDef = {
                     await helpers.applyItemActivityEffect({
                         actor,
                         itemName: "Aberrant Mutation",
-                        effectName: "Chitinous Shell",
+                        effectName: "Slimy Form",
                         macroTrigger: "on"
                     })
                 },
@@ -1176,10 +1203,11 @@ export const AberrantHorrorTestDef = {
                     await helpers.applyItemActivityEffect({
                         actor,
                         itemName: "Aberrant Mutation",
-                        effectName: "Slimy Form",
+                        effectName: "Chitinous Shell",
                         macroTrigger: "on"
                     })
                 }
+
             ],
 
             await: async ({ runtime, waiters, actor }) =>
@@ -1190,27 +1218,27 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                const activityEffects = actor.effects.filter(e =>
-                    e.name == "Slimy Form" || e.name == "Poisonous Mutations"
-                )
+                const actorDto = new ActorValidationDTO(actor)
 
-                expect(activityEffects.length).to.equal(1)
+                actorDto.notResistances = ["acid", "fire", "cold"]
+                actorDto.stats.ac = 12
 
-                // AC bonus should be gone
-                const ac = actor.system.attributes.ac.value
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.match = {
+                    expected: 1,
+                    matchMode: "or",
+                    filters: [
+                        { key: "name", value: "Chitinous Shell" },
+                        { key: "name", value: "Poisonous Mutations" }
+                    ]
+                }
 
-                expect(ac).to.not.be.greaterThan(12) // adjust if base known
+                actorDto.effects = effectDto
 
-                // Resistances should now exist
-                const resistances = actor.system.traits.dr.value
-
-                expect(resistances).to.include.members([
-                    "acid",
-                    "fire",
-                    "cold"
-                ])
+                validate(actorDto, { assert })
             }
         },
 
@@ -1252,79 +1280,45 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                const bludgeoning = actor.items.find(i =>
-                    i.name === "Eldritch Limbs (Bludgeoning)"
-                )
-
-                const piercing = actor.items.find(i =>
-                    i.name === "Eldritch Limbs (Piercing)"
-                )
-
-                const slashing = actor.items.find(i =>
-                    i.name === "Eldritch Limbs (Slashing)"
-                )
-
-                expect(bludgeoning).to.exist
-                expect(piercing).to.exist
-                expect(slashing).to.exist
-                const weapons = [
+                const validationLoopConstants = [
                     {
-                        object: bludgeoning,
-                        numberOfAttackAbilities: 2,
-                        attackAbilities: [
-                            "str",
-                            "dex"
-                        ],
-                        numberOfDamageTypes: 1,
+                        name: "Eldritch Limbs (Bludgeoning)",
                         damageTypes: ["bludgeoning"],
-                        damageDenomination: 8,
-                        damageNumber: 2
+                        damageRoll: "2d8"
                     },
                     {
-                        object: piercing,
-                        numberOfAttackAbilities: 2,
-                        attackAbilities: [
-                            "str",
-                            "dex"
-                        ],
-                        numberOfDamageTypes: 1,
+                        name: "Eldritch Limbs (Piercing)",
                         damageTypes: ["piercing"],
-                        damageDenomination: 6,
-                        damageNumber: 2
+                        damageRoll: "2d6"
                     },
                     {
-                        object: slashing,
-                        numberOfAttackAbilities: 2,
-                        attackAbilities: [
-                            "str",
-                            "dex"
-                        ],
-                        numberOfDamageTypes: 1,
+                        name: "Eldritch Limbs (Slashing)",
                         damageTypes: ["slashing"],
-                        damageDenomination: 8,
-                        damageNumber: 2
-                    },
+                        damageRoll: "2d8"
+                    }
                 ]
 
-                for (const weapon of weapons) {
-                    const activity = weapon.object.system.activities.contents[0]
-                    expect(activity).to.exist
+                for (const constant of validationLoopConstants) {
 
-                    const attackAbilities = activity.availableAbilities
-                    expect(attackAbilities.size).to.be.equal(weapon.numberOfAttackAbilities)
-                    expect(attackAbilities).to.include.members(weapon.attackAbilities)
+                    const actorDto = new ActorValidationDTO(actor)
 
-                    const damageParts = activity.damage.parts[0]
-                    expect(damageParts).to.exist
+                    actorDto.addItem(item =>
+                    {
+                        item.itemName = constant.name
+                        item.addActivity(activity =>
+                        {
+                            activity.abilityTypes = ["str", "dex"]
+                            activity.addDamagePart(damagePart =>
+                            {
+                                damagePart.damageTypes = constant.damageTypes
+                                damagePart.roll = constant.damageRoll
+                            })
+                        })
+                    })
 
-                    const damageTypes = damageParts.types
-                    expect(damageTypes.size).to.be.equal(weapon.numberOfDamageTypes)
-                    expect(damageTypes).to.include.members(weapon.damageTypes)
-
-                    expect(damageParts.number).to.be.equal(weapon.damageNumber)
-                    expect(damageParts.denomination).to.be.equal(weapon.damageDenomination)
+                    validate(actorDto, { assert })
                 }
             }
         },
@@ -1355,31 +1349,41 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
                 const prof = actor.system.attributes.prof
-                const writhingTendrils = actor.items.find(i =>
-                    i.name === "Writhing Tendrils"
-                )
-                expect(writhingTendrils).to.exist
 
-                const activities = writhingTendrils.system.activities.contents
-                expect(activities.length).to.be.equal(3)
-
-                const aberrantPushback = activities.find(a => a.name == "Aberrant Pushback")
-                expect(aberrantPushback).to.exist
-                expect(aberrantPushback.activation.type).to.be.equal("reaction")
-                expect(aberrantPushback.save.ability).to.include.members(["str"])
-                expect(aberrantPushback.save.dc.value).to.be.equal(prof + 2 + 8)
-
-                const aberrantDisengage = activities.find(a => a.name == "Aberrant Disengage")
-                expect(aberrantDisengage).to.exist
-                expect(aberrantDisengage.activation.type).to.be.equal("bonus")
-
-                const aberrantAffliction = activities.find(a => a.name == "Aberrant Affliction")
-                expect(aberrantAffliction).to.exist
-                expect(aberrantAffliction.activation.type).to.be.equal("reaction")
-                expect(aberrantAffliction.spell.uuid).to.be.equal("Compendium.transformations.gh-transformations.Item.5t4cjiimldjKmwlK")
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Writhing Tendrils"
+                    item.addActivity(activity =>
+                    {
+                        activity.name = "Aberrant Pushback"
+                        activity.saveAbility = ["str"]
+                        activity.saveDc = prof + 2 + 8
+                        activity.activationType = "reaction"
+                    })
+                })
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Writhing Tendrils"
+                    item.addActivity(activity =>
+                    {
+                        activity.name = "Aberrant Disengage"
+                        activity.activationType = "bonus"
+                    })
+                })
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Writhing Tendrils"
+                    item.addActivity(activity =>
+                    {
+                        activity.name = "Aberrant Affliction"
+                        activity.spellUuid = "Compendium.transformations.gh-transformations.Item.5t4cjiimldjKmwlK"
+                        activity.activationType = "reaction"
+                    })
+                })
             }
         },
 
@@ -1415,10 +1419,15 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                const activeEffect = actor.effects.find(i => i.name == "Hiding Hideous Appearance")
-                expect(activeEffect).to.exist
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.has.push("Hiding Hideous Appearance")
+
+                actorDto.effects = effectDto
+                validate(actorDto, { assert })
             }
         },
 
@@ -1461,11 +1470,16 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                expect(globalThis.___TransformationTestEnvironment___.saveRolled).to.be.equal(true)
-                const hideousAppearanceEffect = actor.effects.find(e => e.name == "Hiding Hideous Appearance")
-                expect(hideousAppearanceEffect).to.exist
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.has.push("Hiding Hideous Appearance")
+
+                actorDto.effects = effectDto
+                validate(actorDto, { assert })
             }
         },
 
@@ -1508,11 +1522,16 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                expect(globalThis.___TransformationTestEnvironment___.saveRolled).to.be.equal(true)
-                const hideousAppearanceEffect = actor.effects.find(e => e.name == "Hiding Hideous Appearance")
-                expect(hideousAppearanceEffect).to.not.exist
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 0
+                effectDto.notHas.push("Hiding Hideous Appearance")
+
+                actorDto.effects = effectDto
+                validate(actorDto, { assert })
             }
         },
 
@@ -1555,11 +1574,16 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                expect(globalThis.___TransformationTestEnvironment___.saveRolled).to.be.equal(true)
-                const hideousAppearanceEffect = actor.effects.find(e => e.name == "Hiding Hideous Appearance")
-                expect(hideousAppearanceEffect).to.exist
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.has.push("Hiding Hideous Appearance")
+
+                actorDto.effects = effectDto
+                validate(actorDto, { assert })
             }
         },
 
@@ -1602,11 +1626,17 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                expect(globalThis.___TransformationTestEnvironment___.saveRolled).to.be.equal(true)
-                const hideousAppearanceEffect = actor.effects.find(e => e.name == "Hiding Hideous Appearance")
-                expect(hideousAppearanceEffect).to.not.exist
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 0
+                effectDto.notHas.push("Hiding Hideous Appearance")
+
+                actorDto.effects = effectDto
+                validate(actorDto, { assert })
             }
         },
 
@@ -1649,11 +1679,16 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                expect(globalThis.___TransformationTestEnvironment___.saveRolled).to.be.equal(true)
-                const hideousAppearanceEffect = actor.effects.find(e => e.name == "Hiding Hideous Appearance")
-                expect(hideousAppearanceEffect).to.exist
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.has.push("Hiding Hideous Appearance")
+
+                actorDto.effects = effectDto
+                validate(actorDto, { assert })
             }
         },
 
@@ -1696,11 +1731,16 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                expect(globalThis.___TransformationTestEnvironment___.saveRolled).to.be.equal(true)
-                const hideousAppearanceEffect = actor.effects.find(e => e.name == "Hiding Hideous Appearance")
-                expect(hideousAppearanceEffect).to.not.exist
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 0
+                effectDto.notHas.push("Hiding Hideous Appearance")
+
+                actorDto.effects = effectDto
+                validate(actorDto, { assert })
             }
         },
 
@@ -1733,19 +1773,20 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
                 const actorProf = actor.system.attributes.prof
-                const terrifyingVisage = actor.items.find(i => i.name == "Terrifying Visage")
-                expect(terrifyingVisage).to.exist
-
-                const activities = terrifyingVisage.system.activities.contents
-                expect(activities.length).to.be.equal(1)
-
-                const terrifyCreature = activities[0]
-                expect(terrifyCreature.name).to.be.equal("Terrify Creature")
-                expect(terrifyCreature.save.ability).to.include.members(["wis"])
-                expect(terrifyCreature.save.dc.value).to.be.equal(8 + actorProf + 3)
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Terrifying Visage"
+                    item.addActivity(activity =>
+                    {
+                        activity.saveAbility = ["wis"]
+                        activity.saveDc = (8 + actorProf + 3)
+                    })
+                })
+                validate(actorDto, { assert })
             }
         },
 
@@ -1778,22 +1819,21 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
                 const actorProf = actor.system.attributes.prof
-                const constrictingTendrils = actor.items.find(i => i.name == "Constricting Tendrils")
-                expect(constrictingTendrils).to.exist
-
-                const activities = constrictingTendrils.system.activities.contents
-                expect(activities.length).to.be.equal(1)
-
-                const constrict = activities[0]
-                expect(constrict.name).to.be.equal("Constrict")
-                expect(constrict.save.ability).to.include.members([
-                    "str",
-                    "dex"
-                ])
-                expect(constrict.save.dc.value).to.be.equal(8 + actorProf + 3)
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Constricting Tendrils"
+                    item.addActivity(activity =>
+                    {
+                        activity.name = "Constrict"
+                        activity.saveAbility = ["str", "dex"]
+                        activity.saveDc = (8 + actorProf + 3)
+                    })
+                })
+                validate(actorDto, { assert })
             }
         },
 
@@ -1848,10 +1888,16 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                expect(actor.effects.contents.length).to.be.equal(1)
-                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Powerfull Lower Limbs')
+                const actorEffectDto = new EffectValidationDTO()
+                actorEffectDto.name = "Aberrant Powerfull Lower Limbs"
+                actorEffectDto.count = 1
+
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects = actorEffectDto
+
+                validate(actorDto, { assert })
             }
         },
 
@@ -1906,10 +1952,16 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert }) =>
             {
-                expect(actor.effects.contents.length).to.be.equal(1)
-                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+                const actorEffectDto = new EffectValidationDTO()
+                actorEffectDto.name = "Aberrant Confusions"
+                actorEffectDto.count = 1
+
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects = actorEffectDto
+
+                validate(actorDto, { assert })
             }
         },
 
@@ -1964,10 +2016,16 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert }) =>
             {
-                expect(actor.effects.contents.length).to.be.equal(1)
-                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+                const actorEffectDto = new EffectValidationDTO()
+                actorEffectDto.name = "Aberrant Confusions"
+                actorEffectDto.count = 1
+
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects = actorEffectDto
+
+                validate(actorDto, { assert })
             }
         },
 
@@ -2002,28 +2060,32 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                const eldritchAberration = actor.items.find(i => i.name == "Eldritch Aberration")
-                expect(eldritchAberration).to.exist
-                expect(eldritchAberration.type).to.be.equal("spell")
+                const actorDto = new ActorValidationDTO(actor)
 
-                const activities = eldritchAberration.system.activities.contents
-                expect(activities.length).to.be.equal(1)
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Eldritch Aberration"
+                    item.type = "spell"
+                    item.addActivity(activity =>
+                    {
+                        activity.addDamagePart(damagePart =>
+                        {
+                            damagePart.roll = "1d6",
+                                damagePart.damageTypes = [
+                                    "acid",
+                                    "cold",
+                                    "fire",
+                                    "force",
+                                    "lightning",
+                                    "thunder"
+                                ]
+                        })
+                    })
+                })
 
-                const activityDamageParts = activities[0].damage.parts[0]
-                expect(activityDamageParts.denomination).to.be.equal(6)
-                expect(activityDamageParts.number).to.be.equal(1)
-
-                const availableDamageTypes = activityDamageParts.types
-                expect(availableDamageTypes).to.include.members([
-                    "acid",
-                    "cold",
-                    "fire",
-                    "force",
-                    "lightning",
-                    "thunder"
-                ])
+                validate(actorDto, { assert })
             }
         },
 
@@ -2058,30 +2120,28 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                const poisonousMutations = actor.items.find(i => i.name == "Poisonous Mutations")
-                expect(poisonousMutations).to.exist
-
-                const activities = poisonousMutations.system.activities.contents
-                expect(activities.length).to.be.equal(1)
-
-                const activityDamageParts = activities[0].damage.parts[0]
-                expect(activityDamageParts.denomination).to.be.equal(6)
-                expect(activityDamageParts.number).to.be.equal(3)
-
-                const availableDamageTypes = activityDamageParts.types
-                expect(availableDamageTypes).to.include.members([
-                    "poison",
-                ])
-
-                const effects = poisonousMutations.effects
-                expect(effects.size).to.be.equal(1)
-
-                const effect = effects.contents[0]
-                expect(effect.type).to.be.equal("auraeffects.aura")
-                expect(effect.system.collisionTypes).to.include.members(['move'])
-                expect(effect.system.distanceFormula).to.be.equal("1")
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Poisonous Mutations"
+                    item.addActivity(activity =>
+                    {
+                        activity.addDamagePart(damagePart =>
+                        {
+                            damagePart.roll = "3d6"
+                            damagePart.damageTypes = ["poison"]
+                        })
+                    })
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Poisonous Mutations"
+                        effect.type = "auraeffects.aura"
+                        effect.collisionTypes = ["move"]
+                        effect.distanceFormula = "1"
+                    })
+                })
             }
         },
 
@@ -2127,13 +2187,20 @@ export const AberrantHorrorTestDef = {
                     asyncTrackers: runtime.dependencies.utils.asyncTrackers
                 })
             },
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                const activityEffects = actor.effects.filter(e =>
-                    e.name == "Chitinous Shell" || e.name == "Poisonous Mutations"
-                )
-
-                expect(activityEffects.length).to.equal(2)
+                const effectsDto = new EffectValidationDTO()
+                effectsDto.match = {
+                    expected: 2,
+                    matchMode: "and",
+                    filters: [
+                        { key: "name", value: "Chitinous Shell" },
+                        { key: "name", value: "Poisonous Mutations" }
+                    ]
+                }
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects = effectsDto
+                validate(actorDto, { assert })
             }
         },
 
@@ -2179,13 +2246,20 @@ export const AberrantHorrorTestDef = {
                     asyncTrackers: runtime.dependencies.utils.asyncTrackers
                 })
             },
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                const activityEffects = actor.effects.filter(e =>
-                    e.name == "Eldritch Limbs" || e.name == "Poisonous Mutations"
-                )
-
-                expect(activityEffects.length).to.equal(2)
+                const effectsDto = new EffectValidationDTO()
+                effectsDto.match = {
+                    expected: 2,
+                    matchMode: "and",
+                    filters: [
+                        { key: "name", value: "Eldritch Limbs" },
+                        { key: "name", value: "Poisonous Mutations" }
+                    ]
+                }
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects = effectsDto
+                validate(actorDto, { assert })
             }
         },
 
@@ -2231,13 +2305,20 @@ export const AberrantHorrorTestDef = {
                     asyncTrackers: runtime.dependencies.utils.asyncTrackers
                 })
             },
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                const activityEffects = actor.effects.filter(e =>
-                    e.name == "Slimy Form" || e.name == "Poisonous Mutations"
-                )
-
-                expect(activityEffects.length).to.equal(2)
+                const effectsDto = new EffectValidationDTO()
+                effectsDto.match = {
+                    expected: 2,
+                    matchMode: "and",
+                    filters: [
+                        { key: "name", value: "Slimy Form" },
+                        { key: "name", value: "Poisonous Mutations" }
+                    ]
+                }
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects = effectsDto
+                validate(actorDto, { assert })
             }
         },
 
@@ -2284,10 +2365,14 @@ export const AberrantHorrorTestDef = {
                     actor.effects.find(e => e.name == "Aberrant Confusion")
                 )
             },
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                expect(actor.effects.contents.length).to.be.equal(1)
-                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+                const effectsDto = new EffectValidationDTO()
+                effectsDto.count = 1
+                effectsDto.has.push("Aberrant Confusion")
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects = effectsDto
+                validate(actorDto, { assert })
             }
         },
 
@@ -2335,10 +2420,14 @@ export const AberrantHorrorTestDef = {
                     asyncTrackers: runtime.dependencies.utils.asyncTrackers
                 })
             },
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                expect(actor.effects.contents.length).to.be.equal(1)
-                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+                const effectsDto = new EffectValidationDTO()
+                effectsDto.count = 1
+                effectsDto.has.push("Aberrant Confusion")
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects = effectsDto
+                validate(actorDto, { assert })
             }
         },
 
@@ -2397,10 +2486,12 @@ export const AberrantHorrorTestDef = {
                     actor.effects.find(e => e.name == "Aberrant Confusion")
                 )
             },
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                expect(actor.effects.contents.length).to.be.equal(1)
-                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+                const dto = new ActorValidationDTO(actor)
+                dto.effects.has.push("Aberrant Confusion")
+                dto.effects.count = 1
+                validate(dto, { assert })
             }
         },
 
@@ -2458,10 +2549,12 @@ export const AberrantHorrorTestDef = {
                     asyncTrackers: runtime.dependencies.utils.asyncTrackers
                 })
             },
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                expect(actor.effects.contents.length).to.be.equal(1)
-                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Confusion')
+                const dto = new ActorValidationDTO(actor)
+                dto.effects.has.push("Aberrant Confusion")
+                dto.effects.count = 1
+                validate(dto, { assert })
             }
         },
 
@@ -2518,10 +2611,14 @@ export const AberrantHorrorTestDef = {
                     asyncTrackers: runtime.dependencies.utils.asyncTrackers
                 })
             },
-            assertions: async ({ actor, expect }) =>
+            assertions: async ({ actor, assert, validators }) =>
             {
-                expect(actor.effects.contents.length).to.be.equal(1)
-                expect(actor.effects.contents[0].name).to.be.equal('Aberrant Slow Speech')
+                const effectsDto = new EffectValidationDTO()
+                effectsDto.count = 1
+                effectsDto.has.push("Aberrant Slow Speech")
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects = effectsDto
+                validate(actorDto, { assert })
             }
         },
     ],
@@ -2530,12 +2627,14 @@ export const AberrantHorrorTestDef = {
         {
             name: "Aberrant Resilience",
             key: "AberrantResilience",
-            assertion: async ({ name, actor, assert, helpers }) =>
+            assertion: async ({ name, actor, assert, validators }) =>
             {
-                const result = helpers.actorValidators({ actor, assert })
-                    .validateDeathSavingThrowAdvantage()
-                    .hasEffect(name)
-                assert.equal(result, true)
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.rollModes.advantage.push({
+                    identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
+                })
+                actorDto.effects.has.push(name)
+                validate(actorDto, { assert })
             }
         },
 
@@ -2546,225 +2645,205 @@ export const AberrantHorrorTestDef = {
             {
                 await actor.setFlag("transformations", "stage", 1)
             },
-            assertion: async ({ origin, actor, assert, helpers }) =>
+            assertion: async ({ origin, actor, assert, validators }) =>
             {
-                const result = helpers.actorValidators({ actor, assert })
-                    .hasHp(4, "temp")
-                    .hasNoEffect(origin)
-                assert.equal(result, true)
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.stats.hp.push({ value: 4, variant: "temp" })
+                actorDto.effects.notHas.push(origin)
+                validate(actorDto, { assert })
             }
         },
 
         {
             name: "Aberrant Powerfull Lower Limbs",
             key: "AberrantPowerfullLowerLimbs",
-            assertion: async ({ name, actor, assert, helpers }) =>
+            assertion: async ({ name, actor, assert, validators }) =>
             {
-                const result = helpers.actorValidators({ actor, assert })
-                    .hasMovementBonus(5)
-                    .hasEffect(name)
-                assert.equal(result, true)
+                const dto = new ActorValidationDTO(actor)
+                dto.stats.movementBonus = 5
+                dto.effects.has.push(name)
+                validate(dto, { assert })
             }
         },
 
         {
             name: "Aberrant No Effect",
             key: "AberrantNoEffect",
-            assertion: async ({ origin, actor, assert, helpers }) =>
+            assertion: async ({ origin, actor, assert, validators }) =>
             {
-                const result = helpers.actorValidators({ actor, assert })
-                    .hasNoEffect(origin)
-                assert.equal(result, true)
+                const dto = new ActorValidationDTO(actor)
+                dto.effects.notHas.push(origin)
+                validate(dto, { assert })
             }
         },
 
         {
             name: "Aberrant Slow Speech",
             key: "AberrantSlowSpeech",
-            assertion: async ({ name, actor, assert, helpers }) =>
+            assertion: async ({ name, actor, assert, validators }) =>
             {
-                const result = helpers.actorValidators({ actor, assert })
-                    .hasEffect(name)
-                assert.equal(result, true)
-            }
-        },
-
-        {
-            name: "Aberrant Slow Speech",
-            key: "AberrantSlowSpeech",
-            assertion: async ({ name, actor, assert, helpers }) =>
-            {
-                const result = helpers.actorValidators({ actor, assert })
-                    .hasEffect(name)
-                assert.equal(result, true)
+                const dto = new ActorValidationDTO(actor)
+                dto.effects.has.push(name)
+                validate(dto, { assert })
             }
         },
 
         {
             name: "Aberrant Loss Of Vitality",
             key: "AberrantLossOfVitality",
-            assertion: async ({ name, actor, assert, helpers }) =>
+            assertion: async ({ name, actor, assert, validators }) =>
             {
-                const result = helpers.actorValidators({ actor, assert })
-                    .hasEffect(name)
-                assert.equal(result, true)
+                const dto = new ActorValidationDTO(actor)
+                dto.effects.has.push(name)
+                validate(dto, { assert })
             }
         },
 
         {
             name: "Aberrant Clumsiness",
             key: "AberrantClumsiness",
-            assertion: async ({ name, actor, assert, helpers }) =>
+            assertion: async ({ name, actor, assert, validators }) =>
             {
-                const result = helpers.actorValidators({ actor, assert })
-                    .hasDisadvantage(ABILITY.DEXTERITY, ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage(ABILITY.DEXTERITY, ROLL_TYPE.SAVING_THROW)
-                    .hasEffect(name)
-                assert.equal(result, true)
+                const dto = new ActorValidationDTO(actor)
+                dto.rollModes.disadvantage.push(
+                    { identifier: ABILITY.DEXTERITY, type: ROLL_TYPE.ABILITY_CHECK },
+                    { identifier: ABILITY.DEXTERITY, type: ROLL_TYPE.SAVING_THROW }
+                )
+                dto.effects.has.push(name)
+                validate(dto, { assert })
             }
         },
 
         {
             name: "Aberrant Defenseless",
             key: "AberrantDefenseless",
-            assertion: async ({ name, actor, assert, helpers }) =>
+            assertion: async ({ name, actor, assert, validators }) =>
             {
-                const result = helpers.actorValidators({ actor, assert })
-                    .hasDisadvantage(ABILITY.CONSTITUTION, ROLL_TYPE.SAVING_THROW)
-                    .hasEffect(name)
-                assert.equal(result, true)
+                const dto = new ActorValidationDTO(actor)
+                dto.rollModes.disadvantage.push(
+                    { identifier: ABILITY.CONSTITUTION, type: ROLL_TYPE.SAVING_THROW }
+                )
+                dto.effects.has.push(name)
+                validate(dto, { assert })
             }
         },
 
         {
             name: "Aberrant Distraction",
             key: "AberrantDistraction",
-            assertion: async ({ name, actor, assert, helpers }) =>
+            assertion: async ({ name, actor, assert, validators }) =>
             {
-                const result = helpers.actorValidators({ actor, assert })
-                    .hasDisadvantage(SKILL.PERCEPTION)
-                    .hasEffect(name)
-                assert.equal(result, true)
+                const dto = new ActorValidationDTO(actor)
+                dto.rollModes.disadvantage.push(
+                    { identifier: SKILL.PERCEPTION }
+                )
+                dto.effects.has.push(name)
+                validate(dto, { assert })
             }
         },
 
         {
             name: "Aberrant Slugginess",
             key: "AberrantSlugginess",
-            assertion: async ({ name, actor, assert, helpers }) =>
+            assertion: async ({ name, actor, assert, validators }) =>
             {
-                const result = helpers.actorValidators({ actor, assert })
-                    .hasEffect(name)
-                assert.equal(result, true)
+                const dto = new ActorValidationDTO(actor)
+                dto.effects.has.push(name)
+                validate(dto, { assert })
             }
         },
 
         {
             name: "Aberrant Slowness",
             key: "AberrantSlowness",
-            assertion: async ({ name, actor, assert, helpers }) =>
+            assertion: async ({ name, actor, assert, validators }) =>
             {
-                const result = helpers.actorValidators({ actor, assert })
-                    .hasMovementBonus(-15)
-                    .hasEffect(name)
-                assert.equal(result, true)
+                const dto = new ActorValidationDTO(actor)
+                dto.stats.movementBonus = -15
+                dto.effects.has.push(name)
+                validate(dto, { assert })
             }
         },
 
         {
             name: "Aberrant Confusion",
             key: "AberrantConfusion",
-            assertion: async ({ name, actor, assert, helpers }) =>
+            assertion: async ({ name, actor, assert, validators }) =>
             {
-                const result = helpers.actorValidators({ actor, assert })
-                    .hasEffect(name)
-                assert.equal(result, true)
+                const dto = new ActorValidationDTO(actor)
+                dto.effects.has.push(name)
+                validate(dto, { assert })
             }
         },
 
         {
             name: "Aberrant Exhaustion",
             key: "AberrantExhaustion",
-            assertion: async ({ origin, actor, assert, helpers }) =>
+            assertion: async ({ origin, actor, assert, validators }) =>
             {
-                const result = helpers.actorValidators({ actor, assert })
-                    .hasNoEffect(origin)
-                assert.equal(result, true)
+                const dto = new ActorValidationDTO(actor)
+                dto.effects.notHas.push(origin)
+                validate(dto, { assert })
             }
         },
 
         {
             name: "Aberrant Disadvantage",
             key: "AberrantDisadvantage",
-            assertion: async ({ name, actor, assert, helpers }) =>
+            assertion: async ({ name, actor, assert, helpers, validators }) =>
             {
-                let result = helpers.actorValidators({ actor, assert })
-                    .hasEffect(name)
-                    .hasDisadvantage("acr")
-                    .hasDisadvantage("ani")
-                    .hasDisadvantage("arc")
-                    .hasDisadvantage("ath")
-                    .hasDisadvantage("dec")
-                    .hasDisadvantage("his")
-                    .hasDisadvantage("ins")
-                    .hasDisadvantage("itm")
-                    .hasDisadvantage("inv")
-                    .hasDisadvantage("med")
-                    .hasDisadvantage("nat")
-                    .hasDisadvantage("prc")
-                    .hasDisadvantage("prf")
-                    .hasDisadvantage("per")
-                    .hasDisadvantage("rel")
-                    .hasDisadvantage("slt")
-                    .hasDisadvantage("ste")
-                    .hasDisadvantage("sur")
-                    .hasDisadvantage("str", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("dex", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("con", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("int", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("wis", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("cha", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("str", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("dex", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("con", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("int", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("wis", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("cha", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("concentration", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("death", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("init", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("concentration", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("death", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("init", ROLL_TYPE.SAVING_THROW)
-
-                assert.equal(result, true)
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects.has.push(name)
+                for (const ability of D20Identifiers.abilities) {
+                    actorDto.rollModes.disadvantage.push(
+                        { identifier: ability, type: ROLL_TYPE.ABILITY_CHECK },
+                        { identifier: ability, type: ROLL_TYPE.SAVING_THROW }
+                    )
+                }
+                for (const attribute of D20Identifiers.attributes) {
+                    actorDto.rollModes.disadvantage.push(
+                        { identifier: attribute }
+                    )
+                }
+                for (const skill of D20Identifiers.skills) {
+                    actorDto.rollModes.disadvantage.push(
+                        { identifier: skill }
+                    )
+                }
+                actorDto.rollModes.toolDisadvantage = "1"
+                validate(actorDto, { assert })
             }
         },
 
         {
             name: "Aberrant Weakness",
             key: "AberrantWeakness",
-            assertion: async ({ name, actor, assert, helpers }) =>
+            assertion: async ({ name, actor, assert, validators }) =>
             {
-                const result = helpers.actorValidators({ actor, assert })
-                    .hasHp(5, "effectiveMax")
-                    .hasHp(5, "value")
-                    .hasEffect(name)
-                assert.equal(result, true)
+                const dto = new ActorValidationDTO(actor)
+                dto.stats.hp.push(
+                    { value: 5, variant: "effectiveMax" },
+                    { value: 5, variant: "value" }
+                )
+                dto.effects.has.push(name)
+
+                validate(dto, { assert })
             }
         },
 
         {
             name: "Aberrant Overload",
             key: "AberrantOverload",
-            assertion: async ({ origin, actor, assert, helpers }) =>
+            assertion: async ({ origin, actor, assert, validators }) =>
             {
-                const result = helpers.actorValidators({ actor, assert })
-                    .hasHp(0, "temp")
-                    .hasHp(0, "value")
-                    .hasDeathSaves(-3)
-                    .hasNoEffect(origin)
-                assert.equal(result, true)
+                const dto = new ActorValidationDTO(actor)
+                dto.stats.hp.push(
+                    { value: 0, variant: "temp" },
+                    { value: 0, variant: "value" }
+                )
+                dto.stats.deathSaveDelta = -3
+                dto.effects.notHas.push(origin)
+                validate(dto, { assert })
             }
         },
     ]

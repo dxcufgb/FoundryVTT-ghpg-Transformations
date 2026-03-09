@@ -123,6 +123,7 @@ export function createLocalTransformationMutationAdapter({
         logger.debug("createLocalTransformationMutationAdapter.applyStage", { actor, definition, stage, choice })
         if (stage != 0) {
             const grants = stageGrantResolver.resolve({
+                actor,
                 definition,
                 stage
             })
@@ -147,12 +148,18 @@ export function createLocalTransformationMutationAdapter({
                         await itemRepository.addTransformationItem({
                             actor,
                             sourceItem,
-                            context: {
-                                definitionId: definition.id,
-                                stage
-                            },
+                            // context: {
+                            //     definitionId: definition.id,
+                            //     stage
+                            // },
                             replacesUuid: itemGrant.replacesUuid
                         })
+
+                        if (globalThis?.__TRANSFORMATIONS_TEST__ !== true && sourceItem.uuid != choice) {
+                            await game.transformations
+                                .getDialogFactory()
+                                .showItemInfoDialog({ item: sourceItem })
+                        }
                     }
 
                     if (grants.creatureSubType) {

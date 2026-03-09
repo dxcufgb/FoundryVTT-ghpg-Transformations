@@ -1,5 +1,7 @@
+import { ROLL_TYPE } from "../../config/constants.js"
 import { getRandomFileInFolder } from "./getRandomFilename.js"
 import { getOrCreateItem } from "./item.js"
+import { actorValidator } from "./validators/actorValidator.js"
 import { waitFor } from "./waitFor.js"
 
 export async function createTestActor({
@@ -54,15 +56,19 @@ function handlePreCreationExtras(actorMap, options)
 async function handlePostCreationExtras(actor, options)
 {
     if (options?.race) {
-        const raceItem = await getOrCreateItem({
-            name: "Human",
-            type: "race",
-            system: {}
-        })
+        const raceItem = await getCharacterRace("Human")
 
         await actor.createEmbeddedDocuments("Item", [
             raceItem.toObject()
         ])
+    }
+    if (options?.classes) {
+        for (const characterClass of options.classes) {
+            const foundCharacterClass = await getCharacterClass(characterClass)
+            await actor.createEmbeddedDocuments("Item", [
+                foundCharacterClass.toObject()
+            ])
+        }
     }
 }
 
@@ -132,21 +138,14 @@ export async function waitForActorConsistency(actor, {
 
 export function expectItemsOnActor(expectedItemUuids, actor, expect)
 {
-    const actorSourceIds = actor.items.map(i =>
-        i.flags.transformations?.sourceUuid
-    )
-    for (const uuid of expectedItemUuids) {
-        expect(
-            actorSourceIds.includes(uuid),
-            `Expected UUID ${uuid} was not found on actor`
-        ).to.equal(true)
-    }
+    console.error("Transformations TEST | OLD Method called, migrate to new actorValidator function!")
+    return actorValidator({ actor, expect }).expectItemsOnActor(expectedItemUuids)
 }
 
 export function expectRaceItemSubTypeOnActor(runtime, subtype, actor, expect)
 {
-    const raceItem = runtime.infrastructure.itemRepository.findEmbeddedByType(actor, "race")
-    expect(raceItem?.system?.type?.subtype).to.be.equal(subtype)
+    console.error("Transformations TEST | OLD Method called, migrate to new actorValidator function!")
+    return actorValidator({ runtime, actor, expect }).expectRaceItemSubTypeOnActor(runtime, subtype, actor, expect)
 }
 
 export async function applyItemActivityEffect({ actor, itemName, effectName, macroTrigger = "manual" })
@@ -219,4 +218,33 @@ export async function removeTestToken(tokenDoc)
 {
     if (!tokenDoc?.parent) return
     await tokenDoc.parent.deleteEmbeddedDocuments("Token", [tokenDoc.id])
+}
+
+export function validateAllD20Disadvantage(actor, actorEffectValidator, assert)
+{
+    console.error("Transformations TEST | OLD Method called, migrate to new actorValidator function!")
+    return actorValidator({ actor, assert }).validateAllD20Disadvantage()
+}
+
+export async function getCharacterClass(characterClass)
+{
+    const pack = game.packs.get("dnd5e.classes24")
+
+    await pack.getIndex()
+
+    const classEntry = pack.index.find(e => e.name === characterClass)
+
+    return await pack.getDocument(classEntry._id)
+}
+
+export async function getCharacterRace(characterRace)
+{
+    const pack = game.packs.get("dnd5e.races")
+
+    await pack.getIndex()
+
+    const raceEntry = pack.index.find(e => e.name === characterRace)
+    const raceDocument = await pack.getDocument(raceEntry._id)
+
+    return raceDocument
 }

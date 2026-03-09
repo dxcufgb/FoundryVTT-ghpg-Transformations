@@ -15,9 +15,9 @@ import { createActionHandlers } from "../services/actions/handlers/index.js"
 import { createTriggerVariableResolver } from "../services/triggers/createTriggerVariableResolver.js"
 import { createFormulaEvaluator } from "../services/formulas/createFormulaEvaluator.js"
 import { createStageChoiceResolver } from "../domain/transformation/createStageChoiceResolver.js"
-import { createConditionService } from "../services/actor/createConditionService.js"
 
 export function createServices({
+    getGame,
     dependencies,
     infrastructure,
     triggerNotification
@@ -30,7 +30,7 @@ export function createServices({
     })
 
     const { utils, logger, constants } = dependencies
-    const { actorRepository, chatService, directMacroInvoker, activeEffectRepository, rollTableService, itemRepository, compendiumRepository, actionExecutor, socketGateway, localMutationAdapter, notifier } = infrastructure
+    const { actorRepository, chatService, directMacroInvoker, activeEffectRepository, rollTableService, itemRepository, compendiumRepository, actionExecutor, socketGateway, localMutationAdapter, notifier, requiresService } = infrastructure
     const trackers = {
         repositories: utils.asyncTrackers.get("repositories"),
         mutations: utils.asyncTrackers.get("mutations"),
@@ -92,6 +92,7 @@ export function createServices({
 
     const actionHandlers = createActionHandlers({
         trackers,
+        getGame,
         directMacroInvoker,
         activeEffectRepository,
         actorRepository,
@@ -120,14 +121,10 @@ export function createServices({
         logger
     })
 
-    const conditionService = createConditionService({
-        logger
-    })
-
     const stageChoiceResolver = createStageChoiceResolver({
         tracker: trackers.services,
         compendiumRepository,
-        conditionService,
+        requiresService,
         logger
     })
 

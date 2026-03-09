@@ -1,3 +1,4 @@
+import { registerTransformationMacros } from "../bootstrap/registerTransformtaionsMacros.js"
 import { createActionExecutor } from "../infrastructure/actions/createActionExecutor.js"
 import { createFakeTracker } from "./fakes/fakeTracker.js"
 import { createTestActor } from "./helpers/actors.js"
@@ -15,8 +16,8 @@ export async function setupTest({
     let returnObjects = {}
     await readyGame()
 
+    globalThis.__TRANSFORMATIONS_TEST__ = true
     if (initializeTestVariables) {
-        globalThis.__TRANSFORMATIONS_TEST__ = true
         globalThis.___TransformationTestEnvironment___ = {}
     }
 
@@ -25,6 +26,12 @@ export async function setupTest({
             serviceMocks: createObjects.runtime.serviceMocks != undefined ? createObjects.runtime.serviceMocks : {},
             infrastructureMocks: createObjects.runtime.infrastructureMocks != undefined ? createObjects.runtime.infrastructureMocks : {},
             loggerLevel: createObjects.runtime.loggerLevel != undefined ? createObjects.runtime.loggerLevel : {}
+        })
+        registerTransformationMacros({
+            macroRegistry: returnObjects.runtime.infrastructure.macroRegistry,
+            activeEffectRepository: returnObjects.runtime.infrastructure.activeEffectRepository,
+            itemRepository: returnObjects.runtime.infrastructure.itemRepository,
+            logger: logger
         })
     }
 
@@ -43,6 +50,7 @@ export async function setupTest({
         returnObjects.actionExecutor = createActionExecutor({
             tracker: returnObjects.fakeTracker !== undefined ? returnObjects.fakeTracker : createFakeTracker(),
             actorRepository: returnObjects.runtime.infrastructure.actorRepository,
+            onceService: returnObjects.runtime.infrastructure.onceService,
             logger
         })
     }
@@ -64,7 +72,6 @@ export async function tearDownEachTest({
     try {
 
         // 1️⃣ Clear global override flags
-        delete globalThis.__TRANSFORMATIONS_TEST__
         delete globalThis.___TransformationTestEnvironment___
 
         // 2️⃣ Clear Chat log

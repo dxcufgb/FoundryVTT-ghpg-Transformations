@@ -373,6 +373,7 @@ quench.registerBatch(
             afterEach(async function()
             {
                 await runtime.services.transformationService.whenIdle()
+                await actor.delete()
                 await tearDownEachTest({ tearDownExtras: { sheet: sheet, dialog: dialog } })
             })
 

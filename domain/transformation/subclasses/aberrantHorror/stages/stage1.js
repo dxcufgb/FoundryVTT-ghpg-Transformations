@@ -9,8 +9,7 @@ export const stage1 = {
                 uuid: "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu"
             },
             {
-                uuid: "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT",
-                prerequisite: true
+                uuid: "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT"
             }
         ],
         actor: {

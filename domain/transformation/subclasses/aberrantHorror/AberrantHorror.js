@@ -31,4 +31,12 @@ export class AberrantHorror extends Transformation
             })
         }
     }
+
+    static async onPreRollSavingThrow(actor, context, options = {})
+    {
+        this.logger?.debug?.("AberrantHorror.onPreRollSavingThrow", actor, context, options)
+        if (context.workflow?.item?.type !== "spell") return
+        context.subject.setFlag("transformations", "saveIsSpell", true)
+    }
+
 }

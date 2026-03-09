@@ -5,9 +5,13 @@ import { createChatAction } from "./chat.js"
 import { createSaveAction } from "./save.js"
 import { createEffectAction } from "./effect.js"
 import { createMacroAction } from "./macroAction.js"
+import { createDialogAction } from "./dialog.js"
+import { createActorFlagAction } from "./actorFlags.js"
+import { createExhaustionAction } from "./actorExhaustion.js"
 
 export function createActionHandlers({
     trackers,
+    getGame,
     directMacroInvoker,
     actorRepository,
     itemRepository,
@@ -19,6 +23,7 @@ export function createActionHandlers({
 {
     logger.debug("createActionHandlers", {
         trackers,
+        getGame,
         directMacroInvoker,
         actorRepository,
         itemRepository,
@@ -28,6 +33,10 @@ export function createActionHandlers({
     })
 
     return Object.freeze({
+        ACTOR_FLAG: createActorFlagAction({
+            tracker: trackers.mutations,
+            logger
+        }),
         APPLY_ROLLTABLE: createRollTableAction({
             tracker: trackers.mutations,
             rollTableService,
@@ -43,6 +52,10 @@ export function createActionHandlers({
             activeEffectRepository,
             logger
         }),
+        EXHAUSTION: createExhaustionAction({
+            tracker: trackers.mutations,
+            logger
+        }),
         HP: createHpAction({
             tracker: trackers.mutations,
             actorRepository,
@@ -56,6 +69,11 @@ export function createActionHandlers({
         MACRO: createMacroAction({
             tracker: trackers.macros,
             directMacroInvoker,
+            logger
+        }),
+        DIALOG: createDialogAction({
+            getGame,
+            tracker: trackers.ui,
             logger
         }),
         SAVE: createSaveAction({

@@ -1,3 +1,5 @@
+import { UiAccessor } from "./uiAccessor.js"
+
 export function createModuleApi({
     game,
     macros,
@@ -5,6 +7,7 @@ export function createModuleApi({
 })
 {
     game.transformations = {
+        getDialogFactory: () => UiAccessor.dialogs,
         logger: Registry.logger,
         executeMacro: macros.executeMacro,
         getTransformations()

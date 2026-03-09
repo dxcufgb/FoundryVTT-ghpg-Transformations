@@ -5,6 +5,7 @@ import { waitForCondition } from "../helpers/waitForCondition.js"
 import { conditionsMet } from "../../domain/actions/conditionSchema.js"
 import { waitForDomainStability } from "../helpers/waitForDomainStability.js"
 import { setupTest, teardownAllTest, tearDownEachTest } from "../testLifecycle.js"
+import { interceptChatCreate } from "../helpers/interceptChatCreate.js"
 
 quench.registerBatch(
     "transformations.actions",
@@ -20,12 +21,14 @@ quench.registerBatch(
         async function localSetupTest(currentTest, transformationId)
         {
             ({ actor, runtime, actionExecutor, actionHandlers } = await setupTest({
-                currentTest, createObjects: {
+                currentTest,
+                createObjects: {
                     actor: { name: currentTest.title + `(${transformationId})`, options: { race: "humanoid" } },
                     runtime: {},
                     actionExecutor: {},
                     actionHandlers: {}
-                }
+                },
+                initializeTestVariables: true
             }))
             transformationDef = await runtime.services.transformationQueryService.getDefinitionById(transformationId)
         }
@@ -44,14 +47,17 @@ quench.registerBatch(
         describe("Transformation Actions", function()
         {
             this.timeout(10_000)
+            let interceptor
             beforeEach(async function()
             {
                 await localSetupTest(this.currentTest, "aberrant-horror")
+                interceptor = interceptChatCreate({ debounceMs: 10 })
             })
 
             afterEach(async function()
             {
                 await tearDownEachTest()
+                interceptor.restore()
             })
             it("executes handlers sequentially in order", async function()
             {
@@ -412,15 +418,7 @@ quench.registerBatch(
 
             it("full aberrant horror journey behaves correctly", async function()
             {
-                let chatCallCount = 0
-
-                const originalCreate = ChatMessage.create
-
-                ChatMessage.create = async function(...args)
-                {
-                    chatCallCount++
-                    return originalCreate.apply(this, args)
-                }
+                globalThis.___TransformationTestEnvironment___.rollTableResult = 100
 
                 const STAGE2_UUID = "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
                 await runtime.services.transformationService.applyTransformation(actor, {
@@ -468,7 +466,7 @@ quench.registerBatch(
                 const tempHpAfterSecond = actor.system.attributes.hp.temp
 
                 expect(tempHpAfterSecond).to.equal(0)
-                expect(chatCallCount).to.equal(1)
+                expect(interceptor.getCount()).to.equal(1)
             })
         })
 

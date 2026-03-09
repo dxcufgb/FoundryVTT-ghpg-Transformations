@@ -1,3 +1,4 @@
+import { disadvantageOnAllD20RollsEffectChanges } from "../../../../../config/disadvantageOnAllD20Rolls.js"
 import { AberrantEffect } from "../aberrantEffect.js"
 
 export class AberrantDisadvantage extends AberrantEffect
@@ -22,31 +23,32 @@ export class AberrantDisadvantage extends AberrantEffect
     async beforeApply()
     {
         this.logger?.debug?.("AberrantDisadvantage.beforeApply", {})
-        Object.values(this.constants.ABILITY).forEach(ability =>
-        {
-            this.addEffects(
-                this.effectChangeBuilder.getDisadvantage(ability)
-            )
-            this.addEffects(
-                this.effectChangeBuilder.getDisadvantage(ability, this.constants.ROLL_TYPE.SAVING_THROW)
-            )
-        })
+        this.effects = disadvantageOnAllD20RollsEffectChanges
+        // Object.values(this.constants.ABILITY).forEach(ability =>
+        // {
+        //     this.addEffects(
+        //         this.effectChangeBuilder.getDisadvantage(ability)
+        //     )
+        //     this.addEffects(
+        //         this.effectChangeBuilder.getDisadvantage(ability, this.constants.ROLL_TYPE.SAVING_THROW)
+        //     )
+        // })
 
-        Object.values(this.constants.ATTRIBUTE.ROLLABLE).forEach(attr =>
-        {
-            this.addEffects(
-                this.effectChangeBuilder.getDisadvantage(attr)
-            )
-            this.addEffects(
-                this.effectChangeBuilder.getDisadvantage(attr, this.constants.ROLL_TYPE.SAVING_THROW)
-            )
-        })
-        Object.values(this.constants.SKILL).forEach(skill =>
-        {
-            this.addEffects(
-                this.effectChangeBuilder.getDisadvantage(skill)
-            )
-        })
+        // Object.values(this.constants.ATTRIBUTE.ROLLABLE).forEach(attr =>
+        // {
+        //     this.addEffects(
+        //         this.effectChangeBuilder.getDisadvantage(attr)
+        //     )
+        //     this.addEffects(
+        //         this.effectChangeBuilder.getDisadvantage(attr, this.constants.ROLL_TYPE.SAVING_THROW)
+        //     )
+        // })
+        // Object.values(this.constants.SKILL).forEach(skill =>
+        // {
+        //     this.addEffects(
+        //         this.effectChangeBuilder.getDisadvantage(skill)
+        //     )
+        // })
     }
 }
 

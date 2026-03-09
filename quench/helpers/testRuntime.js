@@ -56,6 +56,7 @@ export function createTestRuntime({
 
     // 4️⃣ Services (THIS is where mocking actually works)
     const services = createServices({
+        getGame: () => game,
         dependencies,
         infrastructure,
         overrides: serviceMocks

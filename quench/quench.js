@@ -1,5 +1,4 @@
-globalThis.__TRANSFORMATIONS_TEST__ = true
-globalThis.___TransformationTestEnvironment___ ??= {}
+import "./helpers/rules/defaultRules.js"
 
 import "./actorSheet/actorSheetTests.js"
 import "./dialogs/dialogsTests.js"

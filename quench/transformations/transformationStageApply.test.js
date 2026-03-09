@@ -1,16 +1,14 @@
-import { createTestActor, waitForActorConsistency } from "../helpers/actors.js"
-import { cleanupQuenchTestActors } from "../helpers/cleanupActors.js"
+import { waitForActorConsistency } from "../helpers/actors.js"
 import { expectAsyncWork } from "../helpers/async/expectAsyncWork.js"
-import { readyGame } from "../helpers/setup.js"
 import { createTestRuntime } from "../helpers/testRuntime.js"
 import { wait } from "../helpers/wait.js"
-import { findActiveChoiceDescription, findChoiceDialogById, findChoiceDialogDescriptionContainer, findChoiceDialogFooter, findChoiceDialogRadioButtons, findChoiceDialogRadioByUuid, findChoiceFooterButton, getChoiceDialogById } from "../selectors/choiceDialog.finders.js"
+import { findActiveChoiceDescription, findChoiceDialogDescriptionContainer, findChoiceDialogFooter, findChoiceDialogRadioButtons, findChoiceDialogRadioByUuid, findChoiceFooterButton, getChoiceDialogById } from "../selectors/choiceDialog.finders.js"
 import { waitForElementGone, waitForNextFrame } from "../helpers/dom.js"
 import { assertExpectedItems } from "../helpers/verifyStageItems.js"
 import { advanceStageAndExpectChoiceDialog } from "../helpers/advanceStageAndExpectChoiceDialog.js"
 import { advanceStageAndWait } from "../helpers/advanceStageAndWait.js"
 import { advanceStageAndChoose } from "../helpers/adcanceStageAndExpectchoiceDialog.js"
-import { getDependentChoice, getNonDependentChoice, getNonPrerequisiteChoice, getPrerequisiteChoice, getStageDef } from "../helpers/transformation.js"
+import { getDependentChoice, getNonDependentChoice, getStageDef } from "../helpers/transformation.js"
 import { waitForCondition } from "../helpers/waitForCondition.js"
 import { setupTest, teardownAllTest, tearDownEachTest } from "../testLifecycle.js"
 
@@ -141,7 +139,7 @@ quench.registerBatch(
                 {
                     const raceItem = runtime.infrastructure.itemRepository.findEmbeddedByType(actor, "race")
 
-                    return Boolean(raceItem?.system?.type?.subtype)
+                    return Boolean(raceItem?.system?.type?.subtype != "human")
                 })
 
                 // --- assert flags ---
@@ -312,7 +310,7 @@ quench.registerBatch(
                     const raceItem =
                         runtime.infrastructure.itemRepository.findEmbeddedByType(actor, "race")
 
-                    return Boolean(raceItem?.system?.type?.subtype)
+                    return Boolean(raceItem?.system?.type?.subtype != "human")
                 })
 
                 const stage1 = Object.values(transformationDef.stages)
@@ -617,10 +615,9 @@ quench.registerBatch(
 
                 expect(actor.getFlag("transformations", "stage")).to.equal(0)
 
-                const currentStage = getStageDef(transformationDef, 2, expect)
                 const nextStage = getStageDef(transformationDef, 3, expect)
 
-                const prerequisiteChoice = getPrerequisiteChoice(currentStage, expect)
+                const prerequisiteChoice = { uuid: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E" }
                 const dependentChoice = getDependentChoice(
                     nextStage,
                     prerequisiteChoice.uuid,
@@ -668,10 +665,9 @@ quench.registerBatch(
 
                 expect(actor.getFlag("transformations", "stage")).to.equal(0)
 
-                const currentStage = getStageDef(transformationDef, 2, expect)
                 const nextStage = getStageDef(transformationDef, 3, expect)
 
-                const nonPrerequisiteChoice = getNonPrerequisiteChoice(currentStage, expect)
+                const nonPrerequisiteChoice = { uuid: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq" }
 
                 const nonDependentChoice = getNonDependentChoice(nextStage, expect)
 

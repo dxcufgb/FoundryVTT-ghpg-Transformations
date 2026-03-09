@@ -56,6 +56,11 @@ function actorConditionMet(actor, condition, logger = null)
         return Object.values(flags ?? {}).some(f => f == condition.hasFlag)
     }
 
+    if (condition.notHasFlag) {
+        const flags = actor.flags.transformations
+        return Object.values(flags ?? {}).none(f => f == condition.notHasFlag)
+    }
+
     if (condition.isBloodied) {
         const hp = actor.system?.attributes?.hp
         return hp && hp.value <= hp.max / 2
