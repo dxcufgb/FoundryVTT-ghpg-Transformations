@@ -10,6 +10,8 @@ export class ActorStatsDTOValidator extends BaseDTOValidator
         exhaustion: path("actor.system.attributes.exhaustion").equals(),
         movementBonus: path("actor.system.attributes.movement.bonus").equals(),
         resistances: path("actor.system.traits.dr.value").equalsArray(),
+        immunities: path("actor.system.traits.di.value").equalsArray(),
+        vulnerabilities: path("actor.system.traits.dv.value").equalsArray(),
         deathSaveDelta: resolve(ctx =>
         {
             const death = ctx.actor.system?.attributes?.death

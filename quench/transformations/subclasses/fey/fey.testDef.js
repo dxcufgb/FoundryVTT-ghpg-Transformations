@@ -467,23 +467,21 @@ export const feyTestDef = {
                 seasons.autumn
             ],
 
+            setup: async ({ loopVars, actor }) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fey": {
+                            1: loopVars.servantUuid,
+                            2: loopVars.twoFacedUuid
+                        }
+                    }
+                })
+            },
+
             steps: [
-                {
-                    stage: 1,
-                    choose: (loopVars) => loopVars.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
-                    {
-                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
-                    }
-                },
-                {
-                    stage: 2,
-                    choose: (loopVars) => loopVars.twoFacedUuid,
-                    await: async ({ runtime, actor, waiters }) =>
-                    {
-                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
-                    }
-                },
+                { stage: 1 },
+                { stage: 2 },
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
@@ -856,7 +854,11 @@ export const feyTestDef = {
             requiredPath: [
                 {
                     stage: 1,
-                    choose: (loopVars) => loopVars.servantUuid
+                    choose: (loopVars) => loopVars.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
                 }
             ],
 
@@ -907,7 +909,11 @@ export const feyTestDef = {
             requiredPath: [
                 {
                     stage: 1,
-                    choose: seasons.winter.servantUuid
+                    choose: seasons.winter.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
                 }
             ],
 
@@ -953,10 +959,19 @@ export const feyTestDef = {
             requiredPath: [
                 {
                     stage: 1,
-                    choose: (loopVars) => loopVars.servantUuid
+                    choose: (loopVars) => loopVars.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
                 },
                 {
-                    stage: 2
+                    stage: 2,
+                    choose: loopVars => loopVars.twoFacedUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
                 }
             ],
 
@@ -1010,10 +1025,19 @@ export const feyTestDef = {
             requiredPath: [
                 {
                     stage: 1,
-                    choose: (loopVars) => loopVars.servantUuid
+                    choose: (loopVars) => loopVars.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
                 },
                 {
-                    stage: 2
+                    stage: 2,
+                    choose: loopVars => loopVars.magicTricksUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
                 }
             ],
 
@@ -1076,10 +1100,19 @@ export const feyTestDef = {
             requiredPath: [
                 {
                     stage: 1,
-                    choose: seasons.winter.servantUuid
+                    choose: seasons.winter.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
                 },
                 {
-                    stage: 2
+                    stage: 2,
+                    choose: seasons.winter.magicTricksUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
                 }
             ],
 
@@ -1112,10 +1145,19 @@ export const feyTestDef = {
             requiredPath: [
                 {
                     stage: 1,
-                    choose: seasons.winter.servantUuid
+                    choose: seasons.winter.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
                 },
                 {
-                    stage: 2
+                    stage: 2,
+                    choose: seasons.winter.magicTricksUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
                 }
             ],
 
@@ -1188,13 +1230,23 @@ export const feyTestDef = {
             requiredPath: [
                 {
                     stage: 1,
-                    choose: seasons.winter.servantUuid
+                    choose: seasons.winter.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
                 },
                 {
-                    stage: 2
+                    stage: 2,
+                    choose: seasons.winter.magicTricksUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
                 },
                 {
-                    stage: 3
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.2OaLTqox7kaidOxP"
                 }
             ],
 
@@ -1229,13 +1281,23 @@ export const feyTestDef = {
             requiredPath: [
                 {
                     stage: 1,
-                    choose: seasons.winter.servantUuid
+                    choose: seasons.winter.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
                 },
                 {
-                    stage: 2
+                    stage: 2,
+                    choose: seasons.winter.magicTricksUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
                 },
                 {
-                    stage: 3
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.rID40yYHDRry6TJ5"
                 }
             ],
 
@@ -1367,13 +1429,27 @@ export const feyTestDef = {
             requiredPath: [
                 {
                     stage: 1,
-                    choose: seasons.winter.servantUuid
+                    choose: seasons.winter.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
                 },
                 {
-                    stage: 2
+                    stage: 2,
+                    choose: seasons.winter.magicTricksUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
                 },
                 {
-                    stage: 3
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
                 }
             ],
 
@@ -1467,13 +1543,27 @@ export const feyTestDef = {
             requiredPath: [
                 {
                     stage: 1,
-                    choose: seasons.winter.servantUuid
+                    choose: seasons.winter.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
                 },
                 {
-                    stage: 2
+                    stage: 2,
+                    choose: seasons.winter.magicTricksUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
                 },
                 {
-                    stage: 3
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
                 }
             ],
 
@@ -1513,13 +1603,27 @@ export const feyTestDef = {
             requiredPath: [
                 {
                     stage: 1,
-                    choose: seasons.winter.servantUuid
+                    choose: seasons.winter.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
                 },
                 {
-                    stage: 2
+                    stage: 2,
+                    choose: seasons.winter.magicTricksUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
                 },
                 {
-                    stage: 3
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
                 }
             ],
 
@@ -1563,13 +1667,27 @@ export const feyTestDef = {
             requiredPath: [
                 {
                     stage: 1,
-                    choose: seasons.winter.servantUuid
+                    choose: seasons.winter.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
                 },
                 {
-                    stage: 2
+                    stage: 2,
+                    choose: seasons.winter.magicTricksUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
                 },
                 {
-                    stage: 3
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
                 }
             ],
 
@@ -1608,13 +1726,27 @@ export const feyTestDef = {
             requiredPath: [
                 {
                     stage: 1,
-                    choose: seasons.winter.servantUuid
+                    choose: seasons.winter.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
                 },
                 {
-                    stage: 2
+                    stage: 2,
+                    choose: seasons.winter.magicTricksUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
                 },
                 {
-                    stage: 3
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
                 }
             ],
 
