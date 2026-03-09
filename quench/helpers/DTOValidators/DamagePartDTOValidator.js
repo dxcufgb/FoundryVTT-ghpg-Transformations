@@ -17,8 +17,6 @@ export class DamagePartDTOValidator extends BaseDTOValidator
 
     validate(part, dto)
     {
-        console.log("Transformations | DamagePartDTOValidator.validate called with:", part, dto)
-
         if (!part)
             throw new Error(`[${this.path}] Missing damage part`)
 

@@ -73,6 +73,5 @@ export class ActorRollModeDTO
         this.disadvantage = []
 
         this.allD20Disadvantage = null
-        this.deathSaveAdvantage = null
     }
 }

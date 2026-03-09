@@ -15,8 +15,6 @@ export class MessageDTOValidator extends BaseDTOValidator
 
     validate(dto)
     {
-        console.log("Transformations | MessageDTOValidator.validate called with:", dto)
-
         const messages = this.getMessagesByType(dto.messageType)
 
         super.validate(this.buildValidationDTO(dto), { messages })

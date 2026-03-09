@@ -10,11 +10,10 @@ export class AdvancementDTOValidator extends BaseDTOValidator
      */
     validate(advancement, dto)
     {
-        console.log("Transformations | AdvancementDTOValidator.validate called with:", advancement, dto)
-
         if (!advancement)
             throw new Error(`[${this.path}] Missing advancement`)
 
+        super.validate(this.buildValidationDTO(dto), { advancement })
         this.validateConfigurations(advancement, dto.configurations)
 
         return true

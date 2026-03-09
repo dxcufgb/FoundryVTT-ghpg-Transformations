@@ -48,6 +48,8 @@ export class BaseDTOValidator
      */
     validate(dto, context)
     {
+        console.log(`Transformations | ${this.constructor.name}.validate called with:`, dto, context)
+
         this.validateRuleDefinitions()
 
         const rules = this.constructor.rules ?? {}

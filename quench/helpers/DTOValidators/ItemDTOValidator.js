@@ -25,8 +25,6 @@ export class ItemDTOValidator extends BaseDTOValidator
 
     validate(item, dto)
     {
-        console.log("Transformations | ItemDTOValidator.validate called with:", item, dto)
-
         if (!item)
             throw new Error(`[${this.path}] Missing item`)
 

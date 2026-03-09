@@ -1,4 +1,5 @@
 import { ActivityDTOValidator } from "../../DTOValidators/ActivityDTOValidator.js"
+import { ActivityDurationDTOValidator } from "../../DTOValidators/ActivityDurationDTOValidator.js"
 import { AffectsDTOValidator } from "../../DTOValidators/AffectsDTOValidator.js"
 import { ConsumptionValidationDTO } from "../consumption/ConsumptionValidationDTO.js"
 import { DamagePartValidationDTO } from "../damagePart/DamagePartValidationDTO.js"
@@ -25,6 +26,7 @@ export class ActivityValidationDTO
 
         this.damageParts = [] // DamagePartValidationDTO[]
         this.consumption = new ConsumptionValidationDTO()
+        this.duration = new ActivityDurationValidationDTO()
         this.effects = []
         this.range = new RangeValidationDTO()
         this.target = new TargetValidationDTO()
@@ -100,5 +102,19 @@ class TemplateValidationDTO
         this.type = null
         this.units = null
         this.width = null
+    }
+}
+
+class ActivityDurationValidationDTO
+{
+    static validator = ActivityDurationDTOValidator
+    constructor ()
+    {
+        this.concentration = null
+        this.override = null
+        this.scalar = null
+        this.special = null
+        this.units = null
+        this.value = null
     }
 }

@@ -10,8 +10,6 @@ export class ConsumptionDTOValidator extends BaseDTOValidator
      */
     validate(consumption, dto)
     {
-        console.log("Transformations | ConsumptionDTOValidator.validate called with:", consumption, dto)
-
         if (!consumption) {
             if (!dto.targets?.length)
                 return true

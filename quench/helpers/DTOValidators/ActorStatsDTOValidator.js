@@ -26,8 +26,6 @@ export class ActorStatsDTOValidator extends BaseDTOValidator
 
     validate(actor, dto)
     {
-        console.log("Transformations | ActorStatsDTOValidator.validate called with:", actor, dto)
-
         if (!actor)
             throw new Error(`[${this.path}] Missing actor`)
 

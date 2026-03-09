@@ -15,8 +15,6 @@ export class ConsupmtionTargetDTOValidator extends BaseDTOValidator
      */
     validate(target, dto)
     {
-        console.log("Transformations | ConsupmtionTargetDTOValidator.validate called with:", target, dto)
-
         if (!target)
             throw new Error(`[${this.path}] Missing consumption target`)
 

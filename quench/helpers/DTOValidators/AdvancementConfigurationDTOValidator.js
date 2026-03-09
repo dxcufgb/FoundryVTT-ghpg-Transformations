@@ -16,8 +16,6 @@ export class AdvancementConfigurationDTOValidator extends BaseDTOValidator
      */
     validate(configuration, dto)
     {
-        console.log("Transformations | AdvancementConfigurationDTOValidator.validate called with:", configuration, dto)
-
         if (!configuration)
             throw new Error(`[${this.path}] Missing advancement configuration`)
 
@@ -40,8 +38,6 @@ export class AdvancementConfigurationSpellDTOValidator extends BaseDTOValidator
      */
     validate(dto, context)
     {
-        console.log("Transformations | AdvancementConfigurationSpellDTOValidator.validate called with:", dto, context)
-
         const spell = context?.configuration?.spell ?? null
 
         if (!spell) {
@@ -71,8 +67,6 @@ export class AdvancementConfigurationSpellUsesDTOValidator extends BaseDTOValida
      */
     validate(dto, context)
     {
-        console.log("Transformations | AdvancementConfigurationSpellUsesDTOValidator.validate called with:", dto, context)
-
         const uses = context?.spell?.uses ?? null
 
         if (!uses) {

@@ -24,8 +24,6 @@ export class ActivityDTOValidator extends BaseDTOValidator
      */
     validate(activity, dto)
     {
-        console.log("Transformations | ActivityDTOValidator.validate called with:", activity, dto)
-
         if (!activity)
             throw new Error(`[${this.path}] Missing activity`)
 

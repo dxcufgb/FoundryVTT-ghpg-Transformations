@@ -179,7 +179,7 @@ const seasons = {
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.8tmFyQ0LbPZe93c9",
                 level: 3,
-                saveActivityName: "Midi save",
+                saveActivityName: "Midi Save",
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.DgNsvwAXjTtvfcXw",
@@ -568,6 +568,9 @@ export const feyTestDef = {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = expectedItemUuids
                 actorDto.stats.vulnerabilities = [loopVars.seasonallyAffectedDamageVulnerability]
+                actorDto.rollModes.disadvantage.push({
+                    identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
+                })
                 validate(actorDto, { assert })
             }
         },
@@ -638,6 +641,9 @@ export const feyTestDef = {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = expectedItemUuids
                 actorDto.stats.vulnerabilities = [loopVars.seasonallyAffectedDamageVulnerability]
+                actorDto.rollModes.disadvantage.push({
+                    identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
+                })
                 validate(actorDto, { assert })
             }
         },
@@ -705,6 +711,9 @@ export const feyTestDef = {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = expectedItemUuids
                 actorDto.stats.vulnerabilities = [loopVars.seasonallyAffectedDamageVulnerability]
+                actorDto.rollModes.disadvantage.push({
+                    identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
+                })
                 validate(actorDto, { assert })
             }
         },
@@ -1775,6 +1784,201 @@ export const feyTestDef = {
 
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.stats.exhaustion = 1
+                validate(actorDto, { assert })
+            }
+        },
+
+        {
+            name: (vars) => `Greater Magic tricks with ${vars.name} court`,
+
+            loop: () => [
+                seasons.winter,
+                seasons.spring,
+                seasons.summer,
+                seasons.autumn
+            ],
+            requiredPath: [
+                {
+                    stage: 1,
+                    choose: (loopVars) => loopVars.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: loopVars => loopVars.magicTricksUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: loopVars => loopVars.greaterMagicTricksUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+
+            await: async ({ runtime, actor, waiters }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, assert, loopVars, validators }) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    loopVars.magicTricksSpells[0].uuid,
+                    loopVars.magicTricksSpells[1].uuid,
+                    loopVars.magicTricksSpells[2].uuid,
+                    loopVars.greaterMagicTricksUuid,
+                    loopVars.greaterMagicTricksSpells[0].uuid,
+                    loopVars.greaterMagicTricksSpells[1].uuid,
+                    loopVars.greaterMagicTricksSpells[2].uuid
+                ]
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = [loopVars.greaterMagicTricksUuid]
+                    item.addAdvancement(advancement =>
+                    {
+                        advancement.addConfiguration(configuration =>
+                        {
+                            configuration.items = [
+                                loopVars.greaterMagicTricksSpells[0].uuid,
+                                loopVars.greaterMagicTricksSpells[1].uuid,
+                                loopVars.greaterMagicTricksSpells[2].uuid
+                            ]
+                            configuration.spell.method = "atwill"
+                            configuration.spell.prepared = 0
+                            configuration.spell.uses.max = "1"
+                            configuration.spell.uses.per = "lr"
+                            configuration.spell.uses.requireSlot = false
+                        })
+                    })
+                })
+                actorDto.addItem(item =>
+                {
+                    getMagickTrickItem(actor, loopVars.magicTricksSpells[0].uuid, loopVars.magicTricksUuid, loopVars.magicTricksSpells[0].level, loopVars.magicTricksSpells[0].saveActivityName, item)
+                })
+                actorDto.addItem(item =>
+                {
+                    getMagickTrickItem(actor, loopVars.magicTricksSpells[1].uuid, loopVars.magicTricksUuid, loopVars.magicTricksSpells[1].level, loopVars.magicTricksSpells[1].saveActivityName, item)
+                })
+                actorDto.addItem(item =>
+                {
+                    getMagickTrickItem(actor, loopVars.magicTricksSpells[2].uuid, loopVars.magicTricksUuid, loopVars.magicTricksSpells[2].level, loopVars.magicTricksSpells[2].saveActivityName, item)
+                })
+                actorDto.addItem(item =>
+                {
+                    getMagickTrickItem(actor, loopVars.greaterMagicTricksSpells[0].uuid, loopVars.magicTricksUuid, loopVars.greaterMagicTricksSpells[0].level, loopVars.greaterMagicTricksSpells[0].saveActivityName, item)
+                })
+                actorDto.addItem(item =>
+                {
+                    getMagickTrickItem(actor, loopVars.greaterMagicTricksSpells[1].uuid, loopVars.magicTricksUuid, loopVars.greaterMagicTricksSpells[1].level, loopVars.greaterMagicTricksSpells[1].saveActivityName, item)
+                })
+                actorDto.addItem(item =>
+                {
+                    getMagickTrickItem(actor, loopVars.greaterMagicTricksSpells[2].uuid, loopVars.magicTricksUuid, loopVars.greaterMagicTricksSpells[2].level, loopVars.greaterMagicTricksSpells[2].saveActivityName, item)
+                })
+                validate(actorDto, { assert })
+            }
+        },
+
+        {
+            name: "Twilight Glamour item validations",
+
+            requiredPath: [
+                {
+                    stage: 1,
+                    choose: seasons.winter.servantUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: seasons.winter.magicTricksUuid,
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.5IJKGifkWQIVrNgN",
+                    await: async ({ runtime, actor, waiters }) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+
+            await: async ({ actor, runtime, helpers, waiters }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({ actor, assert, validators }) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.addItem(item =>
+                {
+                    item.uuid = "Compendium.transformations.gh-transformations.Item.5IJKGifkWQIVrNgN"
+                    item.itemName = "Twilight Glamour"
+                    item.addActivity(activity =>
+                    {
+                        activity.name = "Go Invisible"
+                        activity.activationType = "action"
+                        activity.addConsumption(consumption =>
+                        {
+                            consumption.addTarget(target =>
+                            {
+                                target.type = "itemUses"
+                                target.value = "1"
+                            })
+                        })
+                        activity.duration.units = "hour"
+                        activity.duration.value = 1
+                        activity.addEffect(effect =>
+                        {
+                            effect.name = "Invisible"
+                            effect.statuses = ["invisible"]
+                            effect.origin = "Compendium.transformations.gh-transformations.Item.5IJKGifkWQIVrNgN"
+                            effect.description = "<p>You are invisible for 1 hour or until you end it as a Bonus Action. If you make an attack roll, deal damage, or cast a spell that causes the target to make a saving throw, the remaining duration changes to 1 minute.</p>"
+                        })
+                    })
+                    item.uses.max = 2
+                    item.uses.recovery.period = "lr"
+                    item.uses.recovery.type = "recoverAll"
+                })
                 validate(actorDto, { assert })
             }
         },
