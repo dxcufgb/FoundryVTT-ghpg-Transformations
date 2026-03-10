@@ -1,5 +1,7 @@
 import { createStageGrantResolver } from "../domain/transformation/createStageGrantResolver.js"
+import { UiAccessor } from "./uiAccessor.js"
 import { createActiveEffectRepository } from "../infrastructure/foundry/activeEffectsRepository.js"
+import { createAdvancementChoiceHandler } from "../infrastructure/foundry/advancementChoiceHandler.js"
 import { createActorRepository } from "../infrastructure/foundry/actorRepository.js"
 import { createCompendiumRepository } from "../infrastructure/foundry/compendiumRepository.js"
 import { createCreatureTypeService } from "../infrastructure/foundry/creatureSubTypeService.js"
@@ -54,7 +56,20 @@ export function createInfrastructure({
         logger
     })
 
+    const activeEffectRepository = createActiveEffectRepository({
+        tracker: trackers.repositories,
+        debouncedTracker,
+        logger
+    })
+
+    const advancementChoiceHandler = createAdvancementChoiceHandler({
+        activeEffectRepository,
+        getDialogFactory: () => UiAccessor.dialogs,
+        logger
+    })
+
     const itemRepository = createItemRepository({
+        advancementChoiceHandler,
         tracker: trackers.repositories,
         debouncedTracker,
         logger
@@ -67,13 +82,8 @@ export function createInfrastructure({
         getGame,
         logger
     })
-    const tokenRepository = createTokenRepository({
-        tracker: trackers.repositories,
-        debouncedTracker,
-        logger
-    })
 
-    const activeEffectRepository = createActiveEffectRepository({
+    const tokenRepository = createTokenRepository({
         tracker: trackers.repositories,
         debouncedTracker,
         logger

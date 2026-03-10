@@ -1,10 +1,12 @@
 export function createItemRepository({
+    advancementChoiceHandler,
     tracker,
     debouncedTracker,
     logger
 })
 {
     logger.debug("createItemRepository", {
+        advancementChoiceHandler,
         tracker,
         debouncedTracker
     })
@@ -412,15 +414,45 @@ export function createItemRepository({
         clearTransformationFlags
     })
 
-    async function applyAdvancements(actor, advancements, parentItemUuid)
+    async function applyAdvancements(actor, advancements, parentItem)
     {
-        logger.debug("itemRepository.applyAdvancements", advancements, context)
+        logger.debug("itemRepository.applyAdvancements", {
+            actor,
+            advancements,
+            parentItem
+        })
         for (const advancement of advancements) {
             const advancementConfiguration = advancement.configuration
             if (advancementConfiguration.items) {
                 for (const item of advancementConfiguration.items) {
                     const sourceItem = await fromUuid(item.uuid)
-                    await createObjectOnActor(actor, sourceItem, parentItemUuid)
+                    await createObjectOnActor(actor, sourceItem, parentItem.uuid)
+                }
+            }
+            if (advancementConfiguration.choices) {
+                for (const choices of advancementConfiguration.choices) {
+                    if (choices.count == 1) {
+                        const choicePool = Array.isArray(choices?.pool)
+                            ? choices.pool
+                            : Array.isArray(choices?.choices)
+                                ? choices.choices
+                                : Array.isArray(choices)
+                                    ? choices
+                                    : []
+
+                        const choiceApplied = await advancementChoiceHandler.choose({
+                            actor,
+                            advancementChoices: choicePool
+                        })
+
+                        if (!choiceApplied) {
+                            logger.warn(
+                                "Advancement choice skipped: no supported selection returned",
+                                choices
+                            )
+                            continue
+                        }
+                    }
                 }
             }
         }
@@ -442,7 +474,7 @@ export function createItemRepository({
         const [created] = await actor.createEmbeddedDocuments("Item", [data])
 
         if (created && data.system.advancement && data.system.advancement.length > 0) {
-            await applyAdvancements(actor, data.system.advancement, created.uuid)
+            await applyAdvancements(actor, data.system.advancement, created)
         }
 
         return created
