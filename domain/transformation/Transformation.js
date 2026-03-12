@@ -119,4 +119,19 @@ export class Transformation
     {
         this.logger?.debug?.("Transformation.onSavingThrow", actor, context, options)
     }
+    static async postCreateScript(actor, scriptName)
+    {
+        this.logger?.debug?.("Transformation.postCreateScript", actor, scriptName)
+    }
+    static async onRenderChatMessage({
+        message,
+        html,
+        actor,
+        actorRepository,
+        dialogFactory,
+        logger
+    })
+    {
+        this.logger?.debug?.("Transformation.onRenderChatMessage", message, html, actor, actorRepository, dialogFactory, logger)
+    }
 }

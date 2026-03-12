@@ -37,6 +37,7 @@ export function createUi({
     const { transformationService, transformationQueryService, actorQueryService } = services
 
     const dialogs = createDialogFactory({
+        activeEffectRepository: infrastructure.activeEffectRepository,
         viewModels: {
             createTransformationConfigViewModel,
             createTransformationStageChoiceViewModel,

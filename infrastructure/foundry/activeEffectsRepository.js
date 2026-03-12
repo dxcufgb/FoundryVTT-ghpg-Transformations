@@ -192,15 +192,17 @@ export function createActiveEffectRepository({
             duration,
             origin,
             flags: {
+                ...flags,
                 ddbimporter: {
+                    ...flags.ddbimporter,
                     ignoreItemImport: true
                 },
                 transformations: {
+                    ...flags.transformations,
                     addedByTransformation: true,
                     source,
                     context
-                },
-                ...flags
+                }
             }
         }
         return tracker.track(
@@ -215,6 +217,35 @@ export function createActiveEffectRepository({
             })()
         )
     }
+
+    function getTransformationEffects(actor)
+    {
+        logger.debug("createActiveEffectRepository.getTransformationEffects", { actor })
+        if (!actor) return []
+
+        return actor.effects.filter(effect =>
+            effect.getFlag("transformations", "addedByTransformation") === true
+        )
+    }
+
+    async function clearTransformation(actor)
+    {
+        logger.debug("createActiveEffectRepository.clearTransformation", { actor })
+        const effects = getTransformationEffects(actor)
+        if (!effects.length) return
+
+        return tracker.track(
+            (async () =>
+            {
+                debouncedTracker.pulse("deleteEmbeddedDocuments")
+                await actor.deleteEmbeddedDocuments(
+                    "ActiveEffect",
+                    effects.map(effect => effect.id)
+                )
+            })()
+        )
+    }
+
 
     function getEffectsRemoveOnLongRest(actor)
     {
@@ -279,6 +310,7 @@ export function createActiveEffectRepository({
         hasByName,
         getIdsByName,
         create,
+        clearTransformation,
         removeEffectsOnLongRest,
         removeByOrigin
     })

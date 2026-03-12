@@ -426,7 +426,11 @@ export function createItemRepository({
             if (advancementConfiguration.items) {
                 for (const item of advancementConfiguration.items) {
                     const sourceItem = await fromUuid(item.uuid)
-                    await createObjectOnActor(actor, sourceItem, parentItem.uuid)
+                    await createObjectOnActor(
+                        actor,
+                        sourceItem,
+                        parentItem?.uuid ?? ""
+                    )
                 }
             }
             if (advancementConfiguration.choices) {
@@ -442,7 +446,8 @@ export function createItemRepository({
 
                         const choiceApplied = await advancementChoiceHandler.choose({
                             actor,
-                            advancementChoices: choicePool
+                            advancementChoices: choicePool,
+                            sourceItem: parentItem
                         })
 
                         if (!choiceApplied) {

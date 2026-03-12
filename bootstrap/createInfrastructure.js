@@ -157,6 +157,7 @@ export function createInfrastructure({
         compendiumRepository,
         stageGrantResolver,
         actionExecutor,
+        activeEffectRepository,
         logger
     })
 

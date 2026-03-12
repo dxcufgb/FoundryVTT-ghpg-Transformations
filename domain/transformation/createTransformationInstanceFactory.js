@@ -43,6 +43,7 @@ export function createTransformationInstanceFactory({
 
         return new transformation({
             actorId: actorId,
+            transformationClass: TransformationClass,
             definition,
             stage,
             logger

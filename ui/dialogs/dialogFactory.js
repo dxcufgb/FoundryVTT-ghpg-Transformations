@@ -7,8 +7,12 @@ import { createItemInfoController } from "../controllers/ItemInfoController.js"
 import { createFeyExhaustionRecoveryViewModel } from "../viewModels/createFeyExhaustionRecoveryViewModel.js"
 import { createFeyExhaustionRecoveryController } from "../controllers/feyExhaustionRecoveryController.js"
 import { FeyExhaustionRecoveryDialog } from "./feyExhaustionRecoveryDialog.js"
+import { createFiendGiftOfDamnationViewModel } from "../viewModels/createFiendGiftOfDamnationViewModel.js"
+import { createFiendGiftOfDamnationController } from "../controllers/fiendGiftOfDamnationController.js"
+import { FiendGiftOfDamnationDialog } from "./fiendGiftOfDamnationDialog.js"
 
 export function createDialogFactory({
+    activeEffectRepository,
     controllers,
     viewModels,
     transformationService,
@@ -19,6 +23,7 @@ export function createDialogFactory({
 })
 {
     logger.debug("createDialogFactory", {
+        activeEffectRepository,
         controllers,
         viewModels,
         transformationService,
@@ -233,12 +238,54 @@ export function createDialogFactory({
         })
     }
 
+    async function openFiendGiftOfDamnation({
+        actor,
+        stage
+    })
+    {
+        logger.debug("openFiendGiftOfDamnation", {
+            actor,
+            stage
+        })
+
+        if (!actor) return false
+
+        closeExistingDialog(FiendGiftOfDamnationDialog)
+
+        return new Promise(resolve =>
+        {
+            const viewModel =
+                createFiendGiftOfDamnationViewModel({
+                    actor,
+                    stage,
+                    logger
+                })
+
+            const controller =
+                createFiendGiftOfDamnationController({
+                    actor,
+                    activeEffectRepository,
+                    resolve,
+                    logger
+                })
+
+            const dialog = new FiendGiftOfDamnationDialog({
+                viewModel,
+                controller,
+                logger
+            })
+
+            dialog.render(true)
+        })
+    }
+
     return Object.freeze({
         openTransformationConfig,
         openStageChoiceDialog,
         openTransformationGeneralChoiceDialog,
         showItemInfoDialog,
-        openFeyExhaustionRecovery
+        openFeyExhaustionRecovery,
+        openFiendGiftOfDamnation
     })
 
     function closeExistingDialog(dialog)

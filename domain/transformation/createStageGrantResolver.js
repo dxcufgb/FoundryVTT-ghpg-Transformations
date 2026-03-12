@@ -48,7 +48,8 @@ export function createStageGrantResolver({
         return items.map(item => ({
             uuid: item.uuid,
             replacesUuid: item.replaces?.uuid ?? null,
-            overrides: item.overrides ?? null
+            overrides: item.overrides ?? null,
+            postCreateScript: item.postCreateScript ?? null
         }))
     }
 

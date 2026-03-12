@@ -8,6 +8,7 @@ export function createLocalTransformationMutationAdapter({
     stageGrantResolver,
     stageChoiceResolver,
     actionExecutor,
+    activeEffectRepository,
     logger
 })
 {
@@ -64,6 +65,7 @@ export function createLocalTransformationMutationAdapter({
         return tracker.track(
             (async () =>
             {
+                const testVar = await getTransformationQueryService().getForActor(actor)
                 const { definition } = await getTransformationQueryService().getForActor(actor)
                 if (!definition)
                     return
@@ -88,6 +90,7 @@ export function createLocalTransformationMutationAdapter({
                 await creatureTypeService.restoreBaseCreatureType(actor)
                 await itemRepository.removeTransformationItems(actor)
                 await actorRepository.clearTransformation(actor)
+                await activeEffectRepository.clearTransformation(actor)
             })()
         )
     }
@@ -129,7 +132,7 @@ export function createLocalTransformationMutationAdapter({
             })
 
             if (choice != null) {
-                grants.items.push({ uuid: choice })
+                grants.items.push({ ...choice })
             }
 
             return tracker.track(
@@ -144,22 +147,17 @@ export function createLocalTransformationMutationAdapter({
                             continue
                         }
 
-
-                        await itemRepository.addTransformationItem({
-                            actor,
-                            sourceItem,
-                            // context: {
-                            //     definitionId: definition.id,
-                            //     stage
-                            // },
-                            replacesUuid: itemGrant.replacesUuid
-                        })
-
-                        if (globalThis?.__TRANSFORMATIONS_TEST__ !== true && sourceItem.uuid != choice) {
+                        if (globalThis?.__TRANSFORMATIONS_TEST__ !== true && sourceItem.uuid != choice.uuid) {
                             await game.transformations
                                 .getDialogFactory()
                                 .showItemInfoDialog({ item: sourceItem })
                         }
+
+                        await itemRepository.addTransformationItem({
+                            actor,
+                            sourceItem,
+                            replacesUuid: itemGrant.replacesUuid
+                        })
                     }
 
                     if (grants.creatureSubType) {
@@ -174,3 +172,4 @@ export function createLocalTransformationMutationAdapter({
         await actor.setFlag("transformations", "finishedStage", stage)
     }
 }
+

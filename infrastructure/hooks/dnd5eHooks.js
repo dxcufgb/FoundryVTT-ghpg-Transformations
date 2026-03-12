@@ -129,6 +129,30 @@ export function registerDnd5eHooks({
 
     })
 
+    Hooks.on("dnd5e.preRollDamageV2", args =>
+    {
+        const workflow = args.workflow
+        const rolls = args.rolls
+        const item = workflow.item
+        const actor = workflow.actor
+        const activity = workflow.activity
+        const activityFlag = activity?.flags?.transformations?.hookLogic?.preDamageRoll
+        const itemFlag = item?.flags?.transformations?.hookLogic?.preDamageRoll
+        if (!actor) return
+
+        const transformation = transformationRegistry.getEntryForActor(actor)
+
+        if (itemFlag) {
+            const func = transformation.TransformationClass[itemFlag]
+            func(workflow, rolls)
+        } else if (activityFlag) {
+            const func = transformation.TransformationClass[activityFlag]
+            func(workflow, rolls)
+        } else {
+            return
+        }
+    })
+
     Hooks.on("renderChatMessage", (message, html) =>
     {
         logger.debug("renderChatMessage called", message)

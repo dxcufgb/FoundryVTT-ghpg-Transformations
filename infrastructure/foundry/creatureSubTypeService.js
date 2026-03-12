@@ -74,7 +74,7 @@ export function createCreatureTypeService({
             (async () =>
             {
 
-                if (currentSubtype && added.includes(currentSubtype)) {
+                if (currentSubtype && added.includes(currentSubtype.toLowerCase())) {
                     const raceItem = itemRepository.findEmbeddedByType(actor, "race")
 
                     if (raceItem) {

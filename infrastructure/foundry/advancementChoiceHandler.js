@@ -51,13 +51,15 @@ export function createAdvancementChoiceHandler({
     async function choose({
         actor,
         advancementChoices = [],
+        sourceItem = null,
         title = "Choose advancement",
         description = ""
     })
     {
         logger.debug("advancementChoiceHandler.choose", {
             actor,
-            advancementChoices
+            advancementChoices,
+            sourceItem
         })
 
         if (!Array.isArray(advancementChoices) || !advancementChoices.length) {
@@ -125,6 +127,7 @@ export function createAdvancementChoiceHandler({
 
         return choicePresentation.applySelection({
             actor,
+            sourceItem,
             selectedChoice
         })
     }
@@ -193,9 +196,10 @@ export function createAdvancementChoiceHandler({
             title: "Choose damage resistance",
             description:
                 "Choose one damage resistance from the available options.",
-            applySelection: ({ actor, selectedChoice }) =>
+            applySelection: ({ actor, sourceItem, selectedChoice }) =>
                 applyDamageResistanceChoice({
                     actor,
+                    sourceItem,
                     selectedChoice
                 })
         }
@@ -245,11 +249,13 @@ export function createAdvancementChoiceHandler({
 
     async function applyDamageResistanceChoice({
         actor,
+        sourceItem,
         selectedChoice
     })
     {
         logger.debug("advancementChoiceHandler.applyDamageResistanceChoice", {
             actor,
+            sourceItem,
             selectedChoice
         })
 
@@ -258,9 +264,9 @@ export function createAdvancementChoiceHandler({
             name: `Damage Resistance: ${selectedChoice.label}`,
             description:
                 `Gain resistance to ${selectedChoice.label.toLowerCase()} damage.`,
-            source: "advancementChoice",
+            source: "transformation",
             icon: selectedChoice.icon,
-            origin: actor?.uuid ?? "",
+            origin: sourceItem?.uuid ?? actor?.uuid ?? "",
             changes: [{
                 key: "system.traits.dr.value",
                 mode: globalThis.CONST?.ACTIVE_EFFECT_MODES?.ADD ?? 2,

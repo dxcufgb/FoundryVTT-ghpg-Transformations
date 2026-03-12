@@ -154,6 +154,7 @@ Hooks.once("setup", async () =>
         triggerRuntime: services.triggerRuntime,
         onceService: infrastructure.onceService,
         actorRepository: infrastructure.actorRepository,
+        activeEffectRepository: infrastructure.activeEffectRepository,
         dialogFactory: moduleUi.dialogs,
         tracker: Registry.dependencies.utils.asyncTrackers.get("mutations"),
         debouncedTracker: Registry.dependencies.utils.asyncTrackers.debounced,
@@ -315,9 +316,9 @@ Hooks.once("ready", async () =>
         )
     )
 
-    // CONFIG.debug.hooks = true
-    // CONFIG.debug.documents = true
-    // CONFIG.debug.rollParsing = true
+    CONFIG.debug.hooks = true
+    CONFIG.debug.documents = true
+    CONFIG.debug.rollParsing = true
 
 })
 
