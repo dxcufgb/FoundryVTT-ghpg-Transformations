@@ -12,6 +12,7 @@ import { createTransformationCardViewModel } from "./viewModels/createTransforma
 import { createTransformationCardController } from "./controllers/transformationCard.controller.js"
 import { createTransformationGeneralChoiceViewModel } from "./viewModels/createTransformationGeneralChoiceViewModel.js"
 import { createTransformationGeneralChoiceController } from "./controllers/transformationGeneralChoiceController.js"
+import { ChatMessagePartInjector } from "./chatCards/ChatMessagePartInjector.js";
 
 export function createUi({
     services,
@@ -34,10 +35,12 @@ export function createUi({
         tracker,
         debouncedTracker
     })
-    const { transformationService, transformationQueryService, actorQueryService } = services
+    const {transformationService, transformationQueryService, actorQueryService} = services
 
     const dialogs = createDialogFactory({
         activeEffectRepository: infrastructure.activeEffectRepository,
+        itemRepository: infrastructure.itemRepository,
+        advancementChoiceHandler: infrastructure.advancementChoiceHandler,
         viewModels: {
             createTransformationConfigViewModel,
             createTransformationStageChoiceViewModel,
@@ -74,6 +77,7 @@ export function createUi({
         debouncedTracker,
         logger
     })
+
     resolveReady()
     return Object.freeze({
         dialogs,
@@ -91,6 +95,7 @@ export function createUi({
         policies: {
             canShowTransformationControls
         },
+        ChatMessagePartInjector,
         ready()
         {
             return readyPromise

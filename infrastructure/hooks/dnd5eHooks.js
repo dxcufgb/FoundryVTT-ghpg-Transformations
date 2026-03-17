@@ -7,6 +7,8 @@ export function registerDnd5eHooks({
     onceService,
     tracker,
     debouncedTracker,
+    ChatMessagePartInjector,
+    RollService,
     logger
 })
 {
@@ -35,7 +37,7 @@ export function registerDnd5eHooks({
             const isLong = result.longRest === true
             const isShort = result.shortRest === true || result.type === "short"
 
-            onceService.resetFlagsOnRest(actor, { isLong, isShort })
+            onceService.resetFlagsOnRest(actor, {isLong, isShort})
             if (isShort) {
                 await triggerRuntime.run("shortRest", actor)
             } else if (isLong) {
@@ -89,7 +91,7 @@ export function registerDnd5eHooks({
             if (!actor) return
 
             const transformation = transformationRegistry.getEntryForActor(actor)
-            await transformation.TransformationClass.onPreRollSavingThrow(context, actor, { onceService })
+            await transformation.TransformationClass.onPreRollSavingThrow(context, actor, {onceService})
         })()
     })
 
@@ -116,6 +118,31 @@ export function registerDnd5eHooks({
                         naturalRoll: natural,
                         total: roll.total,
                         success: roll.isSuccess
+                    }
+                }
+            })
+        })()
+    })
+
+    Hooks.on("dnd5e.rollSkillV2", (rolls, context) => {
+        logger.debug("dnd5e.rollSavingThrow called", rolls, context)
+        debouncedTracker.pulse("dnd5e.rollSkill")
+        const actor = context.subject
+        if (!actor) return
+
+        const roll = rolls?.[0]
+        if (!roll) return
+
+        const natural = roll.dice?.[0]?.results?.find(r => r.active == true).result ?? null;
+
+        (async () =>
+        {
+            triggerRuntime.run("abilityCheck", actor, {
+                checks: {
+                    current: {
+                        ability: context.ability,
+                        naturalRoll: natural,
+                        total: roll.total
                     }
                 }
             })
@@ -149,13 +176,13 @@ export function registerDnd5eHooks({
             const func = transformation.TransformationClass[activityFlag]
             func(workflow, rolls)
         } else {
-            return
+
         }
     })
 
-    Hooks.on("renderChatMessage", (message, html) =>
+    Hooks.on("renderChatMessageHTML", (message, html) =>
     {
-        logger.debug("renderChatMessage called", message)
+        logger.debug("renderChatMessageHTML called", message, html)
         debouncedTracker.pulse("renderChatMessage");
 
         (async () =>
@@ -173,8 +200,29 @@ export function registerDnd5eHooks({
                 actor,
                 actorRepository,
                 dialogFactory,
+                ChatMessagePartInjector,
+                RollService,
                 logger
             })
         })()
+    })
+
+    Hooks.on("dnd5e.postUseActivity", async (activity, usage, changes) => {
+
+        const actor = usage.workflow.actor
+        if (!actor) return
+
+        const transformation = transformationRegistry.getEntryForActor(actor)
+
+        if (!transformation?.TransformationClass?.onActivityUse) return
+
+        await transformation.TransformationClass.onActivityUse(
+            activity,
+            usage,
+            changes.message,
+            actorRepository,
+            ChatMessagePartInjector
+        )
+
     })
 }

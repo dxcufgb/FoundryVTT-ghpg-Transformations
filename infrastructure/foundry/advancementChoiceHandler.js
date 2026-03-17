@@ -1,11 +1,20 @@
+import { SKILL } from "../../config/constants.js"
+
 const DAMAGE_RESISTANCE_ICON_PATH =
-    "modules/transformations/icons/damageTypes"
+          "modules/transformations/icons/damageTypes"
+const SKILL_ICON_PATH =
+          "modules/transformations/icons/skills"
 
 const DAMAGE_RESISTANCE_CHOICES = Object.freeze({
     acid: Object.freeze({
         id: "acid",
         label: "Acid",
         icon: `${DAMAGE_RESISTANCE_ICON_PATH}/Acid.png`
+    }),
+    bludgeoning: Object.freeze({
+        id: "bludgeoning",
+        label: "Bludgeoning",
+        icon: `${DAMAGE_RESISTANCE_ICON_PATH}/Bludgeoning.png`
     }),
     cold: Object.freeze({
         id: "cold",
@@ -17,20 +26,143 @@ const DAMAGE_RESISTANCE_CHOICES = Object.freeze({
         label: "Fire",
         icon: `${DAMAGE_RESISTANCE_ICON_PATH}/Fire.png`
     }),
+    force: Object.freeze({
+        id: "force",
+        label: "Force",
+        icon: `${DAMAGE_RESISTANCE_ICON_PATH}/Force.png`
+    }),
     lightning: Object.freeze({
         id: "lightning",
         label: "Lightning",
         icon: `${DAMAGE_RESISTANCE_ICON_PATH}/Lightning.png`
+    }),
+    necrotic: Object.freeze({
+        id: "necrotic",
+        label: "Necrotic",
+        icon: `${DAMAGE_RESISTANCE_ICON_PATH}/Necrotic.png`
+    }),
+    piercing: Object.freeze({
+        id: "piercing",
+        label: "Piercing",
+        icon: `${DAMAGE_RESISTANCE_ICON_PATH}/Piercing.png`
+    }),
+    poison: Object.freeze({
+        id: "poison",
+        label: "Poison",
+        icon: `${DAMAGE_RESISTANCE_ICON_PATH}/Poison.png`
     }),
     psychic: Object.freeze({
         id: "psychic",
         label: "Psychic",
         icon: `${DAMAGE_RESISTANCE_ICON_PATH}/Psychic.png`
     }),
+    radiant: Object.freeze({
+        id: "radiant",
+        label: "Radiant",
+        icon: `${DAMAGE_RESISTANCE_ICON_PATH}/Radiant.png`
+    }),
+    slashing: Object.freeze({
+        id: "slashing",
+        label: "Slashing",
+        icon: `${DAMAGE_RESISTANCE_ICON_PATH}/Slashing.png`
+    }),
     thunder: Object.freeze({
         id: "thunder",
         label: "Thunder",
         icon: `${DAMAGE_RESISTANCE_ICON_PATH}/Thunder.png`
+    })
+})
+
+const SKILL_CHOICES = Object.freeze({
+    acr: Object.freeze({
+        id: SKILL.ACROBATICS,
+        label: "Acrobatics",
+        icon: `${SKILL_ICON_PATH}/Acrobatics.png`
+    }),
+    ani: Object.freeze({
+        id: SKILL.ANIMAL_HANDLING,
+        label: "Animal Handling",
+        icon: `${SKILL_ICON_PATH}/AnimalHandling.png`
+    }),
+    arc: Object.freeze({
+        id: SKILL.ARCANA,
+        label: "Arcana",
+        icon: `${SKILL_ICON_PATH}/Arcana.png`
+    }),
+    ath: Object.freeze({
+        id: SKILL.ATHLETICS,
+        label: "Athletics",
+        icon: `${SKILL_ICON_PATH}/Athletics.png`
+    }),
+    dec: Object.freeze({
+        id: SKILL.DECEPTION,
+        label: "Deception",
+        icon: `${SKILL_ICON_PATH}/Deception.png`
+    }),
+    his: Object.freeze({
+        id: SKILL.HISTORY,
+        label: "History",
+        icon: `${SKILL_ICON_PATH}/History.png`
+    }),
+    ins: Object.freeze({
+        id: SKILL.INSIGHT,
+        label: "Insight",
+        icon: `${SKILL_ICON_PATH}/Insight.png`
+    }),
+    itm: Object.freeze({
+        id: SKILL.INTIMIDATION,
+        label: "Intimidation",
+        icon: `${SKILL_ICON_PATH}/Intimidation.png`
+    }),
+    inv: Object.freeze({
+        id: SKILL.INVESTIGATION,
+        label: "Investigation",
+        icon: `${SKILL_ICON_PATH}/Investigation.png`
+    }),
+    med: Object.freeze({
+        id: SKILL.MEDICINE,
+        label: "Medicine",
+        icon: `${SKILL_ICON_PATH}/Medicine.png`
+    }),
+    nat: Object.freeze({
+        id: SKILL.NATURE,
+        label: "Nature",
+        icon: `${SKILL_ICON_PATH}/Nature.png`
+    }),
+    prc: Object.freeze({
+        id: SKILL.PERCEPTION,
+        label: "Perception",
+        icon: `${SKILL_ICON_PATH}/Perception.png`
+    }),
+    prf: Object.freeze({
+        id: SKILL.PERFORMANCE,
+        label: "Performance",
+        icon: `${SKILL_ICON_PATH}/Performance.png`
+    }),
+    per: Object.freeze({
+        id: SKILL.PERSUASION,
+        label: "Persuasion",
+        icon: `${SKILL_ICON_PATH}/Persuasion.png`
+    }),
+    rel: Object.freeze({
+        id: SKILL.RELIGION,
+        label: "Religion",
+        icon: `${SKILL_ICON_PATH}/Religion.png`
+    }),
+    slt: Object.freeze({
+        id: SKILL.SLEIGHT_OF_HAND,
+        label: "Sleight of Hand",
+        icon: `${SKILL_ICON_PATH}/SleightOfHand.png`
+    }),
+    ste: Object.freeze({
+        id: SKILL.STEALTH,
+        label: "Stealth",
+        icon: `${SKILL_ICON_PATH}/Stealth.png`
+    }),
+    sur: Object.freeze({
+        id: SKILL.SURVIVAL,
+        label: "Survival",
+        icon: `${SKILL_ICON_PATH}/Survival.png`
     })
 })
 
@@ -45,21 +177,26 @@ export function createAdvancementChoiceHandler({
     })
 
     const handlers = Object.freeze({
-        dr: createDamageResistanceChoices
+        dr: createDamageResistanceChoices,
+        skills: createSkillChoices
     })
 
     async function choose({
         actor,
         advancementChoices = [],
+        numberOfChoices = 1,
         sourceItem = null,
         title = "Choose advancement",
-        description = ""
+        description = "",
+        apply = true
     })
     {
         logger.debug("advancementChoiceHandler.choose", {
             actor,
             advancementChoices,
-            sourceItem
+            numberOfChoices,
+            sourceItem,
+            apply
         })
 
         if (!Array.isArray(advancementChoices) || !advancementChoices.length) {
@@ -93,8 +230,12 @@ export function createAdvancementChoiceHandler({
             return null
         }
 
-        const choicePresentation = handler(parsedChoices)
+        const choicePresentation = handler(parsedChoices, numberOfChoices)
         const resolvedChoices = choicePresentation?.choices ?? []
+        const choiceCount = Math.min(
+            Math.max(Number(numberOfChoices) || 1, 1),
+            resolvedChoices.length
+        )
 
         if (!resolvedChoices.length) {
             return null
@@ -113,6 +254,7 @@ export function createAdvancementChoiceHandler({
             actor,
             dialogFactory,
             choices: resolvedChoices,
+            choiceCount,
             description:
                 choicePresentation?.description ??
                 description,
@@ -125,11 +267,46 @@ export function createAdvancementChoiceHandler({
             return false
         }
 
-        return choicePresentation.applySelection({
-            actor,
-            sourceItem,
-            selectedChoice
-        })
+        const selectedChoices = Array.isArray(selectedChoice)
+            ? selectedChoice
+            : [selectedChoice]
+
+        if (!apply) {
+            const selections = []
+
+            for (const choice of selectedChoices) {
+                const selectionChanges = choicePresentation.getSelection?.({
+                    actor,
+                    sourceItem,
+                    selectedChoice: choice
+                }) ?? []
+
+                if (!typeof selectionChanges === "Object") {
+                    logger.warn(
+                        "Advancement choice returned non-Object changes payload",
+                        selectionChanges
+                    )
+                    return []
+                }
+
+                selections.push(selectionChanges)
+            }
+
+            return selections
+        }
+
+        const results = []
+        for (const choice of selectedChoices) {
+            results.push(
+                await choicePresentation.applySelection({
+                    actor,
+                    sourceItem,
+                    selectedChoice: choice
+                })
+            )
+        }
+
+        return results.every(Boolean)
     }
 
     function parseChoices(advancementChoices = [])
@@ -148,7 +325,7 @@ export function createAdvancementChoiceHandler({
                 return []
             }
 
-            const [type, value] = rawChoice.split(":")
+            const [type, value, mode = null] = rawChoice.split(":")
 
             if (!type || !value) {
                 logger.warn(
@@ -158,15 +335,47 @@ export function createAdvancementChoiceHandler({
                 return []
             }
 
+            if (value === "*") {
+                const wildcardValues = getWildcardChoiceValues(type)
+
+                if (!wildcardValues.length) {
+                    logger.warn(
+                        "Skipping wildcard advancement choice with no registered values",
+                        rawChoice
+                    )
+                    return []
+                }
+
+                return wildcardValues.map(expandedValue => ({
+                    raw: [type, expandedValue, mode].filter(Boolean).join(":"),
+                    type,
+                    value: expandedValue,
+                    mode
+                }))
+            }
+
             return [{
-                raw: rawChoice,
+                raw: [type, value, mode].filter(Boolean).join(":"),
                 type,
-                value
+                value,
+                mode
             }]
         })
     }
 
-    function createDamageResistanceChoices(parsedChoices = [])
+    function getWildcardChoiceValues(type)
+    {
+        switch (type) {
+            case "skills":
+                return Object.keys(SKILL_CHOICES)
+            case "dr":
+                return Object.keys(DAMAGE_RESISTANCE_CHOICES)
+            default:
+                return []
+        }
+    }
+
+    function createDamageResistanceChoices(parsedChoices = [], choicesCount)
     {
         logger.debug("advancementChoiceHandler.createDamageResistanceChoices", {
             parsedChoices
@@ -195,9 +404,73 @@ export function createAdvancementChoiceHandler({
             choices,
             title: "Choose damage resistance",
             description:
-                "Choose one damage resistance from the available options.",
-            applySelection: ({ actor, sourceItem, selectedChoice }) =>
+                `Choose ${choicesCount} damage resistance from the available options.`,
+            getSelection: ({actor, sourceItem, selectedChoice}) =>
+                buildDamageResistanceChoiceEffectData({
+                    actor,
+                    sourceItem,
+                    selectedChoice
+                }) ?? [],
+            getSelectionChanges: ({actor, sourceItem, selectedChoice}) =>
+                buildDamageResistanceChoiceEffectData({
+                    actor,
+                    sourceItem,
+                    selectedChoice
+                })?.changes ?? [],
+            applySelection: ({actor, sourceItem, selectedChoice}) =>
                 applyDamageResistanceChoice({
+                    actor,
+                    sourceItem,
+                    selectedChoice
+                })
+        }
+    }
+
+    function createSkillChoices(parsedChoices = [], choicesCount)
+    {
+        logger.debug("advancementChoiceHandler.createSkillChoices", {
+            parsedChoices
+        })
+
+        const choices = parsedChoices.flatMap(choice =>
+        {
+            const entry = SKILL_CHOICES[choice.value]
+
+            if (!entry) {
+                logger.warn(
+                    "Unknown skill advancement choice",
+                    choice.value
+                )
+                return []
+            }
+
+            return [{
+                ...entry,
+                raw: choice.raw,
+                value: choice.value,
+                mode: choice.mode ?? "forcedExpertise"
+            }]
+        })
+
+        return {
+            choices,
+            title: "Choose skill",
+            description:
+                `Choose ${choicesCount} skill from the available options.`,
+            getSelection: ({actor, sourceItem, selectedChoice}) =>
+                buildSkillChoiceEffectData({
+                    actor,
+                    sourceItem,
+                    selectedChoice
+                }) ?? [],
+            getSelectionChanges: ({actor, sourceItem, selectedChoice}) =>
+                buildSkillChoiceEffectData({
+                    actor,
+                    sourceItem,
+                    selectedChoice
+                })?.changes ?? [],
+            applySelection: ({actor, sourceItem, selectedChoice}) =>
+                applySkillChoice({
                     actor,
                     sourceItem,
                     selectedChoice
@@ -209,6 +482,7 @@ export function createAdvancementChoiceHandler({
         actor,
         dialogFactory,
         choices,
+        choiceCount = 1,
         title,
         description
     })
@@ -216,35 +490,42 @@ export function createAdvancementChoiceHandler({
         logger.debug("advancementChoiceHandler.promptForChoice", {
             actor,
             choices,
+            choiceCount,
             title,
             description
         })
 
-        const selectedId =
-            await dialogFactory.openTransformationGeneralChoiceDialog({
-                actor,
-                choices,
-                description,
-                title
-            })
+        const selectedIds = await dialogFactory.openTransformationGeneralChoiceDialog({
+            actor,
+            choices,
+            choiceCount,
+            description,
+            title
+        })
 
-        if (!selectedId) {
+        if (!selectedIds) {
             return null
         }
 
-        const selectedChoice = choices.find(choice =>
-            choice.id === selectedId
+        const normalizedIds = Array.isArray(selectedIds)
+            ? selectedIds
+            : [selectedIds]
+
+        const selectedChoices = normalizedIds.map(selectedId =>
+            choices.find(choice => choice.id === selectedId)
         )
 
-        if (!selectedChoice) {
+        if (selectedChoices.some(choice => !choice)) {
             logger.warn(
                 "Advancement choice dialog returned unknown selection",
-                selectedId
+                selectedIds
             )
             return null
         }
 
-        return selectedChoice
+        return choiceCount === 1
+            ? selectedChoices[0]
+            : selectedChoices
     }
 
     async function applyDamageResistanceChoice({
@@ -259,14 +540,75 @@ export function createAdvancementChoiceHandler({
             selectedChoice
         })
 
-        const effect = await activeEffectRepository.create({
+        const effectData = buildDamageResistanceChoiceEffectData({
+            actor,
+            sourceItem,
+            selectedChoice
+        })
+
+        const effect = await activeEffectRepository.create(effectData)
+
+        return effect != null
+    }
+
+    async function applySkillChoice({
+        actor,
+        sourceItem,
+        selectedChoice
+    })
+    {
+        logger.debug("advancementChoiceHandler.applySkillChoice", {
+            actor,
+            sourceItem,
+            selectedChoice
+        })
+
+        const skillValue = Number(actor?.system?.skills?.[selectedChoice.value]?.value ?? 0)
+        const mode = selectedChoice.mode ?? "forcedExpertise"
+        const resolvedSkillValue = resolveSkillChoiceValue({
+            currentValue: skillValue,
+            mode
+        })
+
+        if (resolvedSkillValue == null) {
+            logger.debug("advancementChoiceHandler.applySkillChoice.skipped", {
+                actor,
+                selectedChoice,
+                skillValue,
+                mode
+            })
+            return false
+        }
+
+        const effectData = buildSkillChoiceEffectData({
+            actor,
+            sourceItem,
+            selectedChoice
+        })
+
+        if (!effectData) return false
+
+        const effect = await activeEffectRepository.create(effectData)
+
+        return effect != null
+    }
+
+    function buildDamageResistanceChoiceEffectData({
+        actor,
+        sourceItem,
+        selectedChoice
+    })
+    {
+        return {
             actor,
             name: `Damage Resistance: ${selectedChoice.label}`,
+            label: selectedChoice.label,
             description:
                 `Gain resistance to ${selectedChoice.label.toLowerCase()} damage.`,
             source: "transformation",
             icon: selectedChoice.icon,
             origin: sourceItem?.uuid ?? actor?.uuid ?? "",
+            resistanceIdentifier: selectedChoice.value,
             changes: [{
                 key: "system.traits.dr.value",
                 mode: globalThis.CONST?.ACTIVE_EFFECT_MODES?.ADD ?? 2,
@@ -281,9 +623,94 @@ export function createAdvancementChoiceHandler({
                     advancementChoiceType: "damageResistance"
                 }
             }
+        }
+    }
+
+    function buildSkillChoiceEffectData({
+        actor,
+        sourceItem,
+        selectedChoice
+    })
+    {
+        const skillValue = Number(actor?.system?.skills?.[selectedChoice.value]?.value ?? 0)
+        const mode = selectedChoice.mode ?? "forcedExpertise"
+        const resolvedSkillValue = resolveSkillChoiceValue({
+            currentValue: skillValue,
+            mode
         })
 
-        return effect != null
+        if (resolvedSkillValue == null) {
+            return null
+        }
+
+        return {
+            actor,
+            name: createSkillChoiceName(selectedChoice.label, mode, resolvedSkillValue),
+            label: selectedChoice.label,
+            description: createSkillChoiceDescription(selectedChoice.label, mode, resolvedSkillValue),
+            source: "transformation",
+            icon: selectedChoice.icon,
+            origin: sourceItem?.uuid ?? actor?.uuid ?? "",
+            skillIdentifier: selectedChoice.value,
+            changes: [{
+                key: `system.skills.${selectedChoice.value}.value`,
+                mode: globalThis.CONST?.ACTIVE_EFFECT_MODES?.UPGRADE ?? 4,
+                value: resolvedSkillValue
+            }],
+            flags: {
+                dnd5e: {
+                    hidden: true
+                },
+                transformations: {
+                    advancementChoice: selectedChoice.raw,
+                    advancementChoiceType: "skill",
+                    advancementChoiceMode: mode
+                }
+            }
+        }
+    }
+
+    function resolveSkillChoiceValue({
+        currentValue,
+        mode
+    })
+    {
+        switch (mode) {
+            case "expertise":
+                return currentValue >= 1 ? 2 : null
+            case "forcedExpertise":
+                return 2
+            case "upgrade":
+                return currentValue >= 1 ? 2 : 1
+            default:
+                logger.warn(
+                    "Unknown skill advancement mode",
+                    mode
+                )
+                return null
+        }
+    }
+
+    function createSkillChoiceName(label, mode, resolvedSkillValue)
+    {
+        if (mode === "upgrade" && resolvedSkillValue === 1) {
+            return `Skill Proficiency: ${label}`
+        }
+
+        return `Skill Expertise: ${label}`
+    }
+
+    function createSkillChoiceDescription(label, mode, resolvedSkillValue)
+    {
+        if (mode === "upgrade" && resolvedSkillValue === 1) {
+            return `Gain proficiency in ${label}.`
+        }
+
+        if (mode === "expertise") {
+            return `Gain expertise in ${label} if you are already proficient.`
+        }
+
+        return `Gain expertise in ${label}.`
     }
 
     return Object.freeze({

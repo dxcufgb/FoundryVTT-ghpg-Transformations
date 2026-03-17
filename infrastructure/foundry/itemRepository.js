@@ -13,13 +13,13 @@ export function createItemRepository({
 
     function findEmbeddedById(actor, itemId)
     {
-        logger.debug("createItemRepository.findEmbeddedById", { actor, itemId })
+        logger.debug("createItemRepository.findEmbeddedById", {actor, itemId})
         return actor?.items?.get(itemId) ?? null
     }
 
     function findEmbeddedByUuidFlag(actor, uuid)
     {
-        logger.debug("createItemRepository.findEmbeddedByUuidFlag", { actor, uuid })
+        logger.debug("createItemRepository.findEmbeddedByUuidFlag", {actor, uuid})
         return actor.items.find(
             item =>
                 item.getFlag("transformations", "sourceUuid") === uuid
@@ -28,7 +28,7 @@ export function createItemRepository({
 
     function getEmbeddedAddedByTransformation(actor)
     {
-        logger.debug("createItemRepository.getEmbeddedAddedByTransformation", { actor })
+        logger.debug("createItemRepository.getEmbeddedAddedByTransformation", {actor})
         return actor.items.filter(item =>
             item.getFlag("transformations", "addedByTransformation") === true
         )
@@ -36,13 +36,13 @@ export function createItemRepository({
 
     function findEmbeddedByType(actor, type)
     {
-        logger.debug("createItemRepository.findEmbeddedByType", { actor, type })
+        logger.debug("createItemRepository.findEmbeddedByType", {actor, type})
         return actor.items.find(item => item.type === type) ?? null
     }
 
     function findAllEmbeddedByType(actor, type)
     {
-        logger.debug("createItemRepository.findAllEmbeddedByType", { actor, type })
+        logger.debug("createItemRepository.findAllEmbeddedByType", {actor, type})
         return actor.items.filter(item => item.type === type) ?? null
     }
 
@@ -64,10 +64,12 @@ export function createItemRepository({
         return tracker.track(
             (async () =>
             {
-                logger.trace("addTransformationItem called", actor,
+                logger.trace(
+                    "addTransformationItem called", actor,
                     sourceItem,
                     replacesUuid,
-                    isPrerequisite)
+                    isPrerequisite
+                )
                 // Prevent duplicates
                 const existing = findEmbeddedByUuidFlag(actor, sourceItem.uuid)
 
@@ -94,10 +96,18 @@ export function createItemRepository({
         )
     }
 
+    async function addItemAttachedToActiveEffect({actor, itemToCreate, parentEffect}) {
+        const source = await fromUuid(itemToCreate);
+        return await createObjectOnActor(actor, source, "", {
+            origin: parentEffect.id,
+            "flags.core.sourceId": parentEffect.id,
+            "flags.dae.DAECreated": true
+        })
+    }
 
     async function removeTransformationItems(actor)
     {
-        logger.debug("createItemRepository.removeTransformationItems", { actor })
+        logger.debug("createItemRepository.removeTransformationItems", {actor})
         const items = getEmbeddedAddedByTransformation(actor)
 
         if (!items.length) return
@@ -113,7 +123,6 @@ export function createItemRepository({
             })()
         )
     }
-
 
     async function addItemFromUuid({
         actor,
@@ -178,7 +187,7 @@ export function createItemRepository({
 
     async function createEmbedded(actor, itemData)
     {
-        logger.debug("createItemRepository.createEmbedded", { actor, itemData })
+        logger.debug("createItemRepository.createEmbedded", {actor, itemData})
         if (!actor || !itemData) return null
         logger.trace("createEmbedded called", actor, itemData)
 
@@ -191,10 +200,9 @@ export function createItemRepository({
         )
     }
 
-
     async function deleteEmbedded(actor, itemIds)
     {
-        logger.debug("createItemRepository.deleteEmbedded", { actor, itemIds })
+        logger.debug("createItemRepository.deleteEmbedded", {actor, itemIds})
         if (!actor || !itemIds?.length) return
 
         return tracker.track(
@@ -206,10 +214,9 @@ export function createItemRepository({
         )
     }
 
-
     async function updateEmbedded(item, update)
     {
-        logger.debug("createItemRepository.updateEmbedded", { item, update })
+        logger.debug("createItemRepository.updateEmbedded", {item, update})
         if (!item || !update) return
 
         return tracker.track(
@@ -224,25 +231,25 @@ export function createItemRepository({
 
     function getTransformationFlags(item)
     {
-        logger.debug("createItemRepository.getTransformationFlags", { item })
+        logger.debug("createItemRepository.getTransformationFlags", {item})
         return item.getFlag("transformations", "") ?? {}
     }
 
     function getSourceUuid(item)
     {
-        logger.debug("createItemRepository.getSourceUuid", { item })
+        logger.debug("createItemRepository.getSourceUuid", {item})
         return item.getFlag("transformations", "sourceUuid") ?? null
     }
 
     function isAddedByTransformation(item)
     {
-        logger.debug("createItemRepository.isAddedByTransformation", { item })
+        logger.debug("createItemRepository.isAddedByTransformation", {item})
         return item.getFlag("transformations", "addedByTransformation") === true
     }
 
     async function setTransformationFlags(item, flags)
     {
-        logger.debug("createItemRepository.setTransformationFlags", { item, flags })
+        logger.debug("createItemRepository.setTransformationFlags", {item, flags})
         return tracker.track(
             (async () =>
             {
@@ -252,10 +259,9 @@ export function createItemRepository({
         )
     }
 
-
     async function clearTransformationFlags(item)
     {
-        logger.debug("createItemRepository.clearTransformationFlags", { item })
+        logger.debug("createItemRepository.clearTransformationFlags", {item})
         const scope = item.flags?.transformations
         if (!scope) return
 
@@ -274,10 +280,9 @@ export function createItemRepository({
         )
     }
 
-
     function getRemainingUses(item)
     {
-        logger.debug("createItemRepository.getRemainingUses", { item })
+        logger.debug("createItemRepository.getRemainingUses", {item})
         if (!item) return 0
 
         const uses = item.system?.uses
@@ -291,7 +296,7 @@ export function createItemRepository({
 
     async function consumeUses(item, amount = 1)
     {
-        logger.debug("createItemRepository.consumeUses", { item, amount })
+        logger.debug("createItemRepository.consumeUses", {item, amount})
         if (!item || amount <= 0) return false
 
         const uses = item.system?.uses
@@ -324,10 +329,9 @@ export function createItemRepository({
         )
     }
 
-
     async function removeBySourceUuid(actor, sourceUuids)
     {
-        logger.debug("createItemRepository.removeBySourceUuid", { actor, sourceUuids })
+        logger.debug("createItemRepository.removeBySourceUuid", {actor, sourceUuids})
         if (!actor || !sourceUuids) return 0
 
         const uuids = Array.isArray(sourceUuids)
@@ -356,10 +360,9 @@ export function createItemRepository({
         )
     }
 
-
     function getItemsRemoveOnLongRest(actor)
     {
-        logger.debug("createItemRepository.getItemsRemoveOnLongRest", { actor })
+        logger.debug("createItemRepository.getItemsRemoveOnLongRest", {actor})
         if (!actor) return []
 
         return actor.items.filter(item =>
@@ -369,7 +372,7 @@ export function createItemRepository({
 
     async function removeItemsOnLongRest(actor)
     {
-        logger.debug("createItemRepository.removeItemsOnLongRest", { actor })
+        logger.debug("createItemRepository.removeItemsOnLongRest", {actor})
         const items = getItemsRemoveOnLongRest(actor)
         if (!items.length) return
 
@@ -399,6 +402,7 @@ export function createItemRepository({
         // mutations
         addTransformationItem,
         addItemFromUuid,
+        addItemAttachedToActiveEffect,
         removeTransformationItems,
         createEmbedded,
         deleteEmbedded,
@@ -435,38 +439,37 @@ export function createItemRepository({
             }
             if (advancementConfiguration.choices) {
                 for (const choices of advancementConfiguration.choices) {
-                    if (choices.count == 1) {
-                        const choicePool = Array.isArray(choices?.pool)
-                            ? choices.pool
-                            : Array.isArray(choices?.choices)
-                                ? choices.choices
-                                : Array.isArray(choices)
-                                    ? choices
-                                    : []
+                    const choicePool = Array.isArray(choices?.pool)
+                        ? choices.pool
+                        : Array.isArray(choices?.choices)
+                            ? choices.choices
+                            : Array.isArray(choices)
+                                ? choices
+                                : []
 
-                        const choiceApplied = await advancementChoiceHandler.choose({
-                            actor,
-                            advancementChoices: choicePool,
-                            sourceItem: parentItem
-                        })
+                    const choiceApplied = await advancementChoiceHandler.choose({
+                        actor,
+                        advancementChoices: choicePool,
+                        numberOfChoices: choices?.count ?? 1,
+                        sourceItem: parentItem
+                    })
 
-                        if (!choiceApplied) {
-                            logger.warn(
-                                "Advancement choice skipped: no supported selection returned",
-                                choices
-                            )
-                            continue
-                        }
+                    if (!choiceApplied) {
+                        logger.warn(
+                            "Advancement choice skipped: no supported selection returned",
+                            choices
+                        )
                     }
                 }
             }
         }
     }
 
-    async function createObjectOnActor(actor, sourceItem, awardedByItem = "")
+    async function createObjectOnActor(actor, sourceItem, awardedByItem = "", extraOptions = {})
     {
         const data = sourceItem.toObject()
         data.flags ??= {}
+
         data.flags.transformations = {
             sourceUuid: sourceItem.uuid,
             definitionId: actor.flags.transformations.type,
@@ -474,7 +477,13 @@ export function createItemRepository({
             addedByTransformation: true,
             awardedByItem: awardedByItem
         }
-        data.flags.ddbimporter = { ignoreItemImport: true }
+
+        data.flags.ddbimporter = {ignoreItemImport: true}
+
+        for (const [path, value] of Object.entries(extraOptions)) {
+            foundry.utils.setProperty(data, path, value)
+        }
+
         debouncedTracker.pulse("createEmbeddedDocuments")
         const [created] = await actor.createEmbeddedDocuments("Item", [data])
 

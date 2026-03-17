@@ -14,7 +14,7 @@ export function createActorRepository({
 
     function getById(actorId)
     {
-        logger.debug("createActorRepository.getById", { actorId })
+        logger.debug("createActorRepository.getById", {actorId})
         const actor = getGame().actors.get(actorId) ?? null
         if (!actor) logger.warn("Actor not found", actorId)
         return actor
@@ -22,7 +22,7 @@ export function createActorRepository({
 
     async function getByUuid(uuid)
     {
-        logger.debug("createActorRepository.getByUuid", { uuid })
+        logger.debug("createActorRepository.getByUuid", {uuid})
         if (!uuid || typeof uuid !== "string") {
             logger?.warn?.(
                 "actorRepository.getByUuid called with invalid uuid",
@@ -63,19 +63,19 @@ export function createActorRepository({
 
     function getActiveTransformationId(actor)
     {
-        logger.debug("createActorRepository.getActiveTransformationId", { actor })
+        logger.debug("createActorRepository.getActiveTransformationId", {actor})
         return actor?.flags?.transformations?.type ?? null
     }
 
     function getTransformationStage(actor)
     {
-        logger.debug("createActorRepository.getTransformationStage", { actor })
+        logger.debug("createActorRepository.getTransformationStage", {actor})
         return actor?.flags?.transformations?.stage ?? 1
     }
 
     async function setTransformation(actor, transformationId, stage = 0)
     {
-        logger.debug("createActorRepository.setTransformation", { actor, transformationId, stage })
+        logger.debug("createActorRepository.setTransformation", {actor, transformationId, stage})
         return tracker.track(
             (async () =>
             {
@@ -90,7 +90,7 @@ export function createActorRepository({
 
     async function clearTransformation(actor)
     {
-        logger.debug("createActorRepository.clearTransformation", { actor })
+        logger.debug("createActorRepository.clearTransformation", {actor})
         return tracker.track(
             (async () =>
             {
@@ -102,7 +102,7 @@ export function createActorRepository({
 
     async function setTransformationStage(actor, stage)
     {
-        logger.debug("createActorRepository.setStage", { actor, stage })
+        logger.debug("createActorRepository.setStage", {actor, stage})
         return tracker.track(
             (async () =>
             {
@@ -115,13 +115,13 @@ export function createActorRepository({
 
     function getCreatureTypeFlags(actor)
     {
-        logger.debug("createActorRepository.getCreatureTypeFlags", { actor })
+        logger.debug("createActorRepository.getCreatureTypeFlags", {actor})
         return actor.getFlag("transformations", "creatureTypes") ?? null
     }
 
     async function setCreatureTypeFlags(actor, flags)
     {
-        logger.debug("createActorRepository.setCreatureTypeFlags", { actor, flags })
+        logger.debug("createActorRepository.setCreatureTypeFlags", {actor, flags})
         return tracker.track(
             (async () =>
             {
@@ -133,7 +133,7 @@ export function createActorRepository({
 
     async function clearCreatureTypeFlags(actor)
     {
-        logger.debug("createActorRepository.clearCreatureTypeFlags", { actor })
+        logger.debug("createActorRepository.clearCreatureTypeFlags", {actor})
         return tracker.track(
             (async () =>
             {
@@ -144,7 +144,7 @@ export function createActorRepository({
 
     async function clearAllMacroExecutionsForActor(actor)
     {
-        logger.debug("createActorRepository.clearAllMacroExecutionsForActor", { actor })
+        logger.debug("createActorRepository.clearAllMacroExecutionsForActor", {actor})
         return tracker.track(
             (async () =>
             {
@@ -156,7 +156,7 @@ export function createActorRepository({
 
     async function setMacroExecution(actor, flagKey)
     {
-        logger.debug("createActorRepository.setMacroExecution", { actor, flagKey })
+        logger.debug("createActorRepository.setMacroExecution", {actor, flagKey})
         return tracker.track(
             (async () =>
             {
@@ -179,7 +179,7 @@ export function createActorRepository({
 
     async function clearMacroExecution(actor, flagKey)
     {
-        logger.debug("createActorRepository.clearMacroExecution", { actor, flagKey })
+        logger.debug("createActorRepository.clearMacroExecution", {actor, flagKey})
         return tracker.track(
             (async () =>
             {
@@ -187,7 +187,7 @@ export function createActorRepository({
 
                 if (!executions || !(flagKey in executions)) return
 
-                const { [flagKey]: _, ...remaining } = executions
+                const {[flagKey]: _, ...remaining} = executions
 
                 if (Object.keys(remaining).length === 0) {
                     await actor.unsetFlag(
@@ -214,16 +214,16 @@ export function createActorRepository({
 
     function hasMacroExecution(actor, flagKey)
     {
-        logger.debug("createActorRepository.hasMacroExecution", { actor, flagKey })
+        logger.debug("createActorRepository.hasMacroExecution", {actor, flagKey})
         const executions =
-            actor.getFlag("transformations", "macroExecutions")
+                  actor.getFlag("transformations", "macroExecutions")
 
         return Boolean(executions?.[flagKey])
     }
 
     function resolveActor(target)
     {
-        logger.debug("createActorRepository.resolveActor", { target })
+        logger.debug("createActorRepository.resolveActor", {target})
         if (!target) return null
 
         // TokenDocument â†’ synthetic actor
@@ -246,7 +246,7 @@ export function createActorRepository({
 
     async function addExhaustionLevels(actor, levels)
     {
-        logger.debug("createActorRepository.addExhaustionLevels", { actor, levels })
+        logger.debug("createActorRepository.addExhaustionLevels", {actor, levels})
         if (!actor) return
 
         return tracker.track(
@@ -272,7 +272,7 @@ export function createActorRepository({
 
     async function setActorDeathSaves(actor, saves, mode)
     {
-        logger.debug("createActorRepository.setActorDeathSaves", { actor, saves, mode })
+        logger.debug("createActorRepository.setActorDeathSaves", {actor, saves, mode})
         if (!actor) return
 
         return tracker.track(
@@ -293,7 +293,7 @@ export function createActorRepository({
 
     async function setActorHp(actor, hp, type = "value")
     {
-        logger.debug("createActorRepository.setActorHp", { actor, hp, type })
+        logger.debug("createActorRepository.setActorHp", {actor, hp, type})
         if (!actor) return
 
         if (!["value", "temp", "effectiveMax"].includes(type)) {
@@ -355,7 +355,7 @@ export function createActorRepository({
 
     async function addTempHp(actor, amount)
     {
-        logger.debug("createActorRepository.addTempHp", { actor, amount })
+        logger.debug("createActorRepository.addTempHp", {actor, amount})
         return tracker.track(
             (async () =>
             {
@@ -369,11 +369,11 @@ export function createActorRepository({
 
     async function addHp(actor, amount)
     {
-        logger.debug("createActorRepository.addHp", { actor, amount })
+        logger.debug("createActorRepository.addHp", {actor, amount})
         return tracker.track(
             (async () =>
             {
-                const { value, max } = actor.system.attributes.hp
+                const {value, max} = actor.system.attributes.hp
                 await actor.update({
                     "system.attributes.hp.value": Math.min(value + amount, max)
                 })
@@ -383,11 +383,11 @@ export function createActorRepository({
 
     async function applyDamage(actor, amount)
     {
-        logger.debug("createActorRepository.applyDamage", { actor, amount })
+        logger.debug("createActorRepository.applyDamage", {actor, amount})
         return tracker.track(
             (async () =>
             {
-                const { value } = actor.system.attributes.hp
+                const {value} = actor.system.attributes.hp
                 await actor.update({
                     "system.attributes.hp.value": Math.max(value - amount, 0)
                 })
@@ -397,7 +397,7 @@ export function createActorRepository({
 
     async function setMovementBonus(actor, movementBonus)
     {
-        logger.debug("createActorRepository.setMovementBonus", { actor, movementBonus })
+        logger.debug("createActorRepository.setMovementBonus", {actor, movementBonus})
         return tracker.track(
             (async () =>
             {
@@ -410,7 +410,7 @@ export function createActorRepository({
 
     function hasAnySpellSlotCapacity(actor)
     {
-        logger.debug("createActorRepository.hasAnySpellSlotCapacity", { actor })
+        logger.debug("createActorRepository.hasAnySpellSlotCapacity", {actor})
         const spells = actor.system?.spells
         if (!spells) return false
 
@@ -424,11 +424,36 @@ export function createActorRepository({
         const hitDiePerClass = getHitDiePerClass(actor)
 
         const total = Object.values(hitDiePerClass)
-            .reduce((sum, entry) => sum + (entry?.value ?? 0), 0)
+        .reduce((sum, entry) => sum + (entry?.value ?? 0), 0)
 
-        logger?.debug?.("HitDieService.getAvailable", { total })
+        logger?.debug?.("actorRepository.getAvailableHitDice", {total})
 
         return total
+    }
+
+    function getMaximumHitDices(actor)
+    {
+        const hitDiePerClass = getHitDiePerClass(actor)
+
+        const total = Object.values(hitDiePerClass)
+        .reduce((sum, entry) => sum + (entry?.max ?? 0), 0)
+
+        logger?.debug?.("actorRepository.getMaximumHitDices", {total})
+
+        return total
+    }
+
+    function getHighestAvailableHitDice(actor) {
+        const hitDicesPerClass = getHitDiePerClass(actor)
+        let hitDie = ""
+
+        for (const hitDice of Object.values(hitDicesPerClass)) {
+            if (hitDice.value > 0) {
+                hitDie = hitDice
+                break
+            }
+        }
+        return hitDie
     }
 
     function getHitDiePerClass(actor)
@@ -436,14 +461,17 @@ export function createActorRepository({
         const classItems = itemRepository.findAllEmbeddedByType(actor, "class")
         let hitDieSummary = Object.fromEntries(
             [...classItems]
-                .sort((a, b) => Number.parseInt(b.system.hd.denomination.replace("d", "")) - Number.parseInt(a.system.hd.denomination.replace("d", "")))
-                .map(n => [n.name, {
-                    denomination: n.system.hd.denomination,
-                    max: n.system.hd.max,
-                    spent: n.system.hd.spent,
-                    additional: n.system.hd.additional,
-                    value: n.system.hd.value
-                }])
+            .sort((a, b) => Number.parseInt(b.system.hd.denomination.replace(
+                "d",
+                ""
+            )) - Number.parseInt(a.system.hd.denomination.replace("d", "")))
+            .map(n => [n.name, {
+                denomination: n.system.hd.denomination,
+                max: n.system.hd.max,
+                spent: n.system.hd.spent,
+                additional: n.system.hd.additional,
+                value: n.system.hd.value
+            }])
         )
         return hitDieSummary
     }
@@ -462,21 +490,23 @@ export function createActorRepository({
 
             if (remainingToConsume <= 0) break
 
-            const currentClassItem =
-                classItems.find(c => c.name === key) // fixed comparison
+            const currentClassItem = classItems.find(c => c.name === key) // fixed comparison
 
             if (!currentClassItem) continue
 
             const available = entry?.value ?? 0
             if (available <= 0) continue
+            const currentValue = currentClassItem.system.hd.value ?? 0
+            const currentSpent = currentClassItem.system.hd.spent ?? 0
 
-            const spend = Math.min(available, remainingToConsume)
+            const spend = Math.min(currentValue, remainingToConsume)
+
             remainingToConsume -= spend
 
             updatePromises.push(
                 currentClassItem.update({
-                    "system.hd.spent": spend,
-                    "system.hd.value": (available - spend)
+                    "system.hd.value": currentValue - spend,
+                    "system.hd.spent": currentSpent + spend
                 })
             )
 
@@ -504,7 +534,7 @@ export function createActorRepository({
     function getExhaustion(actor)
     {
         const value = actor?.system?.attributes?.exhaustion ?? 0
-        logger?.debug?.("actorRepository.getExhaustion", { value })
+        logger?.debug?.("actorRepository.getExhaustion", {value})
         return value
     }
 
@@ -559,6 +589,8 @@ export function createActorRepository({
         setMovementBonus,
         hasAnySpellSlotCapacity,
         getAvailableHitDice,
+        getMaximumHitDices,
+        getHighestAvailableHitDice,
         consumeHitDie,
         getExhaustion,
         removeExhaustion
@@ -566,7 +598,7 @@ export function createActorRepository({
 
     async function getClearTransformationUpdates(actor)
     {
-        logger.debug("createActorRepository.getClearTransformationUpdates", { actor })
+        logger.debug("createActorRepository.getClearTransformationUpdates", {actor})
         return tracker.track(
             (async () =>
             {

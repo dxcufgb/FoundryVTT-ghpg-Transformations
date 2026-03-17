@@ -1,69 +1,46 @@
-
 export const onLongRest = {
     name: "longRest",
+
+    variables: [
+        {
+            name: "tempHitDieMax",
+            type: "formula",
+            value: "Math.floor(@highestAvailableHitDiceMax / 2)"
+        }
+    ],
+    
     actionGroups: [
         {
-            name: "remove-fey-effects",
-            actions: [
-                {
-                    type: "MACRO",
-                    data: {
-                        trigger: "transformations.onLongRest",
-                        transformationType: "General",
-                        action: "removeOnLongRest",
-                        args: {}
-                    }
-                },
-            ]
-        },
-        {
-            name: "choose-damage-resistance",
+            name: "prodigious-talent-check",
             when: {
-                items: {
-                    has: [
-                        "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf"
-                    ]
+                actor: {
+                    hasFlag: "fiend.giftOfProdigiousTalent"
                 }
             },
             actions: [
                 {
-                    type: "DIALOG",
+                    type: "ACTOR_FLAG",
                     data: {
-                        dialogFactoryFunction: "openTransformationGeneralChoiceDialog",
-                        title: "Choose damage resistance",
-                        choices: [
-                            { icon: "modules/transformations/icons/damageTypes/Acid.png", id: "acid", label: "Acid" },
-                            { icon: "modules/transformations/icons/damageTypes/Cold.png", id: "cold", label: "Cold" },
-                            { icon: "modules/transformations/icons/damageTypes/Fire.png", id: "fire", label: "Fire" },
-                            { icon: "modules/transformations/icons/damageTypes/Lightning.png", id: "lightning", label: "Lightning" },
-                            { icon: "modules/transformations/icons/damageTypes/Psychic.png", id: "psychic", label: "Psychic" },
-                            { icon: "modules/transformations/icons/damageTypes/Thunder.png", id: "thunder", label: "Thunder" }
-                        ],
-                        description: "As a Fey you gain resistance to one of the following damage types until the next long rest.",
-                        key: "feyFormResistance"
+                        mode: "check",
+                        path: "flags.transformations.fiend.giftOfProdigiousTalent.longRestsLeftUntilFullHitDieRestoration",
+                        expression: "@currentValue > 0",
+                        blocker: true
                     }
                 },
                 {
-                    type: "EFFECT",
+                    type: "ACTOR_FLAG",
                     data: {
-                        mode: "create",
-                        name: "Fey Form Resistance",
-                        description: "Your Fey Form grants you resistance to @transformation.dialogChoices.feyFormResistance",
-                        icon: "modules/transformations/icons/Transformations/Fey/Fey_Form.png",
-                        changes: [
-                            {
-                                key: "system.traits.dr.value",
-                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-                                value: "@transformation.dialogChoices.feyFormResistance"
-                            }
-                        ],
-                        flags: {
-                            transformations: {
-                                removeOnLongRest: true
-                            }
-                        },
-                        origin: "@actor.uuid",
-                        source: "Fey Form"
+                        mode: "set",
+                        path: "flags.transformations.fiend.giftOfProdigiousTalent.longRestsLeftUntilFullHitDieRestoration",
+                        expression: "@currentValue -1"
+                    }
+                },
+                {
+                    type: "ACTOR_HIT_DIE",
+                    data: {
+                        mode: "set",
+                        value: "@tempHitDieMax",
+                        preferLower: true
                     }
                 }
             ]

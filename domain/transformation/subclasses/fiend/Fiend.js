@@ -1,4 +1,7 @@
 import { Transformation } from "../../Transformation.js"
+import { renderDevilishContractor } from "./activities/DevilishContractor.js"
+import { giftsOfDamnation } from "./giftsOfDamnation/index.js";
+import { ChatCardActionBinder } from "../../../../ui/chatCards/ChatCardActionBinder.js";
 
 /**
  * Domain subclass.
@@ -7,74 +10,14 @@ import { Transformation } from "../../Transformation.js"
  * No UI.
  * No logging.
  */
-export class Fiend extends Transformation
-{
-
+export class Fiend extends Transformation {
     static type = "fiend";
     static displayName = "Fiend"
     static itemId = "fiend";
     static uuid = "Compendium.transformations.gh-transformations.Item.zpVEJPFBfdqC5sQH";
+    static giftsOfDamnations = giftsOfDamnation
 
-    static async onRenderChatMessage({
-        message,
-        html,
-        actor,
-        dialogFactory,
-        logger
-    })
-    {
-        logger?.debug?.("Fiend.onRenderChatMEssage", { message, actor })
-
-        const activityData = message?.flags?.dnd5e?.activity
-        if (!activityData) return
-
-        const activity = await fromUuid(activityData.uuid)
-
-        if (activity?.name !== "Devilish Contractor") return
-
-        if (!actor.isOwner) return
-
-        const container = html?.[0]?.querySelector(".midi-buttons")
-        if (!container) return
-
-        const button = document.createElement("button")
-        button.type = "button"
-        button.textContent = "Choose gift of damnation"
-        button.classList.add("fiend-devilish-contractor-button")
-
-        button.addEventListener("click", async () =>
-        {
-            await this.handleDevilishContractorClick({
-                actor,
-                dialogFactory,
-                logger
-            })
-        })
-
-        container.prepend(button)
-    }
-
-    static async handleDevilishContractorClick({
-        actor,
-        dialogFactory,
-        logger
-    })
-    {
-        logger?.debug?.("Fiend.handleDevilishContractorClick", { actor })
-
-        const stage = actor.getFlag("transformations", "stage") ?? 0
-
-        if (stage > 0) {
-            const applied = await dialogFactory.openFiendGiftOfDamnation({
-                actor,
-                stage
-            })
-        }
-        if (!applied) return
-    }
-
-    static async getInfernalSmiteDamageType(workflow, rolls)
-    {
+    static async getInfernalSmiteDamageType(workflow, rolls) {
         const item = workflow.item
         const actor = workflow.actor
         const activity = workflow.activity
@@ -85,13 +28,13 @@ export class Fiend extends Transformation
         const fiendishSoul = actor.items.find(i => i.name === "Fiendish Soul")
         if (!fiendishSoul) return
         const resistanceEffect =
-            actor.effects.find(e =>
-                e.origin === fiendishSoul.uuid &&
-                e.flags?.transformations?.advancementChoiceType === "damageResistance"
-            ) ??
-            actor.effects.find(e =>
-                e.flags?.transformations?.advancementChoiceType === "damageResistance"
-            )
+                  actor.effects.find(e =>
+                      e.origin === fiendishSoul.uuid &&
+                      e.flags?.transformations?.advancementChoiceType === "damageResistance"
+                  ) ??
+                  actor.effects.find(e =>
+                      e.flags?.transformations?.advancementChoiceType === "damageResistance"
+                  )
 
         const resistanceChange = resistanceEffect?.changes?.find(c =>
             c.key === "system.traits.dr.value"
@@ -107,5 +50,74 @@ export class Fiend extends Transformation
         for (const part of activity.damage.parts) {
             part.types.add(damageType)
         }
+    }
+
+    static async onRenderChatMessage({
+        message,
+        html,
+        actor,
+        actorRepository,
+        dialogFactory,
+        ChatMessagePartInjector,
+        RollService,
+        logger
+    })
+    {
+
+        const activityData = message?.flags?.dnd5e?.activity
+        if (!activityData) return
+
+        const activity = await fromUuid(activityData.uuid)
+        if (!activity) return
+        
+        if (!actor.isOwner) return
+
+        if (activity.flags?.transformations?.gift) {
+
+            ChatCardActionBinder.bind({
+                message,
+                html,
+                giftsOfDamnation: this.giftsOfDamnations,
+                actorRepository,
+                ChatMessagePartInjector,
+                RollService,
+                logger
+            })
+        } else {
+
+            const container = html?.querySelector(".midi-buttons")
+            if (!container) return
+
+            switch (activity?.name) {
+                case "Devilish Contractor":
+                    await renderDevilishContractor({
+                        actor,
+                        dialogFactory,
+                        container,
+                        logger
+                    })
+                    break
+            }
+        }
+    }
+
+    static async onActivityUse(activity, usage, message, actorRepository, ChatMessagePartInjector) {
+        if (!activity.flags?.transformations?.gift) return
+
+        const giftEntry = this.giftsOfDamnations
+        .find(g => g.id === activity.flags.transformations.gift)
+
+        if (!giftEntry) return
+
+        const GiftClass = giftEntry.GiftClass
+
+        if (!GiftClass?.giftActivity) return
+
+        await GiftClass.giftActivity({
+            actor: usage.workflow.actor,
+            message,
+            actorRepository,
+            ChatMessagePartInjector
+        })
     }
 }

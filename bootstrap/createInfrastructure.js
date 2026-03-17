@@ -36,7 +36,7 @@ export function createInfrastructure({
         notifications
     })
 
-    const { utils, constants } = dependencies
+    const {utils, constants} = dependencies
     const trackers = {
         repositories: utils.asyncTrackers.get("repositories"),
         mutations: utils.asyncTrackers.get("mutations"),
@@ -132,7 +132,7 @@ export function createInfrastructure({
         logger
     })
 
-    const macroRegistry = createMacroRegistry({ logger })
+    const macroRegistry = createMacroRegistry({logger})
     const directMacroInvoker = createDirectMacroInvoker({
         tracker: trackers.macros,
         macroRegistry,
@@ -181,6 +181,7 @@ export function createInfrastructure({
         directMacroInvoker,
         onceService,
         requiresService,
+        advancementChoiceHandler,
         notifier
     })
 }

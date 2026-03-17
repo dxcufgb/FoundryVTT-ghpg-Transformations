@@ -15,6 +15,7 @@ import { createActionHandlers } from "../services/actions/handlers/index.js"
 import { createTriggerVariableResolver } from "../services/triggers/createTriggerVariableResolver.js"
 import { createFormulaEvaluator } from "../services/formulas/createFormulaEvaluator.js"
 import { createStageChoiceResolver } from "../domain/transformation/createStageChoiceResolver.js"
+import { RollService } from "../services/rolls/RollService.js";
 
 export function createServices({
     getGame,
@@ -29,8 +30,21 @@ export function createServices({
         triggerNotification
     })
 
-    const { utils, logger, constants } = dependencies
-    const { actorRepository, chatService, directMacroInvoker, activeEffectRepository, rollTableService, itemRepository, compendiumRepository, actionExecutor, socketGateway, localMutationAdapter, notifier, requiresService } = infrastructure
+    const {utils, logger, constants} = dependencies
+    const {
+              actorRepository,
+              chatService,
+              directMacroInvoker,
+              activeEffectRepository,
+              rollTableService,
+              itemRepository,
+              compendiumRepository,
+              actionExecutor,
+              socketGateway,
+              localMutationAdapter,
+              notifier,
+              requiresService
+          } = infrastructure
     const trackers = {
         repositories: utils.asyncTrackers.get("repositories"),
         mutations: utils.asyncTrackers.get("mutations"),
@@ -40,7 +54,7 @@ export function createServices({
         services: utils.asyncTrackers.get("services")
     }
 
-    const transformationRegistry = createTransformationRegistry({ logger })
+    const transformationRegistry = createTransformationRegistry({logger})
     registerTransformations(transformationRegistry, logger)
 
     // TODO: fix createRollEffectCatalog
@@ -117,6 +131,7 @@ export function createServices({
     })
 
     const variableResolver = createTriggerVariableResolver({
+        actorRepository,
         formulaEvaluator,
         logger
     })
@@ -135,7 +150,6 @@ export function createServices({
         transformationQueryService,
         variableResolver,
         stageChoiceResolver,
-        actorRepository,
         logger
     })
 
@@ -153,6 +167,7 @@ export function createServices({
         rollTableEffectResolver,
         triggerRuntime,
         actorQueryService,
-        transformationMutationGateway
+        transformationMutationGateway,
+        RollService
     })
 }

@@ -13,11 +13,13 @@ import { FiendGiftOfDamnationDialog } from "./fiendGiftOfDamnationDialog.js"
 
 export function createDialogFactory({
     activeEffectRepository,
+    itemRepository,
     controllers,
     viewModels,
     transformationService,
     transformationQueryService,
     actorQueryService,
+    advancementChoiceHandler,
     tracker,
     logger
 })
@@ -125,6 +127,7 @@ export function createDialogFactory({
     async function openTransformationGeneralChoiceDialog({
         actor,
         choices,
+        choiceCount = 1,
         description,
         title
     })
@@ -132,6 +135,7 @@ export function createDialogFactory({
         logger.debug("openTransformationGeneralChoiceDialog", {
             actor,
             choices,
+            choiceCount,
             description
         })
 
@@ -145,6 +149,7 @@ export function createDialogFactory({
         {
             const viewModel = viewModels.createTransformationGeneralChoiceViewModel({
                 choices,
+                choiceCount,
                 description,
                 title,
                 logger
@@ -171,7 +176,7 @@ export function createDialogFactory({
         })
     }
 
-    async function showItemInfoDialog({ item })
+    async function showItemInfoDialog({item})
     {
         logger.debug("openDamageTypeChoiceDialog", {
             item
@@ -185,8 +190,8 @@ export function createDialogFactory({
 
         return new Promise(resolve =>
         {
-            const viewModel = createItemInfoViewModel({ item, logger })
-            const controller = createItemInfoController({ resolve, logger })
+            const viewModel = createItemInfoViewModel({item, logger})
+            const controller = createItemInfoController({resolve, logger})
 
             const dialog = new ItemInfoDialog({
                 item,
@@ -214,25 +219,25 @@ export function createDialogFactory({
         {
 
             const viewModel =
-                createFeyExhaustionRecoveryViewModel({
-                    stage,
-                    exhaustion,
-                    hitDiceAvailable,
-                    logger
-                })
+                      createFeyExhaustionRecoveryViewModel({
+                          stage,
+                          exhaustion,
+                          hitDiceAvailable,
+                          logger
+                      })
 
             const controller =
-                createFeyExhaustionRecoveryController({
-                    resolve,
-                    logger
-                })
+                      createFeyExhaustionRecoveryController({
+                          resolve,
+                          logger
+                      })
 
             const dialog =
-                new FeyExhaustionRecoveryDialog({
-                    viewModel,
-                    controller,
-                    logger
-                })
+                      new FeyExhaustionRecoveryDialog({
+                          viewModel,
+                          controller,
+                          logger
+                      })
 
             dialog.render(true)
         })
@@ -255,19 +260,21 @@ export function createDialogFactory({
         return new Promise(resolve =>
         {
             const viewModel =
-                createFiendGiftOfDamnationViewModel({
-                    actor,
-                    stage,
-                    logger
-                })
+                      createFiendGiftOfDamnationViewModel({
+                          actor,
+                          stage,
+                          logger
+                      })
 
             const controller =
-                createFiendGiftOfDamnationController({
-                    actor,
-                    activeEffectRepository,
-                    resolve,
-                    logger
-                })
+                      createFiendGiftOfDamnationController({
+                          actor,
+                          activeEffectRepository,
+                          itemRepository,
+                          advancementChoiceHandler,
+                          resolve,
+                          logger
+                      })
 
             const dialog = new FiendGiftOfDamnationDialog({
                 viewModel,
@@ -290,10 +297,10 @@ export function createDialogFactory({
 
     function closeExistingDialog(dialog)
     {
-        logger.debug("createDialogFactory.closeExistingDialog", { dialog })
+        logger.debug("createDialogFactory.closeExistingDialog", {dialog})
         for (const app of Object.values(ui.windows)) {
             if (app instanceof dialog) {
-                app.close({ force: true })
+                app.close({force: true})
             }
         }
     }

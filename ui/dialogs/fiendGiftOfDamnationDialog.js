@@ -3,7 +3,25 @@ export class FiendGiftOfDamnationDialog
         foundry.applications.api.ApplicationV2
     )
 {
-    constructor ({ viewModel, controller, options = {}, logger = null })
+    static DEFAULT_OPTIONS = {
+        ...super.DEFAULT_OPTIONS,
+        classes: ["sheet", "dnd5e2", "standard-form", "fiend-gifts-dialog"],
+        window: {
+            title: "Gifts of Damnation",
+            width: 460,
+            height: "auto",
+            resizable: false
+        }
+    };
+    static PARTS = {
+        ...super.PARTS,
+        content: {
+            template:
+                "modules/transformations/scripts/templates/dialogs/fiend-gift-of-damnation-dialog.hbs"
+        }
+    };
+
+    constructor({viewModel, controller, options = {}, logger = null})
     {
         logger?.debug?.("FiendGiftOfDamnationDialog.constructor", {
             viewModel,
@@ -17,25 +35,6 @@ export class FiendGiftOfDamnationDialog
         this.controller = controller
         this.logger = logger
     }
-
-    static DEFAULT_OPTIONS = {
-        ...super.DEFAULT_OPTIONS,
-        classes: ["sheet", "dnd5e2", "standard-form", "fiend-gifts-dialog"],
-        window: {
-            title: "Gifts of Damnation",
-            width: 460,
-            height: "auto",
-            resizable: false
-        }
-    };
-
-    static PARTS = {
-        ...super.PARTS,
-        content: {
-            template:
-                "modules/transformations/scripts/templates/dialogs/fiend-gift-of-damnation-dialog.hbs"
-        }
-    };
 
     async _prepareContext()
     {
@@ -66,6 +65,11 @@ export class FiendGiftOfDamnationDialog
             await this.controller.confirm(value)
             this.close()
         })
+        select.addEventListener("change", () => {
+            this.updateDescription(root, select)
+        })
+
+        this.updateDescription(root, select)
     }
 
     async _onClose(options)
@@ -77,4 +81,14 @@ export class FiendGiftOfDamnationDialog
         await super._onClose(options)
         this.controller.cancel?.()
     }
+
+    updateDescription(root, select) {
+        const value = select.value
+        const descriptions = root.querySelectorAll('.fiend-gift-description')
+
+        descriptions.forEach(desc => {
+            desc.hidden = desc.dataset.giftValue !== value
+        });
+    }
+
 }

@@ -106,10 +106,9 @@
 }
 
 .choice-radio:has(input[type="radio"]:checked) {
-    box-shadow:
-        0 0 6px var(--dnd5e-color-gold),
-        0 0 12px var(--dnd5e-color-gold),
-        0 0 18px var(--dnd5e-color-gold);
+    box-shadow: 0 0 6px var(--dnd5e-color-gold),
+    0 0 12px var(--dnd5e-color-gold),
+    0 0 18px var(--dnd5e-color-gold);
     background: var(--pill-background-color);
     color: var(--dnd5e-color-gold);
     pointer-events: none;
@@ -227,11 +226,10 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
 
-    transition:
-        box-shadow 0.2s ease,
-        background-color 0.2s ease,
-        border-color 0.2s ease,
-        transform 0.1s ease;
+    transition: box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.1s ease;
 }
 
 /* Image on the left */
@@ -257,25 +255,24 @@
 }
 
 /* Checked glow */
-.transformation-radio:checked+.transformation-button {
+.transformation-radio:checked + .transformation-button {
     border-color: #c29a5b;
     background: linear-gradient(135deg,
-            #3a2f1f,
-            #2b2418);
-    box-shadow:
-        0 0 0 1px #c29a5b inset,
-        0 0 14px rgba(194, 154, 91, 0.6);
+    #3a2f1f,
+    #2b2418);
+    box-shadow: 0 0 0 1px #c29a5b inset,
+    0 0 14px rgba(194, 154, 91, 0.6);
     transform: translateY(-1px);
 }
 
 /* Image glow sync */
-.transformation-radio:checked+.transformation-button .transformation-image {
+.transformation-radio:checked + .transformation-button .transformation-image {
     opacity: 1;
     filter: drop-shadow(0 0 4px rgba(194, 154, 91, 0.8));
 }
 
 /* Keyboard focus */
-.transformation-radio:focus-visible+.transformation-button {
+.transformation-radio:focus-visible + .transformation-button {
     outline: 2px solid #c29a5b;
     outline-offset: 2px;
 }
@@ -348,6 +345,15 @@
 .choice-button:hover {
     animation: glow-pulse 1.5s infinite ease-in-out;
     background: var(--pill-background-color);
+}
+
+.choice-button[data-selected="true"] {
+    box-shadow: 0 0 6px var(--dnd5e-color-gold),
+    0 0 12px var(--dnd5e-color-gold),
+    0 0 18px var(--dnd5e-color-gold);
+    background: var(--pill-background-color);
+    color: var(--dnd5e-color-gold);
+    pointer-events: none;
 }
 
 .item-info-dialog {
@@ -424,11 +430,11 @@
     gap: 6px;
 }
 
-.fey-exhaustion-dialog .form-group>label {
+.fey-exhaustion-dialog .form-group > label {
     flex: 1
 }
 
-.fey-exhaustion-dialog .form-group>select {
+.fey-exhaustion-dialog .form-group > select {
     flex: 2;
     height: 2.5rem;
 }
@@ -468,21 +474,35 @@
     gap: 6px;
 }
 
-.fiend-gifts-dialog .form-group>label {
+.fiend-gifts-dialog .form-group > label {
     flex: 1;
 }
 
-.fiend-gifts-dialog .form-group>select {
+.fiend-gifts-dialog .form-group > select {
     flex: 2;
     height: 2.5rem;
 }
 
-.fiend-gifts-dialog .fiend-gift-descriptions {
-    margin-top: 12px;
+.fiend-gift-description-container {
+    max-height: 200px;
+    overflow-y: auto;
+
+    margin: 1.5rem 0 2rem;
+    padding: 1rem 1.4rem;
+
+    background: var(--pill-background-color);
+    border-radius: 6px;
+
+    max-width: 30rem;
+    align-self: anchor-center;
 }
 
-.fiend-gifts-dialog .fiend-gift-descriptions p {
-    margin: 0 0 8px;
+.fiend-gift-description h3 {
+    margin-top: 0;
+}
+
+.fiend-gift-description p {
+    margin-bottom: 0;
 }
 
 .fiend-gifts-dialog button[data-action="confirm"] {
