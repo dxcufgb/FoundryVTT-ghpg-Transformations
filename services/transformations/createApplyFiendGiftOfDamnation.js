@@ -2,17 +2,18 @@ export function createApplyFiendGiftOfDamnation({
     tracker,
     activeEffectRepository,
     advancementChoiceHandler,
-    getItems = () => game.items,
+    itemRepository,
     logger = null
 })
 {
     logger?.debug?.("createApplyFiendGiftOfDamnation", {
         tracker,
         activeEffectRepository,
-        advancementChoiceHandler
+        advancementChoiceHandler,
+        itemRepository
     })
 
-    return async function applyFiendGiftOfDamnation({
+    async function applyFiendGiftOfDamnation({
         actor,
         gift
     })
@@ -36,56 +37,60 @@ export function createApplyFiendGiftOfDamnation({
                     )
 
                 if (existingEffects.length) {
+                    const existingGiftIds = [
+                        ...new Set(
+                            existingEffects
+                                .map(effect =>
+                                    effect.flags?.transformations?.giftOfDamnationId
+                                )
+                                .filter(Boolean)
+                        )
+                    ]
+
+                    for (const giftId of existingGiftIds) {
+                        const linkedItemIds =
+                            actor.flags?.transformations?.fiend?.[giftId]?.itemIds
+
+                        if (Array.isArray(linkedItemIds) && linkedItemIds.length) {
+                            const existingItemIds = linkedItemIds.filter(itemId =>
+                                actor.items.get(itemId)
+                            )
+
+                            if (existingItemIds.length) {
+                                await actor.deleteEmbeddedDocuments(
+                                    "Item",
+                                    existingItemIds
+                                )
+                            }
+                        }
+
+                        await actor.update({
+                            [`flags.transformations.fiend.-=${giftId}`]: null
+                        })
+                    }
+
                     await activeEffectRepository.removeByIds(
                         actor,
                         existingEffects.map(effect => effect.id)
                     )
-
-                    const items = getItems().filter(item =>
-                        item.flags?.transformations?.createdBy === "giftOfDamnation" &&
-                        item.flags?.transformations?.tempItem === true
-                    )
-
-                    for (const item of items) {
-                        await item.delete()
-                    }
-
-                    const key =
-                        existingEffects[0].flags.transformations.giftOfDamnationId
-
-                    await actor.update({
-                        [`flags.transformations.fiend.-=${key}`]: null
-                    })
                 }
 
-                const changesToApply =
-                    typeof gift.GiftClass.changes === "function"
-                        ? await gift.GiftClass.changes({
-                            actor,
-                            advancementChoiceHandler
-                        })
-                        : gift.GiftClass.changes
+                if (typeof gift.GiftClass.apply !== "function") {
+                    return null
+                }
 
-                const description =
-                    gift.GiftClass.overridenDescription ??
-                    gift.GiftClass.description
-
-                return activeEffectRepository.create({
+                return gift.GiftClass.apply({
                     actor,
-                    name: gift.label,
-                    description,
-                    changes: changesToApply,
-                    source: "giftOfDamnation",
-                    origin: actor?.uuid ?? "",
-                    flags: {
-                        transformations: {
-                            giftOfDamnation: true,
-                            giftOfDamnationId: gift.id
-                        }
-                    },
-                    icon: "modules/transformations/Icons/Transformations/Fiend/Devilish_Contractor.png"
+                    itemRepository,
+                    advancementChoiceHandler
                 })
             })()
         )
     }
+
+    return Object.freeze(
+        Object.assign(applyFiendGiftOfDamnation, {
+            whenIdle: tracker.whenIdle
+        })
+    )
 }

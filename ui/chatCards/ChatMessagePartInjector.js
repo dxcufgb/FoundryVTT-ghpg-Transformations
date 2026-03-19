@@ -70,9 +70,11 @@ export class ChatMessagePartInjector
     {
         await this.replace({
             message,
-            selector: "[data-transformations-card]",
+            selector: CARD_SELECTOR,
             template,
             templateData
         })
     }
 }
+
+const CARD_SELECTOR = "[data-transformations-card], .gift-of-damnation-card"

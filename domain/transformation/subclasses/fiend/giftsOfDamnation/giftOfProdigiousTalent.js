@@ -1,59 +1,56 @@
+import { applyGiftOfDamnation } from "./applyGiftOfDamnation.js"
+
 export class GiftOfProdigiousTalent
 {
     static id = "giftOfProdigiousTalent"
+    static label = "Gift of Prodigious Talent"
+    static itemUuid = "Compendium.transformations.gh-transformations.Item.LgnU3mYSWiHXTLJO"
     static stage = 1
     static description = "Choose two Skills. Gain Expertise in the chosen skills. \n\n If you roll a 1 or 2 on an Ability Check using one of the chosen skills, you immediately lose half your maximum number of Hit Point Dice, rounded down.You do not regain Hit Point Dice lost this way until you finish two Long Rests."
-    overridenDescription
 
-    static async changes({actor, advancementChoiceHandler}) {
-        const itemUuid = "Compendium.transformations.gh-transformations.Item.LgnU3mYSWiHXTLJO"
-        const pack = game.packs.get("transformations.temp-items")
-        await pack.getIndex()
+    static async apply({actor, itemRepository, advancementChoiceHandler}) {
+        const sourceItem = this.itemUuid
+            ? await fromUuid(this.itemUuid)
+            : null
+        if (!sourceItem) return null
 
-        const sourceItem = await fromUuid(itemUuid)
-        if (!sourceItem) return
-
-        const choices = await advancementChoiceHandler.choose({
+        const choices = await advancementChoiceHandler?.choose({
             actor,
             advancementChoices: ['skills:*'],
             numberOfChoices: 2,
             sourceItem,
             apply: false
         })
+        if (!Array.isArray(choices) || choices.length !== 2) {
+            return null
+        }
 
-        const itemData = foundry.utils.deepClone(sourceItem.toObject())
-        this.overridenDescription = `If you roll a 1 or 2 on an Ability Check using ${choices[0].label} or ${choices[1].label}, you immediately lose half your maximum number of Hit Point Dice, rounded down. You do not regain Hit Point Dice lost this way until you finish two Long Rests.`
-        itemData.system.description.value = this.overridenDescription
-        const flagPath = `flags.transformations.fiend.${this.id}`
-        await actor.update({
-            [flagPath]: {
+        const [firstChoice, secondChoice] = choices
+        const description =
+            `If you roll a 1 or 2 on an Ability Check using ` +
+            `${firstChoice.label} or ${secondChoice.label}, you immediately lose ` +
+            `half your maximum number of Hit Point Dice, rounded down. ` +
+            `You do not regain Hit Point Dice lost this way until you finish two Long Rests.`
+
+        return applyGiftOfDamnation({
+            actor,
+            giftClass: this,
+            itemRepository,
+            sourceItem,
+            itemOptions: {
+                applyAdvancements: false,
+                "system.advancement": [],
+                "system.description.value": description
+            },
+            changes: choices.flatMap(choice => choice.changes ?? []),
+            description,
+            flagData: {
                 skills: [
-                    choices[0].skillIdentifier,
-                    choices[1].skillIdentifier
+                    firstChoice.skillIdentifier,
+                    secondChoice.skillIdentifier
                 ],
                 longRestsLeftUntilFullHitDieRestoration: 0
             }
         })
-        const tempItem = await await pack.documentClass.create(itemData, {
-            pack: pack.collection
-        })
-
-        await tempItem.update({
-            "flags.transformations.tempItem": true,
-            "flags.transformations.createdBy": "giftOfDamnation"
-        })
-
-        const changes = []
-
-        changes.push({
-            key: "macro.createItem",
-            mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-            value: tempItem.uuid
-        })
-
-        for (const choice of choices) {
-            changes.push(choice.changes[0])
-        }
-        return changes
     }
 }

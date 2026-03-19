@@ -11,13 +11,13 @@ import { waitForCondition } from "../../helpers/waitForCondition.js"
 import { waitForDomainStability } from "../../helpers/waitForDomainStability.js"
 import { setupTest } from "../../testLifecycle.js"
 import { chooseDamageResistanceOnStage1 } from "../../helpers/fiend/chooseDamageResistanceOnStage1.js";
+import { createChatCardTestHelper, createDeterministicRollHelper } from "../../helpers/index.js";
 
 export function runTransformationTestSuite({
     mochaFunctions,
     testDef
 })
 {
-
     const {describe, it, assert, expect} = mochaFunctions
     const helpers = {
         getCharacterClass,
@@ -26,6 +26,8 @@ export function runTransformationTestSuite({
         expectRaceItemSubTypeOnActor,
         validateAllD20Disadvantage,
         getPreRollSavingThrowContext,
+        createChatCardTestHelper,
+        createDeterministicRollHelper,
         fey: {
             chooseDamageResistanceOnLongRest
         },
@@ -176,6 +178,7 @@ export function runTransformationTestSuite({
             let actor
             let runtime
             let transformationDef
+            let staticVars = {}
 
             beforeEach(async function ()
             {
@@ -211,6 +214,7 @@ export function runTransformationTestSuite({
                     "type"
                 ) != transformationDef.id) throw new Error(`Transformation type not set to ${transformationDef.id} in beforeEach`)
                 globalThis.___TransformationTestEnvironment___ = {}
+                staticVars = {}
             })
             for (const behavior of testDef.itemBehaviorTests ?? []) {
 
@@ -231,7 +235,7 @@ export function runTransformationTestSuite({
                     {
 
                         if (behavior.setup) {
-                            await behavior.setup({actor, helpers, loopVars})
+                            await behavior.setup({actor, helpers, loopVars, staticVars})
                         }
 
                         for (const step of behavior.requiredPath ?? []) {
@@ -261,23 +265,25 @@ export function runTransformationTestSuite({
                         }
 
                         const expectedUuid =
-                                  typeof behavior.uuid === "function"
-                                      ? behavior.uuid(loopVars)
-                                      : behavior.uuid
+                            typeof behavior.uuid === "function"
+                                ? behavior.uuid(loopVars)
+                                : behavior.uuid
 
-                        const hasItem = actor.items.some(i =>
-                            i.flags?.transformations?.sourceUuid === expectedUuid
-                        )
-
-                        if (!hasItem) {
-                            throw new Error(
-                                `Item ${behavior.name} (${expectedUuid}) not present on actor`
+                        if (expectedUuid) {
+                            const hasItem = actor.items.some(i =>
+                                i.flags?.transformations?.sourceUuid === expectedUuid
                             )
+
+                            if (!hasItem) {
+                                throw new Error(
+                                    `Item ${behavior.name} (${expectedUuid}) not present on actor`
+                                )
+                            }
                         }
 
                         if (behavior.steps) {
                             for (const step of behavior.steps) {
-                                await step({actor, runtime, helpers, waiters, loopVars})
+                                await step({actor, runtime, helpers, waiters, loopVars, staticVars})
                             }
                         }
 
@@ -295,7 +301,9 @@ export function runTransformationTestSuite({
                                 actor,
                                 runtime,
                                 waiters,
-                                loopVars
+                                helpers,
+                                loopVars,
+                                staticVars
                             })
                         }
 
@@ -306,7 +314,9 @@ export function runTransformationTestSuite({
                                 assert,
                                 runtime,
                                 helpers,
-                                loopVars
+                                waiters,
+                                loopVars,
+                                staticVars
                             })
                         }
                     })

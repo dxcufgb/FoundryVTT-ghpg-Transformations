@@ -17,6 +17,15 @@ export class Fiend extends Transformation {
     static uuid = "Compendium.transformations.gh-transformations.Item.zpVEJPFBfdqC5sQH";
     static giftsOfDamnations = giftsOfDamnation
 
+    static resolveGiftEntry(activity) {
+        const giftId = activity?.flags?.transformations?.gift
+
+        return this.giftsOfDamnations.find(gift =>
+            gift.id === giftId ||
+            gift.label === activity?.name
+        ) ?? null
+    }
+
     static async getInfernalSmiteDamageType(workflow, rolls) {
         const item = workflow.item
         const actor = workflow.actor
@@ -63,16 +72,19 @@ export class Fiend extends Transformation {
         logger
     })
     {
+        const root = resolveHtmlRoot(html)
+        if (!root) return
 
         const activityData = message?.flags?.dnd5e?.activity
         if (!activityData) return
 
         const activity = await fromUuid(activityData.uuid)
         if (!activity) return
+        const giftEntry = this.resolveGiftEntry(activity)
         
         if (!actor.isOwner) return
 
-        if (activity.flags?.transformations?.gift) {
+        if (giftEntry) {
 
             ChatCardActionBinder.bind({
                 message,
@@ -85,7 +97,7 @@ export class Fiend extends Transformation {
             })
         } else {
 
-            const container = html?.querySelector(".midi-buttons")
+            const container = root.querySelector(".midi-buttons, .midi-dnd5e-buttons")
             if (!container) return
 
             switch (activity?.name) {
@@ -102,11 +114,7 @@ export class Fiend extends Transformation {
     }
 
     static async onActivityUse(activity, usage, message, actorRepository, ChatMessagePartInjector) {
-        if (!activity.flags?.transformations?.gift) return
-
-        const giftEntry = this.giftsOfDamnations
-        .find(g => g.id === activity.flags.transformations.gift)
-
+        const giftEntry = this.resolveGiftEntry(activity)
         if (!giftEntry) return
 
         const GiftClass = giftEntry.GiftClass
@@ -120,4 +128,12 @@ export class Fiend extends Transformation {
             ChatMessagePartInjector
         })
     }
+}
+
+function resolveHtmlRoot(html)
+{
+    if (!html) return null
+    if (typeof html.querySelector === "function") return html
+    if (typeof html[0]?.querySelector === "function") return html[0]
+    return null
 }

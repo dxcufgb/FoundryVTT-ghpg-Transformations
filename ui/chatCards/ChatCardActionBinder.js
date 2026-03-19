@@ -10,8 +10,12 @@ export class ChatCardActionBinder {
         logger
     })
     {
+        const root = resolveHtmlRoot(html)
+        if (!root) return
 
-        const card = html.querySelector("[data-transformations-card]")
+        const card = root.matches?.(CARD_SELECTOR)
+            ? root
+            : root.querySelector?.(CARD_SELECTOR)
         if (!card) return
 
         const giftId = card.dataset.gift
@@ -41,7 +45,11 @@ export class ChatCardActionBinder {
                 return
             }
 
-            const actor = game.actors.get(message.speaker.actor)
+            const actor = await resolveActor({
+                message,
+                button,
+                actorRepository
+            })
             if (!actor) return
 
             logger?.debug?.("Gift action triggered", {
@@ -63,3 +71,52 @@ export class ChatCardActionBinder {
         })
     }
 }
+
+function resolveHtmlRoot(html)
+{
+    if (!html) return null
+    if (typeof html.querySelector === "function") return html
+    if (typeof html[0]?.querySelector === "function") return html[0]
+    return null
+}
+
+async function resolveActor({
+    message,
+    button,
+    actorRepository
+})
+{
+    const messageActorId = message?.speaker?.actor
+    if (messageActorId) {
+        const actor = game.actors.get(messageActorId)
+        if (actor) return actor
+    }
+
+    const chatCard = button?.closest?.(".chat-card")
+    const cardActorId = chatCard?.dataset?.actorId
+    if (cardActorId) {
+        const actor = game.actors.get(cardActorId)
+        if (actor) return actor
+    }
+
+    const cardActorUuid = chatCard?.dataset?.actorUuid
+    if (cardActorUuid) {
+        const actor =
+            typeof actorRepository?.getByUuid === "function"
+                ? await actorRepository.getByUuid(cardActorUuid)
+                : await fromUuid(cardActorUuid)
+
+        if (actor) return actor
+    }
+
+    const itemUuid = message?.flags?.dnd5e?.item?.uuid
+    if (itemUuid) {
+        const item = await fromUuid(itemUuid)
+        const actor = item?.actor ?? null
+        if (actor) return actor
+    }
+
+    return null
+}
+
+const CARD_SELECTOR = "[data-transformations-card], .gift-of-damnation-card"

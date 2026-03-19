@@ -1,15 +1,26 @@
+import { applyGiftOfDamnation } from "./applyGiftOfDamnation.js"
+
 export class GiftOfUnsurpassedFortune
 {
     static id = "giftOfUnsurpassedFortune"
+    static label = "Gift of Unsurpassed Fortune"
+    static itemUuid = "Compendium.transformations.gh-transformations.Item.97GBQgFFed1p1vMJ"
     static stage = 1
     static description = "When an enemy you can see within 10 feet succeeds on an attack roll or a saving throw, you can use your Reaction to roll d20. On a 6 or higher, the triggering attack or save misses or fails, and you regain the use of your Reaction. Otherwise, you take 1d6 Psychic damage per Transformation Stage, which cannot be reduced. You regain your use of this ability when you finish a Long Rest."
-    static changes = [
-        {
-            key: "macro.createItem",
-            mode: 0,
-            value: "Compendium.transformations.gh-transformations.Item.97GBQgFFed1p1vMJ"
-        }
-    ]
+
+    static async apply({actor, itemRepository}) {
+        const sourceItem = this.itemUuid
+            ? await fromUuid(this.itemUuid)
+            : null
+
+        return applyGiftOfDamnation({
+            actor,
+            giftClass: this,
+            itemRepository,
+            sourceItem,
+            changes: []
+        })
+    }
 
     static actions = {
 
@@ -118,7 +129,7 @@ export class GiftOfUnsurpassedFortune
                 rollFormula: "1d20",
                 damageType: null
             },
-            selector: ".midi-buttons",
+            selector: ".midi-buttons, .midi-dnd5e-buttons",
             position: "afterbegin"
         })
     }

@@ -90,7 +90,7 @@ export function createItemRepository({
                     }
                 }
 
-                const created = createObjectOnActor(actor, sourceItem)
+                const created = await createObjectOnActor(actor, sourceItem)
                 return created ?? null
             })()
         )
@@ -170,7 +170,7 @@ export function createItemRepository({
                     return null
                 }
 
-                const created = createObjectOnActor(actor, source)
+                const created = await createObjectOnActor(actor, source)
 
                 logger?.trace?.(
                     "Transformation item added",
@@ -194,7 +194,7 @@ export function createItemRepository({
         return tracker.track(
             (async () =>
             {
-                const created = createObjectOnActor(actor, itemData)
+                const created = await createObjectOnActor(actor, itemData)
                 return created ?? null
             })()
         )
@@ -403,6 +403,7 @@ export function createItemRepository({
         addTransformationItem,
         addItemFromUuid,
         addItemAttachedToActiveEffect,
+        createObjectOnActor,
         removeTransformationItems,
         createEmbedded,
         deleteEmbedded,
@@ -465,32 +466,82 @@ export function createItemRepository({
         }
     }
 
-    async function createObjectOnActor(actor, sourceItem, awardedByItem = "", extraOptions = {})
+    async function createObjectOnActor(actor, sourceItem, parentItem = "", options = {})
     {
-        const data = sourceItem.toObject()
-        data.flags ??= {}
+        logger.debug("itemRepository.createObjectOnActor", {
+            actor,
+            sourceItem,
+            parentItem,
+            options
+        })
+        if (!actor || !sourceItem) return null
 
-        data.flags.transformations = {
-            sourceUuid: sourceItem.uuid,
-            definitionId: actor.flags.transformations.type,
-            stage: actor.flags.transformations.stage,
-            addedByTransformation: true,
-            awardedByItem: awardedByItem
-        }
+        return tracker.track(
+            (async () =>
+            {
+                const {
+                    setTransformationFlags = true,
+                    setDdbImporterFlag = true,
+                    applyAdvancements: shouldApplyAdvancements = true,
+                    overrides = {},
+                    ...propertyOverrides
+                } = options ?? {}
 
-        data.flags.ddbimporter = {ignoreItemImport: true}
+                const data =
+                    typeof sourceItem?.toObject === "function"
+                        ? foundry.utils.deepClone(sourceItem.toObject())
+                        : foundry.utils.deepClone(sourceItem)
+                if (!data || typeof data !== "object") return null
 
-        for (const [path, value] of Object.entries(extraOptions)) {
-            foundry.utils.setProperty(data, path, value)
-        }
+                data.flags ??= {}
 
-        debouncedTracker.pulse("createEmbeddedDocuments")
-        const [created] = await actor.createEmbeddedDocuments("Item", [data])
+                if (setTransformationFlags) {
+                    data.flags.transformations = {
+                        ...(data.flags.transformations ?? {}),
+                        sourceUuid: sourceItem.uuid,
+                        definitionId: actor.flags?.transformations?.type,
+                        stage: actor.flags?.transformations?.stage,
+                        addedByTransformation: true,
+                        awardedByItem:
+                            typeof parentItem === "string"
+                                ? parentItem
+                                : parentItem?.uuid ?? ""
+                    }
+                }
 
-        if (created && data.system.advancement && data.system.advancement.length > 0) {
-            await applyAdvancements(actor, data.system.advancement, created)
-        }
+                if (setDdbImporterFlag) {
+                    data.flags.ddbimporter = {
+                        ...(data.flags.ddbimporter ?? {}),
+                        ignoreItemImport: true
+                    }
+                }
 
-        return created
+                const resolvedOverrides = {
+                    ...propertyOverrides,
+                    ...foundry.utils.deepClone(overrides ?? {})
+                }
+
+                for (const [path, value] of Object.entries(resolvedOverrides)
+                    .sort(([leftPath], [rightPath]) =>
+                        leftPath.localeCompare(rightPath)
+                    )) {
+                    foundry.utils.setProperty(data, path, value)
+                }
+
+                debouncedTracker.pulse("createEmbeddedDocuments")
+                const [created] = await actor.createEmbeddedDocuments("Item", [data])
+
+                if (
+                    created &&
+                    shouldApplyAdvancements &&
+                    Array.isArray(data.system?.advancement) &&
+                    data.system.advancement.length > 0
+                ) {
+                    await applyAdvancements(actor, data.system.advancement, created)
+                }
+
+                return created ?? null
+            })()
+        )
     }
 }

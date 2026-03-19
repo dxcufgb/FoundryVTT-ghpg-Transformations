@@ -149,6 +149,7 @@ export function createServices({
         tracker: trackers.services,
         activeEffectRepository,
         advancementChoiceHandler,
+        itemRepository,
         logger
     })
 

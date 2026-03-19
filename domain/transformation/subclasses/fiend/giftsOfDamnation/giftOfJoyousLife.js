@@ -1,15 +1,27 @@
+import { applyGiftOfDamnation } from "./applyGiftOfDamnation.js"
+
 export class GiftOfJoyousLife
 {
     static id = "giftOfJoyousLife"
+    static label = "Gift of Joyous Life"
+    static itemUuid = "Compendium.transformations.gh-transformations.Item.zzXZ3tex07ScSN5L"
     static stage = 1
     static description = "At the beginning of your turn, if you are Bloodied, you can choose to roll a Hit Point Die (no action required) and regain a number of Hit Points equal to the roll. If you roll a 1 on this die, you regain no Hit points and take 1 point of Force damage instead. You regain this ability when you finish a Short or Long Rest."
-    static changes = [
-        {
-            key: "macro.createItem",
-            mode: 0,
-            value: "Compendium.transformations.gh-transformations.Item.zzXZ3tex07ScSN5L"
-        }
-    ]
+
+    static async apply({actor, itemRepository}) {
+        const sourceItem = this.itemUuid
+            ? await fromUuid(this.itemUuid)
+            : null
+
+        return applyGiftOfDamnation({
+            actor,
+            giftClass: this,
+            itemRepository,
+            sourceItem,
+            changes: []
+        })
+    }
+
     static actions = {
 
         async rollHitDie({actor, message, actorRepository, RollService, ChatMessagePartInjector}) {
@@ -111,7 +123,7 @@ export class GiftOfJoyousLife
                     tooltip: null,
                     hitDie
                 },
-                selector: ".midi-buttons",
+                selector: ".midi-buttons, .midi-dnd5e-buttons",
                 position: "afterbegin"
             })
         }
