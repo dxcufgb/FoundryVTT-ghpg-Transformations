@@ -15,6 +15,7 @@ import { createActionHandlers } from "../services/actions/handlers/index.js"
 import { createTriggerVariableResolver } from "../services/triggers/createTriggerVariableResolver.js"
 import { createFormulaEvaluator } from "../services/formulas/createFormulaEvaluator.js"
 import { createStageChoiceResolver } from "../domain/transformation/createStageChoiceResolver.js"
+import { createApplyFiendGiftOfDamnation } from "../services/transformations/createApplyFiendGiftOfDamnation.js"
 import { RollService } from "../services/rolls/RollService.js";
 
 export function createServices({
@@ -43,7 +44,8 @@ export function createServices({
               socketGateway,
               localMutationAdapter,
               notifier,
-              requiresService
+              requiresService,
+              advancementChoiceHandler
           } = infrastructure
     const trackers = {
         repositories: utils.asyncTrackers.get("repositories"),
@@ -143,6 +145,13 @@ export function createServices({
         logger
     })
 
+    const applyFiendGiftOfDamnation = createApplyFiendGiftOfDamnation({
+        tracker: trackers.services,
+        activeEffectRepository,
+        advancementChoiceHandler,
+        logger
+    })
+
     const transformationService = createTransformationService({
         tracker: trackers.services,
         actorRepository,
@@ -168,6 +177,7 @@ export function createServices({
         triggerRuntime,
         actorQueryService,
         transformationMutationGateway,
+        applyFiendGiftOfDamnation,
         RollService
     })
 }

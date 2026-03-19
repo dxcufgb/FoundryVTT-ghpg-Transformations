@@ -250,18 +250,23 @@ export function createAdvancementChoiceHandler({
             return null
         }
 
-        const selectedChoice = await promptForChoice({
-            actor,
-            dialogFactory,
-            choices: resolvedChoices,
-            choiceCount,
-            description:
-                choicePresentation?.description ??
-                description,
-            title:
-                choicePresentation?.title ??
-                title
-        })
+        let selectedChoice = null
+        if (!globalThis.___TransformationTestEnvironment___?.choosenAdvancement?.find(a => a.name == sourceItem.name)) {
+            selectedChoice = await promptForChoice({
+                actor,
+                dialogFactory,
+                choices: resolvedChoices,
+                choiceCount,
+                description:
+                    choicePresentation?.description ??
+                    description,
+                title:
+                    choicePresentation?.title ??
+                    title
+            })
+        } else {
+            selectedChoice = globalThis.___TransformationTestEnvironment___.choosenAdvancement.find(a => a.name == sourceItem.name).choice
+        }
 
         if (!selectedChoice) {
             return false

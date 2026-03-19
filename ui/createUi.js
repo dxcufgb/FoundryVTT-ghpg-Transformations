@@ -35,12 +35,15 @@ export function createUi({
         tracker,
         debouncedTracker
     })
-    const {transformationService, transformationQueryService, actorQueryService} = services
+    const {
+        transformationService,
+        transformationQueryService,
+        actorQueryService,
+        applyFiendGiftOfDamnation
+    } = services
 
     const dialogs = createDialogFactory({
-        activeEffectRepository: infrastructure.activeEffectRepository,
-        itemRepository: infrastructure.itemRepository,
-        advancementChoiceHandler: infrastructure.advancementChoiceHandler,
+        applyFiendGiftOfDamnation,
         viewModels: {
             createTransformationConfigViewModel,
             createTransformationStageChoiceViewModel,

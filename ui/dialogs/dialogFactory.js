@@ -12,20 +12,18 @@ import { createFiendGiftOfDamnationController } from "../controllers/fiendGiftOf
 import { FiendGiftOfDamnationDialog } from "./fiendGiftOfDamnationDialog.js"
 
 export function createDialogFactory({
-    activeEffectRepository,
-    itemRepository,
+    applyFiendGiftOfDamnation,
     controllers,
     viewModels,
     transformationService,
     transformationQueryService,
     actorQueryService,
-    advancementChoiceHandler,
     tracker,
     logger
 })
 {
     logger.debug("createDialogFactory", {
-        activeEffectRepository,
+        applyFiendGiftOfDamnation,
         controllers,
         viewModels,
         transformationService,
@@ -269,9 +267,7 @@ export function createDialogFactory({
             const controller =
                       createFiendGiftOfDamnationController({
                           actor,
-                          activeEffectRepository,
-                          itemRepository,
-                          advancementChoiceHandler,
+                          applyFiendGiftOfDamnation,
                           resolve,
                           logger
                       })

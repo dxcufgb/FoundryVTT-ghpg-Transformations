@@ -1,5 +1,6 @@
 import { validate } from "../../../helpers/DTOValidators/validate.js"
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js"
+import { giftsOfDamnation } from "../../../../domain/transformation/subclasses/fiend/giftsOfDamnation/index.js";
 
 export const fiendTestDef = {
     id: "fiend",
@@ -179,56 +180,79 @@ export const fiendTestDef = {
     ],
 
     itemBehaviorTests: [
-        // {
-        //     name: (vars) => `Gift of Joyous Life`,
-        //
-        //     setup: async ({actor}) =>
-        //     {
-        //         await actor.update({
-        //             "flags.transformations.stageChoices": {
-        //                 "fiend": {
-        //                     1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf"
-        //                 }
-        //             }
-        //         })
-        //     },
-        //
-        //     requiredPath: [
-        //         {
-        //             stage: 1
-        //         }
-        //     ],
-        //
-        //     steps: [
-        //         async ({actor, runtime, helpers, waiters, loopVars}) =>
-        //         {
-        //             await helpers.fiend.chooseDamageResistanceOnStage1({
-        //                 waiters,
-        //                 runtime,
-        //                 actor,
-        //                 choice: loopVars.damageType
-        //             })
-        //         }
-        //     ],
-        //
-        //     await: async ({
-        //         waiters,
-        //         actor
-        //     }) =>
-        //     {
-        //         await waiters.waitForCondition(() =>
-        //             actor.system.traits.dr.value.has("cold")
-        //         )
-        //     },
-        //
-        //     assertions: async ({actor, assert, validators}) =>
-        //     {
-        //         const actorDto = new ActorValidationDTO(actor)
-        //         actorDto.stats.resistances = ["cold"]
-        //         actorDto.effects.has.push("Fey Form Resistance")
-        //         validate(actorDto, {assert})
-        //     }
-        // }
+        {
+            name: `Gift of Joyous Life`,
+
+            setup: async ({actor}) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf"
+                        }
+                    }
+                })
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Fiendish Soul",
+                        choice: {
+                            icon: "modules/transformations/icons/damageTypes/Acid.png",
+                            id: "acid",
+                            label: "Acid",
+                            raw: "dr:acid",
+                            value: "acid"
+                        }
+                    }
+                ]
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, loopVars}) =>
+                {
+                    actor.system.attributes.hp.value = actor.system.attributes.hp.max / 2
+                    const gift = giftsOfDamnation.find(entry => entry.id === "giftOfJoyousLife")
+                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+                    console.log(actor.effects)
+                    console.log(actor.effects.contents.map(e => e.changes))
+                    await waiters.waitForDomainStability({
+                        actor,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                    })
+                    await waiters.waitForNextFrame()
+                    await waiters.waitForCondition(() =>
+                        actor.items.some(i => i.name === "Gift of Joyous Life")
+                    )
+                    const giftOfJoyousLife = actor.items.find(i => i.name == "Gift of Joyous Life")
+                    // await giftOfJoyousLife.use()
+                    const activity = giftOfJoyousLife.system.activities.find(a => a.name == "Gift of Joyous Life")
+                    await activity.use({actor})
+                }
+            ],
+
+            await: async ({
+                waiters,
+                actor
+            }) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.system.traits.dr.value.has("acid")
+                )
+            },
+
+            assertions: async ({actor, assert, validators}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.stats.resistances = ["cold"]
+                actorDto.effects.has.push("Fey Form Resistance")
+                validate(actorDto, {assert})
+            }
+        }
 
     ]
 }
