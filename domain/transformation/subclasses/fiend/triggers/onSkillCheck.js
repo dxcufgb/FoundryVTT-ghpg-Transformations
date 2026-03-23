@@ -1,5 +1,5 @@
-export const onAbilityCheck = {
-    name: "abilityCheck",
+export const onSkillCheck = {
+    name: "skillCheck",
 
     variables: [
         {
@@ -14,7 +14,7 @@ export const onAbilityCheck = {
             name: "prodigious-talent-check",
             when: {
                 custom: {
-                    abilityCheck: {
+                    checks: {
                         current: {
                             naturalRoll: [1, 2]
                         }
@@ -29,8 +29,8 @@ export const onAbilityCheck = {
                     type: "ACTOR_FLAG",
                     data: {
                         mode: "check",
-                        path: "flags.transformations.fiend.giftOfProdigiousTalent",
-                        valuePath: "@context.abilityCheck.current.skill",
+                        path: "flags.transformations.fiend.giftOfProdigiousTalent.skills",
+                        valuePath: "@context.checks.current.skill",
                         blocker: true
                     }
                 },
@@ -39,7 +39,7 @@ export const onAbilityCheck = {
                     data: {
                         mode: "set",
                         path: "flags.transformations.fiend.giftOfProdigiousTalent.longRestsLeftUntilFullHitDieRestoration",
-                        valuePath: "@tempHitDieMax"
+                        value: 2
                     }
                 },
                 {

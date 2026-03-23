@@ -1,4 +1,4 @@
-import { applyItemActivityEffect, expectItemsOnActor, expectRaceItemSubTypeOnActor, getCharacterClass, validateAllD20Disadvantage } from "../../helpers/actors.js"
+import { applyItemActivityEffect, createActorItemAndWait, expectItemsOnActor, expectRaceItemSubTypeOnActor, getCharacterClass, validateAllD20Disadvantage } from "../../helpers/actors.js"
 import { advanceStageAndChoose } from "../../helpers/adcanceStageAndExpectchoiceDialog.js"
 import { advanceStageAndWait } from "../../helpers/advanceStageAndWait.js"
 import { expectAsyncWork } from "../../helpers/async/expectAsyncWork.js"
@@ -28,6 +28,7 @@ export function runTransformationTestSuite({
         getPreRollSavingThrowContext,
         createChatCardTestHelper,
         createDeterministicRollHelper,
+        createActorItemAndWait,
         fey: {
             chooseDamageResistanceOnLongRest
         },
@@ -265,9 +266,9 @@ export function runTransformationTestSuite({
                         }
 
                         const expectedUuid =
-                            typeof behavior.uuid === "function"
-                                ? behavior.uuid(loopVars)
-                                : behavior.uuid
+                                  typeof behavior.uuid === "function"
+                                      ? behavior.uuid(loopVars)
+                                      : behavior.uuid
 
                         if (expectedUuid) {
                             const hasItem = actor.items.some(i =>

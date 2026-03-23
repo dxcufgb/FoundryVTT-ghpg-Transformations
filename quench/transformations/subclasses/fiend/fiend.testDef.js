@@ -1,6 +1,45 @@
 import { validate } from "../../../helpers/DTOValidators/validate.js"
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js"
 import { giftsOfDamnation } from "../../../../domain/transformation/subclasses/fiend/giftsOfDamnation/index.js";
+import { SKILL } from "../../../../config/constants.js";
+
+function allowMockRollMessageUpdates(message)
+{
+    if (!message || message.__mockRollsEnabled) {
+        return
+    }
+
+    const originalUpdate = message.update.bind(message)
+
+    Object.defineProperty(message, "__mockRollsEnabled", {
+        configurable: true,
+        enumerable: false,
+        writable: true,
+        value: true
+    })
+
+    message.update = async function update(data = {}, ...args)
+    {
+        if (Array.isArray(data?.rolls)) {
+            Object.defineProperty(this, "rolls", {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value: data.rolls
+            })
+
+            const {rolls, ...remaining} = data
+
+            if (Object.keys(remaining).length === 0) {
+                return this
+            }
+
+            return originalUpdate(remaining, ...args)
+        }
+
+        return originalUpdate(data, ...args)
+    }
+}
 
 export const fiendTestDef = {
     id: "fiend",
@@ -181,6 +220,146 @@ export const fiendTestDef = {
 
     itemBehaviorTests: [
         {
+            name: `Gift of Joyous Life, save Success`,
+
+            setup: async ({actor}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf"
+                        }
+                    }
+                })
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Fiendish Soul",
+                        choice: {
+                            icon: "modules/transformations/icons/damageTypes/Acid.png",
+                            id: "acid",
+                            label: "Acid",
+                            raw: "dr:acid",
+                            value: "acid"
+                        }
+                    }
+                ]
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars}) =>
+                {
+                    staticVars.initialMessageCount = game.messages.contents.length
+                    await actor.update({
+                        "system.attributes.hp.value": (actor.system.attributes.hp.max / 2) - 1
+                    })
+                    staticVars.initialHp = actor.system.attributes.hp.value
+
+                    const gift = giftsOfDamnation.find(entry => entry.id === "giftOfJoyousLife")
+                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+
+                    await waiters.waitForDomainStability({
+                        actor,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                    })
+                    await waiters.waitForNextFrame()
+                    await waiters.waitForCondition(() =>
+                        actor.items.some(i => i.name === "Gift of Joyous Life")
+                    )
+                    const giftOfJoyousLife = actor.items.find(i => i.name == "Gift of Joyous Life")
+                    const activity = giftOfJoyousLife.system.activities.find(a => a.name == "Gift of Joyous Life")
+                    await activity.use({actor})
+
+                    await waiters.waitForCondition(() =>
+                        game.messages.contents.length > staticVars.initialMessageCount
+                    )
+
+                    staticVars.message = game.messages.contents.at(-1)
+                    allowMockRollMessageUpdates(staticVars.message)
+                    staticVars.chatCardHelper = helpers.createChatCardTestHelper({
+                        message: staticVars.message
+                    })
+                }
+            ],
+
+            await: async ({
+                waiters,
+                staticVars
+            }) =>
+            {
+                await staticVars.chatCardHelper.waitForCard()
+                await staticVars.chatCardHelper.waitForButton({
+                    text: "Roll Hit Die"
+                })
+            },
+
+            assertions: async ({actor, expect, waiters, helpers, staticVars}) =>
+            {
+                const {chatCardHelper} = staticVars
+                const rollHelper = helpers.createDeterministicRollHelper()
+
+                try {
+                    const card = chatCardHelper.getCardElement({require: true})
+
+                    expect(card, "Gift of Joyous Life chat card should render").to.exist
+                    expect(card.dataset.gift).to.equal("giftOfJoyousLife")
+
+                    chatCardHelper.assertButtonExists({
+                        text: "Roll Hit Die"
+                    }, expect)
+
+                    rollHelper.queueRoll({
+                        total: 2
+                    })
+
+                    await chatCardHelper.clickButton({
+                        text: "Roll Hit Die"
+                    })
+
+                    await waiters.waitForCondition(() =>
+                        rollHelper.getCalls().some(call => call.type === "roll")
+                    )
+
+                    expect(
+                        rollHelper.getCalls().some(call => call.type === "roll"),
+                        "Clicking Roll Hit Die should invoke Roll.roll()"
+                    ).to.equal(true)
+
+                    const presentedRolls = await chatCardHelper.waitForPresentedRolls({count: 1})
+                    expect(presentedRolls[0]?.total).to.equal(2)
+
+                    await chatCardHelper.waitForButton({
+                        text: "Apply Healing"
+                    })
+
+                    chatCardHelper.assertButtonExists({
+                        text: "Apply Healing"
+                    }, expect)
+
+                    await chatCardHelper.clickButton({
+                        text: "Apply Healing"
+                    })
+
+                    await waiters.waitForCondition(() =>
+                        actor.system.attributes.hp.value === staticVars.initialHp + 2
+                    )
+
+                    expect(actor.system.attributes.hp.value).to.equal(staticVars.initialHp + 2)
+                } finally {
+                    rollHelper.restore()
+                }
+            }
+        },
+
+        {
             name: `Gift of Joyous Life, save fail`,
 
             setup: async ({actor}) =>
@@ -244,6 +423,7 @@ export const fiendTestDef = {
                     )
 
                     staticVars.message = game.messages.contents.at(-1)
+                    allowMockRollMessageUpdates(staticVars.message)
                     staticVars.chatCardHelper = helpers.createChatCardTestHelper({
                         message: staticVars.message
                     })
@@ -318,11 +498,481 @@ export const fiendTestDef = {
                 }
             }
         },
+        {
+            name: (vars) => `Gift of Prodigiuos Talent with ${vars.names[0]} and ${vars.names[1]} roll 2 on skill check`,
+
+            loop: () => [
+                {
+                    skills: [SKILL.ACROBATICS, SKILL.ARCANA],
+                    names: ["Acrobatics", "Arcana"],
+                    icons: ["Acrobatics", "Arcana"]
+                },
+                {
+                    skills: [SKILL.ANIMAL_HANDLING, SKILL.ATHLETICS],
+                    names: ["Animal Handling", "Athletics"],
+                    icons: ["AnimalHandling", "Athletics"]
+                },
+                {
+                    skills: [SKILL.DECEPTION, SKILL.HISTORY],
+                    names: ["Deception", "History"],
+                    icons: ["Deception", "History"]
+                },
+                {
+                    skills: [SKILL.INSIGHT, SKILL.INTIMIDATION],
+                    names: ["Insight", "Intimidation"],
+                    icons: ["Insight", "Intimidation"]
+                },
+                {
+                    skills: [SKILL.INVESTIGATION, SKILL.MEDICINE],
+                    names: ["Investigation", "Medicine"],
+                    icons: ["Investigation", "Medicine"]
+                },
+                {
+                    skills: [SKILL.NATURE, SKILL.PERCEPTION],
+                    names: ["Nature", "Perception"],
+                    icons: ["Nature", "Perception"]
+                },
+                {
+                    skills: [SKILL.PERFORMANCE, SKILL.PERSUASION],
+                    names: ["Performance", "Persuasion"],
+                    icons: ["Performance", "Persuasion"]
+                },
+                {
+                    skills: [SKILL.RELIGION, SKILL.SLEIGHT_OF_HAND],
+                    names: ["Religion", "Sleight of Hand"],
+                    icons: ["Religion", "SleightOfHand"]
+                },
+                {
+                    skills: [SKILL.STEALTH, SKILL.SURVIVAL],
+                    names: ["Stealth", "Survival"],
+                    icons: ["Stealth", "Survival"]
+                }
+            ],
+            setup: async ({actor, helpers, loopVars}) =>
+            {
+                const foundCharacterClass = await helpers.getCharacterClass("Wizard")
+                await helpers.createActorItemAndWait(
+                    actor,
+                    foundCharacterClass,
+                    {
+                        setTransformationFlags: false,
+                        setDdbImporterFlag: false,
+                        applyAdvancements: false
+                    }
+                )
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf"
+                        }
+                    }
+                })
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Fiendish Soul",
+                        choice: {
+                            icon: "modules/transformations/icons/damageTypes/Acid.png",
+                            id: "acid",
+                            label: "Acid",
+                            raw: "dr:acid",
+                            value: "acid"
+                        }
+                    },
+                    {
+                        name: "Gift of Prodigious Talent",
+                        choice: [
+                            {
+                                id: loopVars.skills[0],
+                                label: loopVars.names[0],
+                                icon: `modules/transformations/icons/skills/${loopVars.icons[0]}.png`,
+                                raw: `skills:${loopVars.skills[0]}`,
+                                value: loopVars.skills[0],
+                                mode: "forcedExpertise"
+                            },
+                            {
+                                id: loopVars.skills[1],
+                                label: loopVars.names[1],
+                                icon: `modules/transformations/icons/skills/${loopVars.icons[1]}.png`,
+                                raw: `skills:${loopVars.skills[1]}`,
+                                value: loopVars.skills[1],
+                                mode: "forcedExpertise"
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars, loopVars}) =>
+                {
+                    const gift = giftsOfDamnation.find(entry => entry.id === "giftOfProdigiousTalent")
+                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+
+                    await waiters.waitForDomainStability({
+                        actor,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                    })
+                    await waiters.waitForNextFrame()
+                    await waiters.waitForCondition(() =>
+                        actor.items.some(i => i.name === "Gift of Prodigious Talent")
+                    )
+                    runtime.services.triggerRuntime.run("skillCheck", actor, {
+                        checks: {
+                            current: {
+                                ability: "abi",
+                                skill: loopVars.skills[0],
+                                naturalRoll: 2,
+                                total: 2
+                            }
+                        }
+                    })
+                }
+            ],
+
+            await: async ({
+                actor,
+                runtime,
+                waiters,
+                staticVars
+            }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await waiters.waitForCondition(() =>
+                    actor.flags?.transformations?.fiend?.giftOfProdigiousTalent?.longRestsLeftUntilFullHitDieRestoration === 2
+                )
+            },
+
+            assertions: async ({actor, assert, waiters, helpers, staticVars, loopVars}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.flags.match.push({
+                    path: "transformations.fiend.giftOfProdigiousTalent",
+                    expected: {
+                        skills: [loopVars.skills[0], loopVars.skills[1]],
+                        longRestsLeftUntilFullHitDieRestoration: 2
+                    }
+                })
+                actorDto.stats.hitDices.max = 1
+                actorDto.stats.hitDices.value = 0
+                validate(actorDto, {assert})
+            }
+        },
 
         {
-            name: `Gift of Joyous Life, save Success`,
+            name: (vars) => `Gift of Prodigiuos Talent with ${vars.names[0]} and ${vars.names[1]} roll 3 on skill check`,
 
-            setup: async ({actor}) =>
+            loop: () => [
+                {
+                    skills: [SKILL.ACROBATICS, SKILL.ARCANA],
+                    names: ["Acrobatics", "Arcana"],
+                    icons: ["Acrobatics", "Arcana"]
+                },
+                {
+                    skills: [SKILL.ANIMAL_HANDLING, SKILL.ATHLETICS],
+                    names: ["Animal Handling", "Athletics"],
+                    icons: ["AnimalHandling", "Athletics"]
+                },
+                {
+                    skills: [SKILL.DECEPTION, SKILL.HISTORY],
+                    names: ["Deception", "History"],
+                    icons: ["Deception", "History"]
+                },
+                {
+                    skills: [SKILL.INSIGHT, SKILL.INTIMIDATION],
+                    names: ["Insight", "Intimidation"],
+                    icons: ["Insight", "Intimidation"]
+                },
+                {
+                    skills: [SKILL.INVESTIGATION, SKILL.MEDICINE],
+                    names: ["Investigation", "Medicine"],
+                    icons: ["Investigation", "Medicine"]
+                },
+                {
+                    skills: [SKILL.NATURE, SKILL.PERCEPTION],
+                    names: ["Nature", "Perception"],
+                    icons: ["Nature", "Perception"]
+                },
+                {
+                    skills: [SKILL.PERFORMANCE, SKILL.PERSUASION],
+                    names: ["Performance", "Persuasion"],
+                    icons: ["Performance", "Persuasion"]
+                },
+                {
+                    skills: [SKILL.RELIGION, SKILL.SLEIGHT_OF_HAND],
+                    names: ["Religion", "Sleight of Hand"],
+                    icons: ["Religion", "SleightOfHand"]
+                },
+                {
+                    skills: [SKILL.STEALTH, SKILL.SURVIVAL],
+                    names: ["Stealth", "Survival"],
+                    icons: ["Stealth", "Survival"]
+                }
+            ],
+            setup: async ({actor, helpers, loopVars}) =>
+            {
+                const foundCharacterClass = await helpers.getCharacterClass("Wizard")
+                await helpers.createActorItemAndWait(
+                    actor,
+                    foundCharacterClass,
+                    {
+                        setTransformationFlags: false,
+                        setDdbImporterFlag: false,
+                        applyAdvancements: false
+                    }
+                )
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf"
+                        }
+                    }
+                })
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Fiendish Soul",
+                        choice: {
+                            icon: "modules/transformations/icons/damageTypes/Acid.png",
+                            id: "acid",
+                            label: "Acid",
+                            raw: "dr:acid",
+                            value: "acid"
+                        }
+                    },
+                    {
+                        name: "Gift of Prodigious Talent",
+                        choice: [
+                            {
+                                id: loopVars.skills[0],
+                                label: loopVars.names[0],
+                                icon: `modules/transformations/icons/skills/${loopVars.icons[0]}.png`,
+                                raw: `skills:${loopVars.skills[0]}`,
+                                value: loopVars.skills[0],
+                                mode: "forcedExpertise"
+                            },
+                            {
+                                id: loopVars.skills[1],
+                                label: loopVars.names[1],
+                                icon: `modules/transformations/icons/skills/${loopVars.icons[1]}.png`,
+                                raw: `skills:${loopVars.skills[1]}`,
+                                value: loopVars.skills[1],
+                                mode: "forcedExpertise"
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars, loopVars}) =>
+                {
+                    const gift = giftsOfDamnation.find(entry => entry.id === "giftOfProdigiousTalent")
+                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+
+                    await waiters.waitForDomainStability({
+                        actor,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                    })
+                    await waiters.waitForNextFrame()
+                    await waiters.waitForCondition(() =>
+                        actor.items.some(i => i.name === "Gift of Prodigious Talent")
+                    )
+                    runtime.services.triggerRuntime.run("skillCheck", actor, {
+                        checks: {
+                            current: {
+                                ability: "abi",
+                                skill: loopVars.skills[0],
+                                naturalRoll: 3,
+                                total: 2
+                            }
+                        }
+                    })
+                }
+            ],
+
+            await: async ({
+                actor,
+                runtime,
+                waiters,
+                staticVars
+            }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await waiters.waitForCondition(() =>
+                    actor.flags?.transformations?.fiend?.giftOfProdigiousTalent?.longRestsLeftUntilFullHitDieRestoration === 0
+                )
+            },
+
+            assertions: async ({actor, assert, waiters, helpers, staticVars, loopVars}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.flags.match.push({
+                    path: "transformations.fiend.giftOfProdigiousTalent",
+                    expected: {
+                        skills: [loopVars.skills[0], loopVars.skills[1]],
+                        longRestsLeftUntilFullHitDieRestoration: 0
+                    }
+                })
+                actorDto.stats.hitDices.max = 1
+                actorDto.stats.hitDices.value = 1
+                validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: `Gift of Prodigiuos Talent long rest subtracts one from longRestsLeftUntilFullHitDieRestoration`,
+            setup: async ({actor, helpers, loopVars}) =>
+            {
+                const foundCharacterClass = await helpers.getCharacterClass("Wizard")
+                await helpers.createActorItemAndWait(
+                    actor,
+                    foundCharacterClass,
+                    {
+                        setTransformationFlags: false,
+                        setDdbImporterFlag: false,
+                        applyAdvancements: false
+                    }
+                )
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf"
+                        }
+                    }
+                })
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Fiendish Soul",
+                        choice: {
+                            icon: "modules/transformations/icons/damageTypes/Acid.png",
+                            id: "acid",
+                            label: "Acid",
+                            raw: "dr:acid",
+                            value: "acid"
+                        }
+                    },
+                    {
+                        name: "Gift of Prodigious Talent",
+                        choice: [
+                            {
+                                id: SKILL.ACROBATICS,
+                                label: "Acrobatics",
+                                icon: `modules/transformations/icons/skills/Acrobatics.png`,
+                                raw: `skills:${SKILL.ACROBATICS}`,
+                                value: SKILL.ACROBATICS,
+                                mode: "forcedExpertise"
+                            },
+                            {
+                                id: SKILL.ARCANA,
+                                label: "Arcana",
+                                icon: `modules/transformations/icons/skills/Arcana.png`,
+                                raw: `skills:${SKILL.ARCANA}`,
+                                value: SKILL.ARCANA,
+                                mode: "forcedExpertise"
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars, loopVars}) =>
+                {
+                    const gift = giftsOfDamnation.find(entry => entry.id === "giftOfProdigiousTalent")
+                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+
+                    await waiters.waitForDomainStability({
+                        actor,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                    })
+                    await waiters.waitForNextFrame()
+                    await waiters.waitForCondition(() =>
+                        actor.items.some(i => i.name === "Gift of Prodigious Talent")
+                    )
+                    runtime.services.triggerRuntime.run("skillCheck", actor, {
+                        checks: {
+                            current: {
+                                ability: "abi",
+                                skill: SKILL.ACROBATICS,
+                                naturalRoll: 1,
+                                total: 1
+                            }
+                        }
+                    })
+                    await waiters.waitForCondition(() =>
+                        actor.flags?.transformations?.fiend?.giftOfProdigiousTalent?.longRestsLeftUntilFullHitDieRestoration === 2
+                    )
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                }
+            ],
+
+            await: async ({
+                actor,
+                runtime,
+                waiters,
+                staticVars
+            }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await waiters.waitForCondition(() =>
+                    actor.flags?.transformations?.fiend?.giftOfProdigiousTalent?.longRestsLeftUntilFullHitDieRestoration === 1
+                )
+            },
+
+            assertions: async ({actor, assert, waiters, helpers, staticVars, loopVars}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.flags.match.push({
+                    path: "transformations.fiend.giftOfProdigiousTalent",
+                    expected: {
+                        skills: [SKILL.ACROBATICS, SKILL.ARCANA],
+                        longRestsLeftUntilFullHitDieRestoration: 1
+                    }
+                })
+                actorDto.stats.hitDices.max = 1
+                actorDto.stats.hitDices.value = 0
+                validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: `Gift of Unsurpassed Fortune no uses used on success`,
+            setup: async ({actor, helpers, loopVars}) =>
             {
                 await ChatMessage.deleteDocuments(
                     game.messages.contents.map(m => m.id)
@@ -355,7 +1005,7 @@ export const fiendTestDef = {
             ],
 
             steps: [
-                async ({actor, runtime, helpers, waiters, staticVars}) =>
+                async ({actor, runtime, helpers, waiters, staticVars, loopVars}) =>
                 {
                     staticVars.initialMessageCount = game.messages.contents.length
                     await actor.update({
@@ -363,7 +1013,7 @@ export const fiendTestDef = {
                     })
                     staticVars.initialHp = actor.system.attributes.hp.value
 
-                    const gift = giftsOfDamnation.find(entry => entry.id === "giftOfJoyousLife")
+                    const gift = giftsOfDamnation.find(entry => entry.id === "giftOfUnsurpassedFortune")
                     await runtime.services.applyFiendGiftOfDamnation({actor, gift})
 
                     await waiters.waitForDomainStability({
@@ -372,10 +1022,10 @@ export const fiendTestDef = {
                     })
                     await waiters.waitForNextFrame()
                     await waiters.waitForCondition(() =>
-                        actor.items.some(i => i.name === "Gift of Joyous Life")
+                        actor.items.some(i => i.name === "Gift of Unsurpassed Fortune")
                     )
-                    const giftOfJoyousLife = actor.items.find(i => i.name == "Gift of Joyous Life")
-                    const activity = giftOfJoyousLife.system.activities.find(a => a.name == "Gift of Joyous Life")
+                    const giftOfJoyousLife = actor.items.find(i => i.name == "Gift of Unsurpassed Fortune")
+                    const activity = giftOfJoyousLife.system.activities.find(a => a.name == "Gift of Unsurpassed Fortune")
                     await activity.use({actor})
 
                     await waiters.waitForCondition(() =>
@@ -383,6 +1033,7 @@ export const fiendTestDef = {
                     )
 
                     staticVars.message = game.messages.contents.at(-1)
+                    allowMockRollMessageUpdates(staticVars.message)
                     staticVars.chatCardHelper = helpers.createChatCardTestHelper({
                         message: staticVars.message
                     })
@@ -396,11 +1047,11 @@ export const fiendTestDef = {
             {
                 await staticVars.chatCardHelper.waitForCard()
                 await staticVars.chatCardHelper.waitForButton({
-                    text: "Roll Hit Die"
+                    text: "Roll"
                 })
             },
 
-            assertions: async ({actor, expect, waiters, helpers, staticVars}) =>
+            assertions: async ({actor, expect, assert, waiters, helpers, staticVars}) =>
             {
                 const {chatCardHelper} = staticVars
                 const rollHelper = helpers.createDeterministicRollHelper()
@@ -408,19 +1059,19 @@ export const fiendTestDef = {
                 try {
                     const card = chatCardHelper.getCardElement({require: true})
 
-                    expect(card, "Gift of Joyous Life chat card should render").to.exist
-                    expect(card.dataset.gift).to.equal("giftOfJoyousLife")
+                    expect(card, "Gift of Unsurpassed Fortune chat card should render").to.exist
+                    expect(card.dataset.gift).to.equal("giftOfUnsurpassedFortune")
 
                     chatCardHelper.assertButtonExists({
-                        text: "Roll Hit Die"
+                        text: "Roll"
                     }, expect)
 
                     rollHelper.queueRoll({
-                        total: 2
+                        total: 6
                     })
 
                     await chatCardHelper.clickButton({
-                        text: "Roll Hit Die"
+                        text: "Roll"
                     })
 
                     await waiters.waitForCondition(() =>
@@ -433,25 +1084,144 @@ export const fiendTestDef = {
                     ).to.equal(true)
 
                     const presentedRolls = await chatCardHelper.waitForPresentedRolls({count: 1})
-                    expect(presentedRolls[0]?.total).to.equal(2)
+                    expect(presentedRolls[0]?.total).to.equal(6)
 
-                    await chatCardHelper.waitForButton({
-                        text: "Apply Healing"
+                    const actorDto = new ActorValidationDTO(actor)
+                    actorDto.addItem(item => {
+                        item.itemName = "Gift of Unsurpassed Fortune"
+                        item.usesLeft = 1
+                        item.uses = 1
                     })
+                    validate(actorDto, {assert})
+                } finally {
+                    rollHelper.restore()
+                }
+            }
+        },
+
+        {
+            name: `Gift of Unsurpassed Fortune uses used on fail`,
+            setup: async ({actor, helpers, loopVars}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf"
+                        }
+                    }
+                })
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Fiendish Soul",
+                        choice: {
+                            icon: "modules/transformations/icons/damageTypes/Acid.png",
+                            id: "acid",
+                            label: "Acid",
+                            raw: "dr:acid",
+                            value: "acid"
+                        }
+                    }
+                ]
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars, loopVars}) =>
+                {
+                    staticVars.initialMessageCount = game.messages.contents.length
+                    await actor.update({
+                        "system.attributes.hp.value": (actor.system.attributes.hp.max / 2) - 1
+                    })
+                    staticVars.initialHp = actor.system.attributes.hp.value
+
+                    const gift = giftsOfDamnation.find(entry => entry.id === "giftOfUnsurpassedFortune")
+                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+
+                    await waiters.waitForDomainStability({
+                        actor,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                    })
+                    await waiters.waitForNextFrame()
+                    await waiters.waitForCondition(() =>
+                        actor.items.some(i => i.name === "Gift of Unsurpassed Fortune")
+                    )
+                    const giftOfJoyousLife = actor.items.find(i => i.name == "Gift of Unsurpassed Fortune")
+                    const activity = giftOfJoyousLife.system.activities.find(a => a.name == "Gift of Unsurpassed Fortune")
+                    await activity.use({actor})
+
+                    await waiters.waitForCondition(() =>
+                        game.messages.contents.length > staticVars.initialMessageCount
+                    )
+
+                    staticVars.message = game.messages.contents.at(-1)
+                    allowMockRollMessageUpdates(staticVars.message)
+                    staticVars.chatCardHelper = helpers.createChatCardTestHelper({
+                        message: staticVars.message
+                    })
+                }
+            ],
+
+            await: async ({
+                waiters,
+                staticVars
+            }) =>
+            {
+                await staticVars.chatCardHelper.waitForCard()
+                await staticVars.chatCardHelper.waitForButton({
+                    text: "Roll"
+                })
+            },
+
+            assertions: async ({actor, expect, assert, waiters, helpers, staticVars}) =>
+            {
+                const {chatCardHelper} = staticVars
+                const rollHelper = helpers.createDeterministicRollHelper()
+
+                try {
+                    const card = chatCardHelper.getCardElement({require: true})
+
+                    expect(card, "Gift of Unsurpassed Fortune chat card should render").to.exist
+                    expect(card.dataset.gift).to.equal("giftOfUnsurpassedFortune")
 
                     chatCardHelper.assertButtonExists({
-                        text: "Apply Healing"
+                        text: "Roll"
                     }, expect)
 
+                    rollHelper.queueRoll({
+                        total: 5
+                    })
+
                     await chatCardHelper.clickButton({
-                        text: "Apply Healing"
+                        text: "Roll"
                     })
 
                     await waiters.waitForCondition(() =>
-                        actor.system.attributes.hp.value === staticVars.initialHp + 2
+                        rollHelper.getCalls().some(call => call.type === "roll")
                     )
 
-                    expect(actor.system.attributes.hp.value).to.equal(staticVars.initialHp + 2)
+                    expect(
+                        rollHelper.getCalls().some(call => call.type === "roll"),
+                        "Clicking Roll Hit Die should invoke Roll.roll()"
+                    ).to.equal(true)
+
+                    const presentedRolls = await chatCardHelper.waitForPresentedRolls({count: 1})
+                    expect(presentedRolls[0]?.total).to.equal(5)
+
+                    const actorDto = new ActorValidationDTO(actor)
+                    actorDto.addItem(item => {
+                        item.itemName = "Gift of Unsurpassed Fortune"
+                        item.usesLeft = 0
+                        item.uses = 1
+                    })
+                    validate(actorDto, {assert})
                 } finally {
                     rollHelper.restore()
                 }

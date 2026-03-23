@@ -3,7 +3,7 @@
  */
 export function conditionsMet(actor, when = {}, context = {}, logger = null)
 {
-    logger?.debug?.("conditionsMet", { actor, when, context })
+    logger?.debug?.("conditionsMet", {actor, when, context})
     if (!when) return true
     const stageConditions = stageConditionMet(when.stage, context.stage, logger)
     const actorCondition = actorConditionMet(actor, when.actor, logger)
@@ -24,7 +24,7 @@ export function conditionsMet(actor, when = {}, context = {}, logger = null)
 
 function stageConditionMet(condition, stage, logger = null)
 {
-    logger?.debug?.("stageConditionMet", { condition, stage })
+    logger?.debug?.("stageConditionMet", {condition, stage})
     if (!condition) return true
     if (stage == null) return false
 
@@ -43,7 +43,7 @@ function stageConditionMet(condition, stage, logger = null)
 
 function actorConditionMet(actor, condition, logger = null)
 {
-    logger?.debug?.("actorConditionMet", { actor, condition })
+    logger?.debug?.("actorConditionMet", {actor, condition})
     if (!condition) return true
 
     if (condition.hasSpellSlots) {
@@ -52,13 +52,19 @@ function actorConditionMet(actor, condition, logger = null)
     }
 
     if (condition.hasFlag) {
-        const flags = actor.flags.transformations
-        return Object.values(flags ?? {}).some(f => f == condition.hasFlag)
+        const value = foundry.utils.getProperty(
+            actor,
+            `flags.transformations.${condition.hasFlag}`
+        )
+        return value !== undefined
     }
 
     if (condition.notHasFlag) {
-        const flags = actor.flags.transformations
-        return Object.values(flags ?? {}).none(f => f == condition.notHasFlag)
+        const value = foundry.utils.getProperty(
+            actor,
+            `flags.transformations.${condition.notHasFlag}`
+        )
+        return value === undefined
     }
 
     if (condition.isBloodied) {
@@ -71,7 +77,7 @@ function actorConditionMet(actor, condition, logger = null)
 
 function itemConditionMet(actor, condition, logger = null)
 {
-    logger?.debug?.("itemConditionMet", { actor, condition })
+    logger?.debug?.("itemConditionMet", {actor, condition})
     if (!condition) return true
 
     const items = actor.items ?? []
@@ -86,7 +92,7 @@ function itemConditionMet(actor, condition, logger = null)
     }
 
     if (condition.usesRemaining) {
-        const { min = 0, max = Infinity } = condition.usesRemaining
+        const {min = 0, max = Infinity} = condition.usesRemaining
 
         let item = items.find(i =>
             condition.has?.includes(
@@ -112,7 +118,7 @@ function itemConditionMet(actor, condition, logger = null)
 
 function effectConditionMet(actor, condition, logger = null)
 {
-    logger?.debug?.("effectConditionMet", { actor, condition })
+    logger?.debug?.("effectConditionMet", {actor, condition})
     if (!condition) return true
 
     const effects = actor.effects ?? []
@@ -134,7 +140,7 @@ function effectConditionMet(actor, condition, logger = null)
 
 function saveConditionMet(context, when, logger = null)
 {
-    logger?.debug?.("saveConditionMet", { context, when })
+    logger?.debug?.("saveConditionMet", {context, when})
     if (!when) return true
     const saves = context.saves ?? {}
 
@@ -153,13 +159,12 @@ function saveConditionMet(context, when, logger = null)
 
 export function customConditionsMet(condition, context, logger = null)
 {
-    logger?.debug?.("customConditionsMet", { condition, context })
+    logger?.debug?.("customConditionsMet", {condition, context})
 
     if (!condition || typeof condition !== "object") return true
 
     return matchObject(condition, context)
 }
-
 
 // 🔍 Recursive matcher
 function matchObject(schema, target)

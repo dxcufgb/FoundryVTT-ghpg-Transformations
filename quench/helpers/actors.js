@@ -1,7 +1,5 @@
-import { ROLL_TYPE } from "../../config/constants.js"
 import { Registry } from "../../bootstrap/registry.js"
 import { getRandomFileInFolder } from "./getRandomFilename.js"
-import { getOrCreateItem } from "./item.js"
 import { actorValidator } from "./validators/actorValidator.js"
 import { waitFor } from "./waitFor.js"
 
@@ -24,12 +22,12 @@ export async function createTestActor({
         },
         system: {
             abilities: {
-                str: { value: 10 },
-                dex: { value: 10 },
-                con: { value: 10 },
-                int: { value: 10 },
-                wis: { value: 10 },
-                cha: { value: 10 }
+                str: {value: 10},
+                dex: {value: 10},
+                con: {value: 10},
+                int: {value: 10},
+                wis: {value: 10},
+                cha: {value: 10}
             },
             attributes: {
                 hp: {
@@ -85,7 +83,7 @@ async function handlePostCreationExtras(actor, options)
     }
 }
 
-async function createActorItemAndWait(actor, sourceItem, options = {})
+export async function createActorItemAndWait(actor, sourceItem, options = {})
 {
     const createdItem = await Registry.infrastructure.itemRepository.createObjectOnActor(
         actor,
@@ -120,7 +118,6 @@ export async function waitForFlagUpdate({
             `Timed out waiting for flag ${scope}.${key} to be ${expected}, was ${actor.flags?.[scope]?.[key]}`
     })
 }
-
 
 export async function waitForActorConsistency(actor, {
     timeoutMs = 1500,
@@ -166,7 +163,8 @@ export async function waitForActorConsistency(actor, {
                 changeSeen &&
                 currentModified === lastModified &&
                 currentItemSignature === lastItemSignature
-            ) {
+            )
+            {
                 stablePasses += 1
                 if (stablePasses >= 2) {
                     // one final microtask flush
@@ -196,7 +194,7 @@ export async function waitForActorItems(actor, expectedItems = [], {
     timeout = 2000,
     interval = 10,
     errorMessage = "Timed out waiting for actor items"
-} = {})
+}                                                            = {})
 {
     const normalizedExpectedItems = Array.isArray(expectedItems)
         ? expectedItems
@@ -221,20 +219,20 @@ export async function waitForActorItems(actor, expectedItems = [], {
 export function expectItemsOnActor(expectedItemUuids, actor, expect)
 {
     console.error("Transformations TEST | OLD Method called, migrate to new actorValidator function!")
-    return actorValidator({ actor, expect }).expectItemsOnActor(expectedItemUuids)
+    return actorValidator({actor, expect}).expectItemsOnActor(expectedItemUuids)
 }
 
 export function expectRaceItemSubTypeOnActor(runtime, subtype, actor, expect)
 {
     console.error("Transformations TEST | OLD Method called, migrate to new actorValidator function!")
-    return actorValidator({ runtime, actor, expect }).expectRaceItemSubTypeOnActor(runtime, subtype, actor, expect)
+    return actorValidator({runtime, actor, expect}).expectRaceItemSubTypeOnActor(runtime, subtype, actor, expect)
 }
 
-export async function applyItemActivityEffect({ actor, itemName, effectName, macroTrigger = "manual" })
+export async function applyItemActivityEffect({actor, itemName, effectName, macroTrigger = "manual"})
 {
     const item = actor.items.find(i => i.name === itemName)
     const effect = item.effects.find(e => e.name == effectName)
-    await simulateItemMacro(effect, actor, { trigger: macroTrigger })
+    await simulateItemMacro(effect, actor, {trigger: macroTrigger})
     await actor.createEmbeddedDocuments("ActiveEffect", [effect.toObject()])
     await Promise.resolve()
 }
@@ -306,7 +304,7 @@ export async function removeTestToken(tokenDoc)
 export function validateAllD20Disadvantage(actor, actorEffectValidator, assert)
 {
     console.error("Transformations TEST | OLD Method called, migrate to new actorValidator function!")
-    return actorValidator({ actor, assert }).validateAllD20Disadvantage()
+    return actorValidator({actor, assert}).validateAllD20Disadvantage()
 }
 
 export async function getCharacterClass(characterClass)
@@ -335,9 +333,9 @@ export async function getCharacterRace(characterRace)
 function getActorItemSignature(actor)
 {
     return Array.from(actor.items ?? [])
-        .map(item => item.id)
-        .sort()
-        .join("|")
+    .map(item => item.id)
+    .sort()
+    .join("|")
 }
 
 function actorHasExpectedItem(actor, expectedItem)
@@ -357,8 +355,8 @@ function actorHasExpectedItem(actor, expectedItem)
     const expectedName = expectedItem.name
     const expectedUuid = expectedItem.uuid
     const expectedSourceUuid =
-        expectedItem.sourceUuid ??
-        expectedItem.flags?.transformations?.sourceUuid
+              expectedItem.sourceUuid ??
+              expectedItem.flags?.transformations?.sourceUuid
 
     return items.some(item =>
         (expectedId && item.id === expectedId) ||

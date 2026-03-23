@@ -4,10 +4,10 @@ import { onInitiative } from "./onInitiative.js"
 import { onLongRest } from "./onLongRest.js"
 import { onSavingThrow } from "./onSavingThrow.js"
 import { onUnconscious } from "./onUnconscious.js"
-import { onAbilityCheck } from "./onAbilityCheck.js";
+import { onSkillCheck } from "./onSkillCheck.js";
 
 export const fiendTriggers = {
-    [onAbilityCheck.name]: onAbilityCheck,
+    [onSkillCheck.name]: onSkillCheck,
     [onBloodied.name]: onBloodied,
     [onConcentration.name]: onConcentration,
     [onInitiative.name]: onInitiative,

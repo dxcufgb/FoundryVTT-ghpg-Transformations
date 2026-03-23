@@ -137,10 +137,11 @@ export function registerDnd5eHooks({
 
         (async () =>
         {
-            triggerRuntime.run("abilityCheck", actor, {
+            triggerRuntime.run("skillCheck", actor, {
                 checks: {
                     current: {
                         ability: context.ability,
+                        skill: context.skill,
                         naturalRoll: natural,
                         total: roll.total
                     }
