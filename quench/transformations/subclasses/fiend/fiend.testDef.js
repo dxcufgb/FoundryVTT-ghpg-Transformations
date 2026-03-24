@@ -215,6 +215,484 @@ export const fiendTestDef = {
                 actorDto.stats.resistances.push(loopVars.damageType)
                 validate(actorDto, {assert})
             }
+        },
+        {
+            name: `stage 2 with Enhanced Contract`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await helpers.fiend.chooseDamageResistanceOnStage1({
+                            waiters,
+                            runtime,
+                            actor,
+                            choice: "acid"
+                        })
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.0GwDDz0VsTEFnHsn",
+                    "Compendium.transformations.gh-transformations.Item.kCaxPcrf3l64RMrU",
+                    "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                    "Compendium.transformations.gh-transformations.Item.nCsHUZkM8p26at19",
+                    "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM"
+                ]
+                actorDto.addItem(item =>
+                {
+                    item.type = "race"
+                    item.systemType = "humanoid"
+                    item.systemSubType = "Fiend"
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Devilish Contractor"
+                    item.addActivity(activity => {
+                        activity.name = "Devilish Contractor"
+                        activity.activationType = "action"
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Fiend Bound"
+                    item.addEffect(effect => {
+                        effect.name = "Fiend Bound"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "system.attributes.death.roll.mode",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: -1
+                            }
+                        ]
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Fiendish Soul"
+                    item.addEffect(effect => {
+                        effect.name = "Fiendish Deception"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "system.skills.dec.roll.mode",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: 1
+                            }
+                        ]
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Fiend Form"
+                    item.addEffect(effect => {
+                        effect.name = "Hiding Fiend Appearance"
+                        effect.description = "You are Hiding your Fiend Form"
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Hide Fiend Appearance"
+                        activity.activationType = "action"
+                        activity.target.affects = "self"
+                        activity.range.units = "self"
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Saving Throw"
+                        activity.range.units = "self"
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Enhanced Contract"
+                })
+                actorDto.stats.resistances.push("acid")
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 2 with Daemonic Brand as choice`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await helpers.fiend.chooseDamageResistanceOnStage1({
+                            waiters,
+                            runtime,
+                            actor,
+                            choice: "acid"
+                        })
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.WEFrREhcN84F6ehL",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            {
+                const actorProf = actor.system.attributes.prof
+
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.0GwDDz0VsTEFnHsn",
+                    "Compendium.transformations.gh-transformations.Item.kCaxPcrf3l64RMrU",
+                    "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                    "Compendium.transformations.gh-transformations.Item.nCsHUZkM8p26at19",
+                    "Compendium.transformations.gh-transformations.Item.WEFrREhcN84F6ehL"
+                ]
+                actorDto.addItem(item =>
+                {
+                    item.type = "race"
+                    item.systemType = "humanoid"
+                    item.systemSubType = "Fiend"
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Devilish Contractor"
+                    item.addActivity(activity => {
+                        activity.name = "Devilish Contractor"
+                        activity.activationType = "action"
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Fiend Bound"
+                    item.addEffect(effect => {
+                        effect.name = "Fiend Bound"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "system.attributes.death.roll.mode",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: -1
+                            }
+                        ]
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Fiendish Soul"
+                    item.addEffect(effect => {
+                        effect.name = "Fiendish Deception"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "system.skills.dec.roll.mode",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: 1
+                            }
+                        ]
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Fiend Form"
+                    item.addEffect(effect => {
+                        effect.name = "Hiding Fiend Appearance"
+                        effect.description = "You are Hiding your Fiend Form"
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Hide Fiend Appearance"
+                        activity.activationType = "action"
+                        activity.target.affects = "self"
+                        activity.range.units = "self"
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Saving Throw"
+                        activity.range.units = "self"
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Daemonic Brand"
+                    item.uses.max = actorProf
+                    item.uses.recovery.type = "recoverAll"
+                    item.uses.recovery.period = "lr"
+                    item.addActivity(activity => {
+                        activity.name = "Midi Save"
+                        activity.activationType = "bonus"
+                        activity.duration.value = 1
+                        activity.duration.units = "minute"
+                        activity.addConsumption(consumption => {
+                            consumption.numberOfTargets = 1
+                            consumption.addTarget(target => {
+                                target.type = "item"
+                                target.value = 1
+                            })
+                        })
+                        activity.range.value = 60
+                        activity.range.unit = "ft"
+                        activity.target.value = 1
+                        activity.target.type = "creature"
+                        activity.saveAbility = ["wis"]
+                        activity.saveDc = (8 + actorProf + 2)
+                        activity.addEffect(effect => {
+                            effect.name = "Daemonic Brand Saving Throw Penalty"
+                            effect.description = "The creature takes a –2 penalty on all saving throws."
+                            effect.duration.duration = 60
+                            effect.duration.rounds = 10
+                            effect.duration.seconds = 60
+                            effect.changes.count = 6
+                            effect.changes = [
+                                {
+                                    key: "system.abillities.cha.bonuses.save",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -2
+                                },
+                                {
+                                    key: "system.abillities.con.bonuses.save",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -2
+                                },
+                                {
+                                    key: "system.abillities.dex.bonuses.save",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -2
+                                },
+                                {
+                                    key: "system.abillities.int.bonuses.save",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -2
+                                },
+                                {
+                                    key: "system.abillities.str.bonuses.save",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -2
+                                },
+                                {
+                                    key: "system.abillities.wis.bonuses.save",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -2
+                                }
+                            ]
+                        })
+                        activity.addEffect(effect => {
+                            effect.name = "Daemonic Brand Attack Vulnerability"
+                            effect.description = "The first attack against the creature on each turn is made with Advantage."
+                            effect.duration.duration = 60
+                            effect.duration.rounds = 10
+                            effect.duration.seconds = 60
+                        })
+                        activity.addEffect(effect => {
+                            effect.name = "Daemonic Brand Damaged Vitality"
+                            effect.description = "The creature cannot regain Hit Points."
+                            effect.duration.duration = 60
+                            effect.duration.rounds = 10
+                            effect.duration.seconds = 60
+                        })
+                    })
+                })
+                actorDto.stats.resistances.push("acid")
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 2 with Daemonic Brand as default choice`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.J8kBOzgYeNfUolan",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await helpers.fiend.chooseDamageResistanceOnStage1({
+                            waiters,
+                            runtime,
+                            actor,
+                            choice: "acid"
+                        })
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            {
+                const actorProf = actor.system.attributes.prof
+
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.0GwDDz0VsTEFnHsn",
+                    "Compendium.transformations.gh-transformations.Item.kCaxPcrf3l64RMrU",
+                    "Compendium.transformations.gh-transformations.Item.J8kBOzgYeNfUolan",
+                    "Compendium.transformations.gh-transformations.Item.nCsHUZkM8p26at19",
+                    "Compendium.transformations.gh-transformations.Item.WEFrREhcN84F6ehL"
+                ]
+                actorDto.addItem(item =>
+                {
+                    item.type = "race"
+                    item.systemType = "humanoid"
+                    item.systemSubType = "Fiend"
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Infernal Smite"
+                    item.uses.max = actorProf + 2
+                    item.uses.value = actorProf + 2
+                    item.usesLeft = actorProf + 2
+                    item.uses.recovery.period = "lr"
+                    item.uses.recovery.type = "recoverAll"
+                    item.addActivity(activity => {
+                        activity.name = "Midi Damage"
+                        activity.activityType = "special"
+                        activity.consumption.addTarget(target => {
+                            target.type = "itemUses"
+                            target.value = 1
+                        })
+                        activity.range.units = "spec"
+                        activity.addDamagePart(damagePart => {
+                            damagePart.custom = "(@flags.transformations.stage)d6"
+                            damagePart.numbberOfTypes = 1
+                            damagePart.type = "acid"
+                        })
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Fiend Bound"
+                    item.addEffect(effect => {
+                        effect.name = "Fiend Bound"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "system.attributes.death.roll.mode",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: -1
+                            }
+                        ]
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Fiendish Soul"
+                    item.addEffect(effect => {
+                        effect.name = "Fiendish Deception"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "system.skills.dec.roll.mode",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: 1
+                            }
+                        ]
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Fiend Form"
+                    item.addEffect(effect => {
+                        effect.name = "Hiding Fiend Appearance"
+                        effect.description = "You are Hiding your Fiend Form"
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Hide Fiend Appearance"
+                        activity.activationType = "action"
+                        activity.target.affects = "self"
+                        activity.range.units = "self"
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Saving Throw"
+                        activity.range.units = "self"
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Daemonic Brand"
+                    item.uses.max = actorProf
+                    item.uses.value = actorProf
+                    item.usesLeft = actorProf
+                    item.uses.recovery.type = "recoverAll"
+                    item.uses.recovery.period = "lr"
+                    item.addActivity(activity => {
+                        activity.name = "Midi Save"
+                        activity.activationType = "bonus"
+                        activity.duration.value = 1
+                        activity.duration.units = "minute"
+                        activity.addConsumption(consumption => {
+                            consumption.numberOfTargets = 1
+                            consumption.addTarget(target => {
+                                target.type = "item"
+                                target.value = 1
+                            })
+                        })
+                        activity.range.value = 60
+                        activity.range.unit = "ft"
+                        activity.target.value = 1
+                        activity.target.type = "creature"
+                        activity.saveAbility = ["wis"]
+                        activity.saveDc = (8 + actorProf + 2)
+                        activity.addEffect(effect => {
+                            effect.name = "Daemonic Brand Saving Throw Penalty"
+                            effect.description = "The creature takes a –2 penalty on all saving throws."
+                            effect.duration.duration = 60
+                            effect.duration.rounds = 10
+                            effect.duration.seconds = 60
+                            effect.changes.count = 6
+                            effect.changes = [
+                                {
+                                    key: "system.abillities.cha.bonuses.save",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -2
+                                },
+                                {
+                                    key: "system.abillities.con.bonuses.save",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -2
+                                },
+                                {
+                                    key: "system.abillities.dex.bonuses.save",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -2
+                                },
+                                {
+                                    key: "system.abillities.int.bonuses.save",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -2
+                                },
+                                {
+                                    key: "system.abillities.str.bonuses.save",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -2
+                                },
+                                {
+                                    key: "system.abillities.wis.bonuses.save",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -2
+                                }
+                            ]
+                        })
+                        activity.addEffect(effect => {
+                            effect.name = "Daemonic Brand Attack Vulnerability"
+                            effect.description = "The first attack against the creature on each turn is made with Advantage."
+                            effect.duration.duration = 60
+                            effect.duration.rounds = 10
+                            effect.duration.seconds = 60
+                        })
+                        activity.addEffect(effect => {
+                            effect.name = "Daemonic Brand Damaged Vitality"
+                            effect.description = "The creature cannot regain Hit Points."
+                            effect.duration.duration = 60
+                            effect.duration.rounds = 10
+                            effect.duration.seconds = 60
+                        })
+                    })
+                })
+                actorDto.stats.resistances.push("acid")
+                validate(actorDto, {assert})
+            }
         }
     ],
 
