@@ -2,6 +2,7 @@ import { createStageGrantResolver } from "../domain/transformation/createStageGr
 import { UiAccessor } from "./uiAccessor.js"
 import { createActiveEffectRepository } from "../infrastructure/foundry/activeEffectsRepository.js"
 import { createAdvancementChoiceHandler } from "../infrastructure/foundry/advancementChoiceHandler.js"
+import { createAdvancementGrantResolver } from "../infrastructure/foundry/createAdvancementGrantResolver.js"
 import { createActorRepository } from "../infrastructure/foundry/actorRepository.js"
 import { createCompendiumRepository } from "../infrastructure/foundry/compendiumRepository.js"
 import { createCreatureTypeService } from "../infrastructure/foundry/creatureSubTypeService.js"
@@ -68,8 +69,14 @@ export function createInfrastructure({
         logger
     })
 
+    const advancementGrantResolver = createAdvancementGrantResolver({
+        activeEffectRepository,
+        logger
+    })
+
     const itemRepository = createItemRepository({
         advancementChoiceHandler,
+        advancementGrantResolver,
         tracker: trackers.repositories,
         debouncedTracker,
         logger
@@ -182,6 +189,7 @@ export function createInfrastructure({
         onceService,
         requiresService,
         advancementChoiceHandler,
+        advancementGrantResolver,
         notifier
     })
 }

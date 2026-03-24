@@ -1,5 +1,6 @@
 export function createItemRepository({
     advancementChoiceHandler,
+    advancementGrantResolver,
     tracker,
     debouncedTracker,
     logger
@@ -7,6 +8,7 @@ export function createItemRepository({
 {
     logger.debug("createItemRepository", {
         advancementChoiceHandler,
+        advancementGrantResolver,
         tracker,
         debouncedTracker
     })
@@ -428,6 +430,22 @@ export function createItemRepository({
         })
         for (const advancement of advancements) {
             const advancementConfiguration = advancement.configuration
+            if (advancementConfiguration.grants) {
+                for (const grant of advancementConfiguration.grants) {
+                    const grantApplied = await advancementGrantResolver.resolve({
+                        actor,
+                        grant,
+                        sourceItem: parentItem
+                    })
+
+                    if (!grantApplied) {
+                        logger.warn(
+                            "Advancement grant skipped: no supported grant applied",
+                            grant
+                        )
+                    }
+                }
+            }
             if (advancementConfiguration.items) {
                 for (const item of advancementConfiguration.items) {
                     const sourceItem = await fromUuid(item.uuid)

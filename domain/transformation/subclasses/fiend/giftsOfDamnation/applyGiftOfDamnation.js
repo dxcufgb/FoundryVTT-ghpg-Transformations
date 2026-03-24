@@ -1,10 +1,11 @@
 const GIFT_OF_DAMNATION_ICON =
-    "modules/transformations/Icons/Transformations/Fiend/Devilish_Contractor.png"
+          "modules/transformations/Icons/Transformations/Fiend/Devilish_Contractor.png"
 
 export async function applyGiftOfDamnation({
     actor,
     giftClass,
     itemRepository,
+    actorRepository,
     sourceItem = null,
     itemOptions = {},
     changes = [],
@@ -69,6 +70,18 @@ export async function applyGiftOfDamnation({
             itemIds: createdItems.map(item => item.id)
         }
     })
+
+    const enhancedContract = itemRepository.findEmbeddedByUuidFlag(
+        actor,
+        "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM"
+    )
+    
+    if (enhancedContract && itemRepository.getRemainingUses(enhancedContract) > 0)
+    {
+        const amount = (actor.flags.transformations.stage * 5)
+        actorRepository.addTempHp(actor, amount)
+        itemRepository.consumeUses(enhancedContract, 1)
+    }
 
     return effect
 }

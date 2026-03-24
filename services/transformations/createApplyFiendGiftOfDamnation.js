@@ -1,6 +1,7 @@
 export function createApplyFiendGiftOfDamnation({
     tracker,
     activeEffectRepository,
+    actorRepository,
     advancementChoiceHandler,
     itemRepository,
     logger = null
@@ -9,6 +10,7 @@ export function createApplyFiendGiftOfDamnation({
     logger?.debug?.("createApplyFiendGiftOfDamnation", {
         tracker,
         activeEffectRepository,
+        actorRepository,
         advancementChoiceHandler,
         itemRepository
     })
@@ -81,6 +83,7 @@ export function createApplyFiendGiftOfDamnation({
 
                 return gift.GiftClass.apply({
                     actor,
+                    actorRepository,
                     itemRepository,
                     advancementChoiceHandler
                 })

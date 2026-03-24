@@ -1,11 +1,9 @@
-import { UiAccessor } from "../../../../bootstrap/uiAccessor.js"
-import { ABILITY, ATTRIBUTE, ROLL_TYPE, SKILL } from "../../../../config/constants.js"
+import { ATTRIBUTE, ROLL_TYPE } from "../../../../config/constants.js"
 import { D20Identifiers } from "../../../../config/disadvantageOnAllD20Rolls.js"
 import { validate } from "../../../helpers/DTOValidators/validate.js"
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js"
 import { ContextValidationDTO } from "../../../helpers/validationDTOs/context/ContextValidationDTO.js"
 import { MessageValidationDTO } from "../../../helpers/validationDTOs/message/MessageValidationDTO.js"
-import { findTransformationGeneralChoiceButtonById, findTransformationGeneralChoiceDialog } from "../../../selectors/transformationGeneralChoiceDialog.finders.js"
 
 // test/definitions/aberrantHorror.testdef.js
 const seasons = {
@@ -20,17 +18,17 @@ const seasons = {
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.Z39OZS5HrubgAbJL",
                 level: 0,
-                saveActivityName: false,
+                saveActivityName: false
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.dgYEkwNt7bp9F6Yj",
                 level: 1,
-                saveActivityName: "Shard Explosion",
+                saveActivityName: "Shard Explosion"
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.CvnXPXDMoNw6XyLy",
                 level: 2,
-                saveActivityName: false,
+                saveActivityName: false
             }
         ],
         feyTeleportDamageType: "cold",
@@ -41,19 +39,19 @@ const seasons = {
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.ohE2j7tJ9OdnYtbK",
                 level: 3,
-                saveActivityName: false,
+                saveActivityName: false
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.XBhEOfOXg987Oryu",
                 level: 4,
-                saveActivityName: "Midi Save",
+                saveActivityName: "Midi Save"
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.TdEFNeRQPS3Ys95k",
                 level: 5,
-                saveActivityName: "Midi Save",
+                saveActivityName: "Midi Save"
             }
-        ],
+        ]
     },
     spring: {
         name: "Spring",
@@ -66,18 +64,18 @@ const seasons = {
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.aF8b9e0KBKhBb2Af",
                 level: 2,
-                saveActivityName: false,
+                saveActivityName: false
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.JfL1yuWjDiJAac2V",
                 level: 0,
-                saveActivityName: false,
+                saveActivityName: false
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.Pcn3yjh4NbYs2Ec7",
                 level: 1,
-                saveActivityName: false,
-            },
+                saveActivityName: false
+            }
         ],
         feyTeleportDamageType: "thunder",
         seasonallyAffectedUuid: "Compendium.transformations.gh-transformations.Item.Zk0cqrKQcOcnzYPz",
@@ -87,19 +85,19 @@ const seasons = {
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.7MHP4HCodAvWMxap",
                 level: 3,
-                saveActivityName: "Start of Turn Save",
+                saveActivityName: "Start of Turn Save"
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.wT4Tp9WQ8Qi9oH85",
                 level: 4,
-                saveActivityName: "Midi Save",
+                saveActivityName: "Midi Save"
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.cG7yegCP2pLGjcXW",
                 level: 5,
-                saveActivityName: "Midi Save",
+                saveActivityName: "Midi Save"
             }
-        ],
+        ]
     },
     summer: {
         name: "Summer",
@@ -112,17 +110,17 @@ const seasons = {
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.eOoj2xXW0beg0DPt",
                 level: 0,
-                saveActivityName: false,
+                saveActivityName: false
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.D7TUKogaloUL97E7",
                 level: 2,
-                saveActivityName: false,
+                saveActivityName: false
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.pSZsUoI3D1V9Bot2",
                 level: 1,
-                saveActivityName: "Midi Save",
+                saveActivityName: "Midi Save"
             }
         ],
         feyTeleportDamageType: "fire",
@@ -133,19 +131,19 @@ const seasons = {
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.nRYfP6VNoFbJi2Cl",
                 level: 3,
-                saveActivityName: "Midi Save",
+                saveActivityName: "Midi Save"
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.oW1ImnWFEeQ58m8M",
                 level: 4,
-                saveActivityName: false,
+                saveActivityName: false
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.ZnuyJAuZauk8atLn",
                 level: 5,
-                saveActivityName: "Midi Save",
+                saveActivityName: "Midi Save"
             }
-        ],
+        ]
     },
     autumn: {
         name: "Autumn",
@@ -158,17 +156,17 @@ const seasons = {
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.6rTGRPz9LTviIN0P",
                 level: 1,
-                saveActivityName: "Midi Save",
+                saveActivityName: "Midi Save"
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.JJWjhhJEgnV0xFnT",
                 level: 0,
-                saveActivityName: false,
+                saveActivityName: false
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.usF8FEGtQuKhEjeH",
                 level: 2,
-                saveActivityName: "Midi Save",
+                saveActivityName: "Midi Save"
             }
         ],
         feyTeleportDamageType: "poison",
@@ -179,20 +177,20 @@ const seasons = {
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.8tmFyQ0LbPZe93c9",
                 level: 3,
-                saveActivityName: "Midi Save",
+                saveActivityName: "Midi Save"
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.DgNsvwAXjTtvfcXw",
                 level: 4,
-                saveActivityName: "Midi Save",
+                saveActivityName: "Midi Save"
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.cK1cNO4jj5GtBBMW",
                 level: 5,
-                saveActivityName: "Midi Save",
+                saveActivityName: "Midi Save"
             }
-        ],
-    },
+        ]
+    }
 
 }
 
@@ -207,8 +205,11 @@ function getMagickTrickItem(actor, itemUuid, awardedByItemUuid, spellLevel, save
     if (spellLevel > 0) {
         item.uses.max = 1
         item.uses.value = 1
-        item.uses.recovery.period = "lr"
-        item.uses.recovery.type = "recoverAll"
+        item.uses.addRecovery(recovery =>
+        {
+            recovery.period = "lr"
+            recovery.type = "recoverAll"
+        })
     }
 
     if (saveActivityName) {
@@ -220,6 +221,7 @@ function getMagickTrickItem(actor, itemUuid, awardedByItemUuid, spellLevel, save
     }
     return item
 }
+
 export const feyTestDef = {
     id: "fey",
     rollTableOrigin: "NA",
@@ -237,14 +239,14 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: (loopVars) => loopVars.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -258,7 +260,7 @@ export const feyTestDef = {
                     item.systemType = "humanoid"
                     item.systemSubType = "Fey"
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -275,7 +277,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: (loopVars) => loopVars.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -283,14 +285,14 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: (loopVars) => loopVars.twoFacedUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
             {
                 const expectedItemUuids = [
                     "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
@@ -301,10 +303,9 @@ export const feyTestDef = {
                 ]
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = expectedItemUuids
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
-
 
         {
             name: (loopVars) => `stage 2 with Servant of the ${loopVars.name} Court choosing Magic tricks`,
@@ -319,7 +320,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: (loopVars) => loopVars.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -327,14 +328,14 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: (loopVars) => loopVars.magicTricksUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
             {
                 const expectedItemUuids = [
                     "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
@@ -348,7 +349,7 @@ export const feyTestDef = {
                 ]
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = expectedItemUuids
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -365,7 +366,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: (loopVars) => loopVars.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -373,7 +374,7 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: (loopVars) => loopVars.twoFacedUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -381,14 +382,14 @@ export const feyTestDef = {
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.2OaLTqox7kaidOxP",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
             {
                 const expectedItemUuids = [
                     "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
@@ -401,7 +402,7 @@ export const feyTestDef = {
                 ]
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = expectedItemUuids
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -418,7 +419,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: (loopVars) => loopVars.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -426,7 +427,7 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: (loopVars) => loopVars.twoFacedUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -434,14 +435,14 @@ export const feyTestDef = {
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.rID40yYHDRry6TJ5",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
             {
                 const expectedItemUuids = [
                     "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
@@ -454,7 +455,7 @@ export const feyTestDef = {
                 ]
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = expectedItemUuids
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -467,7 +468,7 @@ export const feyTestDef = {
                 seasons.autumn
             ],
 
-            setup: async ({ loopVars, actor }) =>
+            setup: async ({loopVars, actor}) =>
             {
                 await actor.update({
                     "flags.transformations.stageChoices": {
@@ -480,19 +481,19 @@ export const feyTestDef = {
             },
 
             steps: [
-                { stage: 1 },
-                { stage: 2 },
+                {stage: 1},
+                {stage: 2},
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
             {
                 const expectedItemUuids = [
                     "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
@@ -505,7 +506,7 @@ export const feyTestDef = {
                 ]
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = expectedItemUuids
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -522,7 +523,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: (loopVars) => loopVars.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -530,7 +531,7 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: (loopVars) => loopVars.twoFacedUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -538,21 +539,21 @@ export const feyTestDef = {
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
                 },
                 {
                     stage: 4,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
                     }
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
             {
                 const expectedItemUuids = [
                     "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
@@ -571,7 +572,7 @@ export const feyTestDef = {
                 actorDto.rollModes.disadvantage.push({
                     identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -588,7 +589,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: (loopVars) => loopVars.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -596,7 +597,7 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: (loopVars) => loopVars.magicTricksUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -604,7 +605,7 @@ export const feyTestDef = {
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
@@ -612,14 +613,14 @@ export const feyTestDef = {
                 {
                     stage: 4,
                     choose: (loopVars) => loopVars.greaterMagicTricksUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
                     }
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
             {
                 const expectedItemUuids = [
                     "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
@@ -644,7 +645,7 @@ export const feyTestDef = {
                 actorDto.rollModes.disadvantage.push({
                     identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -661,7 +662,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: (loopVars) => loopVars.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -669,7 +670,7 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: (loopVars) => loopVars.magicTricksUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -677,7 +678,7 @@ export const feyTestDef = {
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
@@ -685,14 +686,14 @@ export const feyTestDef = {
                 {
                     stage: 4,
                     choose: "Compendium.transformations.gh-transformations.Item.5IJKGifkWQIVrNgN",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
                     }
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, loopVars, validators }) =>
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
             {
                 const expectedItemUuids = [
                     "Compendium.transformations.gh-transformations.Item.Isw6iMe5kwaeGwcf",
@@ -706,7 +707,7 @@ export const feyTestDef = {
                     loopVars.magicTricksUuid,
                     loopVars.magicTricksSpells[0].uuid,
                     loopVars.magicTricksSpells[1].uuid,
-                    loopVars.magicTricksSpells[2].uuid,
+                    loopVars.magicTricksSpells[2].uuid
                 ]
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = expectedItemUuids
@@ -714,9 +715,9 @@ export const feyTestDef = {
                 actorDto.rollModes.disadvantage.push({
                     identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
-        },
+        }
     ],
 
     itemBehaviorTests: [
@@ -725,14 +726,14 @@ export const feyTestDef = {
                 `Fey Form applies ${vars.damageType} resistance on longrest`,
 
             loop: () => [
-                { damageType: "acid" },
-                { damageType: "cold" },
-                { damageType: "fire" },
-                { damageType: "lightning" },
-                { damageType: "psychic" },
-                { damageType: "thunder" }
+                {damageType: "acid"},
+                {damageType: "cold"},
+                {damageType: "fire"},
+                {damageType: "lightning"},
+                {damageType: "psychic"},
+                {damageType: "thunder"}
             ],
-            setup: async ({ actor }) => 
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "flags.transformations.stageChoices": {
@@ -745,14 +746,19 @@ export const feyTestDef = {
 
             requiredPath: [
                 {
-                    stage: 1,
+                    stage: 1
                 }
             ],
 
             steps: [
-                async ({ actor, runtime, helpers, waiters, loopVars }) =>
+                async ({actor, runtime, helpers, waiters, loopVars}) =>
                 {
-                    await helpers.fey.chooseDamageResistanceOnLongRest({ waiters, runtime, actor, choice: loopVars.damageType })
+                    await helpers.fey.chooseDamageResistanceOnLongRest({
+                        waiters,
+                        runtime,
+                        actor,
+                        choice: loopVars.damageType
+                    })
                 }
             ],
 
@@ -766,19 +772,19 @@ export const feyTestDef = {
                 )
             },
 
-            assertions: async ({ actor, assert, loopVars, validators }) =>
+            assertions: async ({actor, assert, loopVars, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.stats.resistances = [loopVars.damageType]
                 actorDto.effects.has.push("Fey Form Resistance")
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: (vars) => `Fey Form removes previous resistance on longrest`,
 
-            setup: async ({ actor }) => 
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "flags.transformations.stageChoices": {
@@ -791,12 +797,12 @@ export const feyTestDef = {
 
             requiredPath: [
                 {
-                    stage: 1,
+                    stage: 1
                 }
             ],
 
             steps: [
-                async ({ actor, runtime, helpers, waiters, loopVars }) =>
+                async ({actor, runtime, helpers, waiters, loopVars}) =>
                 {
 
                     await runtime.infrastructure.activeEffectRepository.create({
@@ -827,8 +833,8 @@ export const feyTestDef = {
 
                     await waiters.waitForNextFrame()
 
-                    await helpers.fey.chooseDamageResistanceOnLongRest({ waiters, runtime, actor, choice: "cold" })
-                },
+                    await helpers.fey.chooseDamageResistanceOnLongRest({waiters, runtime, actor, choice: "cold"})
+                }
             ],
 
             await: async ({
@@ -841,12 +847,12 @@ export const feyTestDef = {
                 )
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.stats.resistances = ["cold"]
                 actorDto.effects.has.push("Fey Form Resistance")
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -864,7 +870,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: (loopVars) => loopVars.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -872,9 +878,9 @@ export const feyTestDef = {
             ],
 
             steps: [
-                async ({ actor, runtime, helpers, waiters }) =>
+                async ({actor, runtime, helpers, waiters}) =>
                 {
-                    await helpers.fey.chooseDamageResistanceOnLongRest({ waiters, runtime, actor, choice: "acid" })
+                    await helpers.fey.chooseDamageResistanceOnLongRest({waiters, runtime, actor, choice: "acid"})
                 }
             ],
 
@@ -888,7 +894,7 @@ export const feyTestDef = {
                 )
             },
 
-            assertions: async ({ actor, assert, loopVars, validators }) =>
+            assertions: async ({actor, assert, loopVars, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.addItem(item =>
@@ -908,7 +914,7 @@ export const feyTestDef = {
                         })
                     })
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -919,7 +925,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: seasons.winter.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -927,32 +933,36 @@ export const feyTestDef = {
             ],
 
             steps: [
-                async ({ actor, runtime, helpers, waiters }) =>
+                async ({actor, runtime, helpers, waiters}) =>
                 {
-                    await helpers.fey.chooseDamageResistanceOnLongRest({ waiters, runtime, actor, choice: "acid" })
+                    await helpers.fey.chooseDamageResistanceOnLongRest({waiters, runtime, actor, choice: "acid"})
                 }
             ],
 
-            assertions: async ({ actor, assert, runtime, helpers }) =>
+            assertions: async ({actor, assert, runtime, helpers}) =>
             {
                 const transformation = runtime.services.transformationRegistry.getEntryForActor(actor)
                 const context = helpers.getPreRollSavingThrowContext({
                     ability: "dex",
                     originType: "spell"
                 })
-                await transformation.TransformationClass.onPreRollSavingThrow(actor, context, { onceService: runtime.infrastructure.onceService })
+                await transformation.TransformationClass.onPreRollSavingThrow(
+                    actor,
+                    context,
+                    {onceService: runtime.infrastructure.onceService}
+                )
 
                 const contextDto = new ContextValidationDTO(context)
                 contextDto.disadvantage = true
                 contextDto.advantage = null
-                validate(contextDto, { assert })
+                validate(contextDto, {assert})
 
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.flags.match.push({
                     path: "transformations.once.fey-plannar-binding-disadvantage",
-                    expected: { executed: true, reset: ["longRest", "shortRest"] }
+                    expected: {executed: true, reset: ["longRest", "shortRest"]}
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -969,7 +979,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: (loopVars) => loopVars.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -977,14 +987,14 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: loopVars => loopVars.twoFacedUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
                 }
             ],
 
-            await: async ({ runtime, actor, waiters }) =>
+            await: async ({runtime, actor, waiters}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -992,7 +1002,7 @@ export const feyTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, loopVars, validators }) =>
+            assertions: async ({actor, assert, loopVars, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.addItem(item =>
@@ -1018,7 +1028,7 @@ export const feyTestDef = {
                         })
                     })
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1035,7 +1045,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: (loopVars) => loopVars.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -1043,14 +1053,14 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: loopVars => loopVars.magicTricksUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
                 }
             ],
 
-            await: async ({ runtime, actor, waiters }) =>
+            await: async ({runtime, actor, waiters}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1058,7 +1068,7 @@ export const feyTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, loopVars, validators }) =>
+            assertions: async ({actor, assert, loopVars, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -1089,17 +1099,38 @@ export const feyTestDef = {
                 })
                 actorDto.addItem(item =>
                 {
-                    getMagickTrickItem(actor, loopVars.magicTricksSpells[0].uuid, loopVars.magicTricksUuid, loopVars.magicTricksSpells[0].level, loopVars.magicTricksSpells[0].saveActivityName, item)
+                    getMagickTrickItem(
+                        actor,
+                        loopVars.magicTricksSpells[0].uuid,
+                        loopVars.magicTricksUuid,
+                        loopVars.magicTricksSpells[0].level,
+                        loopVars.magicTricksSpells[0].saveActivityName,
+                        item
+                    )
                 })
                 actorDto.addItem(item =>
                 {
-                    getMagickTrickItem(actor, loopVars.magicTricksSpells[1].uuid, loopVars.magicTricksUuid, loopVars.magicTricksSpells[1].level, loopVars.magicTricksSpells[1].saveActivityName, item)
+                    getMagickTrickItem(
+                        actor,
+                        loopVars.magicTricksSpells[1].uuid,
+                        loopVars.magicTricksUuid,
+                        loopVars.magicTricksSpells[1].level,
+                        loopVars.magicTricksSpells[1].saveActivityName,
+                        item
+                    )
                 })
                 actorDto.addItem(item =>
                 {
-                    getMagickTrickItem(actor, loopVars.magicTricksSpells[2].uuid, loopVars.magicTricksUuid, loopVars.magicTricksSpells[2].level, loopVars.magicTricksSpells[2].saveActivityName, item)
+                    getMagickTrickItem(
+                        actor,
+                        loopVars.magicTricksSpells[2].uuid,
+                        loopVars.magicTricksUuid,
+                        loopVars.magicTricksSpells[2].level,
+                        loopVars.magicTricksSpells[2].saveActivityName,
+                        item
+                    )
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1110,7 +1141,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: seasons.winter.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -1118,14 +1149,14 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: seasons.winter.magicTricksUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
                 }
             ],
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects.count = 0
@@ -1144,7 +1175,7 @@ export const feyTestDef = {
                         })
                     })
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1155,7 +1186,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: seasons.winter.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -1163,7 +1194,7 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: seasons.winter.magicTricksUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -1171,10 +1202,10 @@ export const feyTestDef = {
             ],
 
             steps: [
-                async ({ actor, runtime, helpers, waiters, loopVars }) =>
+                async ({actor, runtime, helpers, waiters, loopVars}) =>
                 {
                     const itemEffect = actor.items.find(i => i.name == "Queen's Command").effects.contents[0]
-                    await itemEffect.update({ disabled: false })
+                    await itemEffect.update({disabled: false})
                     await waiters.waitForDomainStability({
                         actor,
                         asyncTrackers: runtime.dependencies.utils.asyncTrackers
@@ -1183,7 +1214,7 @@ export const feyTestDef = {
                 }
             ],
 
-            await: async ({ actor, runtime, helpers, waiters }) =>
+            await: async ({actor, runtime, helpers, waiters}) =>
             {
                 await waiters.waitForCondition(() =>
                 {
@@ -1193,7 +1224,7 @@ export const feyTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, helpers, validators }) =>
+            assertions: async ({actor, assert, helpers, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects.count = 1
@@ -1214,22 +1245,22 @@ export const feyTestDef = {
                 })
                 for (const ability of D20Identifiers.abilities) {
                     actorDto.rollModes.disadvantage.push(
-                        { identifier: ability, type: ROLL_TYPE.ABILITY_CHECK },
-                        { identifier: ability, type: ROLL_TYPE.SAVING_THROW }
+                        {identifier: ability, type: ROLL_TYPE.ABILITY_CHECK},
+                        {identifier: ability, type: ROLL_TYPE.SAVING_THROW}
                     )
                 }
                 for (const attribute of D20Identifiers.attributes) {
                     actorDto.rollModes.disadvantage.push(
-                        { identifier: attribute }
+                        {identifier: attribute}
                     )
                 }
                 for (const skill of D20Identifiers.skills) {
                     actorDto.rollModes.disadvantage.push(
-                        { identifier: skill }
+                        {identifier: skill}
                     )
                 }
                 actorDto.rollModes.toolDisadvantage = "1"
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1240,7 +1271,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: seasons.winter.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -1248,7 +1279,7 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: seasons.winter.magicTricksUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -1259,14 +1290,14 @@ export const feyTestDef = {
                 }
             ],
 
-            await: async ({ actor, runtime, helpers, waiters }) =>
+            await: async ({actor, runtime, helpers, waiters}) =>
             {
                 await waiters.waitForCondition(() =>
                     actor.items.find(i => i.name === "Illusionary Cloak")
                 )
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.addItem(item =>
@@ -1280,7 +1311,7 @@ export const feyTestDef = {
                         effect.duration.seconds = 3600
                     })
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1291,7 +1322,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: seasons.winter.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -1299,7 +1330,7 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: seasons.winter.magicTricksUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -1310,14 +1341,14 @@ export const feyTestDef = {
                 }
             ],
 
-            await: async ({ actor, runtime, helpers, waiters }) =>
+            await: async ({actor, runtime, helpers, waiters}) =>
             {
                 await waiters.waitForCondition(() =>
                     actor.items.find(i => i.name === "Tooth and Claw")
                 )
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorProf = actor.system.attributes.prof
                 const transformationStage = actor.flags.transformations.stage
@@ -1328,8 +1359,11 @@ export const feyTestDef = {
                     item.type = "weapon"
                     item.numberOfEffects = 1
                     item.uses.max = actorProf + transformationStage
-                    item.uses.recovery.period = "lr"
-                    item.uses.recovery.type = "recoverAll"
+                    item.uses.addRecovery(recovery =>
+                    {
+                        recovery.period = "lr"
+                        recovery.type = "recoverAll"
+                    })
                     item.addEffect(effect =>
                     {
                         effect.name = "Stunned"
@@ -1428,7 +1462,7 @@ export const feyTestDef = {
                         })
                     })
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1439,7 +1473,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: seasons.winter.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -1447,7 +1481,7 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: seasons.winter.magicTricksUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -1455,21 +1489,21 @@ export const feyTestDef = {
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
                 }
             ],
 
-            await: async ({ actor, runtime, helpers, waiters }) =>
+            await: async ({actor, runtime, helpers, waiters}) =>
             {
                 await waiters.waitForCondition(() =>
                     actor.items.find(i => i.name === "Dreams and Nightmares")
                 )
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorProf = actor.system.attributes.prof
                 const transformationStage = actor.flags.transformations.stage
@@ -1480,8 +1514,11 @@ export const feyTestDef = {
                     item.type = "feat"
                     item.numberOfEffects = 1
                     item.uses.max = actorProf
-                    item.uses.recovery.period = "lr"
-                    item.uses.recovery.type = "recoverAll"
+                    item.uses.addRecovery(recovery =>
+                    {
+                        recovery.period = "lr"
+                        recovery.type = "recoverAll"
+                    })
                     item.addEffect(effect =>
                     {
                         effect.name = "Dream or Nightmare"
@@ -1542,7 +1579,7 @@ export const feyTestDef = {
                     })
 
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1553,7 +1590,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: seasons.winter.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -1561,7 +1598,7 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: seasons.winter.magicTricksUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -1569,21 +1606,21 @@ export const feyTestDef = {
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
                 }
             ],
 
-            await: async ({ actor, runtime, helpers, waiters }) =>
+            await: async ({actor, runtime, helpers, waiters}) =>
             {
                 await waiters.waitForCondition(() =>
                     actor.items.find(i => i.name === "Weakend Constitution")
                 )
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorProf = actor.system.attributes.prof
                 const transformationStage = actor.flags.transformations.stage
@@ -1594,15 +1631,18 @@ export const feyTestDef = {
                     item.type = "feat"
                     item.numberOfEffects = 0
                     item.uses.max = 1
-                    item.uses.recovery.period = "initiative"
-                    item.uses.recovery.type = "recoverAll"
+                    item.uses.addRecovery(recovery =>
+                    {
+                        recovery.period = "initiative"
+                        recovery.type = "recoverAll"
+                    })
                     item.numberOfActivities = 1
                     item.addActivity(activity =>
                     {
                         activity.name = "Fey Exhaustion Recovery"
                     })
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1613,7 +1653,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: seasons.winter.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -1621,7 +1661,7 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: seasons.winter.magicTricksUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -1629,7 +1669,7 @@ export const feyTestDef = {
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
@@ -1638,7 +1678,7 @@ export const feyTestDef = {
 
             steps: [
 
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await ChatMessage.deleteDocuments(
                         game.messages.contents.map(m => m.id)
@@ -1646,17 +1686,17 @@ export const feyTestDef = {
                     const weakendConstitution = actor.items.find(i => i.name === "Weakend Constitution")
                     const activity = weakendConstitution.system.activities.find(a => a.name == "Fey Exhaustion Recovery")
                     activity.use()
-                },
+                }
             ],
 
-            await: async ({ actor, runtime, helpers, waiters }) =>
+            await: async ({actor, runtime, helpers, waiters}) =>
             {
                 await waiters.waitForCondition(() =>
                     game.messages.contents.length > 0
                 )
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorProf = actor.system.attributes.prof
                 const transformationStage = actor.flags.transformations.stage
@@ -1666,7 +1706,7 @@ export const feyTestDef = {
                 messageDto.contents.values = ["As a Magic action, you can expend a number of Hit Point Dice equal to your Transformation Stage to remove one level of Exhaustion gained in this manner. You gain no other benefit from those expended Hit Point Dice."]
                 messageDto.contents.mode = "includes"
                 messageDto.title = "Weakend Constitution - Fey Exhaustion Recovery"
-                validate(messageDto, { assert })
+                validate(messageDto, {assert})
             }
         },
 
@@ -1677,7 +1717,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: seasons.winter.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -1685,7 +1725,7 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: seasons.winter.magicTricksUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -1693,7 +1733,7 @@ export const feyTestDef = {
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
@@ -1702,16 +1742,16 @@ export const feyTestDef = {
 
             steps: [
 
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.saveResult = 20
                     globalThis.___TransformationTestEnvironment___.saveRolled = false
-                },
+                }
             ],
 
             trigger: "bloodied",
 
-            await: async ({ actor, runtime, helpers, waiters }) =>
+            await: async ({actor, runtime, helpers, waiters}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1719,13 +1759,13 @@ export const feyTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
 
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.stats.exhaustion = 0
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1736,7 +1776,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: seasons.winter.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -1744,7 +1784,7 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: seasons.winter.magicTricksUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -1752,7 +1792,7 @@ export const feyTestDef = {
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
@@ -1761,30 +1801,31 @@ export const feyTestDef = {
 
             steps: [
 
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.saveResult = 19
                     globalThis.___TransformationTestEnvironment___.saveRolled = false
-                },
+                }
             ],
 
             trigger: "bloodied",
 
-            await: async ({ actor, runtime, helpers, waiters }) =>
+            await: async ({actor, runtime, helpers, waiters}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
                     asyncTrackers: runtime.dependencies.utils.asyncTrackers
                 })
+                await waiters.waitForNextFrame()
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
 
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.stats.exhaustion = 1
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1801,7 +1842,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: (loopVars) => loopVars.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -1809,7 +1850,7 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: loopVars => loopVars.magicTricksUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -1817,7 +1858,7 @@ export const feyTestDef = {
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
@@ -1825,14 +1866,14 @@ export const feyTestDef = {
                 {
                     stage: 4,
                     choose: loopVars => loopVars.greaterMagicTricksUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
                     }
                 }
             ],
 
-            await: async ({ runtime, actor, waiters }) =>
+            await: async ({runtime, actor, waiters}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1840,7 +1881,7 @@ export const feyTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, loopVars, validators }) =>
+            assertions: async ({actor, assert, loopVars, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -1874,29 +1915,71 @@ export const feyTestDef = {
                 })
                 actorDto.addItem(item =>
                 {
-                    getMagickTrickItem(actor, loopVars.magicTricksSpells[0].uuid, loopVars.magicTricksUuid, loopVars.magicTricksSpells[0].level, loopVars.magicTricksSpells[0].saveActivityName, item)
+                    getMagickTrickItem(
+                        actor,
+                        loopVars.magicTricksSpells[0].uuid,
+                        loopVars.magicTricksUuid,
+                        loopVars.magicTricksSpells[0].level,
+                        loopVars.magicTricksSpells[0].saveActivityName,
+                        item
+                    )
                 })
                 actorDto.addItem(item =>
                 {
-                    getMagickTrickItem(actor, loopVars.magicTricksSpells[1].uuid, loopVars.magicTricksUuid, loopVars.magicTricksSpells[1].level, loopVars.magicTricksSpells[1].saveActivityName, item)
+                    getMagickTrickItem(
+                        actor,
+                        loopVars.magicTricksSpells[1].uuid,
+                        loopVars.magicTricksUuid,
+                        loopVars.magicTricksSpells[1].level,
+                        loopVars.magicTricksSpells[1].saveActivityName,
+                        item
+                    )
                 })
                 actorDto.addItem(item =>
                 {
-                    getMagickTrickItem(actor, loopVars.magicTricksSpells[2].uuid, loopVars.magicTricksUuid, loopVars.magicTricksSpells[2].level, loopVars.magicTricksSpells[2].saveActivityName, item)
+                    getMagickTrickItem(
+                        actor,
+                        loopVars.magicTricksSpells[2].uuid,
+                        loopVars.magicTricksUuid,
+                        loopVars.magicTricksSpells[2].level,
+                        loopVars.magicTricksSpells[2].saveActivityName,
+                        item
+                    )
                 })
                 actorDto.addItem(item =>
                 {
-                    getMagickTrickItem(actor, loopVars.greaterMagicTricksSpells[0].uuid, loopVars.magicTricksUuid, loopVars.greaterMagicTricksSpells[0].level, loopVars.greaterMagicTricksSpells[0].saveActivityName, item)
+                    getMagickTrickItem(
+                        actor,
+                        loopVars.greaterMagicTricksSpells[0].uuid,
+                        loopVars.magicTricksUuid,
+                        loopVars.greaterMagicTricksSpells[0].level,
+                        loopVars.greaterMagicTricksSpells[0].saveActivityName,
+                        item
+                    )
                 })
                 actorDto.addItem(item =>
                 {
-                    getMagickTrickItem(actor, loopVars.greaterMagicTricksSpells[1].uuid, loopVars.magicTricksUuid, loopVars.greaterMagicTricksSpells[1].level, loopVars.greaterMagicTricksSpells[1].saveActivityName, item)
+                    getMagickTrickItem(
+                        actor,
+                        loopVars.greaterMagicTricksSpells[1].uuid,
+                        loopVars.magicTricksUuid,
+                        loopVars.greaterMagicTricksSpells[1].level,
+                        loopVars.greaterMagicTricksSpells[1].saveActivityName,
+                        item
+                    )
                 })
                 actorDto.addItem(item =>
                 {
-                    getMagickTrickItem(actor, loopVars.greaterMagicTricksSpells[2].uuid, loopVars.magicTricksUuid, loopVars.greaterMagicTricksSpells[2].level, loopVars.greaterMagicTricksSpells[2].saveActivityName, item)
+                    getMagickTrickItem(
+                        actor,
+                        loopVars.greaterMagicTricksSpells[2].uuid,
+                        loopVars.magicTricksUuid,
+                        loopVars.greaterMagicTricksSpells[2].level,
+                        loopVars.greaterMagicTricksSpells[2].saveActivityName,
+                        item
+                    )
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1907,7 +1990,7 @@ export const feyTestDef = {
                 {
                     stage: 1,
                     choose: seasons.winter.servantUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -1915,7 +1998,7 @@ export const feyTestDef = {
                 {
                     stage: 2,
                     choose: seasons.winter.magicTricksUuid,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -1923,7 +2006,7 @@ export const feyTestDef = {
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
@@ -1931,14 +2014,14 @@ export const feyTestDef = {
                 {
                     stage: 4,
                     choose: "Compendium.transformations.gh-transformations.Item.5IJKGifkWQIVrNgN",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
                     }
                 }
             ],
 
-            await: async ({ actor, runtime, helpers, waiters }) =>
+            await: async ({actor, runtime, helpers, waiters}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1946,7 +2029,7 @@ export const feyTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.addItem(item =>
@@ -1976,11 +2059,14 @@ export const feyTestDef = {
                         })
                     })
                     item.uses.max = 2
-                    item.uses.recovery.period = "lr"
-                    item.uses.recovery.type = "recoverAll"
+                    item.uses.addRecovery(recovery =>
+                    {
+                        recovery.period = "lr"
+                        recovery.type = "recoverAll"
+                    })
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
-        },
+        }
     ]
 }

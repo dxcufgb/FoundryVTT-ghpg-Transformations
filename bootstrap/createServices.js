@@ -148,6 +148,7 @@ export function createServices({
     const applyFiendGiftOfDamnation = createApplyFiendGiftOfDamnation({
         tracker: trackers.services,
         activeEffectRepository,
+        actorRepository,
         advancementChoiceHandler,
         itemRepository,
         logger

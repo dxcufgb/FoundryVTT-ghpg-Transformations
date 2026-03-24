@@ -8,7 +8,7 @@ export class GiftOfUnsurpassedFortune
     static stage = 1
     static description = "When an enemy you can see within 10 feet succeeds on an attack roll or a saving throw, you can use your Reaction to roll d20. On a 6 or higher, the triggering attack or save misses or fails, and you regain the use of your Reaction. Otherwise, you take 1d6 Psychic damage per Transformation Stage, which cannot be reduced. You regain your use of this ability when you finish a Long Rest."
 
-    static async apply({actor, itemRepository}) {
+    static async apply({actor, actorRepository, itemRepository}) {
         const sourceItem = this.itemUuid
             ? await fromUuid(this.itemUuid)
             : null
@@ -17,6 +17,7 @@ export class GiftOfUnsurpassedFortune
             actor,
             giftClass: this,
             itemRepository,
+            actorRepository,
             sourceItem,
             changes: []
         })

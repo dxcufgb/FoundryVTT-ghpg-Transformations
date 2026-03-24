@@ -7,11 +7,12 @@ export class GiftOfMartialProwess
     static stage = 8
     static description = "Placeholder effect for Gift of Martial Prowess."
 
-    static async apply({actor, itemRepository}) {
+    static async apply({actor, actorRepository, itemRepository}) {
         return applyGiftOfDamnation({
             actor,
             giftClass: this,
             itemRepository,
+            actorRepository,
             changes: []
         })
     }

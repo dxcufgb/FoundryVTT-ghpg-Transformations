@@ -195,8 +195,10 @@ export const fiendTestDef = {
                     item.uses.max = actorProf + 1
                     item.uses.value = actorProf + 1
                     item.usesLeft = actorProf + 1
-                    item.uses.recovery.period = "lr"
-                    item.uses.recovery.type = "recoverAll"
+                    item.uses.addRecovery(recovery => {
+                        recovery.period = "lr"
+                        recovery.type = "recoverAll"
+                    })
                     item.addActivity(activity => {
                         activity.name = "Midi Damage"
                         activity.activityType = "special"
@@ -313,6 +315,17 @@ export const fiendTestDef = {
                 })
                 actorDto.addItem(item => {
                     item.itemName = "Enhanced Contract"
+                    item.uses.max = 1
+                    item.uses.value = 1
+                    item.usesLeft = 1
+                    item.uses.addRecovery(recovery => {
+                        recovery.period = "lr"
+                        recovery.type = "recoverAll"
+                    })
+                    item.uses.addRecovery(recovery => {
+                        recovery.period = "sr"
+                        recovery.type = "recoverAll"
+                    })
                 })
                 actorDto.stats.resistances.push("acid")
                 validate(actorDto, {assert})
@@ -418,8 +431,10 @@ export const fiendTestDef = {
                 actorDto.addItem(item => {
                     item.itemName = "Daemonic Brand"
                     item.uses.max = actorProf
-                    item.uses.recovery.type = "recoverAll"
-                    item.uses.recovery.period = "lr"
+                    item.uses.addRecovery(recovery => {
+                        recovery.type = "recoverAll"
+                        recovery.period = "lr"
+                    })
                     item.addActivity(activity => {
                         activity.name = "Midi Save"
                         activity.activationType = "bonus"
@@ -547,8 +562,10 @@ export const fiendTestDef = {
                     item.uses.max = actorProf + 2
                     item.uses.value = actorProf + 2
                     item.usesLeft = actorProf + 2
-                    item.uses.recovery.period = "lr"
-                    item.uses.recovery.type = "recoverAll"
+                    item.uses.addRecovery(recovery => {
+                        recovery.period = "lr"
+                        recovery.type = "recoverAll"
+                    })
                     item.addActivity(activity => {
                         activity.name = "Midi Damage"
                         activity.activityType = "special"
@@ -614,8 +631,10 @@ export const fiendTestDef = {
                     item.uses.max = actorProf
                     item.uses.value = actorProf
                     item.usesLeft = actorProf
-                    item.uses.recovery.type = "recoverAll"
-                    item.uses.recovery.period = "lr"
+                    item.uses.addRecovery(recovery => {
+                        recovery.type = "recoverAll"
+                        recovery.period = "lr"
+                    })
                     item.addActivity(activity => {
                         activity.name = "Midi Save"
                         activity.activationType = "bonus"
@@ -1703,6 +1722,159 @@ export const fiendTestDef = {
                 } finally {
                     rollHelper.restore()
                 }
+            }
+        },
+
+        {
+            name: `Enhanced Contract consumes item use on gift of Damnation`,
+            setup: async ({actor, helpers, loopVars}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                            2: "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM"
+                        }
+                    }
+                })
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Fiendish Soul",
+                        choice: {
+                            icon: "modules/transformations/icons/damageTypes/Acid.png",
+                            id: "acid",
+                            label: "Acid",
+                            raw: "dr:acid",
+                            value: "acid"
+                        }
+                    }
+                ]
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime}) =>
+                {
+                    const gift = giftsOfDamnation.find(entry => entry.id === "giftOfUnsurpassedFortune")
+                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+                }
+            ],
+
+            await: async ({
+                actor,
+                waiters,
+                runtime
+            }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await waiters.waitForNextFrame()
+                await waiters.waitForCondition(() =>
+                    actor.items.some(i => i.name === "Gift of Unsurpassed Fortune")
+                )
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.stats.hp = [10, "temp"]
+                actorDto.addItem(item => {
+                    item.itemName = "Enhanced Contract"
+                    item.usesLeft = 0
+                })
+                validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: `Enhanced Contract no temp hp added if no charges left when activating gift of Damnation`,
+            setup: async ({actor, helpers, loopVars}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                            2: "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM"
+                        }
+                    }
+                })
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Fiendish Soul",
+                        choice: {
+                            icon: "modules/transformations/icons/damageTypes/Acid.png",
+                            id: "acid",
+                            label: "Acid",
+                            raw: "dr:acid",
+                            value: "acid"
+                        }
+                    }
+                ]
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime}) =>
+                {
+                    const gift = giftsOfDamnation.find(entry => entry.id === "giftOfUnsurpassedFortune")
+                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+                }
+            ],
+
+            await: async ({
+                actor,
+                waiters,
+                runtime
+            }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await waiters.waitForNextFrame()
+                await waiters.waitForCondition(() =>
+                    actor.items.some(i => i.name === "Gift of Unsurpassed Fortune")
+                )
+                await actor.update({
+                    "system.attributes.hp.temp": 0
+                })
+                const gift = giftsOfDamnation.find(entry => entry.id === "giftOfUnsurpassedFortune")
+                await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.stats.hp = [0, "temp"]
+                actorDto.addItem(item => {
+                    item.itemName = "Enhanced Contract"
+                    item.usesLeft = 0
+                })
+                validate(actorDto, {assert})
             }
         }
     ]
