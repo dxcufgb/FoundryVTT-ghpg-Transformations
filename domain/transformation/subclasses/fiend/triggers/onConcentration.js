@@ -1,32 +1,44 @@
 export const onConcentration = {
     name: "concentration",
 
+    variables: [
+        {
+            name: "transformationSaveDC",
+            type: "stageDependent",
+            value: {
+                2: 13,
+                3: 16,
+                4: 20
+            }
+        }
+    ],
+
     actionGroups: [
         {
-            name: "reset-weakend-constitution-save",
+            name: "fiend-form-save",
             when: {
-                stage: { min: 3 }
+                stage: { min: 2 }
             },
             actions: [
                 {
                     type: "SAVE",
                     when: {
-                        effects: { name: "Hiding Hideous Appearance" }
+                        effects: { name: "Hiding Fiend Appearance" }
                     },
                     data: {
                         ability: "con",
                         dc: "@transformationSaveDC",
-                        key: "hideous-appearance-con-save"
+                        key: "fiend-form-con-save"
                     }
                 },
                 {
                     type: "EFFECT",
                     when: {
-                        saveFailed: "hideous-appearance-con-save"
+                        saveFailed: "fiend-form-con-save"
                     },
                     data: {
                         mode: "remove",
-                        name: "Hiding Hideous Appearance"
+                        name: "Hiding Fiend Appearance"
                     }
                 }
             ]

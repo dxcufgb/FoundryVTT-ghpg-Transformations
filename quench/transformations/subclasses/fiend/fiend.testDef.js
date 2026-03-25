@@ -1,5 +1,6 @@
 import { validate } from "../../../helpers/DTOValidators/validate.js"
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js"
+import { EffectValidationDTO } from "../../../helpers/validationDTOs/effect/EffectValidationDTO.js"
 import { giftsOfDamnation } from "../../../../domain/transformation/subclasses/fiend/giftsOfDamnation/index.js";
 import { SKILL } from "../../../../config/constants.js";
 
@@ -39,6 +40,75 @@ function allowMockRollMessageUpdates(message)
 
         return originalUpdate(data, ...args)
     }
+}
+
+function setFiendStage1DamageResistanceChoice()
+{
+    globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+        {
+            name: "Fiendish Soul",
+            choice: {
+                icon: "modules/transformations/icons/damageTypes/Acid.png",
+                id: "acid",
+                label: "Acid",
+                raw: "dr:acid",
+                value: "acid"
+            }
+        }
+    ]
+}
+
+async function applyHidingFiendAppearance({
+    actor,
+    helpers
+})
+{
+    await helpers.applyItemActivityEffect({
+        actor,
+        itemName: "Fiend Form",
+        effectName: "Hiding Fiend Appearance",
+        macroTrigger: "on"
+    })
+}
+
+async function applyGiftOfUnfetteredGloryAndTriggerHitDie({
+    actor,
+    runtime,
+    waiters,
+    staticVars
+})
+{
+    staticVars.context = {
+        rolls: [
+            {
+                parts: [
+                    "1d8"
+                ]
+            }
+        ]
+    }
+
+    const gift = giftsOfDamnation.find(entry => entry.id === "giftOfUnfetteredGlory")
+    await runtime.services.applyFiendGiftOfDamnation({
+        actor,
+        gift
+    })
+
+    await waiters.waitForDomainStability({
+        actor,
+        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+    })
+    await waiters.waitForNextFrame()
+    await waiters.waitForCondition(() =>
+        actor.items.some(i => i.name === "Gift of Unfettered Glory")
+    )
+
+    await actor.update({
+        "system.attributes.hp.value": 1
+    })
+
+    const transformation = runtime.services.transformationRegistry.getEntryForActor(actor)
+    transformation.TransformationClass.onPreRollHitDie(staticVars.context, actor)
 }
 
 export const fiendTestDef = {
@@ -1726,6 +1796,427 @@ export const fiendTestDef = {
         },
 
         {
+            name: "Fiend Form hide fiend form",
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                }
+            ],
+
+            setup: async ({actor}) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                            2: "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM"
+                        }
+                    }
+                })
+                setFiendStage1DamageResistanceChoice()
+            },
+
+            steps: [
+                async ({actor, helpers}) =>
+                {
+                    await applyHidingFiendAppearance({
+                        actor,
+                        helpers
+                    })
+                }
+            ],
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.has.push("Hiding Fiend Appearance")
+
+                actorDto.effects = effectDto
+                validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: "Fiend Form saving throw success on bloodied",
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                }
+            ],
+
+            setup: async ({actor}) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                            2: "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM"
+                        }
+                    }
+                })
+                setFiendStage1DamageResistanceChoice()
+                globalThis.___TransformationTestEnvironment___.saveResult = 13
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            steps: [
+                async ({actor, helpers}) =>
+                {
+                    await applyHidingFiendAppearance({
+                        actor,
+                        helpers
+                    })
+                }
+            ],
+
+            trigger: "bloodied",
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.has.push("Hiding Fiend Appearance")
+
+                actorDto.effects = effectDto
+                validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: "Fiend Form saving throw fail on bloodied",
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                }
+            ],
+
+            setup: async ({actor}) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                            2: "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM"
+                        }
+                    }
+                })
+                setFiendStage1DamageResistanceChoice()
+                globalThis.___TransformationTestEnvironment___.saveResult = 12
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            steps: [
+                async ({actor, helpers}) =>
+                {
+                    await applyHidingFiendAppearance({
+                        actor,
+                        helpers
+                    })
+                }
+            ],
+
+            trigger: "bloodied",
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 0
+                effectDto.notHas.push("Hiding Fiend Appearance")
+
+                actorDto.effects = effectDto
+                validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: "Fiend Form saving throw success on unconscious",
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                }
+            ],
+
+            setup: async ({actor}) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                            2: "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM"
+                        }
+                    }
+                })
+                setFiendStage1DamageResistanceChoice()
+                globalThis.___TransformationTestEnvironment___.saveResult = 13
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            steps: [
+                async ({actor, helpers}) =>
+                {
+                    await applyHidingFiendAppearance({
+                        actor,
+                        helpers
+                    })
+                }
+            ],
+
+            trigger: "unconscious",
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.has.push("Hiding Fiend Appearance")
+
+                actorDto.effects = effectDto
+                validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: "Fiend Form saving throw fail on unconscious",
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                }
+            ],
+
+            setup: async ({actor}) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                            2: "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM"
+                        }
+                    }
+                })
+                setFiendStage1DamageResistanceChoice()
+                globalThis.___TransformationTestEnvironment___.saveResult = 12
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            steps: [
+                async ({actor, helpers}) =>
+                {
+                    await applyHidingFiendAppearance({
+                        actor,
+                        helpers
+                    })
+                }
+            ],
+
+            trigger: "unconscious",
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 0
+                effectDto.notHas.push("Hiding Fiend Appearance")
+
+                actorDto.effects = effectDto
+                validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: "Fiend Form saving throw success on beginConcentration",
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                }
+            ],
+
+            setup: async ({actor}) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                            2: "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM"
+                        }
+                    }
+                })
+                setFiendStage1DamageResistanceChoice()
+                globalThis.___TransformationTestEnvironment___.saveResult = 13
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            steps: [
+                async ({actor, helpers}) =>
+                {
+                    await applyHidingFiendAppearance({
+                        actor,
+                        helpers
+                    })
+                }
+            ],
+
+            trigger: "concentration",
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.has.push("Hiding Fiend Appearance")
+
+                actorDto.effects = effectDto
+                validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: "Fiend Form saving throw fail on beginConcentration",
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                }
+            ],
+
+            setup: async ({actor}) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                            2: "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM"
+                        }
+                    }
+                })
+                setFiendStage1DamageResistanceChoice()
+                globalThis.___TransformationTestEnvironment___.saveResult = 12
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            steps: [
+                async ({actor, helpers}) =>
+                {
+                    await applyHidingFiendAppearance({
+                        actor,
+                        helpers
+                    })
+                }
+            ],
+
+            trigger: "concentration",
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 0
+                effectDto.notHas.push("Hiding Fiend Appearance")
+
+                actorDto.effects = effectDto
+                validate(actorDto, {assert})
+            }
+        },
+
+        {
             name: `Enhanced Contract consumes item use on gift of Damnation`,
             setup: async ({actor, helpers, loopVars}) =>
             {
@@ -1875,6 +2366,111 @@ export const fiendTestDef = {
                     item.usesLeft = 0
                 })
                 validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: `Gift of Unfettered Glory increases hitDiereduction after hit die roll`,
+
+            setup: async ({actor}) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                            2: "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM"
+                        }
+                    }
+                })
+                setFiendStage1DamageResistanceChoice()
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, waiters, staticVars}) =>
+                {
+                    await applyGiftOfUnfetteredGloryAndTriggerHitDie({
+                        actor,
+                        runtime,
+                        waiters,
+                        staticVars
+                    })
+                }
+            ],
+
+            await: async ({actor, waiters}) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.flags?.transformations?.fiend?.giftOfUnfetteredGlory?.hitDieModifier === 2
+                )
+            },
+
+            assertions: async ({actor, assert, staticVars}) =>
+            {
+                assert.deepEqual(
+                    staticVars.context.rolls[0].parts,
+                    ["1d8"]
+                )
+                assert.equal(
+                    actor.flags?.transformations?.fiend?.giftOfUnfetteredGlory?.hitDieModifier,
+                    2
+                )
+            }
+        },
+
+        {
+            name: `Gift of Unfettered Glory adds -2 to hit die roll`,
+
+            setup: async ({actor}) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                            2: "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM"
+                        }
+                    }
+                })
+                setFiendStage1DamageResistanceChoice()
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, waiters, staticVars}) =>
+                {
+                    await applyGiftOfUnfetteredGloryAndTriggerHitDie({
+                        actor,
+                        runtime,
+                        waiters,
+                        staticVars
+                    })
+                    const transformation = runtime.services.transformationRegistry.getEntryForActor(actor)
+                    transformation.TransformationClass.onPreRollHitDie(staticVars.context, actor)
+                }
+            ],
+
+            assertions: async ({staticVars, assert}) =>
+            {
+                assert.deepEqual(
+                    staticVars.context.rolls[0].parts,
+                    ["1d8-2"]
+                )
             }
         }
     ]

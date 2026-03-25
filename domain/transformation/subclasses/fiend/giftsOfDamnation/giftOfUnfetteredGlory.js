@@ -20,7 +20,10 @@ export class GiftOfUnfetteredGlory
             itemRepository,
             actorRepository,
             sourceItem,
-            changes: []
+            changes: [],
+            flagData: {
+                hitDieModifier: 0
+            }
         })
     }
 }

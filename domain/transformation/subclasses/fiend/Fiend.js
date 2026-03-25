@@ -26,6 +26,29 @@ export class Fiend extends Transformation {
         ) ?? null
     }
 
+    static onPreRollHitDie(context, actor)
+    {
+        const giftOfUnfetteredLoss = actor.items.find(i =>
+            i.flags?.transformations?.sourceUuid === "Compendium.transformations.gh-transformations.Item.RyzgJyXTAcpO0hRn"
+        )
+
+        if (!giftOfUnfetteredLoss) return
+
+        const currentHitDieMod =
+                  actor.flags?.transformations?.fiend?.giftOfUnfetteredGlory?.hitDieModifier ?? 0
+        const nextHitDieMod = currentHitDieMod + 2
+        actor.flags.transformations.fiend.giftOfUnfetteredGlory.hitDieModifier = nextHitDieMod
+        if (currentHitDieMod > 0) {
+            for (const roll of context.rolls ?? []) {
+                roll.parts = roll.parts.map(part =>
+                {
+                    if (typeof part !== "string") return part
+                    return part + `-${currentHitDieMod}`
+                })
+            }
+        }
+    }
+
     static async getInfernalSmiteDamageType(workflow, rolls) {
         const item = workflow.item
         const actor = workflow.actor
@@ -81,7 +104,7 @@ export class Fiend extends Transformation {
         const activity = await fromUuid(activityData.uuid)
         if (!activity) return
         const giftEntry = this.resolveGiftEntry(activity)
-        
+
         if (!actor.isOwner) return
 
         if (giftEntry) {
