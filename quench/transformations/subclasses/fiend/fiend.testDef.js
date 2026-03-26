@@ -7,39 +7,50 @@ import { SKILL } from "../../../../config/constants.js";
 
 function allowMockRollMessageUpdates(message)
 {
-    if (!message || message.__mockRollsEnabled) {
-        return
-    }
+    const messages = [
+        message,
+        game.messages?.get(message?.id)
+    ]
+    .filter(Boolean)
+    .filter((candidate, index, collection) =>
+        collection.findIndex(entry => entry === candidate) === index
+    )
 
-    const originalUpdate = message.update.bind(message)
-
-    Object.defineProperty(message, "__mockRollsEnabled", {
-        configurable: true,
-        enumerable: false,
-        writable: true,
-        value: true
-    })
-
-    message.update = async function update(data = {}, ...args)
-    {
-        if (Array.isArray(data?.rolls)) {
-            Object.defineProperty(this, "rolls", {
-                configurable: true,
-                enumerable: true,
-                writable: true,
-                value: data.rolls
-            })
-
-            const {rolls, ...remaining} = data
-
-            if (Object.keys(remaining).length === 0) {
-                return this
-            }
-
-            return originalUpdate(remaining, ...args)
+    for (const currentMessage of messages) {
+        if (currentMessage.__mockRollsEnabled) {
+            continue
         }
 
-        return originalUpdate(data, ...args)
+        const originalUpdate = currentMessage.update.bind(currentMessage)
+
+        Object.defineProperty(currentMessage, "__mockRollsEnabled", {
+            configurable: true,
+            enumerable: false,
+            writable: true,
+            value: true
+        })
+
+        currentMessage.update = async function update(data = {}, ...args)
+        {
+            if (Array.isArray(data?.rolls)) {
+                Object.defineProperty(this, "rolls", {
+                    configurable: true,
+                    enumerable: true,
+                    writable: true,
+                    value: data.rolls
+                })
+
+                const {rolls, ...remaining} = data
+
+                if (Object.keys(remaining).length === 0) {
+                    return this
+                }
+
+                return originalUpdate(remaining, ...args)
+            }
+
+            return originalUpdate(data, ...args)
+        }
     }
 }
 
@@ -110,6 +121,133 @@ async function applyGiftOfUnfetteredGloryAndTriggerHitDie({
 
     const transformation = runtime.services.transformationRegistry.getEntryForActor(actor)
     transformation.TransformationClass.onPreRollHitDie(staticVars.context, actor)
+}
+
+async function setFiendStage3GiftChoices(actor)
+{
+    await actor.update({
+        "flags.transformations.stageChoices": {
+            "fiend": {
+                1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                2: "Compendium.transformations.gh-transformations.Item.WEFrREhcN84F6ehL"
+            }
+        }
+    })
+    setFiendStage1DamageResistanceChoice()
+}
+
+async function ensureActorHasAvailableHitDie(actor)
+{
+    const classItems = actor.items
+    .filter(item =>
+        item.type === "class" &&
+        Number(item.system?.hd?.max ?? 0) > 0
+    )
+
+    if (classItems.some(item => Number(item.system?.hd?.value ?? 0) > 0)) {
+        return
+    }
+
+    const classItem = [...classItems]
+    .sort((a, b) =>
+        (Number.parseInt(String(b.system?.hd?.denomination ?? "d0").replace("d", ""), 10) || 0) -
+        (Number.parseInt(String(a.system?.hd?.denomination ?? "d0").replace("d", ""), 10) || 0)
+    )
+    .find(item =>
+        Number(item.system?.hd?.max ?? 0) > Number(item.system?.hd?.value ?? 0)
+    )
+
+    if (!classItem) {
+        return
+    }
+
+    const currentValue = Number(classItem.system?.hd?.value ?? 0)
+    const currentSpent = Number(classItem.system?.hd?.spent ?? 0)
+    const nextValue = Math.max(currentValue, 1)
+    const restored = nextValue - currentValue
+
+    await classItem.update({
+        "system.hd.value": nextValue,
+        "system.hd.spent": Math.max(currentSpent - restored, 0)
+    })
+}
+
+async function prepareFiendGiftChatCard({
+    actor,
+    runtime,
+    helpers,
+    waiters,
+    staticVars,
+    giftId,
+    itemName
+})
+{
+    const messageContainsGiftCard = message =>
+        String(message?.content ?? "").includes(`data-gift="${giftId}"`)
+
+    const gift = giftsOfDamnation.find(entry => entry.id === giftId)
+    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+
+    await waiters.waitForDomainStability({
+        actor,
+        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+    })
+    await waiters.waitForNextFrame()
+    await waiters.waitForCondition(() =>
+        actor.items.some(i => i.name === itemName)
+    )
+
+    const giftItem = actor.items.find(i => i.name === itemName)
+    const activity = giftItem.system.activities.find(a => a.name === itemName)
+    staticVars.initialMessageCount = game.messages.contents.length
+    staticVars.initialMessageIds = new Set(
+        game.messages.contents.map(message => message.id)
+    )
+    await activity.use({actor})
+
+    await waiters.waitForCondition(() =>
+        game.messages.contents.length > staticVars.initialMessageCount
+    )
+
+    await waiters.waitForCondition(() =>
+        game.messages.contents.some(message =>
+            !staticVars.initialMessageIds.has(message.id) &&
+            (
+                message?.flags?.transformations?.gift === giftId ||
+                messageContainsGiftCard(message)
+            )
+        )
+    )
+
+    const newMessages = game.messages.contents.filter(message =>
+        !staticVars.initialMessageIds.has(message.id)
+    )
+
+    staticVars.message =
+        newMessages.find(message =>
+            messageContainsGiftCard(message)
+        ) ??
+        newMessages.find(message =>
+            message?.flags?.transformations?.gift === giftId
+        ) ??
+        newMessages.find(message =>
+            message?.flags?.dnd5e?.activity?.uuid === activity.uuid
+        ) ??
+        newMessages.find(message =>
+            message?.flags?.dnd5e?.item?.uuid === giftItem.uuid
+        ) ??
+        newMessages.find(message =>
+            message?.speaker?.actor === actor.id &&
+            message?.flags?.dnd5e?.activity
+        ) ??
+        newMessages.find(message => message?.speaker?.actor === actor.id) ??
+        newMessages[0] ??
+        game.messages.contents.at(-1)
+
+    allowMockRollMessageUpdates(staticVars.message)
+    staticVars.chatCardHelper = helpers.createChatCardTestHelper({
+        message: staticVars.message
+    })
 }
 
 export const fiendTestDef = {
@@ -2488,6 +2626,472 @@ export const fiendTestDef = {
                     "Compendium.transformations.gh-transformations.Item.RyzgJyXTAcpO0hRn"
                 ]
                 validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: `Gift of Second Chances success`,
+
+            setup: async ({actor}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await setFiendStage3GiftChoices(actor)
+                await ensureActorHasAvailableHitDie(actor)
+                await actor.update({
+                    "system.attributes.hp.value": 0,
+                    "system.attributes.death.success": 0,
+                    "system.attributes.death.failure": 0
+                })
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars}) =>
+                {
+                    staticVars.initialHp = actor.system.attributes.hp.value
+                    staticVars.initialDeathFailures =
+                        Number(actor.system.attributes.death.failure ?? 0)
+
+                    await prepareFiendGiftChatCard({
+                        actor,
+                        runtime,
+                        helpers,
+                        waiters,
+                        staticVars,
+                        giftId: "giftOfSecondChances",
+                        itemName: "Gift of Second Chances"
+                    })
+                }
+            ],
+
+            await: async ({waiters, staticVars}) =>
+            {
+                await staticVars.chatCardHelper.waitForCard()
+                await staticVars.chatCardHelper.waitForButton({
+                    text: "Roll Hit Die"
+                })
+            },
+
+            assertions: async ({actor, expect, waiters, helpers, staticVars}) =>
+            {
+                const {chatCardHelper, message} = staticVars
+                const rollHelper = helpers.createDeterministicRollHelper()
+
+                try {
+                    const card = chatCardHelper.getCardElement({require: true})
+
+                    expect(card, "Gift of Second Chances chat card should render").to.exist
+                    expect(card.dataset.gift).to.equal("giftOfSecondChances")
+
+                    chatCardHelper.assertButtonExists({
+                        text: "Roll Hit Die"
+                    }, expect)
+
+                    rollHelper.queueRoll({
+                        total: 6
+                    })
+
+                    await chatCardHelper.clickButton({
+                        text: "Roll Hit Die"
+                    })
+
+                    await waiters.waitForCondition(() =>
+                        rollHelper.getCalls().some(call => call.type === "roll")
+                    )
+
+                    const presentedRolls = await chatCardHelper.waitForPresentedRolls({count: 1})
+                    expect(presentedRolls[0]?.formula).to.equal(`1${message.flags?.transformations?.hitDie}`)
+                    expect(presentedRolls[0]?.total).to.equal(6)
+                    expect(chatCardHelper.hasButton({
+                        text: "Roll Hit Die"
+                    })).to.equal(false)
+
+                    await chatCardHelper.waitForButton({
+                        text: "Apply healing"
+                    })
+
+                    await message.update({
+                        "flags.transformations.secondChancesPersistenceCheck": true
+                    })
+                    await waiters.waitForNextFrame()
+
+                    const persistedRolls = chatCardHelper.getPresentedRolls()
+                    expect(persistedRolls[0]?.total).to.equal(6)
+                    chatCardHelper.assertButtonExists({
+                        text: "Apply healing"
+                    }, expect)
+
+                    await chatCardHelper.clickButton({
+                        text: "Apply healing"
+                    })
+
+                    await waiters.waitForCondition(() =>
+                        actor.system.attributes.hp.value === 6
+                    )
+
+                    expect(actor.system.attributes.hp.value).to.equal(6)
+                    expect(actor.system.attributes.death.failure).to.equal(
+                        staticVars.initialDeathFailures
+                    )
+                    expect(chatCardHelper.hasButton({
+                        text: "Apply healing"
+                    })).to.equal(false)
+                    expect(chatCardHelper.getPresentedRolls()[0]?.total).to.equal(6)
+                } finally {
+                    rollHelper.restore()
+                }
+            }
+        },
+
+        {
+            name: `Gift of Second Chances fail`,
+
+            setup: async ({actor}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await setFiendStage3GiftChoices(actor)
+                await ensureActorHasAvailableHitDie(actor)
+                await actor.update({
+                    "system.attributes.hp.value": 0,
+                    "system.attributes.death.success": 0,
+                    "system.attributes.death.failure": 0
+                })
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars}) =>
+                {
+                    staticVars.initialDeathFailures =
+                        Number(actor.system.attributes.death.failure ?? 0)
+
+                    await prepareFiendGiftChatCard({
+                        actor,
+                        runtime,
+                        helpers,
+                        waiters,
+                        staticVars,
+                        giftId: "giftOfSecondChances",
+                        itemName: "Gift of Second Chances"
+                    })
+                }
+            ],
+
+            await: async ({waiters, staticVars}) =>
+            {
+                await staticVars.chatCardHelper.waitForCard()
+                await staticVars.chatCardHelper.waitForButton({
+                    text: "Roll Hit Die"
+                })
+            },
+
+            assertions: async ({actor, expect, waiters, helpers, staticVars}) =>
+            {
+                const {chatCardHelper, message} = staticVars
+                const rollHelper = helpers.createDeterministicRollHelper()
+
+                try {
+                    const card = chatCardHelper.getCardElement({require: true})
+
+                    expect(card, "Gift of Second Chances chat card should render").to.exist
+                    expect(card.dataset.gift).to.equal("giftOfSecondChances")
+
+                    rollHelper.queueRoll({
+                        total: 1
+                    })
+
+                    await chatCardHelper.clickButton({
+                        text: "Roll Hit Die"
+                    })
+
+                    await waiters.waitForCondition(() =>
+                        rollHelper.getCalls().some(call => call.type === "roll")
+                    )
+
+                    await waiters.waitForCondition(() =>
+                        actor.system.attributes.death.failure === staticVars.initialDeathFailures + 1
+                    )
+
+                    const presentedRolls = await chatCardHelper.waitForPresentedRolls({count: 1})
+                    expect(presentedRolls[0]?.formula).to.equal(`1${message.flags?.transformations?.hitDie}`)
+                    expect(presentedRolls[0]?.total).to.equal(1)
+                    expect(chatCardHelper.hasButton({
+                        text: "Roll Hit Die"
+                    })).to.equal(false)
+                    expect(chatCardHelper.hasButton({
+                        text: "Apply healing"
+                    })).to.equal(false)
+
+                    await message.update({
+                        "flags.transformations.secondChancesFailurePersistenceCheck": true
+                    })
+                    await waiters.waitForNextFrame()
+
+                    expect(chatCardHelper.getPresentedRolls()[0]?.total).to.equal(1)
+                    expect(actor.system.attributes.hp.value).to.equal(0)
+                    expect(actor.system.attributes.death.failure).to.equal(
+                        staticVars.initialDeathFailures + 1
+                    )
+                } finally {
+                    rollHelper.restore()
+                }
+            }
+        },
+
+        {
+            name: `Gift of Unconditional Love success`,
+
+            setup: async ({actor}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await setFiendStage3GiftChoices(actor)
+                await actor.update({
+                    "system.attributes.hp.temp": 0
+                })
+                await actor.toggleStatusEffect("prone", {active: false})
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars}) =>
+                {
+                    await prepareFiendGiftChatCard({
+                        actor,
+                        runtime,
+                        helpers,
+                        waiters,
+                        staticVars,
+                        giftId: "giftOfUnconditionalLove",
+                        itemName: "Gift of Unconditional Love"
+                    })
+                }
+            ],
+
+            await: async ({waiters, staticVars}) =>
+            {
+                await staticVars.chatCardHelper.waitForCard()
+                await staticVars.chatCardHelper.waitForButton({
+                    text: "Roll"
+                })
+            },
+
+            assertions: async ({actor, expect, waiters, helpers, staticVars}) =>
+            {
+                const {chatCardHelper, message} = staticVars
+                const rollHelper = helpers.createDeterministicRollHelper()
+
+                try {
+                    const card = chatCardHelper.getCardElement({require: true})
+
+                    expect(card, "Gift of Unconditional Love chat card should render").to.exist
+                    expect(card.dataset.gift).to.equal("giftOfUnconditionalLove")
+
+                    chatCardHelper.assertButtonExists({
+                        text: "Roll"
+                    }, expect)
+
+                    rollHelper.queueRoll({
+                        total: 9,
+                        diceResults: [6]
+                    })
+
+                    await chatCardHelper.clickButton({
+                        text: "Roll"
+                    })
+
+                    await waiters.waitForCondition(() =>
+                        rollHelper.getCalls().some(call => call.type === "roll")
+                    )
+
+                    const presentedRolls = await chatCardHelper.waitForPresentedRolls({count: 1})
+                    expect(presentedRolls[0]?.formula).to.equal(message.flags?.transformations?.rollFormula)
+                    expect(presentedRolls[0]?.total).to.equal(9)
+                    expect(chatCardHelper.hasButton({
+                        text: "Roll"
+                    })).to.equal(false)
+
+                    await chatCardHelper.waitForButton({
+                        text: "Apply Temp HP"
+                    })
+
+                    await message.update({
+                        "flags.transformations.unconditionalLovePersistenceCheck": true
+                    })
+                    await waiters.waitForNextFrame()
+
+                    expect(chatCardHelper.getPresentedRolls()[0]?.total).to.equal(9)
+                    chatCardHelper.assertButtonExists({
+                        text: "Apply Temp HP"
+                    }, expect)
+
+                    await chatCardHelper.clickButton({
+                        text: "Apply Temp HP"
+                    })
+
+                    await waiters.waitForCondition(() =>
+                        actor.system.attributes.hp.temp === 9
+                    )
+
+                    expect(actor.system.attributes.hp.temp).to.equal(9)
+                    expect(
+                        actor.effects.some(effect =>
+                            Array.from(effect.statuses ?? []).includes("prone")
+                        )
+                    ).to.equal(false)
+                    expect(chatCardHelper.hasButton({
+                        text: "Apply Temp HP"
+                    })).to.equal(false)
+                    expect(chatCardHelper.getPresentedRolls()[0]?.total).to.equal(9)
+                } finally {
+                    rollHelper.restore()
+                }
+            }
+        },
+
+        {
+            name: `Gift of Unconditional Love fail`,
+
+            setup: async ({actor}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await setFiendStage3GiftChoices(actor)
+                await actor.update({
+                    "system.attributes.hp.temp": 0
+                })
+                await actor.toggleStatusEffect("prone", {active: false})
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars}) =>
+                {
+                    await prepareFiendGiftChatCard({
+                        actor,
+                        runtime,
+                        helpers,
+                        waiters,
+                        staticVars,
+                        giftId: "giftOfUnconditionalLove",
+                        itemName: "Gift of Unconditional Love"
+                    })
+                }
+            ],
+
+            await: async ({waiters, staticVars}) =>
+            {
+                await staticVars.chatCardHelper.waitForCard()
+                await staticVars.chatCardHelper.waitForButton({
+                    text: "Roll"
+                })
+            },
+
+            assertions: async ({actor, expect, waiters, helpers, staticVars}) =>
+            {
+                const {chatCardHelper, message} = staticVars
+                const rollHelper = helpers.createDeterministicRollHelper()
+
+                try {
+                    const card = chatCardHelper.getCardElement({require: true})
+
+                    expect(card, "Gift of Unconditional Love chat card should render").to.exist
+                    expect(card.dataset.gift).to.equal("giftOfUnconditionalLove")
+
+                    rollHelper.queueRoll({
+                        total: 4,
+                        diceResults: [1]
+                    })
+
+                    await chatCardHelper.clickButton({
+                        text: "Roll"
+                    })
+
+                    await waiters.waitForCondition(() =>
+                        rollHelper.getCalls().some(call => call.type === "roll")
+                    )
+
+                    await waiters.waitForCondition(() =>
+                        actor.effects.some(effect =>
+                            Array.from(effect.statuses ?? []).includes("prone")
+                        )
+                    )
+
+                    const presentedRolls = await chatCardHelper.waitForPresentedRolls({count: 1})
+                    expect(presentedRolls[0]?.formula).to.equal(message.flags?.transformations?.rollFormula)
+                    expect(presentedRolls[0]?.total).to.equal(4)
+                    expect(chatCardHelper.hasButton({
+                        text: "Roll"
+                    })).to.equal(false)
+                    expect(chatCardHelper.hasButton({
+                        text: "Apply Temp HP"
+                    })).to.equal(false)
+
+                    await message.update({
+                        "flags.transformations.unconditionalLoveFailurePersistenceCheck": true
+                    })
+                    await waiters.waitForNextFrame()
+
+                    expect(chatCardHelper.getPresentedRolls()[0]?.total).to.equal(4)
+                    expect(actor.system.attributes.hp.temp ?? 0).to.equal(0)
+                    expect(
+                        actor.effects.some(effect =>
+                            Array.from(effect.statuses ?? []).includes("prone")
+                        )
+                    ).to.equal(true)
+                } finally {
+                    rollHelper.restore()
+                }
             }
         }
     ]

@@ -10,26 +10,26 @@ function nextTick()
 
 quench.registerBatch(
     "transformations.Dialogs.fiendGiftOfDamnationDialog",
-    ({ describe, it, expect }) =>
+    ({describe, it, expect}) =>
     {
         const existingActorIds = game.actors.map(actor => actor.id)
 
-        after(async function()
+        after(async function ()
         {
             await wait(200)
 
             const existingIdSet = new Set(existingActorIds)
 
             const testActorIds = game.actors
-                .filter(actor => !existingIdSet.has(actor.id))
-                .map(actor => actor.id)
+            .filter(actor => !existingIdSet.has(actor.id))
+            .map(actor => actor.id)
 
             await teardownAllTest(testActorIds)
         })
 
-        describe("createFiendGiftOfDamnationViewModel", function()
+        describe("createFiendGiftOfDamnationViewModel", function ()
         {
-            it("filters gifts by stage and marks the active gift", function()
+            it("filters gifts by stage and marks the active gift", function ()
             {
                 const actor = {
                     effects: [
@@ -62,11 +62,11 @@ quench.registerBatch(
                 ).to.equal(true)
             })
 
-            it("includes higher-stage gifts once the stage requirement is met", function()
+            it("includes higher-stage gifts once the stage requirement is met", function ()
             {
                 const viewModel = createFiendGiftOfDamnationViewModel({
-                    actor: { effects: [] },
-                    stage: 5
+                    actor: {effects: []},
+                    stage: 2
                 })
 
                 expect(viewModel.options.map(option => option.value)).to.deep.equal([
@@ -79,56 +79,59 @@ quench.registerBatch(
             })
         })
 
-        describe("FiendGiftOfDamnationDialog", function()
+        describe("FiendGiftOfDamnationDialog", function ()
         {
-            it("renders the active gift text and updates the visible description when the selection changes", async function()
-            {
-                const dialog = new FiendGiftOfDamnationDialog({
-                    viewModel: {
-                        currentGiftName: "Gift of Joyous Life",
-                        options: [
-                            {
-                                value: "giftOfJoyousLife",
-                                label: "Gift of Joyous Life",
-                                description: "Heal when bloodied.",
-                                selected: true
-                            },
-                            {
-                                value: "giftOfProdigiousTalent",
-                                label: "Gift of Prodigious Talent",
-                                description: "Turn low checks into a cost.",
-                                selected: false
-                            }
-                        ]
-                    },
-                    controller: {
-                        confirm: async () => { },
-                        cancel: () => { }
-                    },
-                    logger: null
-                })
+            it(
+                "renders the active gift text and updates the visible description when the selection changes",
+                async function ()
+                {
+                    const dialog = new FiendGiftOfDamnationDialog({
+                        viewModel: {
+                            currentGiftName: "Gift of Joyous Life",
+                            options: [
+                                {
+                                    value: "giftOfJoyousLife",
+                                    label: "Gift of Joyous Life",
+                                    description: "Heal when bloodied.",
+                                    selected: true
+                                },
+                                {
+                                    value: "giftOfProdigiousTalent",
+                                    label: "Gift of Prodigious Talent",
+                                    description: "Turn low checks into a cost.",
+                                    selected: false
+                                }
+                            ]
+                        },
+                        controller: {
+                            confirm: async () => { },
+                            cancel: () => { }
+                        },
+                        logger: null
+                    })
 
-                await dialog.render(true)
+                    await dialog.render(true)
 
-                const activeGiftText = dialog.element.textContent
-                const select = dialog.element.querySelector("[data-action='gift']")
-                const descriptions = dialog.element.querySelectorAll(".fiend-gift-description")
+                    const activeGiftText = dialog.element.textContent
+                    const select = dialog.element.querySelector("[data-action='gift']")
+                    const descriptions = dialog.element.querySelectorAll(".fiend-gift-description")
 
-                expect(activeGiftText).to.contain("Active Gift: Gift of Joyous Life")
-                expect(descriptions[0].hidden).to.equal(false)
-                expect(descriptions[1].hidden).to.equal(true)
+                    expect(activeGiftText).to.contain("Active Gift: Gift of Joyous Life")
+                    expect(descriptions[0].hidden).to.equal(false)
+                    expect(descriptions[1].hidden).to.equal(true)
 
-                select.value = "giftOfProdigiousTalent"
-                select.dispatchEvent(new Event("change"))
-                await nextTick()
+                    select.value = "giftOfProdigiousTalent"
+                    select.dispatchEvent(new Event("change"))
+                    await nextTick()
 
-                expect(descriptions[0].hidden).to.equal(true)
-                expect(descriptions[1].hidden).to.equal(false)
+                    expect(descriptions[0].hidden).to.equal(true)
+                    expect(descriptions[1].hidden).to.equal(false)
 
-                await dialog.close({ force: true })
-            })
+                    await dialog.close({force: true})
+                }
+            )
 
-            it("calls controller.confirm with the selected gift id when OK is clicked", async function()
+            it("calls controller.confirm with the selected gift id when OK is clicked", async function ()
             {
                 let confirmedGiftId = null
 
@@ -169,11 +172,11 @@ quench.registerBatch(
                 expect(confirmedGiftId).to.equal("giftOfProdigiousTalent")
 
                 if (dialog.rendered) {
-                    await dialog.close({ force: true })
+                    await dialog.close({force: true})
                 }
             })
 
-            it("calls controller.cancel when closed without confirming", async function()
+            it("calls controller.cancel when closed without confirming", async function ()
             {
                 let wasCancelled = false
 
@@ -197,7 +200,7 @@ quench.registerBatch(
                 })
 
                 await dialog.render(true)
-                await dialog.close({ force: true })
+                await dialog.close({force: true})
 
                 expect(wasCancelled).to.equal(true)
             })

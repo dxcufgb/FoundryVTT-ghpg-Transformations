@@ -4,7 +4,7 @@ export class GiftOfMartialProwess
 {
     static id = "giftOfMartialProwess"
     static label = "Gift of Martial Prowess"
-    static stage = 8
+    static stage = 4
     static description = "Placeholder effect for Gift of Martial Prowess."
 
     static async apply({actor, actorRepository, itemRepository}) {
