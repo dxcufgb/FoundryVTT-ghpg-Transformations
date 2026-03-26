@@ -2,6 +2,7 @@ import { validate } from "../../../helpers/DTOValidators/validate.js"
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js"
 import { EffectValidationDTO } from "../../../helpers/validationDTOs/effect/EffectValidationDTO.js"
 import { giftsOfDamnation } from "../../../../domain/transformation/subclasses/fiend/giftsOfDamnation/index.js";
+import { findTransformationGeneralChoiceButtonById, findTransformationGeneralChoiceDialog, getTransformationGeneralChoiceDialogWindowTitle } from "../../../selectors/transformationGeneralChoiceDialog.finders.js"
 import { SKILL } from "../../../../config/constants.js";
 
 function allowMockRollMessageUpdates(message)
@@ -520,6 +521,28 @@ export const fiendTestDef = {
                 ]
                 actorDto.addItem(item => {
                     item.itemName = "Devilish Subcontractor"
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Pull of the Netherworld"
+                    item.uses.max = 1
+                    item.uses.addRecovery(recovery => {
+                        recovery.type = "recoverAll"
+                        recovery.period = "lr"
+                    })
+                    item.uses.addRecovery(recovery => {
+                        recovery.type = "recoverAll"
+                        recovery.period = "sr"
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Midi Damage"
+                        activity.addConsumption(consumption => {
+                            consumption.numberOfTargets = 1
+                            consumption.addTarget(target => {
+                                target.type = "item"
+                                target.value = 1
+                            })
+                        })
+                    })
                 })
                 actorDto.stats.resistances.push("acid")
                 validate(actorDto, {assert})
@@ -2296,6 +2319,175 @@ export const fiendTestDef = {
                     staticVars.context.rolls[0].parts,
                     ["1d8-2"]
                 )
+            }
+        },
+
+        {
+            name: `Devilish Subcontractor makes it possible to have two gifts of damnation at the same time`,
+
+            setup: async ({actor}) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                            2: "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM",
+                            3: "Compendium.transformations.gh-transformations.Item.1DPOphqvUFg1Yzfm"
+                        }
+                    }
+                })
+                setFiendStage1DamageResistanceChoice()
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, waiters, staticVars}) =>
+                {
+                    const gift = giftsOfDamnation.find(entry => entry.id === "giftOfUnsurpassedFortune")
+                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+                    const gift2 = giftsOfDamnation.find(entry => entry.id === "giftOfJoyousLife")
+                    await runtime.services.applyFiendGiftOfDamnation({actor, gift2})
+                }
+            ],
+
+            assertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemsWithSourceUuid = [
+                    "Compendium.transformations.gh-transformations.Item.97GBQgFFed1p1vMJ",
+                    "Compendium.transformations.gh-transformations.Item.zzXZ3tex07ScSN5L"
+                ]
+                validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: `Devilish Subcontractor can replace one of two gifts of damnation via choice dialog`,
+
+            setup: async ({actor}) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                            2: "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM",
+                            3: "Compendium.transformations.gh-transformations.Item.1DPOphqvUFg1Yzfm"
+                        }
+                    }
+                })
+                setFiendStage1DamageResistanceChoice()
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, waiters, staticVars}) =>
+                {
+                    const gift = giftsOfDamnation.find(entry => entry.id === "giftOfUnsurpassedFortune")
+                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+
+                    const gift2 = giftsOfDamnation.find(entry => entry.id === "giftOfJoyousLife")
+                    await runtime.services.applyFiendGiftOfDamnation({actor, gift: gift2})
+
+                    await waiters.waitForDomainStability({
+                        actor,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                    })
+                    await waiters.waitForNextFrame()
+                    await waiters.waitForCondition(() =>
+                        actor.items.some(i => i.name === "Gift of Unsurpassed Fortune") &&
+                        actor.items.some(i => i.name === "Gift of Joyous Life")
+                    )
+                    await waiters.waitForCondition(() =>
+                        actor.effects.some(effect =>
+                            effect.flags?.transformations?.giftOfDamnationId === "giftOfJoyousLife"
+                        )
+                    )
+
+                    const giftOfJoyousLifeEffect = actor.effects.find(effect =>
+                        effect.flags?.transformations?.giftOfDamnationId === "giftOfJoyousLife"
+                    )
+
+                    const gift3 = giftsOfDamnation.find(entry => entry.id === "giftOfUnfetteredGlory")
+                    const applyGiftPromise = runtime.services.applyFiendGiftOfDamnation({
+                        actor,
+                        gift: gift3
+                    })
+
+                    const dialog = await findTransformationGeneralChoiceDialog(actor)
+                    staticVars.removalDialogTitle =
+                        getTransformationGeneralChoiceDialogWindowTitle(dialog)?.textContent?.trim()
+                    staticVars.removalDialogChoices = [...dialog.querySelectorAll(".choice-button")]
+                    .map(button => button.textContent.trim())
+
+                    const removeGiftOfJoyousLifeButton =
+                              await findTransformationGeneralChoiceButtonById(
+                                  dialog,
+                                  giftOfJoyousLifeEffect.id
+                              )
+
+                    removeGiftOfJoyousLifeButton.click()
+
+                    await waiters.waitForNextFrame()
+                    await waiters.waitForElementGone({
+                        selector: `#transformation-general-choice-${actor.id}`
+                    })
+
+                    await applyGiftPromise
+                    await waiters.waitForDomainStability({
+                        actor,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                    })
+                    await waiters.waitForNextFrame()
+                    await waiters.waitForCondition(() =>
+                        actor.items.some(i => i.name === "Gift of Unsurpassed Fortune") &&
+                        actor.items.some(i => i.name === "Gift of Unfettered Glory") &&
+                        !actor.items.some(i => i.name === "Gift of Joyous Life")
+                    )
+                }
+            ],
+
+            assertions: async ({actor, assert, staticVars}) =>
+            {
+                assert.equal(
+                    staticVars.removalDialogTitle,
+                    "choose an effect to remove"
+                )
+                assert.sameMembers(
+                    staticVars.removalDialogChoices,
+                    [
+                        "Gift of Unsurpassed Fortune",
+                        "Gift of Joyous Life"
+                    ]
+                )
+
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemsWithSourceUuid = [
+                    "Compendium.transformations.gh-transformations.Item.97GBQgFFed1p1vMJ",
+                    "Compendium.transformations.gh-transformations.Item.RyzgJyXTAcpO0hRn"
+                ]
+                validate(actorDto, {assert})
             }
         }
     ]

@@ -151,6 +151,19 @@ export class Fiend extends Transformation {
             ChatMessagePartInjector
         })
     }
+
+    static async onRoll(actor, roll) {
+        const pullOfTheNetherworld = actor.items.find(i =>
+            i.flags?.transformations?.sourceUuid === "Compendium.transformations.gh-transformations.Item.p6h58Xog87H04epW"
+        )
+
+        const usesLeft = pullOfTheNetherworld.system.uses.max - pullOfTheNetherworld.system.uses.spent
+
+        if (!pullOfTheNetherworld || usesLeft == 0 || roll?.natural !== 1) return
+
+        const activity = pullOfTheNetherworld.system.activities.find(a => a.name == "Midi Damage")
+        activity.use()
+    }
 }
 
 function resolveHtmlRoot(html)

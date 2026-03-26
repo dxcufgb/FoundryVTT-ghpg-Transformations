@@ -24,9 +24,9 @@ export function createLocalTransformationMutationAdapter({
         actionExecutor
     })
 
-    async function applyTransformation({ actorId, definition, stage = 0 })
+    async function applyTransformation({actorId, definition, stage = 0})
     {
-        logger.debug("createLocalTransformationMutationAdapter.applyTransformation", { actorId, definition, stage })
+        logger.debug("createLocalTransformationMutationAdapter.applyTransformation", {actorId, definition, stage})
         const actor = actorRepository.getById(actorId)
         if (!actor)
             return
@@ -39,9 +39,9 @@ export function createLocalTransformationMutationAdapter({
         )
     }
 
-    async function initializeTransformation({ actorId, definition })
+    async function initializeTransformation({actorId, definition})
     {
-        logger.debug("createLocalTransformationMutationAdapter.initializeTransformation", { actorId, definition })
+        logger.debug("createLocalTransformationMutationAdapter.initializeTransformation", {actorId, definition})
         const actor = actorRepository.getById(actorId)
         if (!actor)
             return
@@ -55,9 +55,9 @@ export function createLocalTransformationMutationAdapter({
         )
     }
 
-    async function advanceStage({ actorId, stage, choice = null })
+    async function advanceStage({actorId, stage, choice = null})
     {
-        logger.debug("createLocalTransformationMutationAdapter.advanceStage", { actorId, stage, choice })
+        logger.debug("createLocalTransformationMutationAdapter.advanceStage", {actorId, stage, choice})
         const actor = actorRepository.getById(actorId)
         if (!actor)
             return
@@ -66,7 +66,7 @@ export function createLocalTransformationMutationAdapter({
             (async () =>
             {
                 const testVar = await getTransformationQueryService().getForActor(actor)
-                const { definition } = await getTransformationQueryService().getForActor(actor)
+                const {definition} = await getTransformationQueryService().getForActor(actor)
                 if (!definition)
                     return
 
@@ -77,9 +77,9 @@ export function createLocalTransformationMutationAdapter({
         )
     }
 
-    async function clearTransformation({ actorId })
+    async function clearTransformation({actorId})
     {
-        logger.debug("createLocalTransformationMutationAdapter.clearTransformation", { actorId })
+        logger.debug("createLocalTransformationMutationAdapter.clearTransformation", {actorId})
         const actor = actorRepository.getById(actorId)
         if (!actor)
             return
@@ -97,7 +97,7 @@ export function createLocalTransformationMutationAdapter({
 
     async function applyTriggerActions(payload)
     {
-        logger.debug("createLocalTransformationMutationAdapter.applyTriggerActions", { payload })
+        logger.debug("createLocalTransformationMutationAdapter.applyTriggerActions", {payload})
         return tracker.track(
             (async () =>
             {
@@ -123,7 +123,7 @@ export function createLocalTransformationMutationAdapter({
 
     async function applyStage(actor, definition, stage, choice)
     {
-        logger.debug("createLocalTransformationMutationAdapter.applyStage", { actor, definition, stage, choice })
+        logger.debug("createLocalTransformationMutationAdapter.applyStage", {actor, definition, stage, choice})
         if (stage != 0) {
             const grants = stageGrantResolver.resolve({
                 actor,
@@ -132,7 +132,7 @@ export function createLocalTransformationMutationAdapter({
             })
 
             if (choice != null) {
-                grants.items.push({ ...choice })
+                grants.items.push({...choice})
             }
 
             return tracker.track(
@@ -147,10 +147,10 @@ export function createLocalTransformationMutationAdapter({
                             continue
                         }
 
-                        if (globalThis?.__TRANSFORMATIONS_TEST__ !== true && sourceItem.uuid != choice.uuid) {
+                        if (globalThis?.__TRANSFORMATIONS_TEST__ !== true && sourceItem.uuid != choice?.uuid) {
                             await game.transformations
-                                .getDialogFactory()
-                                .showItemInfoDialog({ item: sourceItem })
+                            .getDialogFactory()
+                            .showItemInfoDialog({item: sourceItem})
                         }
 
                         await itemRepository.addTransformationItem({
