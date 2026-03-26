@@ -1,9 +1,13 @@
+const SECOND_GIFT_OF_DAMNATION_SLOT_SOURCE_UUID =
+    "Compendium.transformations.gh-transformations.Item.1DPOphqvUFg1Yzfm"
+
 export function createApplyFiendGiftOfDamnation({
     tracker,
     activeEffectRepository,
     actorRepository,
     advancementChoiceHandler,
     itemRepository,
+    getDialogFactory,
     logger = null
 })
 {
@@ -12,7 +16,8 @@ export function createApplyFiendGiftOfDamnation({
         activeEffectRepository,
         actorRepository,
         advancementChoiceHandler,
-        itemRepository
+        itemRepository,
+        getDialogFactory
     })
 
     async function applyFiendGiftOfDamnation({
@@ -38,43 +43,38 @@ export function createApplyFiendGiftOfDamnation({
                         effect.flags?.transformations?.giftOfDamnation === true
                     )
 
-                if (existingEffects.length) {
-                    const existingGiftIds = [
-                        ...new Set(
-                            existingEffects
-                                .map(effect =>
-                                    effect.flags?.transformations?.giftOfDamnationId
-                                )
-                                .filter(Boolean)
-                        )
-                    ]
+                const maxActiveEffects = actor.items.some(item =>
+                    item.flags?.transformations?.sourceUuid ===
+                    SECOND_GIFT_OF_DAMNATION_SLOT_SOURCE_UUID
+                )
+                    ? 2
+                    : 1
 
-                    for (const giftId of existingGiftIds) {
-                        const linkedItemIds =
-                            actor.flags?.transformations?.fiend?.[giftId]?.itemIds
+                if (existingEffects.length >= maxActiveEffects) {
+                    if (maxActiveEffects === 1) {
+                        await removeGiftEffects(actor, existingEffects)
+                    } else {
+                        const effectIdToRemove =
+                            await chooseGiftEffectToRemove(actor, existingEffects)
 
-                        if (Array.isArray(linkedItemIds) && linkedItemIds.length) {
-                            const existingItemIds = linkedItemIds.filter(itemId =>
-                                actor.items.get(itemId)
-                            )
-
-                            if (existingItemIds.length) {
-                                await actor.deleteEmbeddedDocuments(
-                                    "Item",
-                                    existingItemIds
-                                )
-                            }
+                        if (!effectIdToRemove) {
+                            return null
                         }
 
-                        await actor.update({
-                            [`flags.transformations.fiend.-=${giftId}`]: null
-                        })
-                    }
+                        const effectToRemove = existingEffects.find(effect =>
+                            effect.id === effectIdToRemove
+                        )
 
-                    await activeEffectRepository.removeByIds(
-                        actor,
-                        existingEffects.map(effect => effect.id)
-                    )
+                        if (!effectToRemove) {
+                            logger?.warn?.(
+                                "Selected Gift of Damnation effect not found",
+                                effectIdToRemove
+                            )
+                            return null
+                        }
+
+                        await removeGiftEffects(actor, [effectToRemove])
+                    }
                 }
 
                 if (typeof gift.GiftClass.apply !== "function") {
@@ -96,4 +96,79 @@ export function createApplyFiendGiftOfDamnation({
             whenIdle: tracker.whenIdle
         })
     )
+
+    async function removeGiftEffects(actor, effects)
+    {
+        const giftIds = [
+            ...new Set(
+                effects
+                    .map(effect =>
+                        effect.flags?.transformations?.giftOfDamnationId
+                    )
+                    .filter(Boolean)
+            )
+        ]
+
+        for (const giftId of giftIds) {
+            const linkedItemIds =
+                actor.flags?.transformations?.fiend?.[giftId]?.itemIds
+
+            if (Array.isArray(linkedItemIds) && linkedItemIds.length) {
+                const existingItemIds = linkedItemIds.filter(itemId =>
+                    actor.items.get(itemId)
+                )
+
+                if (existingItemIds.length) {
+                    await actor.deleteEmbeddedDocuments(
+                        "Item",
+                        existingItemIds
+                    )
+                }
+            }
+
+            await actor.update({
+                [`flags.transformations.fiend.-=${giftId}`]: null
+            })
+        }
+
+        await activeEffectRepository.removeByIds(
+            actor,
+            effects.map(effect => effect.id)
+        )
+    }
+
+    async function chooseGiftEffectToRemove(actor, existingEffects)
+    {
+        const dialogFactory = getDialogFactory?.()
+        if (!dialogFactory?.openTransformationGeneralChoiceDialog) {
+            logger?.warn?.(
+                "Gift of Damnation removal choice requested without dialogFactory"
+            )
+            return null
+        }
+
+        return dialogFactory.openTransformationGeneralChoiceDialog({
+            actor,
+            choices: existingEffects.map(effect =>
+            {
+                const giftId =
+                    effect.flags?.transformations?.giftOfDamnationId
+                const linkedItemIds =
+                    actor.flags?.transformations?.fiend?.[giftId]?.itemIds
+                const linkedItemId = Array.isArray(linkedItemIds)
+                    ? linkedItemIds.find(itemId => actor.items.get(itemId))
+                    : null
+                const linkedItem = linkedItemId
+                    ? actor.items.get(linkedItemId)
+                    : null
+
+                return {
+                    id: effect.id,
+                    icon: linkedItem?.img ?? effect.icon,
+                    label: linkedItem?.name ?? effect.name
+                }
+            }),
+            title: "choose an effect to remove"
+        })
+    }
 }

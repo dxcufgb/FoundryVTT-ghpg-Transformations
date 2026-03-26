@@ -17,6 +17,7 @@ import { createFormulaEvaluator } from "../services/formulas/createFormulaEvalua
 import { createStageChoiceResolver } from "../domain/transformation/createStageChoiceResolver.js"
 import { createApplyFiendGiftOfDamnation } from "../services/transformations/createApplyFiendGiftOfDamnation.js"
 import { RollService } from "../services/rolls/RollService.js";
+import { UiAccessor } from "./uiAccessor.js"
 
 export function createServices({
     getGame,
@@ -151,6 +152,7 @@ export function createServices({
         actorRepository,
         advancementChoiceHandler,
         itemRepository,
+        getDialogFactory: () => UiAccessor.dialogs,
         logger
     })
 
