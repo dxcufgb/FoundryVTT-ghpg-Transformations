@@ -136,42 +136,6 @@ async function setFiendStage3GiftChoices(actor)
     setFiendStage1DamageResistanceChoice()
 }
 
-async function ensureActorHasAvailableHitDie(actor)
-{
-    const classItems = actor.items
-    .filter(item =>
-        item.type === "class" &&
-        Number(item.system?.hd?.max ?? 0) > 0
-    )
-
-    if (classItems.some(item => Number(item.system?.hd?.value ?? 0) > 0)) {
-        return
-    }
-
-    const classItem = [...classItems]
-    .sort((a, b) =>
-        (Number.parseInt(String(b.system?.hd?.denomination ?? "d0").replace("d", ""), 10) || 0) -
-        (Number.parseInt(String(a.system?.hd?.denomination ?? "d0").replace("d", ""), 10) || 0)
-    )
-    .find(item =>
-        Number(item.system?.hd?.max ?? 0) > Number(item.system?.hd?.value ?? 0)
-    )
-
-    if (!classItem) {
-        return
-    }
-
-    const currentValue = Number(classItem.system?.hd?.value ?? 0)
-    const currentSpent = Number(classItem.system?.hd?.spent ?? 0)
-    const nextValue = Math.max(currentValue, 1)
-    const restored = nextValue - currentValue
-
-    await classItem.update({
-        "system.hd.value": nextValue,
-        "system.hd.spent": Math.max(currentSpent - restored, 0)
-    })
-}
-
 async function prepareFiendGiftChatCard({
     actor,
     runtime,
@@ -208,6 +172,7 @@ async function prepareFiendGiftChatCard({
     await waiters.waitForCondition(() =>
         game.messages.contents.length > staticVars.initialMessageCount
     )
+    await waiters.waitForNextFrame()
 
     await waiters.waitForCondition(() =>
         game.messages.contents.some(message =>
@@ -2632,13 +2597,23 @@ export const fiendTestDef = {
         {
             name: `Gift of Second Chances success`,
 
-            setup: async ({actor}) =>
+            setup: async ({actor, helpers}) =>
             {
                 await ChatMessage.deleteDocuments(
                     game.messages.contents.map(m => m.id)
                 )
+
                 await setFiendStage3GiftChoices(actor)
-                await ensureActorHasAvailableHitDie(actor)
+                const foundCharacterClass = await helpers.getCharacterClass("Wizard")
+                await helpers.createActorItemAndWait(
+                    actor,
+                    foundCharacterClass,
+                    {
+                        setTransformationFlags: false,
+                        setDdbImporterFlag: false,
+                        applyAdvancements: false
+                    }
+                )
                 await actor.update({
                     "system.attributes.hp.value": 0,
                     "system.attributes.death.success": 0,
@@ -2759,13 +2734,22 @@ export const fiendTestDef = {
         {
             name: `Gift of Second Chances fail`,
 
-            setup: async ({actor}) =>
+            setup: async ({actor, helpers}) =>
             {
                 await ChatMessage.deleteDocuments(
                     game.messages.contents.map(m => m.id)
                 )
                 await setFiendStage3GiftChoices(actor)
-                await ensureActorHasAvailableHitDie(actor)
+                const foundCharacterClass = await helpers.getCharacterClass("Wizard")
+                await helpers.createActorItemAndWait(
+                    actor,
+                    foundCharacterClass,
+                    {
+                        setTransformationFlags: false,
+                        setDdbImporterFlag: false,
+                        applyAdvancements: false
+                    }
+                )
                 await actor.update({
                     "system.attributes.hp.value": 0,
                     "system.attributes.death.success": 0,

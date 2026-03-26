@@ -122,8 +122,7 @@ export class GiftOfSecondChances
                 state: "initial",
                 roll: null,
                 tooltip: null,
-                hitDie,
-                description: this.description
+                hitDie
             },
             selector: ".midi-buttons, .midi-dnd5e-buttons",
             position: "afterbegin"
