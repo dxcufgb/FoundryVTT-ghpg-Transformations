@@ -3,6 +3,7 @@ export function createItemRepository({
     advancementGrantResolver,
     tracker,
     debouncedTracker,
+    getTransformationQueryService,
     logger
 })
 {
@@ -52,14 +53,16 @@ export function createItemRepository({
         actor,
         sourceItem,
         replacesUuid,
-        isPrerequisite
+        isPrerequisite,
+        postCreateScript = null
     })
     {
         logger.debug("createItemRepository.addTransformationItem", {
             actor,
             sourceItem,
             replacesUuid,
-            isPrerequisite
+            isPrerequisite,
+            postCreateScript
         })
         if (!actor || !sourceItem) return null
 
@@ -93,9 +96,40 @@ export function createItemRepository({
                 }
 
                 const created = await createObjectOnActor(actor, sourceItem)
+
+                if (created && postCreateScript) {
+                    await runPostCreateScript({
+                        actor,
+                        sourceItem,
+                        createdItem: created,
+                        scriptName: postCreateScript
+                    })
+                }
+
                 return created ?? null
             })()
         )
+    }
+
+    async function runPostCreateScript({
+        actor,
+        sourceItem,
+        createdItem,
+        scriptName
+    })
+    {
+        const transformationQueryService = getTransformationQueryService?.()
+        if (!transformationQueryService?.getForActor) return
+
+        const transformation = await transformationQueryService.getForActor(actor)
+        const TransformationClass = transformation?.constructor
+
+        if (typeof TransformationClass?.postCreateScript !== "function") return
+
+        await TransformationClass.postCreateScript(actor, scriptName, {
+            sourceItem,
+            createdItem
+        })
     }
 
     async function addItemAttachedToActiveEffect({actor, itemToCreate, parentEffect}) {

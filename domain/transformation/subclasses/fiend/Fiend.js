@@ -16,6 +16,7 @@ export class Fiend extends Transformation {
     static itemId = "fiend";
     static uuid = "Compendium.transformations.gh-transformations.Item.zpVEJPFBfdqC5sQH";
     static giftsOfDamnations = giftsOfDamnation
+    static fiendishSoulDamageTypes = ["acid", "cold", "fire"]
 
     static resolveGiftEntry(activity) {
         const giftId = activity?.flags?.transformations?.gift
@@ -57,8 +58,22 @@ export class Fiend extends Transformation {
 
         if (!item || item.name !== "Infernal Smite") return
 
-        const fiendishSoul = actor.items.find(i => i.name === "Fiendish Soul")
-        if (!fiendishSoul) return
+        const damageType = this.getFiendishSoulDamageType(actor)
+        if (!damageType) return
+
+        for (const roll of rolls) {
+            roll.options.types.push(damageType)
+        }
+
+        for (const part of activity.damage.parts) {
+            part.types.add(damageType)
+        }
+    }
+
+    static getFiendishSoulDamageType(actor) {
+        const fiendishSoul = actor?.items.find(i => i.name === "Fiendish Soul")
+        if (!fiendishSoul) return null
+
         const resistanceEffect =
                   actor.effects.find(e =>
                       e.origin === fiendishSoul.uuid &&
@@ -72,16 +87,68 @@ export class Fiend extends Transformation {
             c.key === "system.traits.dr.value"
         )
 
-        const damageType = resistanceChange?.value
-        if (!damageType) return
+        return resistanceChange?.value ?? null
+    }
 
-        for (const roll of rolls) {
-            roll.options.types.push(damageType)
+    static async postCreateScript(actor, scriptName, context = {})
+    {
+        switch (scriptName) {
+            case "configureAbyssalResistance":
+                await this.configureAbyssalResistance(actor, context)
+                break
+        }
+    }
+
+    static async configureAbyssalResistance(actor, {
+        createdItem
+    } = {})
+    {
+        const immunityType = this.getFiendishSoulDamageType(actor)
+        if (!immunityType) return
+
+        const resistanceTypes = this.fiendishSoulDamageTypes.filter(type =>
+            type !== immunityType
+        )
+        const abyssalResistanceItem =
+                  createdItem?.name === "Abyssal Resistance"
+                      ? createdItem
+                      : actor?.items.find(item => item.name === "Abyssal Resistance")
+
+        if (!abyssalResistanceItem) return
+
+        const itemEffect =
+                  abyssalResistanceItem.effects.find(effect => effect.name === "Abyssal Resistance") ??
+                  actor?.effects.find(effect =>
+                      effect.origin === abyssalResistanceItem.uuid &&
+                      effect.name === "Abyssal Resistance"
+                  )
+
+        if (!itemEffect) return
+
+        const description = String(itemEffect.description ?? "")
+        .replaceAll("{immunityType}", immunityType)
+        .replaceAll("{resistanceTypes}", resistanceTypes.join(", "))
+
+        const updatedChanges = foundry.utils.deepClone(itemEffect.changes ?? [])
+        let resistanceIndex = 0
+
+        for (const change of updatedChanges) {
+            if (change.key === "system.traits.di.value") {
+                change.value = immunityType
+                continue
+            }
+
+            if (change.key === "system.traits.dr.value" && change.value === "acid" && resistanceIndex < resistanceTypes.length) {
+                change.value = resistanceTypes[resistanceIndex]
+                resistanceIndex += 1
+
+            }
         }
 
-        for (const part of activity.damage.parts) {
-            part.types.add(damageType)
-        }
+        await itemEffect.update({
+            description,
+            changes: updatedChanges
+        })
     }
 
     static async onRenderChatMessage({

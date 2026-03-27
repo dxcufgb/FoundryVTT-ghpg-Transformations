@@ -733,6 +733,287 @@ export const fiendTestDef = {
                 })
                 validate(actorDto, {assert})
             }
+        },
+        {
+            name: (loopVars) => `stage 4 with Abyssal Resistance as choice and ${loopVars.damageType} resistance on Fiendish Soul`,
+            loop: () => [
+                {damageType: "acid"},
+                {damageType: "cold"},
+                {damageType: "fire"}
+            ],
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await helpers.fiend.chooseDamageResistanceOnStage1({
+                            waiters,
+                            runtime,
+                            actor,
+                            choice: loopVars.damageType
+                        })
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.WEFrREhcN84F6ehL",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.1jj1O2nBZDfUs5aL",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            {
+                const damageTypes = ["acid", "cold", "fire"]
+                const immunityType = damageTypes.find(t => t == loopVars.damageType)
+                const resistanceTypes = damageTypes.filter(t => t != loopVars.damageType)
+
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.0GwDDz0VsTEFnHsn",
+                    "Compendium.transformations.gh-transformations.Item.kCaxPcrf3l64RMrU",
+                    "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                    "Compendium.transformations.gh-transformations.Item.nCsHUZkM8p26at19",
+                    "Compendium.transformations.gh-transformations.Item.WEFrREhcN84F6ehL",
+                    "Compendium.transformations.gh-transformations.Item.p6h58Xog87H04epW",
+                    "Compendium.transformations.gh-transformations.Item.0npAmRAQjFWFpL6x",
+                    "Compendium.transformations.gh-transformations.Item.1jj1O2nBZDfUs5aL",
+                    "Compendium.transformations.gh-transformations.Item.9Ptls1PSiuOtg7cY"
+                ]
+                actorDto.addItem(item => {
+                    item.itemName = "Abyssal Resistance"
+                    item.addEffect(effect => {
+                        effect.name = "Abyssal Resistance"
+                        effect.description = `You have immunity to ${immunityType}, resistance to ${resistanceTypes.join(
+                            ", ")} and resistance to damage from nonmagical weapon attacks or Unarmed Strikes.`
+                        effect.changes = [
+                            {
+                                key: "system.traits.dr.value",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: resistanceTypes[0]
+                            },
+                            {
+                                key: "system.traits.dr.value",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: resistanceTypes[1]
+                            },
+                            {
+                                key: "system.traits.di.value",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: immunityType
+                            },
+                            {
+                                key: "system.traits.dr.value",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: "Bludgeoning"
+                            },
+                            {
+                                key: "system.traits.dr.value",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: "Piercing"
+                            },
+                            {
+                                key: "system.traits.dr.value",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: "Slashing"
+                            },
+                            {
+                                key: "system.traits.dr.bypass",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: "Magical"
+                            }
+                        ]
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "True Name"
+                    item.addActivity(activity => {
+                        activity.name = "Midi Save"
+                        activity.saveDc = 20
+                        activity.addEffect(effect => {
+                            effect.name = "Controlled by True Name"
+                            effect.changes = [
+                                {
+                                    key: "system.abilities.cha.save.roll.mode",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -1
+                                },
+                                {
+                                    key: "system.abilities.con.save.roll.mode",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -1
+                                },
+                                {
+                                    key: "system.abilities.dex.save.roll.mode",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -1
+                                },
+                                {
+                                    key: "system.abilities.int.save.roll.mode",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -1
+                                },
+                                {
+                                    key: "system.abilities.str.save.roll.mode",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -1
+                                },
+                                {
+                                    key: "system.abilities.wis.save.roll.mode",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: -1
+                                }
+                            ]
+                        })
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 4 with Infernal Summons`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await helpers.fiend.chooseDamageResistanceOnStage1({
+                            waiters,
+                            runtime,
+                            actor,
+                            choice: "acid"
+                        })
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.WEFrREhcN84F6ehL",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.IEyyfet4TphAPoVB",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            {
+                const damageTypes = ["acid", "cold", "fire"]
+
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.0GwDDz0VsTEFnHsn",
+                    "Compendium.transformations.gh-transformations.Item.kCaxPcrf3l64RMrU",
+                    "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                    "Compendium.transformations.gh-transformations.Item.nCsHUZkM8p26at19",
+                    "Compendium.transformations.gh-transformations.Item.WEFrREhcN84F6ehL",
+                    "Compendium.transformations.gh-transformations.Item.p6h58Xog87H04epW",
+                    "Compendium.transformations.gh-transformations.Item.0npAmRAQjFWFpL6x",
+                    "Compendium.transformations.gh-transformations.Item.IEyyfet4TphAPoVB"
+                ]
+                actorDto.addItem(item => {
+                    item.itemName = "Infernal Summons"
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 3 with Overwhelming Brand as choice`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await helpers.fiend.chooseDamageResistanceOnStage1({
+                            waiters,
+                            runtime,
+                            actor,
+                            choice: "acid"
+                        })
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.WEFrREhcN84F6ehL",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.wb4MknhF2jQdamhM",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            {
+                const actorProf = actor.system.attributes.prof
+
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.0GwDDz0VsTEFnHsn",
+                    "Compendium.transformations.gh-transformations.Item.kCaxPcrf3l64RMrU",
+                    "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                    "Compendium.transformations.gh-transformations.Item.nCsHUZkM8p26at19",
+                    "Compendium.transformations.gh-transformations.Item.WEFrREhcN84F6ehL",
+                    "Compendium.transformations.gh-transformations.Item.p6h58Xog87H04epW",
+                    "Compendium.transformations.gh-transformations.Item.0npAmRAQjFWFpL6x",
+                    "Compendium.transformations.gh-transformations.Item.wb4MknhF2jQdamhM"
+                ]
+                actorDto.addItem(item => {
+                    item.itemName = "Ultimate Brand"
+                })
+                validate(actorDto, {assert})
+            }
         }
     ],
 

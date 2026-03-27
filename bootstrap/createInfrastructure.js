@@ -79,6 +79,7 @@ export function createInfrastructure({
         advancementGrantResolver,
         tracker: trackers.repositories,
         debouncedTracker,
+        getTransformationQueryService,
         logger
     })
 

@@ -156,7 +156,8 @@ export function createLocalTransformationMutationAdapter({
                         await itemRepository.addTransformationItem({
                             actor,
                             sourceItem,
-                            replacesUuid: itemGrant.replacesUuid
+                            replacesUuid: itemGrant.replacesUuid,
+                            postCreateScript: itemGrant.postCreateScript
                         })
                     }
 
