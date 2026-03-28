@@ -3,8 +3,8 @@ import { ActorRollModeDTOValidator } from "../../DTOValidators/ActorRollModeDTOV
 import { ActorStatsDTOValidator } from "../../DTOValidators/ActorStatsDTOValidator.js"
 import { EffectValidationDTO } from "../effect/EffectValidationDTO.js"
 import { FlagValidationDTO } from "../flag/FlagValidationDTO.js"
+import { HitDieValidationDTO } from "../hitDie/HitDieValidationDTO.js"
 import { ItemValidationDTO } from "../item/ItemValidationDTO.js"
-
 
 // @ts-check
 export class ActorValidationDTO
@@ -14,7 +14,7 @@ export class ActorValidationDTO
     /**
      * @param {any} actor
      */
-    constructor (actor)
+    constructor(actor)
     {
         this.actor = actor
 
@@ -37,7 +37,6 @@ export class ActorValidationDTO
     }
 }
 
-
 /**
  * Actor Stats DTO
  */
@@ -45,7 +44,7 @@ export class ActorStatsDTO
 {
     static validator = ActorStatsDTOValidator
 
-    constructor ()
+    constructor()
     {
         this.hp = []                 // [{ value, variant }]
         this.ac = null
@@ -56,9 +55,9 @@ export class ActorStatsDTO
         this.resistances = []
         this.vulnerabilities = []
         this.immunities = []
+        this.hitDices = new HitDieValidationDTO()
     }
 }
-
 
 // /**
 //  * Actor Roll Modes DTO
@@ -67,7 +66,7 @@ export class ActorRollModeDTO
 {
     static validator = ActorRollModeDTOValidator
 
-    constructor ()
+    constructor()
     {
         this.advantage = []
         this.disadvantage = []

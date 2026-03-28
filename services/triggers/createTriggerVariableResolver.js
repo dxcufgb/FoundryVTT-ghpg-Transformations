@@ -1,10 +1,14 @@
 // services/triggers/triggerVariableResolver.js
 export function createTriggerVariableResolver({
+    actorRepository,
     formulaEvaluator,
     logger
 })
 {
-    logger.debug("createTriggerVariableResolver", { formulaEvaluator })
+    logger.debug("createTriggerVariableResolver", {
+        actorRepository,
+        formulaEvaluator
+    })
 
     function resolve({
         actor,
@@ -51,7 +55,7 @@ export function createTriggerVariableResolver({
         return resolved
     }
 
-    return Object.freeze({ resolve })
+    return Object.freeze({resolve})
 
     function resolveVariable({
         variable,
@@ -82,10 +86,14 @@ export function createTriggerVariableResolver({
 
             case "static":
                 return variable.value
+
+            case "highestAvailableHitDiceMax":
+                return getHitDiceMax(actor)
+
             case "stageDependent":
                 return variable?.value?.[
                     actor?.flags?.transformations?.stage
-                ] ?? 0
+                    ] ?? 0
 
             default:
                 throw new Error(
@@ -114,9 +122,21 @@ export function createTriggerVariableResolver({
             variables,
 
             // Common shorthands
+            highestAvailableHitDiceMax: getHitDiceMax(actor),
             prof: actor?.system?.attributes?.prof ?? 0,
             stage: transformation?.stage ?? 0
         }
+    }
+
+    function getHitDiceMax(actor)
+    {
+        logger.debug("createTriggerVariableResolver.getHitDiceMax", {
+            actor
+        })
+
+        const maximumHitDices = actorRepository?.getMaximumHitDices?.(actor)
+
+        return Number(maximumHitDices ?? 0)
     }
 
 }

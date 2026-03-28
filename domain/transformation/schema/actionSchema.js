@@ -1,4 +1,5 @@
 export const ActionTypes = {
+    ACTOR_HIT_DIE: "actorHitDie",
     EFFECT: "effect",
     ITEM: "item",
     FLAG: "flag",

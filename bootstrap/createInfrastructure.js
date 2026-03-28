@@ -1,5 +1,8 @@
 import { createStageGrantResolver } from "../domain/transformation/createStageGrantResolver.js"
+import { UiAccessor } from "./uiAccessor.js"
 import { createActiveEffectRepository } from "../infrastructure/foundry/activeEffectsRepository.js"
+import { createAdvancementChoiceHandler } from "../infrastructure/foundry/advancementChoiceHandler.js"
+import { createAdvancementGrantResolver } from "../infrastructure/foundry/createAdvancementGrantResolver.js"
 import { createActorRepository } from "../infrastructure/foundry/actorRepository.js"
 import { createCompendiumRepository } from "../infrastructure/foundry/compendiumRepository.js"
 import { createCreatureTypeService } from "../infrastructure/foundry/creatureSubTypeService.js"
@@ -34,7 +37,7 @@ export function createInfrastructure({
         notifications
     })
 
-    const { utils, constants } = dependencies
+    const {utils, constants} = dependencies
     const trackers = {
         repositories: utils.asyncTrackers.get("repositories"),
         mutations: utils.asyncTrackers.get("mutations"),
@@ -54,9 +57,29 @@ export function createInfrastructure({
         logger
     })
 
-    const itemRepository = createItemRepository({
+    const activeEffectRepository = createActiveEffectRepository({
         tracker: trackers.repositories,
         debouncedTracker,
+        logger
+    })
+
+    const advancementChoiceHandler = createAdvancementChoiceHandler({
+        activeEffectRepository,
+        getDialogFactory: () => UiAccessor.dialogs,
+        logger
+    })
+
+    const advancementGrantResolver = createAdvancementGrantResolver({
+        activeEffectRepository,
+        logger
+    })
+
+    const itemRepository = createItemRepository({
+        advancementChoiceHandler,
+        advancementGrantResolver,
+        tracker: trackers.repositories,
+        debouncedTracker,
+        getTransformationQueryService,
         logger
     })
 
@@ -67,13 +90,8 @@ export function createInfrastructure({
         getGame,
         logger
     })
-    const tokenRepository = createTokenRepository({
-        tracker: trackers.repositories,
-        debouncedTracker,
-        logger
-    })
 
-    const activeEffectRepository = createActiveEffectRepository({
+    const tokenRepository = createTokenRepository({
         tracker: trackers.repositories,
         debouncedTracker,
         logger
@@ -122,7 +140,7 @@ export function createInfrastructure({
         logger
     })
 
-    const macroRegistry = createMacroRegistry({ logger })
+    const macroRegistry = createMacroRegistry({logger})
     const directMacroInvoker = createDirectMacroInvoker({
         tracker: trackers.macros,
         macroRegistry,
@@ -147,6 +165,7 @@ export function createInfrastructure({
         compendiumRepository,
         stageGrantResolver,
         actionExecutor,
+        activeEffectRepository,
         logger
     })
 
@@ -170,6 +189,8 @@ export function createInfrastructure({
         directMacroInvoker,
         onceService,
         requiresService,
+        advancementChoiceHandler,
+        advancementGrantResolver,
         notifier
     })
 }

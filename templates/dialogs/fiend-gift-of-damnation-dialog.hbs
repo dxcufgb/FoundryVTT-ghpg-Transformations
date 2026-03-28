@@ -1,0 +1,39 @@
+<div class="fiend-gift-of-damnation">
+    <p>
+        Active Gift: {{currentGiftName}}
+    </p>
+
+    {{#if options.length}}
+        <div class="form-group">
+            <label>Gift of Damnation</label>
+            <select data-action="gift">
+                {{#each options}}
+                    <option value="{{value}}" {{#if selected}}selected{{/if}}>
+                        {{label}}
+                    </option>
+                {{/each}}
+            </select>
+        </div>
+
+        <!-- Description panel -->
+        <div class="fiend-gift-description-container">
+            {{#each options}}
+                <div
+                        class="fiend-gift-description"
+                        data-gift-value="{{value}}"
+                        hidden
+                >
+                    <h3>{{label}}</h3>
+                    <p>{{description}}</p>
+                </div>
+            {{/each}}
+        </div>
+
+        <button type="button" data-action="confirm">
+            OK
+        </button>
+
+    {{else}}
+        <p>No gifts are available for the current transformation stage.</p>
+    {{/if}}
+</div>

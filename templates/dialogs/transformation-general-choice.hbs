@@ -1,5 +1,12 @@
 <div class="transformation-general-choices-wrapper">
     <div class="transformation-general-choices-content">
+        {{#if isMultiChoice}}
+            <div
+                class="transformation-general-choices-counter"
+                data-choice-counter>
+                Choices left: <span data-choice-counter-value>{{choicesLeft}}</span>
+            </div>
+        {{/if}}
 
         {{#if description}}
             <div class="transformation-general-choices-description">
@@ -37,5 +44,16 @@
             </ol>
 
         </div>
+        {{#if isMultiChoice}}
+            <div class="transformation-general-choice-footer">
+                <button
+                    type="button"
+                    class="choice-confirm"
+                    data-action="choose"
+                    disabled>
+                    Make choice
+                </button>
+            </div>
+        {{/if}}
     </div>
 </div>

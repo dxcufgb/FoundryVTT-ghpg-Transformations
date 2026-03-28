@@ -1,0 +1,149 @@
+<div class="card-content gift-of-damnation-card"
+     data-transformations-card="true"
+     data-gift="{{giftId}}"
+     data-state="{{state}}">
+
+    {{#if rolls}}
+        {{#each rolls}}
+            <div class="dice-roll">
+                <div class="dice-result">
+                    <div class="dice-formula">
+                        {{#if formula}}
+                            {{formula}}
+                        {{else}}
+                            1{{../hitDie}}
+                        {{/if}}
+                    </div>
+                    {{#if damageType}}
+                        <div class="dice-flavor">{{damageType}}</div>
+                    {{/if}}
+                    {{{tooltip}}}
+                    <h4 class="dice-total">{{total}}</h4>
+                </div>
+            </div>
+        {{/each}}
+    {{else}}
+        {{#if roll}}
+            <div class="dice-roll">
+                <div class="dice-result">
+                    <div class="dice-formula">
+                        {{#if rollFormula}}
+                            {{rollFormula}}
+                        {{else}}
+                            1{{hitDie}}
+                        {{/if}}
+                    </div>
+                    {{#if damageType}}
+                        <div class="dice-flavor">{{damageType}}</div>
+                    {{/if}}
+                    {{{tooltip}}}
+                    <h4 class="dice-total">{{roll}}</h4>
+                </div>
+            </div>
+        {{/if}}
+    {{/if}}
+
+    <div class="card-buttons">
+
+        {{#if (eq giftId "giftOfJoyousLife")}}
+            {{#if (eq state "initial")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="rollHitDie">
+                    Roll Hit Die
+                </button>
+            {{/if}}
+
+            {{#if (eq state "rolled-success")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="applyHealing"
+                        data-healing="{{roll}}">
+                    Apply Healing
+                </button>
+            {{/if}}
+
+            {{#if (eq state "rolled-failure")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="applyDamage">
+                    Apply Damage
+                </button>
+            {{/if}}
+        {{/if}}
+
+        {{#if (eq giftId "giftOfUnsurpassedFortune")}}
+            {{#if (eq state "initial")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="roll">
+                    Roll
+                </button>
+            {{/if}}
+
+            {{#if (eq state "rolled-failure")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="rollDamage">
+                    Roll Damage
+                </button>
+            {{/if}}
+
+            {{#if (eq state "damage-rolled")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="applyDamage">
+                    Apply Damage
+                </button>
+            {{/if}}
+        {{/if}}
+
+        {{#if (eq giftId "giftOfSecondChances")}}
+            {{#if (eq state "initial")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="rollHitDie">
+                    Roll Hit Die
+                </button>
+            {{/if}}
+
+            {{#if (eq state "rolled-success")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="applyHealing"
+                        data-healing="{{roll}}">
+                    Apply healing
+                </button>
+            {{/if}}
+        {{/if}}
+
+        {{#if (eq giftId "giftOfUnconditionalLove")}}
+            {{#if (eq state "initial")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="roll">
+                    Roll
+                </button>
+            {{/if}}
+
+            {{#if (eq state "rolled-success")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="applyTempHp"
+                        data-temp-hp="{{roll}}">
+                    Apply Temp HP
+                </button>
+            {{/if}}
+        {{/if}}
+
+        {{#if (eq giftId "giftOfMartialProwess")}}
+            {{#if (eq state "initial")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="attack">
+                    Attack
+                </button>
+            {{/if}}
+
+            {{#if (eq state "attack-rolled")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="rollDamage">
+                    Roll Damage
+                </button>
+            {{/if}}
+        {{/if}}
+
+        {{#if (eq giftId "giftOfUnbridledPower")}}
+            {{#if (eq state "initial")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="roll">
+                    Roll
+                </button>
+            {{/if}}
+
+            {{#if (eq state "rolled")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="recoverSpellSlots">
+                    Recover spell slots
+                </button>
+            {{/if}}
+        {{/if}}
+
+    </div>
+
+</div>

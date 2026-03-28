@@ -3,6 +3,8 @@
 import { wait } from "../../helpers/wait.js"
 import { teardownAllTest } from "../../testLifecycle.js"
 import { registerChatActionTests } from "./chatAction.test.js"
+import { registerActorFlagActionTests } from "./actorFlags.test.js"
+import { registerActorHitDieActionTests } from "./actorHitDie.test.js"
 import { registerDialogActionTests } from "./dialogAction.test.js"
 import { registerEffectActionTests } from "./effectAction.test.js"
 import { registerHpActionTests } from "./hpAction.test.js"
@@ -22,6 +24,8 @@ quench.registerBatch(
             await teardownAllTest()
         })
         registerChatActionTests({ describe, it, expect })
+        registerActorFlagActionTests({ describe, it, expect })
+        registerActorHitDieActionTests({ describe, it, expect })
         registerEffectActionTests({ describe, it, expect })
         registerHpActionTests({ describe, it, expect })
         registerItemActionTests({ describe, it, expect })

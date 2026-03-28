@@ -153,7 +153,9 @@ export function createTransformationService({
                 const definition = transformation.definition
 
                 let choice = null
+                let choiceObject = null
                 if (definition.stages[stage].choices !== undefined) {
+                    const choiceItems = definition.stages[stage].choices.items
                     choice = actor.getFlag(
                         "transformations",
                         "stageChoices"
@@ -187,13 +189,14 @@ export function createTransformationService({
                             }
                         }
                     )
+                    choiceObject = choiceItems.find(c => c.uuid == choice)
                 }
 
                 await mutationGateway.advanceStage({
                     actorId: actor.id,
                     definition,
                     stage,
-                    choice
+                    choice: choiceObject
                 })
             })()
         )

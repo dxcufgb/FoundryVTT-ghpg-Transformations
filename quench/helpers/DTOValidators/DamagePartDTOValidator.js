@@ -6,6 +6,7 @@ export class DamagePartDTOValidator extends BaseDTOValidator
 {
     static rules = {
 
+        custom: path("part.custom.formula").equals(),
         roll: resolve(ctx =>
             `${ctx.part.number}d${ctx.part.denomination}`
         ).equals(),
@@ -20,7 +21,7 @@ export class DamagePartDTOValidator extends BaseDTOValidator
         if (!part)
             throw new Error(`[${this.path}] Missing damage part`)
 
-        super.validate(this.buildValidationDTO(dto), { part })
+        super.validate(this.buildValidationDTO(dto), {part})
 
         return true
     }

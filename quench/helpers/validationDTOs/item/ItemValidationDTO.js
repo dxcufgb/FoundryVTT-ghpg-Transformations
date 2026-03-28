@@ -10,7 +10,7 @@ export class ItemValidationDTO
 {
     static validator = ItemDTOValidator
 
-    constructor ()
+    constructor()
     {
         this.itemName = null
         this.expectedItemUuids = []
@@ -53,18 +53,28 @@ export class ItemValidationDTO
 class ItemUsesValidationDTO
 {
     static validator = ItemUsesDTOValidator
-    constructor ()
+
+    constructor()
     {
         this.max = null
         this.value = null
-        this.recovery = new ItemUsesRecoveryValidationDTO()
+        this.recovery = []
+    }
+
+    addRecovery(configure)
+    {
+        const dto = new ItemUsesRecoveryValidationDTO()
+        configure(dto)
+        this.recovery.push(dto)
+        return this
     }
 }
 
 class ItemUsesRecoveryValidationDTO
 {
     static validator = ItemUsesRecoveryDTOValidator
-    constructor ()
+
+    constructor()
     {
         this.period = null
         this.type = null

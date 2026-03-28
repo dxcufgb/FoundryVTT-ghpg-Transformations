@@ -10,7 +10,8 @@ export function createFormulaEvaluator({ logger }) {
 
         try {
             const expression = substitute(formula, scope);
-            return Roll.safeEval(expression);
+            const resolvedExpression = resolveJavaScriptCode(expression);
+            return Roll.safeEval(resolvedExpression);
         } catch (err) {
             logger.error("Formula evaluation failed", {
                 formula,
@@ -22,4 +23,18 @@ export function createFormulaEvaluator({ logger }) {
     }
 
     return Object.freeze({ evaluate });
+
+    function resolveJavaScriptCode(expression) {
+        if (typeof expression !== "string" || expression.length === 0) {
+            return expression;
+        }
+
+        try {
+            return String(
+                Function(`"use strict"; return (${expression});`)()
+            );
+        } catch {
+            return expression;
+        }
+    }
 }

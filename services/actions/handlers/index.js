@@ -8,6 +8,7 @@ import { createMacroAction } from "./macroAction.js"
 import { createDialogAction } from "./dialog.js"
 import { createActorFlagAction } from "./actorFlags.js"
 import { createExhaustionAction } from "./actorExhaustion.js"
+import { createActorHitDieAction } from "./actorHitDie.js"
 
 export function createActionHandlers({
     trackers,
@@ -34,6 +35,12 @@ export function createActionHandlers({
 
     return Object.freeze({
         ACTOR_FLAG: createActorFlagAction({
+            tracker: trackers.mutations,
+            logger
+        }),
+        ACTOR_HIT_DIE: createActorHitDieAction({
+            actorRepository,
+            itemRepository,
             tracker: trackers.mutations,
             logger
         }),

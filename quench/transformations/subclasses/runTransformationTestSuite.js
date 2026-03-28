@@ -1,4 +1,4 @@
-import { applyItemActivityEffect, expectItemsOnActor, expectRaceItemSubTypeOnActor, getCharacterClass, validateAllD20Disadvantage } from "../../helpers/actors.js"
+import { applyItemActivityEffect, createActorItemAndWait, expectItemsOnActor, expectRaceItemSubTypeOnActor, getCharacterClass, validateAllD20Disadvantage } from "../../helpers/actors.js"
 import { advanceStageAndChoose } from "../../helpers/adcanceStageAndExpectchoiceDialog.js"
 import { advanceStageAndWait } from "../../helpers/advanceStageAndWait.js"
 import { expectAsyncWork } from "../../helpers/async/expectAsyncWork.js"
@@ -10,14 +10,15 @@ import { triggerFunction } from "../../helpers/triggers.js"
 import { waitForCondition } from "../../helpers/waitForCondition.js"
 import { waitForDomainStability } from "../../helpers/waitForDomainStability.js"
 import { setupTest } from "../../testLifecycle.js"
+import { chooseDamageResistanceOnStage1 } from "../../helpers/fiend/chooseDamageResistanceOnStage1.js";
+import { createChatCardTestHelper, createDeterministicRollHelper } from "../../helpers/index.js";
 
 export function runTransformationTestSuite({
     mochaFunctions,
     testDef
 })
 {
-
-    const { describe, it, assert, expect } = mochaFunctions
+    const {describe, it, assert, expect} = mochaFunctions
     const helpers = {
         getCharacterClass,
         applyItemActivityEffect,
@@ -25,8 +26,14 @@ export function runTransformationTestSuite({
         expectRaceItemSubTypeOnActor,
         validateAllD20Disadvantage,
         getPreRollSavingThrowContext,
+        createChatCardTestHelper,
+        createDeterministicRollHelper,
+        createActorItemAndWait,
         fey: {
             chooseDamageResistanceOnLongRest
+        },
+        fiend: {
+            chooseDamageResistanceOnStage1
         }
     }
     const waiters = {
@@ -39,7 +46,7 @@ export function runTransformationTestSuite({
     }
 
     if (testDef.scenarios?.length > 0) {
-        describe(`${testDef.id} scenarios`, function()
+        describe(`${testDef.id} scenarios`, function ()
         {
             this.timeout(10_000)
             let actor
@@ -47,13 +54,13 @@ export function runTransformationTestSuite({
             let transformationDef
             let staticVars = {}
 
-            beforeEach(async function()
+            beforeEach(async function ()
             {
-                ({ actor, runtime } = await setupTest({
+                ({actor, runtime} = await setupTest({
                     currentTest: this.currentTest,
                     createObjects: {
                         actor: {
-                            name: this.currentTest.title + `(${testDef.id})`, options: { race: "humanoid" }
+                            name: this.currentTest.title + `(${testDef.id})`, options: {race: "humanoid"}
                         },
                         runtime: {}
                     },
@@ -63,9 +70,9 @@ export function runTransformationTestSuite({
                 await expectAsyncWork(
                     () => runtime.services.transformationService.applyTransformation(
                         actor,
-                        { definition: transformationDef }
+                        {definition: transformationDef}
                     ),
-                    { trackers: runtime.dependencies.utils.asyncTrackers }
+                    {trackers: runtime.dependencies.utils.asyncTrackers}
                 )
 
                 await waitForCondition(() =>
@@ -74,8 +81,12 @@ export function runTransformationTestSuite({
 
                 await waitForNextFrame()
 
-                if (actor.getFlag("transformations", "stage") != 0) throw new Error("Transformation stage not set to 0 in beforeEach")
-                if (actor.getFlag("transformations", "type") != transformationDef.id) throw new Error(`Transformation type not set to ${transformationDef.id} in beforeEach`)
+                if (actor.getFlag("transformations", "stage") != 0) throw new Error(
+                    "Transformation stage not set to 0 in beforeEach")
+                if (actor.getFlag(
+                    "transformations",
+                    "type"
+                ) != transformationDef.id) throw new Error(`Transformation type not set to ${transformationDef.id} in beforeEach`)
                 globalThis.___TransformationTestEnvironment___ = {}
                 staticVars = {}
             })
@@ -83,23 +94,23 @@ export function runTransformationTestSuite({
             for (const scenario of testDef.scenarios) {
 
                 const loopContexts = scenario.loop
-                    ? scenario.loop({ game, actor, helpers, runtime, staticVars })
+                    ? scenario.loop({game, actor, helpers, runtime, staticVars})
                     : [undefined]
 
                 for (const loopVars of loopContexts) {
 
                     const testName =
-                        typeof scenario.name === "function"
-                            ? scenario.name(loopVars)
-                            : scenario.loop && loopVars
-                                ? `${scenario.name} [${formatLoopVars(loopVars)}]`
-                                : scenario.name
+                              typeof scenario.name === "function"
+                                  ? scenario.name(loopVars)
+                                  : scenario.loop && loopVars
+                                      ? `${scenario.name} [${formatLoopVars(loopVars)}]`
+                                      : scenario.name
 
-                    it(`Scenario: ${testName}`, async function()
+                    it(`Scenario: ${testName}`, async function ()
                     {
 
                         if (scenario.setup) {
-                            await scenario.setup({ game, actor, helpers, runtime, staticVars, loopVars })
+                            await scenario.setup({game, actor, helpers, runtime, staticVars, loopVars})
                         }
 
                         for (const step of scenario.steps) {
@@ -108,7 +119,7 @@ export function runTransformationTestSuite({
                             }
 
                             if (step.adjust) {
-                                await step.adjust({ actor, staticVars, loopVars })
+                                await step.adjust({actor, staticVars, loopVars})
                             }
 
                             if (step.choose) {
@@ -133,6 +144,7 @@ export function runTransformationTestSuite({
                                     runtime,
                                     actor,
                                     waiters,
+                                    helpers,
                                     staticVars,
                                     loopVars
                                 })
@@ -140,7 +152,7 @@ export function runTransformationTestSuite({
                         }
 
                         if (scenario.finalAwait) {
-                            await scenario.finalAwait({ runtime, actor, waiters, staticVars, loopVars })
+                            await scenario.finalAwait({runtime, actor, waiters, staticVars, loopVars})
                         }
 
                         if (scenario.finalAssertions) {
@@ -161,20 +173,21 @@ export function runTransformationTestSuite({
         })
     }
     if (testDef.itemBehaviorTests?.length > 0) {
-        describe(`${testDef.id} items`, function()
+        describe(`${testDef.id} items`, function ()
         {
             this.timeout(10_000)
             let actor
             let runtime
             let transformationDef
+            let staticVars = {}
 
-            beforeEach(async function()
+            beforeEach(async function ()
             {
-                ({ actor, runtime } = await setupTest({
+                ({actor, runtime} = await setupTest({
                     currentTest: this.currentTest,
                     createObjects: {
                         actor: {
-                            name: this.currentTest.title + `(${testDef.id})`, options: { race: "humanoid" }
+                            name: this.currentTest.title + `(${testDef.id})`, options: {race: "humanoid"}
                         },
                         runtime: {}
                     },
@@ -184,9 +197,9 @@ export function runTransformationTestSuite({
                 await expectAsyncWork(
                     () => runtime.services.transformationService.applyTransformation(
                         actor,
-                        { definition: transformationDef }
+                        {definition: transformationDef}
                     ),
-                    { trackers: runtime.dependencies.utils.asyncTrackers }
+                    {trackers: runtime.dependencies.utils.asyncTrackers}
                 )
 
                 await waitForCondition(() =>
@@ -195,38 +208,43 @@ export function runTransformationTestSuite({
 
                 await waitForNextFrame()
 
-                if (actor.getFlag("transformations", "stage") != 0) throw new Error("Transformation stage not set to 0 in beforeEach")
-                if (actor.getFlag("transformations", "type") != transformationDef.id) throw new Error(`Transformation type not set to ${transformationDef.id} in beforeEach`)
+                if (actor.getFlag("transformations", "stage") != 0) throw new Error(
+                    "Transformation stage not set to 0 in beforeEach")
+                if (actor.getFlag(
+                    "transformations",
+                    "type"
+                ) != transformationDef.id) throw new Error(`Transformation type not set to ${transformationDef.id} in beforeEach`)
                 globalThis.___TransformationTestEnvironment___ = {}
+                staticVars = {}
             })
             for (const behavior of testDef.itemBehaviorTests ?? []) {
 
                 const loopContexts = behavior.loop
-                    ? behavior.loop({ actor, helpers, runtime })
+                    ? behavior.loop({actor, helpers, runtime})
                     : [undefined]
 
                 for (const loopVars of loopContexts) {
 
                     const testName =
-                        typeof behavior.name === "function"
-                            ? behavior.name(loopVars)
-                            : behavior.loop && loopVars
-                                ? `${behavior.name} [${formatLoopVars(loopVars)}]`
-                                : behavior.name
+                              typeof behavior.name === "function"
+                                  ? behavior.name(loopVars)
+                                  : behavior.loop && loopVars
+                                      ? `${behavior.name} [${formatLoopVars(loopVars)}]`
+                                      : behavior.name
 
-                    it(`Item behavior: ${testName}`, async function()
+                    it(`Item behavior: ${testName}`, async function ()
                     {
 
                         if (behavior.setup) {
-                            await behavior.setup({ actor, helpers, loopVars })
+                            await behavior.setup({actor, helpers, loopVars, staticVars})
                         }
 
                         for (const step of behavior.requiredPath ?? []) {
 
                             const choiceUuid =
-                                typeof step.choose === "function"
-                                    ? step.choose(loopVars)
-                                    : step.choose
+                                      typeof step.choose === "function"
+                                          ? step.choose(loopVars)
+                                          : step.choose
 
                             if (choiceUuid) {
                                 await advanceStageAndChoose({
@@ -248,31 +266,33 @@ export function runTransformationTestSuite({
                         }
 
                         const expectedUuid =
-                            typeof behavior.uuid === "function"
-                                ? behavior.uuid(loopVars)
-                                : behavior.uuid
+                                  typeof behavior.uuid === "function"
+                                      ? behavior.uuid(loopVars)
+                                      : behavior.uuid
 
-                        const hasItem = actor.items.some(i =>
-                            i.flags?.transformations?.sourceUuid === expectedUuid
-                        )
-
-                        if (!hasItem) {
-                            throw new Error(
-                                `Item ${behavior.name} (${expectedUuid}) not present on actor`
+                        if (expectedUuid) {
+                            const hasItem = actor.items.some(i =>
+                                i.flags?.transformations?.sourceUuid === expectedUuid
                             )
+
+                            if (!hasItem) {
+                                throw new Error(
+                                    `Item ${behavior.name} (${expectedUuid}) not present on actor`
+                                )
+                            }
                         }
 
                         if (behavior.steps) {
                             for (const step of behavior.steps) {
-                                await step({ actor, runtime, helpers, waiters, loopVars })
+                                await step({actor, runtime, helpers, waiters, loopVars, staticVars})
                             }
                         }
 
                         if (behavior.trigger) {
                             const triggerValue =
-                                typeof behavior.trigger === "function"
-                                    ? behavior.trigger(loopVars)
-                                    : behavior.trigger
+                                      typeof behavior.trigger === "function"
+                                          ? behavior.trigger(loopVars)
+                                          : behavior.trigger
 
                             await triggerFunction(runtime, triggerValue, actor)
                         }
@@ -282,7 +302,9 @@ export function runTransformationTestSuite({
                                 actor,
                                 runtime,
                                 waiters,
-                                loopVars
+                                helpers,
+                                loopVars,
+                                staticVars
                             })
                         }
 
@@ -293,7 +315,9 @@ export function runTransformationTestSuite({
                                 assert,
                                 runtime,
                                 helpers,
-                                loopVars
+                                waiters,
+                                loopVars,
+                                staticVars
                             })
                         }
                     })
@@ -302,20 +326,20 @@ export function runTransformationTestSuite({
         })
     }
     if (testDef.rollTableEffects?.length > 0) {
-        describe(`${testDef.id} roll table effects`, function()
+        describe(`${testDef.id} roll table effects`, function ()
         {
             this.timeout(10_000)
             let actor
             let runtime
             let transformationDef
 
-            beforeEach(async function()
+            beforeEach(async function ()
             {
-                ({ actor, runtime } = await setupTest({
+                ({actor, runtime} = await setupTest({
                     currentTest: this.currentTest,
                     createObjects: {
                         actor: {
-                            name: this.currentTest.title + `(${testDef.id})`, options: { race: "humanoid" }
+                            name: this.currentTest.title + `(${testDef.id})`, options: {race: "humanoid"}
                         },
                         runtime: {}
                     },
@@ -325,9 +349,9 @@ export function runTransformationTestSuite({
                 await expectAsyncWork(
                     () => runtime.services.transformationService.applyTransformation(
                         actor,
-                        { definition: transformationDef }
+                        {definition: transformationDef}
                     ),
-                    { trackers: runtime.dependencies.utils.asyncTrackers }
+                    {trackers: runtime.dependencies.utils.asyncTrackers}
                 )
 
                 await waitForCondition(() =>
@@ -336,19 +360,29 @@ export function runTransformationTestSuite({
 
                 await waitForNextFrame()
 
-                if (actor.getFlag("transformations", "stage") != 0) throw new Error("Transformation stage not set to 0 in beforeEach")
-                if (actor.getFlag("transformations", "type") != transformationDef.id) throw new Error(`Transformation type not set to ${transformationDef.id} in beforeEach`)
+                if (actor.getFlag("transformations", "stage") != 0) throw new Error(
+                    "Transformation stage not set to 0 in beforeEach")
+                if (actor.getFlag(
+                    "transformations",
+                    "type"
+                ) != transformationDef.id) throw new Error(`Transformation type not set to ${transformationDef.id} in beforeEach`)
                 globalThis.___TransformationTestEnvironment___ = {}
             })
             for (const effectTest of testDef.rollTableEffects ?? []) {
-                it(`Roll Table Effect: ${effectTest.name}`, async function()
+                it(`Roll Table Effect: ${effectTest.name}`, async function ()
                 {
                     if (effectTest.setup) {
-                        await effectTest.setup({ actor, helpers })
+                        await effectTest.setup({actor, helpers})
                     }
                     const effect = game.transformations.getEffectInstance(actor, effectTest.key)
                     await effect.apply(actor)
-                    await effectTest.assertion({ name: effectTest.name, origin: testDef.rollTableOrigin, actor, assert, helpers })
+                    await effectTest.assertion({
+                        name: effectTest.name,
+                        origin: testDef.rollTableOrigin,
+                        actor,
+                        assert,
+                        helpers
+                    })
                 })
             }
         })

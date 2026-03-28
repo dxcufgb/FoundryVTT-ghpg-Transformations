@@ -1,6 +1,7 @@
 import { conditionsMet } from "../../domain/actions/conditionSchema.js"
 
 // infrastructure/actions/actionExecutor.js
+
 export function createActionExecutor({
     tracker,
     actorRepository,
@@ -75,13 +76,6 @@ export function createActionExecutor({
                         }
 
                         if (action.once?.key) {
-                            // const onceFlags = actor.getFlag("transformations", "once") ?? {}
-                            // const entry = onceFlags[action.once.key]
-
-                            // if (entry?.executed === true) {
-                            //     logger.debug("Once action skipped", action.once.key)
-                            //     continue
-                            // }
                             const hasBeenExecuted = onceService.hasOnceBeenExecuted(actor, action.once.key)
                             if (hasBeenExecuted === true) {
                                 logger.debug("Once action skipped", action.once.key)
@@ -91,20 +85,6 @@ export function createActionExecutor({
                         const handler = handlers[action.type]
                         // After handler execution
                         if (action.once?.key) {
-                            // const onceFlags = actor.getFlag("transformations", "once") ?? {}
-
-                            // const resetList = Array.isArray(action.once.reset)
-                            //     ? action.once.reset
-                            //     : action.once.reset
-                            //         ? [action.once.reset]
-                            //         : []
-
-                            // onceFlags[action.once.key] = {
-                            //     executed: true,
-                            //     reset: resetList
-                            // }
-
-                            // await actor.setFlag("transformations", "once", onceFlags)
                             await onceService.setOnceFlag(actor, action.once)
                         }
 
@@ -144,3 +124,4 @@ export function createActionExecutor({
     })
 
 }
+

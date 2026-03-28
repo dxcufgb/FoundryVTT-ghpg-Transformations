@@ -4,8 +4,10 @@ import { DamagePartDTOValidator } from "../../DTOValidators/DamagePartDTOValidat
 export class DamagePartValidationDTO
 {
     static validator = DamagePartDTOValidator
-    constructor ()
+
+    constructor()
     {
+        this.custom = null
         this.roll = null
         this.damageTypes = null
         this.numberOfTypes = null

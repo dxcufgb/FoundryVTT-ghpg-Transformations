@@ -100,6 +100,39 @@ export function registerGMOnlyActorHooks({
         }
     })
 
+    Hooks.on("deleteActiveEffect", async (effect, options, userId) =>
+    {
+        logger.debug("GM deleteActiveEffect", effect, options, userId)
+        debouncedTracker.pulse("deleteActiveEffect")
+
+        const actor = actorRepository.resolveActor(effect?.parent)
+        if (!actor) return
+
+        const fiendFlags = actor.flags?.transformations?.fiend ?? {}
+        const giftEntry =
+            Object.entries(fiendFlags).find(([, entry]) =>
+                entry?.effectId === effect.id
+            ) ??
+            Object.entries(fiendFlags).find(([giftId]) =>
+                giftId === effect.getFlag("transformations", "giftOfDamnationId")
+            )
+
+        if (!giftEntry) return
+
+        const [giftId, entry] = giftEntry
+        const itemIds = Array.isArray(entry?.itemIds)
+            ? entry.itemIds.filter(itemId => actor.items.get(itemId))
+            : []
+
+        if (itemIds.length) {
+            await actor.deleteEmbeddedDocuments("Item", itemIds)
+        }
+
+        await actor.update({
+            [`flags.transformations.fiend.-=${giftId}`]: null
+        })
+    })
+
     Hooks.on("preUpdateActiveEffect", (effect, data) =>
     {
         logger.debug("preUpdateActiveEffect", effect, data)

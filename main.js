@@ -22,7 +22,6 @@ import { registerSockets } from "./infrastructure/socket/registerSockets.js"
 
 // domain
 // import { registerTransformations } from "./domain/transformation/manifest.js";
-
 //utils
 import { createUtils } from "./utils/createUtils.js"
 
@@ -88,10 +87,9 @@ const infrastructure = createInfrastructure({
     })
 })
 
-setRegistryLogger(logger, { allowOnce: true })
-setRegistryDependencies(dependencies, { allowOnce: true })
-setRegistryInfrastructure(infrastructure, { allowOnce: true })
-
+setRegistryLogger(logger, {allowOnce: true})
+setRegistryDependencies(dependencies, {allowOnce: true})
+setRegistryInfrastructure(infrastructure, {allowOnce: true})
 
 Hooks.once("init", () =>
 {
@@ -112,7 +110,7 @@ Hooks.once("setup", async () =>
 {
     console.log("Transformations | Setup")
 
-    const { dependencies, infrastructure, logger } = Registry
+    const {dependencies, infrastructure, logger} = Registry
 
     await game.ready
 
@@ -134,7 +132,7 @@ Hooks.once("setup", async () =>
 
     UiAccessor.dialogs = moduleUi.dialogs
 
-    setRegistryServices(services, { allowOnce: true })
+    setRegistryServices(services, {allowOnce: true})
 
     finalizeRegistry()
 
@@ -154,7 +152,10 @@ Hooks.once("setup", async () =>
         triggerRuntime: services.triggerRuntime,
         onceService: infrastructure.onceService,
         actorRepository: infrastructure.actorRepository,
+        activeEffectRepository: infrastructure.activeEffectRepository,
         dialogFactory: moduleUi.dialogs,
+        ChatMessagePartInjector: moduleUi.ChatMessagePartInjector,
+        RollService: services.RollService,
         tracker: Registry.dependencies.utils.asyncTrackers.get("mutations"),
         debouncedTracker: Registry.dependencies.utils.asyncTrackers.debounced,
         logger
@@ -199,28 +200,26 @@ Hooks.once("setup", async () =>
             constants,
             logger
         })
-    }
 
-    globalThis.TransformationsDev = {
-        applyFlags: async ({ dryRun = false } = {}) =>
-        {
-            if (hasRun && !dryRun) {
-                console.warn("Flags already applied this session")
-                return
+        globalThis.TransformationsDev = {
+            applyFlags: async ({dryRun = false} = {}) =>
+            {
+                if (hasRun && !dryRun) {
+                    console.warn("Flags already applied this session")
+                    return
+                }
+                hasRun = true
+                return applyTransformationFlags(
+                    transformationFlagEntries,
+                    {dryRun}
+                )
             }
-            hasRun = true
-            return applyTransformationFlags(
-                transformationFlagEntries,
-                { dryRun }
-            )
         }
+
+        logger.log("applying transformation flags!")
+        TransformationsDev.applyFlags()
+        logger.log("flags applied!")
     }
-
-
-    logger.log("applying transformation flags!")
-    TransformationsDev.applyFlags()
-    logger.log("flags applied!")
-
     createDnd5eConfig({
         transformationSubTypes,
         constants
@@ -239,7 +238,6 @@ Hooks.once("setup", async () =>
 ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 `)
 
-
     const mod = game.modules.get("transformations")
 
     mod.api = {
@@ -247,16 +245,16 @@ Hooks.once("setup", async () =>
         {
             logger.debug("mod.api.getTransformations called")
             return Registry.services
-                .transformationRegistry
-                .getAllEntries()
+            .transformationRegistry
+            .getAllEntries()
         },
 
         getTransformationById(id)
         {
             logger.debug("mod.api.getTransformationById called")
             return Registry.services
-                .transformationRegistry
-                .getEntryByItemId(id)
+            .transformationRegistry
+            .getEntryByItemId(id)
         }
     }
 
@@ -271,7 +269,6 @@ Hooks.once("setup", async () =>
 
     console.log("Transformations | Setup complete")
 })
-
 
 Hooks.once("ready", async () =>
 {
@@ -289,7 +286,7 @@ Hooks.once("ready", async () =>
         if (!game.user.isGM) return
         if (data.type !== "EXECUTE_MACRO") return
 
-        if (!validateMacroPayload(data.payload, { logger })) {
+        if (!validateMacroPayload(data.payload, {logger})) {
             logger.warn("Rejected invalid macro payload from socket", data)
             return
         }
@@ -315,9 +312,22 @@ Hooks.once("ready", async () =>
         )
     )
 
+    const pack = game.packs.get("transformations.temp-items")
+
+    if (pack.locked) {
+        await pack.configure({locked: false})
+    }
+
     // CONFIG.debug.hooks = true
+    // CONFIG.debug.documents = true
     // CONFIG.debug.rollParsing = true
 
+})
+
+Hooks.on("renderCompendiumDirectory", (app, html) => {
+    if (!game.user.isGM) {
+        html.querySelector(`[data-pack="transformations.temp-items"]`).remove()
+    }
 })
 
 Hooks.once("socketlib.ready", () =>

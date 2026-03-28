@@ -7,8 +7,15 @@ import { createItemInfoController } from "../controllers/ItemInfoController.js"
 import { createFeyExhaustionRecoveryViewModel } from "../viewModels/createFeyExhaustionRecoveryViewModel.js"
 import { createFeyExhaustionRecoveryController } from "../controllers/feyExhaustionRecoveryController.js"
 import { FeyExhaustionRecoveryDialog } from "./feyExhaustionRecoveryDialog.js"
+import { createFiendGiftOfDamnationViewModel } from "../viewModels/createFiendGiftOfDamnationViewModel.js"
+import { createFiendGiftOfDamnationController } from "../controllers/fiendGiftOfDamnationController.js"
+import { FiendGiftOfDamnationDialog } from "./fiendGiftOfDamnationDialog.js"
+import { createFiendUnbridledPowerSpellSlotRecoveryViewModel } from "../viewModels/createFiendUnbridledPowerSpellSlotRecoveryViewModel.js"
+import { createFiendUnbridledPowerSpellSlotRecoveryController } from "../controllers/fiendUnbridledPowerSpellSlotRecoveryController.js"
+import { FiendUnbridledPowerSpellSlotRecoveryDialog } from "./fiendUnbridledPowerSpellSlotRecoveryDialog.js"
 
 export function createDialogFactory({
+    applyFiendGiftOfDamnation,
     controllers,
     viewModels,
     transformationService,
@@ -19,6 +26,7 @@ export function createDialogFactory({
 })
 {
     logger.debug("createDialogFactory", {
+        applyFiendGiftOfDamnation,
         controllers,
         viewModels,
         transformationService,
@@ -120,6 +128,7 @@ export function createDialogFactory({
     async function openTransformationGeneralChoiceDialog({
         actor,
         choices,
+        choiceCount = 1,
         description,
         title
     })
@@ -127,6 +136,7 @@ export function createDialogFactory({
         logger.debug("openTransformationGeneralChoiceDialog", {
             actor,
             choices,
+            choiceCount,
             description
         })
 
@@ -140,6 +150,7 @@ export function createDialogFactory({
         {
             const viewModel = viewModels.createTransformationGeneralChoiceViewModel({
                 choices,
+                choiceCount,
                 description,
                 title,
                 logger
@@ -166,7 +177,7 @@ export function createDialogFactory({
         })
     }
 
-    async function showItemInfoDialog({ item })
+    async function showItemInfoDialog({item})
     {
         logger.debug("openDamageTypeChoiceDialog", {
             item
@@ -180,8 +191,8 @@ export function createDialogFactory({
 
         return new Promise(resolve =>
         {
-            const viewModel = createItemInfoViewModel({ item, logger })
-            const controller = createItemInfoController({ resolve, logger })
+            const viewModel = createItemInfoViewModel({item, logger})
+            const controller = createItemInfoController({resolve, logger})
 
             const dialog = new ItemInfoDialog({
                 item,
@@ -209,25 +220,107 @@ export function createDialogFactory({
         {
 
             const viewModel =
-                createFeyExhaustionRecoveryViewModel({
-                    stage,
-                    exhaustion,
-                    hitDiceAvailable,
-                    logger
-                })
+                      createFeyExhaustionRecoveryViewModel({
+                          stage,
+                          exhaustion,
+                          hitDiceAvailable,
+                          logger
+                      })
 
             const controller =
-                createFeyExhaustionRecoveryController({
-                    resolve,
-                    logger
-                })
+                      createFeyExhaustionRecoveryController({
+                          resolve,
+                          logger
+                      })
 
             const dialog =
-                new FeyExhaustionRecoveryDialog({
-                    viewModel,
-                    controller,
-                    logger
-                })
+                      new FeyExhaustionRecoveryDialog({
+                          viewModel,
+                          controller,
+                          logger
+                      })
+
+            dialog.render(true)
+        })
+    }
+
+    async function openFiendGiftOfDamnation({
+        actor,
+        stage
+    })
+    {
+        logger.debug("openFiendGiftOfDamnation", {
+            actor,
+            stage
+        })
+
+        if (!actor) return false
+
+        closeExistingDialog(FiendGiftOfDamnationDialog)
+
+        return new Promise(resolve =>
+        {
+            const viewModel =
+                      createFiendGiftOfDamnationViewModel({
+                          actor,
+                          stage,
+                          logger
+                      })
+
+            const controller =
+                      createFiendGiftOfDamnationController({
+                          actor,
+                          applyFiendGiftOfDamnation,
+                          resolve,
+                          logger
+                      })
+
+            const dialog = new FiendGiftOfDamnationDialog({
+                viewModel,
+                controller,
+                logger
+            })
+
+            dialog.render(true)
+        })
+    }
+
+    async function openFiendUnbridledPowerSpellSlotRecovery({
+        actor,
+        amount
+    })
+    {
+        logger.debug("openFiendUnbridledPowerSpellSlotRecovery", {
+            actor,
+            amount
+        })
+
+        if (!actor || !Number.isFinite(Number(amount)) || Number(amount) <= 0) {
+            return false
+        }
+
+        closeExistingDialog(FiendUnbridledPowerSpellSlotRecoveryDialog)
+
+        return new Promise(resolve =>
+        {
+            const viewModel =
+                      createFiendUnbridledPowerSpellSlotRecoveryViewModel({
+                          actor,
+                          amount: Number(amount),
+                          logger
+                      })
+
+            const controller =
+                      createFiendUnbridledPowerSpellSlotRecoveryController({
+                          resolve,
+                          logger
+                      })
+
+            const dialog = new FiendUnbridledPowerSpellSlotRecoveryDialog({
+                viewModel,
+                controller,
+                logger
+            })
 
             dialog.render(true)
         })
@@ -238,15 +331,17 @@ export function createDialogFactory({
         openStageChoiceDialog,
         openTransformationGeneralChoiceDialog,
         showItemInfoDialog,
-        openFeyExhaustionRecovery
+        openFeyExhaustionRecovery,
+        openFiendGiftOfDamnation,
+        openFiendUnbridledPowerSpellSlotRecovery
     })
 
     function closeExistingDialog(dialog)
     {
-        logger.debug("createDialogFactory.closeExistingDialog", { dialog })
+        logger.debug("createDialogFactory.closeExistingDialog", {dialog})
         for (const app of Object.values(ui.windows)) {
             if (app instanceof dialog) {
-                app.close({ force: true })
+                app.close({force: true})
             }
         }
     }

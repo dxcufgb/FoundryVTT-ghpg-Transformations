@@ -1,4 +1,5 @@
 export * from "./actors.js"
+export * from "./chatCards.js"
 export * from "./controls.js"
 export * from "./dom.js"
 export * from "./setup.js"

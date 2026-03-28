@@ -1,6 +1,5 @@
-import { ROLL_TYPE } from "../../config/constants.js"
+import { Registry } from "../../bootstrap/registry.js"
 import { getRandomFileInFolder } from "./getRandomFilename.js"
-import { getOrCreateItem } from "./item.js"
 import { actorValidator } from "./validators/actorValidator.js"
 import { waitFor } from "./waitFor.js"
 
@@ -23,12 +22,12 @@ export async function createTestActor({
         },
         system: {
             abilities: {
-                str: { value: 10 },
-                dex: { value: 10 },
-                con: { value: 10 },
-                int: { value: 10 },
-                wis: { value: 10 },
-                cha: { value: 10 }
+                str: {value: 10},
+                dex: {value: 10},
+                con: {value: 10},
+                int: {value: 10},
+                wis: {value: 10},
+                cha: {value: 10}
             },
             attributes: {
                 hp: {
@@ -58,18 +57,56 @@ async function handlePostCreationExtras(actor, options)
     if (options?.race) {
         const raceItem = await getCharacterRace("Human")
 
-        await actor.createEmbeddedDocuments("Item", [
-            raceItem.toObject()
-        ])
+        await createActorItemAndWait(
+            actor,
+            raceItem,
+            {
+                setTransformationFlags: false,
+                setDdbImporterFlag: false,
+                applyAdvancements: false
+            }
+        )
     }
     if (options?.classes) {
         for (const characterClass of options.classes) {
-            const foundCharacterClass = await getCharacterClass(characterClass)
-            await actor.createEmbeddedDocuments("Item", [
-                foundCharacterClass.toObject()
-            ])
+            if (typeof (characterClass) == "String") {
+                characterClass.class = characterClass
+                characterClass.levels = 1
+            }
+            const foundCharacterClass = await getCharacterClass(characterClass.class)
+            await createActorItemAndWait(
+                actor,
+                foundCharacterClass,
+                {
+                    setTransformationFlags: false,
+                    setDdbImporterFlag: false,
+                    applyAdvancements: false,
+                    levels: characterClass.levels
+                }
+            )
         }
     }
+}
+
+export async function createActorItemAndWait(actor, sourceItem, options = {})
+{
+    const createdItem = await Registry.infrastructure.itemRepository.createObjectOnActor(
+        actor,
+        sourceItem,
+        "",
+        options
+    )
+
+    if (!createdItem) {
+        return null
+    }
+
+    await waitForActorItems(actor, [createdItem], {
+        errorMessage:
+            `Timed out waiting for actor ${actor.name} to contain item ${createdItem.name ?? sourceItem?.name ?? createdItem.id}`
+    })
+
+    return actor.items.get(createdItem.id) ?? createdItem
 }
 
 export async function waitForFlagUpdate({
@@ -87,7 +124,6 @@ export async function waitForFlagUpdate({
     })
 }
 
-
 export async function waitForActorConsistency(actor, {
     timeoutMs = 1500,
     idleMs = 20
@@ -95,17 +131,29 @@ export async function waitForActorConsistency(actor, {
 {
     const start = Date.now()
 
-    let updateSeen = false
+    let changeSeen = true
+    let stablePasses = 0
     let lastModified = actor._stats?.modifiedTime
+    let lastItemSignature = getActorItemSignature(actor)
 
     function onUpdate(updatedActor)
     {
         if (updatedActor.id === actor.id) {
-            updateSeen = true
+            changeSeen = true
+        }
+    }
+
+    function onItemChange(item)
+    {
+        if (item?.parent?.id === actor.id) {
+            changeSeen = true
         }
     }
 
     Hooks.on("updateActor", onUpdate)
+    Hooks.on("createItem", onItemChange)
+    Hooks.on("updateItem", onItemChange)
+    Hooks.on("deleteItem", onItemChange)
 
     try {
         while (true) {
@@ -113,19 +161,27 @@ export async function waitForActorConsistency(actor, {
             await new Promise(r => setTimeout(r, idleMs))
 
             const currentModified = actor._stats?.modifiedTime
+            const currentItemSignature = getActorItemSignature(actor)
 
-            // actor updated AND stabilized
+            // actor/item state changed AND stabilized
             if (
-                updateSeen &&
-                currentModified &&
-                currentModified === lastModified
-            ) {
-                // one final microtask flush
-                await Promise.resolve()
-                return
+                changeSeen &&
+                currentModified === lastModified &&
+                currentItemSignature === lastItemSignature
+            )
+            {
+                stablePasses += 1
+                if (stablePasses >= 2) {
+                    // one final microtask flush
+                    await Promise.resolve()
+                    return
+                }
+            } else {
+                stablePasses = 0
             }
 
             lastModified = currentModified
+            lastItemSignature = currentItemSignature
 
             if (Date.now() - start > timeoutMs) {
                 throw new Error("Timed out waiting for actor consistency")
@@ -133,27 +189,57 @@ export async function waitForActorConsistency(actor, {
         }
     } finally {
         Hooks.off("updateActor", onUpdate)
+        Hooks.off("createItem", onItemChange)
+        Hooks.off("updateItem", onItemChange)
+        Hooks.off("deleteItem", onItemChange)
     }
+}
+
+export async function waitForActorItems(actor, expectedItems = [], {
+    timeout = 2000,
+    interval = 10,
+    errorMessage = "Timed out waiting for actor items"
+}                                                            = {})
+{
+    const normalizedExpectedItems = Array.isArray(expectedItems)
+        ? expectedItems
+        : [expectedItems]
+    const filteredExpectedItems = normalizedExpectedItems.filter(Boolean)
+
+    if (!actor || !filteredExpectedItems.length) {
+        return
+    }
+
+    return waitFor({
+        predicate: () =>
+            filteredExpectedItems.every(expectedItem =>
+                actorHasExpectedItem(actor, expectedItem)
+            ),
+        timeout,
+        interval,
+        errorMessage
+    })
 }
 
 export function expectItemsOnActor(expectedItemUuids, actor, expect)
 {
     console.error("Transformations TEST | OLD Method called, migrate to new actorValidator function!")
-    return actorValidator({ actor, expect }).expectItemsOnActor(expectedItemUuids)
+    return actorValidator({actor, expect}).expectItemsOnActor(expectedItemUuids)
 }
 
 export function expectRaceItemSubTypeOnActor(runtime, subtype, actor, expect)
 {
     console.error("Transformations TEST | OLD Method called, migrate to new actorValidator function!")
-    return actorValidator({ runtime, actor, expect }).expectRaceItemSubTypeOnActor(runtime, subtype, actor, expect)
+    return actorValidator({runtime, actor, expect}).expectRaceItemSubTypeOnActor(runtime, subtype, actor, expect)
 }
 
-export async function applyItemActivityEffect({ actor, itemName, effectName, macroTrigger = "manual" })
+export async function applyItemActivityEffect({actor, itemName, effectName, macroTrigger = "manual"})
 {
     const item = actor.items.find(i => i.name === itemName)
     const effect = item.effects.find(e => e.name == effectName)
-    await simulateItemMacro(effect, actor, { trigger: macroTrigger })
-    await actor.createEmbeddedDocuments("ActiveEffect", [effect])
+    await simulateItemMacro(effect, actor, {trigger: macroTrigger})
+    await actor.createEmbeddedDocuments("ActiveEffect", [effect.toObject()])
+    await Promise.resolve()
 }
 
 export async function simulateItemMacro(effect, actor, {
@@ -223,7 +309,7 @@ export async function removeTestToken(tokenDoc)
 export function validateAllD20Disadvantage(actor, actorEffectValidator, assert)
 {
     console.error("Transformations TEST | OLD Method called, migrate to new actorValidator function!")
-    return actorValidator({ actor, assert }).validateAllD20Disadvantage()
+    return actorValidator({actor, assert}).validateAllD20Disadvantage()
 }
 
 export async function getCharacterClass(characterClass)
@@ -247,4 +333,41 @@ export async function getCharacterRace(characterRace)
     const raceDocument = await pack.getDocument(raceEntry._id)
 
     return raceDocument
+}
+
+function getActorItemSignature(actor)
+{
+    return Array.from(actor.items ?? [])
+    .map(item => item.id)
+    .sort()
+    .join("|")
+}
+
+function actorHasExpectedItem(actor, expectedItem)
+{
+    const items = Array.from(actor.items ?? [])
+
+    if (typeof expectedItem === "string") {
+        return items.some(item =>
+            item.id === expectedItem ||
+            item.name === expectedItem ||
+            item.uuid === expectedItem ||
+            item.flags?.transformations?.sourceUuid === expectedItem
+        )
+    }
+
+    const expectedId = expectedItem.id ?? expectedItem._id
+    const expectedName = expectedItem.name
+    const expectedUuid = expectedItem.uuid
+    const expectedSourceUuid =
+              expectedItem.sourceUuid ??
+              expectedItem.flags?.transformations?.sourceUuid
+
+    return items.some(item =>
+        (expectedId && item.id === expectedId) ||
+        (expectedName && item.name === expectedName) ||
+        (expectedUuid && item.uuid === expectedUuid) ||
+        (expectedSourceUuid &&
+            item.flags?.transformations?.sourceUuid === expectedSourceUuid)
+    )
 }

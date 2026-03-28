@@ -1,3 +1,37 @@
+function getPrimaryRoll(rolls)
+{
+    if (Array.isArray(rolls)) return rolls[0] ?? null
+    return rolls ?? null
+}
+
+function getNaturalRoll(roll)
+{
+    const d20Die =
+              roll?.dice?.find(die =>
+                  Number(die?.faces ?? 0) === 20 ||
+                  Number(die?.number ?? 0) === 20
+              ) ??
+              roll?.dice?.[0]
+
+    const activeResult =
+              d20Die?.results?.find(result => result?.active === true) ??
+              d20Die?.results?.[0]
+
+    return activeResult?.result ?? null
+}
+
+function resolveActorFromSubject(subject)
+{
+    return (
+        subject?.actor ??
+        subject?.item?.actor ??
+        subject?.parent?.actor ??
+        subject?.parent ??
+        subject ??
+        null
+    )
+}
+
 export function registerDnd5eHooks({
     transformationService,
     transformationRegistry,
@@ -7,6 +41,8 @@ export function registerDnd5eHooks({
     onceService,
     tracker,
     debouncedTracker,
+    ChatMessagePartInjector,
+    RollService,
     logger
 })
 {
@@ -15,6 +51,115 @@ export function registerDnd5eHooks({
         triggerRuntime,
         debouncedTracker
     })
+
+    const processedRollFamilies = new WeakMap()
+
+    function hasProcessedRoll(roll, family)
+    {
+        if (!roll || typeof roll !== "object") return false
+
+        let processedFamilies = processedRollFamilies.get(roll)
+        if (!processedFamilies) {
+            processedFamilies = new Set()
+            processedRollFamilies.set(roll, processedFamilies)
+        }
+
+        if (processedFamilies.has(family)) return true
+
+        processedFamilies.add(family)
+        return false
+    }
+
+    async function dispatchTransformationRoll({
+        hookName,
+        actor,
+        rolls,
+        roll = getPrimaryRoll(rolls),
+        data = null,
+        context = null
+    })
+    {
+        if (!actor || !roll) return
+        if (hasProcessedRoll(roll, "transformationRoll")) return
+
+        const transformation = transformationRegistry.getEntryForActor(actor)
+        if (!transformation?.TransformationClass?.onRoll) return
+
+        await transformation.TransformationClass.onRoll(actor, {
+            hookName,
+            natural: getNaturalRoll(roll),
+            total: roll.total,
+            roll,
+            rolls,
+            data,
+            context
+        })
+    }
+
+    function handleGenericD20Roll({
+        hookName,
+        pulseName = hookName,
+        actor,
+        rolls,
+        roll = getPrimaryRoll(rolls),
+        data = null,
+        context = null
+    })
+    {
+        logger.debug(`${hookName} called`, rolls ?? roll, data ?? context)
+        debouncedTracker.pulse(pulseName)
+
+        if (!actor || !roll) return
+
+        ;(async () =>
+        {
+            await dispatchTransformationRoll({
+                hookName,
+                actor,
+                rolls,
+                roll,
+                data,
+                context
+            })
+        })()
+    }
+
+    function handleSkillRoll(hookName, rolls, context)
+    {
+        const actor = resolveActorFromSubject(context?.subject)
+        const roll = getPrimaryRoll(rolls)
+
+        logger.debug(`${hookName} called`, rolls, context)
+        debouncedTracker.pulse("dnd5e.rollSkill")
+
+        if (!actor || !roll) return
+
+        const natural = getNaturalRoll(roll)
+
+        ;(async () =>
+        {
+            await dispatchTransformationRoll({
+                hookName,
+                actor,
+                rolls,
+                roll,
+                context
+            })
+
+            if (hasProcessedRoll(roll, "skillCheck")) return
+
+            await triggerRuntime.run("skillCheck", actor, {
+                checks: {
+                    current: {
+                        ability: context.ability,
+                        skill: context.skill,
+                        naturalRoll: natural,
+                        total: roll.total
+                    }
+                }
+            })
+        })()
+    }
 
     Hooks.on("dnd5e.damageActor", (actor) =>
     {
@@ -35,7 +180,7 @@ export function registerDnd5eHooks({
             const isLong = result.longRest === true
             const isShort = result.shortRest === true || result.type === "short"
 
-            onceService.resetFlagsOnRest(actor, { isLong, isShort })
+            onceService.resetFlagsOnRest(actor, {isLong, isShort})
             if (isShort) {
                 await triggerRuntime.run("shortRest", actor)
             } else if (isLong) {
@@ -52,6 +197,16 @@ export function registerDnd5eHooks({
         {
             triggerRuntime.run("initiative", actor)
         })()
+    })
+
+    Hooks.on("dnd5e.preRollInitiative", (actor, roll) =>
+    {
+        handleGenericD20Roll({
+            hookName: "dnd5e.preRollInitiative",
+            actor,
+            roll,
+            rolls: [roll]
+        })
     })
 
     Hooks.on("dnd5e.beginConcentrating", (actor, item) =>
@@ -89,7 +244,7 @@ export function registerDnd5eHooks({
             if (!actor) return
 
             const transformation = transformationRegistry.getEntryForActor(actor)
-            await transformation.TransformationClass.onPreRollSavingThrow(context, actor, { onceService })
+            await transformation.TransformationClass.onPreRollSavingThrow(context, actor, {onceService})
         })()
     })
 
@@ -98,16 +253,24 @@ export function registerDnd5eHooks({
         logger.debug("dnd5e.rollSavingThrow called", rolls, context)
         debouncedTracker.pulse("dnd5e.rollSavingThrow")
 
-        const actor = context.subject
+        const actor = resolveActorFromSubject(context?.subject)
         if (!actor) return
 
-        const roll = rolls?.[0]
+        const roll = getPrimaryRoll(rolls)
         if (!roll) return
 
-        const natural = roll.dice?.[0]?.results?.find(r => r.active == true).result ?? null;
+        const natural = getNaturalRoll(roll);
 
         (async () =>
         {
+            await dispatchTransformationRoll({
+                hookName: "dnd5e.rollSavingThrow",
+                actor,
+                rolls,
+                roll,
+                context
+            })
+
             await triggerRuntime.run("savingThrow", actor, {
                 saves: {
                     current: {
@@ -122,6 +285,66 @@ export function registerDnd5eHooks({
         })()
     })
 
+    Hooks.on("dnd5e.rollAbilityCheck", (rolls, context) =>
+    {
+        handleGenericD20Roll({
+            hookName: "dnd5e.rollAbilityCheck",
+            actor: resolveActorFromSubject(context?.subject),
+            rolls,
+            data: context
+        })
+    })
+
+    Hooks.on("dnd5e.rollSkill", (rolls, context) =>
+    {
+        handleSkillRoll("dnd5e.rollSkill", rolls, context)
+    })
+
+    Hooks.on("dnd5e.rollSkillV2", (rolls, context) =>
+    {
+        handleSkillRoll("dnd5e.rollSkillV2", rolls, context)
+    })
+
+    Hooks.on("dnd5e.rollToolCheck", (rolls, data) =>
+    {
+        handleGenericD20Roll({
+            hookName: "dnd5e.rollToolCheck",
+            actor: resolveActorFromSubject(data?.subject),
+            rolls,
+            data
+        })
+    })
+
+    Hooks.on("dnd5e.rollAttack", (rolls, data) =>
+    {
+        handleGenericD20Roll({
+            hookName: "dnd5e.rollAttack",
+            actor: resolveActorFromSubject(data?.subject),
+            rolls,
+            data
+        })
+    })
+
+    Hooks.on("dnd5e.rollConcentration", (rolls, data) =>
+    {
+        handleGenericD20Roll({
+            hookName: "dnd5e.rollConcentration",
+            actor: resolveActorFromSubject(data?.subject),
+            rolls,
+            data
+        })
+    })
+
+    Hooks.on("dnd5e.rollDeathSave", (rolls, data) =>
+    {
+        handleGenericD20Roll({
+            hookName: "dnd5e.rollDeathSave",
+            actor: resolveActorFromSubject(data?.subject),
+            rolls,
+            data
+        })
+    })
+
     Hooks.on("dnd5e.preUseActivity", (activity, config, options) =>
     {
         logger.debug("dnd5e.preUseActivity called", activity, config, options)
@@ -129,9 +352,33 @@ export function registerDnd5eHooks({
 
     })
 
-    Hooks.on("renderChatMessage", (message, html) =>
+    Hooks.on("dnd5e.preRollDamageV2", args =>
     {
-        logger.debug("renderChatMessage called", message)
+        const workflow = args.workflow
+        const rolls = args.rolls
+        const item = workflow.item
+        const actor = workflow.actor
+        const activity = workflow.activity
+        const activityFlag = activity?.flags?.transformations?.hookLogic?.preDamageRoll
+        const itemFlag = item?.flags?.transformations?.hookLogic?.preDamageRoll
+        if (!actor) return
+
+        const transformation = transformationRegistry.getEntryForActor(actor)
+
+        if (itemFlag) {
+            const func = transformation.TransformationClass[itemFlag]
+            func(workflow, rolls)
+        } else if (activityFlag) {
+            const func = transformation.TransformationClass[activityFlag]
+            func(workflow, rolls)
+        } else {
+
+        }
+    })
+
+    Hooks.on("renderChatMessageHTML", (message, html) =>
+    {
+        logger.debug("renderChatMessageHTML called", message, html)
         debouncedTracker.pulse("renderChatMessage");
 
         (async () =>
@@ -149,8 +396,29 @@ export function registerDnd5eHooks({
                 actor,
                 actorRepository,
                 dialogFactory,
+                ChatMessagePartInjector,
+                RollService,
                 logger
             })
         })()
+    })
+
+    Hooks.on("dnd5e.postUseActivity", async (activity, usage, changes) => {
+
+        const actor = usage.workflow.actor
+        if (!actor) return
+
+        const transformation = transformationRegistry.getEntryForActor(actor)
+
+        if (!transformation?.TransformationClass?.onActivityUse) return
+
+        await transformation.TransformationClass.onActivityUse(
+            activity,
+            usage,
+            changes.message,
+            actorRepository,
+            ChatMessagePartInjector
+        )
+
     })
 }

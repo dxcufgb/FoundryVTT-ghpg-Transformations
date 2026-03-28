@@ -24,8 +24,16 @@ export class ActorStatsDTOValidator extends BaseDTOValidator
         }).equals()
     }
 
-    validate(actor, dto)
+    validate(dtoOrActor, dtoOrContext = null)
     {
+        const isNestedContext =
+            dtoOrContext != null &&
+            typeof dtoOrContext === "object" &&
+            "actor" in dtoOrContext
+
+        const dto = isNestedContext ? dtoOrActor : dtoOrContext
+        const actor = isNestedContext ? dtoOrContext.actor : dtoOrActor
+
         if (!actor)
             throw new Error(`[${this.path}] Missing actor`)
 
