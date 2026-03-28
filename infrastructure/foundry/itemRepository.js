@@ -532,20 +532,25 @@ export function createItemRepository({
             (async () =>
             {
                 const {
-                    setTransformationFlags = true,
-                    setDdbImporterFlag = true,
-                    applyAdvancements: shouldApplyAdvancements = true,
-                    overrides = {},
-                    ...propertyOverrides
-                } = options ?? {}
+                          setTransformationFlags                     = true,
+                          setDdbImporterFlag                         = true,
+                          applyAdvancements: shouldApplyAdvancements = true,
+                          overrides                                  = {},
+                          levels                                     = 1,
+                          ...propertyOverrides
+                      } = options ?? {}
 
                 const data =
-                    typeof sourceItem?.toObject === "function"
-                        ? foundry.utils.deepClone(sourceItem.toObject())
-                        : foundry.utils.deepClone(sourceItem)
+                          typeof sourceItem?.toObject === "function"
+                              ? foundry.utils.deepClone(sourceItem.toObject())
+                              : foundry.utils.deepClone(sourceItem)
                 if (!data || typeof data !== "object") return null
 
                 data.flags ??= {}
+
+                if (levels) {
+                    data.system.levels = levels
+                }
 
                 if (setTransformationFlags) {
                     data.flags.transformations = {
@@ -574,9 +579,10 @@ export function createItemRepository({
                 }
 
                 for (const [path, value] of Object.entries(resolvedOverrides)
-                    .sort(([leftPath], [rightPath]) =>
-                        leftPath.localeCompare(rightPath)
-                    )) {
+                .sort(([leftPath], [rightPath]) =>
+                    leftPath.localeCompare(rightPath)
+                ))
+                {
                     foundry.utils.setProperty(data, path, value)
                 }
 
@@ -588,7 +594,8 @@ export function createItemRepository({
                     shouldApplyAdvancements &&
                     Array.isArray(data.system?.advancement) &&
                     data.system.advancement.length > 0
-                ) {
+                )
+                {
                     await applyAdvancements(actor, data.system.advancement, created)
                 }
 

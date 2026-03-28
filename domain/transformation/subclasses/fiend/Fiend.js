@@ -181,6 +181,7 @@ export class Fiend extends Transformation {
                 html,
                 giftsOfDamnation: this.giftsOfDamnations,
                 actorRepository,
+                dialogFactory,
                 ChatMessagePartInjector,
                 RollService,
                 logger
@@ -220,13 +221,23 @@ export class Fiend extends Transformation {
     }
 
     static async onRoll(actor, roll) {
+        if (roll?.hookName === "dnd5e.rollAttack") {
+            const martialProwessGift = this.giftsOfDamnations.find(gift =>
+                gift.id === "giftOfMartialProwess"
+            )
+
+            martialProwessGift?.GiftClass?.rememberAttackRoll(actor, roll)
+        }
+
         const pullOfTheNetherworld = actor.items.find(i =>
             i.flags?.transformations?.sourceUuid === "Compendium.transformations.gh-transformations.Item.p6h58Xog87H04epW"
         )
 
+        if (!pullOfTheNetherworld) return
+
         const usesLeft = pullOfTheNetherworld.system.uses.max - pullOfTheNetherworld.system.uses.spent
 
-        if (!pullOfTheNetherworld || usesLeft == 0 || roll?.natural !== 1) return
+        if (usesLeft == 0 || roll?.natural !== 1) return
 
         const activity = pullOfTheNetherworld.system.activities.find(a => a.name == "Midi Damage")
         activity.use()

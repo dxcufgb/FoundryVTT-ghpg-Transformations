@@ -69,14 +69,19 @@ async function handlePostCreationExtras(actor, options)
     }
     if (options?.classes) {
         for (const characterClass of options.classes) {
-            const foundCharacterClass = await getCharacterClass(characterClass)
+            if (typeof (characterClass) == "String") {
+                characterClass.class = characterClass
+                characterClass.levels = 1
+            }
+            const foundCharacterClass = await getCharacterClass(characterClass.class)
             await createActorItemAndWait(
                 actor,
                 foundCharacterClass,
                 {
                     setTransformationFlags: false,
                     setDdbImporterFlag: false,
-                    applyAdvancements: false
+                    applyAdvancements: false,
+                    levels: characterClass.levels
                 }
             )
         }

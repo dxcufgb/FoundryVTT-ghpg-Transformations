@@ -5,6 +5,7 @@ export class ChatCardActionBinder {
         html,
         giftsOfDamnation,
         actorRepository,
+        dialogFactory,
         ChatMessagePartInjector,
         RollService,
         logger
@@ -62,6 +63,7 @@ export class ChatCardActionBinder {
                 message,
                 element: button,
                 actorRepository,
+                dialogFactory,
                 GiftClass,
                 ChatMessagePartInjector,
                 RollService,

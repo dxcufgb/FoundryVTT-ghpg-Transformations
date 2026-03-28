@@ -351,6 +351,7 @@ export function createChatCardTestHelper({
             message: getMessage(),
             element: button,
             actorRepository: Registry.infrastructure?.actorRepository,
+            dialogFactory: game.transformations?.getDialogFactory?.(),
             GiftClass,
             ChatMessagePartInjector,
             RollService,

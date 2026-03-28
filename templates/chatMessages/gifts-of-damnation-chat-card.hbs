@@ -116,6 +116,34 @@
             {{/if}}
         {{/if}}
 
+        {{#if (eq giftId "giftOfMartialProwess")}}
+            {{#if (eq state "initial")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="attack">
+                    Attack
+                </button>
+            {{/if}}
+
+            {{#if (eq state "attack-rolled")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="rollDamage">
+                    Roll Damage
+                </button>
+            {{/if}}
+        {{/if}}
+
+        {{#if (eq giftId "giftOfUnbridledPower")}}
+            {{#if (eq state "initial")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="roll">
+                    Roll
+                </button>
+            {{/if}}
+
+            {{#if (eq state "rolled")}}
+                <button type="button" class="dnd5e-button" data-transformations-action="recoverSpellSlots">
+                    Recover spell slots
+                </button>
+            {{/if}}
+        {{/if}}
+
     </div>
 
 </div>

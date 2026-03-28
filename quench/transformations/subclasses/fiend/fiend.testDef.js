@@ -4,21 +4,43 @@ import { EffectValidationDTO } from "../../../helpers/validationDTOs/effect/Effe
 import { giftsOfDamnation } from "../../../../domain/transformation/subclasses/fiend/giftsOfDamnation/index.js";
 import { findTransformationGeneralChoiceButtonById, findTransformationGeneralChoiceDialog, getTransformationGeneralChoiceDialogWindowTitle } from "../../../selectors/transformationGeneralChoiceDialog.finders.js"
 import { SKILL } from "../../../../config/constants.js";
+import { RollService } from "../../../../services/rolls/RollService.js"
 
 function allowMockRollMessageUpdates(message)
 {
-    const messages = [
-        message,
-        game.messages?.get(message?.id)
-    ]
-    .filter(Boolean)
-    .filter((candidate, index, collection) =>
-        collection.findIndex(entry => entry === candidate) === index
-    )
+    let latestRolls = null
 
-    for (const currentMessage of messages) {
-        if (currentMessage.__mockRollsEnabled) {
-            continue
+    const getRelatedMessages = () =>
+        [
+            message,
+            game.messages?.get(message?.id)
+        ]
+        .filter(Boolean)
+        .filter((candidate, index, collection) =>
+            collection.findIndex(entry => entry === candidate) === index
+        )
+
+    function applyRolls(rolls)
+    {
+        latestRolls = rolls
+
+        for (const currentMessage of getRelatedMessages()) {
+            Object.defineProperty(currentMessage, "rolls", {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value: rolls
+            })
+        }
+    }
+
+    function patchMessage(currentMessage)
+    {
+        if (!currentMessage || currentMessage.__mockRollsEnabled) {
+            if (currentMessage && Array.isArray(latestRolls)) {
+                applyRolls(latestRolls)
+            }
+            return
         }
 
         const originalUpdate = currentMessage.update.bind(currentMessage)
@@ -30,27 +52,35 @@ function allowMockRollMessageUpdates(message)
             value: true
         })
 
+        if (Array.isArray(latestRolls)) {
+            applyRolls(latestRolls)
+        }
+
         currentMessage.update = async function update(data = {}, ...args)
         {
             if (Array.isArray(data?.rolls)) {
-                Object.defineProperty(this, "rolls", {
-                    configurable: true,
-                    enumerable: true,
-                    writable: true,
-                    value: data.rolls
-                })
-
                 const {rolls, ...remaining} = data
+
+                applyRolls(rolls)
 
                 if (Object.keys(remaining).length === 0) {
                     return this
                 }
 
-                return originalUpdate(remaining, ...args)
+                const result = await originalUpdate(remaining, ...args)
+                applyRolls(rolls)
+                patchMessage(game.messages?.get(message?.id))
+                return result
             }
 
-            return originalUpdate(data, ...args)
+            const result = await originalUpdate(data, ...args)
+            patchMessage(game.messages?.get(message?.id))
+            return result
         }
+    }
+
+    for (const currentMessage of getRelatedMessages()) {
+        patchMessage(currentMessage)
     }
 }
 
@@ -146,8 +176,58 @@ async function prepareFiendGiftChatCard({
     itemName
 })
 {
+    let activityUseResult = null
+
     const messageContainsGiftCard = message =>
         String(message?.content ?? "").includes(`data-gift="${giftId}"`)
+    const getReturnedMessages = () =>
+        [
+            activityUseResult?.message,
+            activityUseResult?.chatMessage,
+            activityUseResult?.changes?.message,
+            activityUseResult?.usage?.message,
+            activityUseResult?.usage?.chatMessage,
+            activityUseResult?.workflow?.message,
+            activityUseResult?.workflow?.chatMessage
+        ]
+        .map(message =>
+            message?.id
+                ? game.messages?.get(message.id) ?? message
+                : message
+        )
+        .filter(Boolean)
+        .filter((message, index, collection) =>
+            collection.findIndex(entry => entry?.id === message?.id) === index
+        )
+    const getNewMessages = () =>
+        game.messages.contents.filter(message =>
+            !staticVars.initialMessageIds.has(message.id)
+        )
+    const findNewestMatchingMessage = predicate =>
+        [...getNewMessages()].reverse().find(predicate) ?? null
+    const findReturnedMessage = predicate =>
+        [...getReturnedMessages()].reverse().find(predicate) ?? null
+    const findActivityMessage = () =>
+        findReturnedMessage(() => true) ??
+        findNewestMatchingMessage(message =>
+            message?.flags?.dnd5e?.activity?.uuid === activity?.uuid
+        ) ??
+        findNewestMatchingMessage(message =>
+            message?.flags?.dnd5e?.item?.uuid === giftItem?.uuid
+        ) ??
+        findNewestMatchingMessage(message =>
+            message?.speaker?.actor === actor.id &&
+            message?.flags?.dnd5e?.activity
+        )
+    const findGiftMessage = () =>
+        findReturnedMessage(messageContainsGiftCard) ??
+        findReturnedMessage(message =>
+            message?.flags?.transformations?.gift === giftId
+        ) ??
+        findNewestMatchingMessage(messageContainsGiftCard) ??
+        findNewestMatchingMessage(message =>
+            message?.flags?.transformations?.gift === giftId
+        )
 
     const gift = giftsOfDamnation.find(entry => entry.id === giftId)
     await runtime.services.applyFiendGiftOfDamnation({actor, gift})
@@ -167,52 +247,310 @@ async function prepareFiendGiftChatCard({
     staticVars.initialMessageIds = new Set(
         game.messages.contents.map(message => message.id)
     )
-    await activity.use({actor})
+    activityUseResult = await activity.use({actor})
 
     await waiters.waitForCondition(() =>
-        game.messages.contents.length > staticVars.initialMessageCount
+        game.messages.contents.length > staticVars.initialMessageCount ||
+        getReturnedMessages().length > 0 ||
+        Boolean(findActivityMessage())
     )
     await waiters.waitForNextFrame()
 
-    await waiters.waitForCondition(() =>
-        game.messages.contents.some(message =>
-            !staticVars.initialMessageIds.has(message.id) &&
-            (
-                message?.flags?.transformations?.gift === giftId ||
-                messageContainsGiftCard(message)
-            )
-        )
-    )
-
-    const newMessages = game.messages.contents.filter(message =>
-        !staticVars.initialMessageIds.has(message.id)
-    )
-
     staticVars.message =
-        newMessages.find(message =>
-            messageContainsGiftCard(message)
-        ) ??
-        newMessages.find(message =>
-            message?.flags?.transformations?.gift === giftId
-        ) ??
-        newMessages.find(message =>
-            message?.flags?.dnd5e?.activity?.uuid === activity.uuid
-        ) ??
-        newMessages.find(message =>
-            message?.flags?.dnd5e?.item?.uuid === giftItem.uuid
-        ) ??
-        newMessages.find(message =>
-            message?.speaker?.actor === actor.id &&
-            message?.flags?.dnd5e?.activity
-        ) ??
-        newMessages.find(message => message?.speaker?.actor === actor.id) ??
-        newMessages[0] ??
+        findGiftMessage() ??
+        findActivityMessage() ??
         game.messages.contents.at(-1)
 
     allowMockRollMessageUpdates(staticVars.message)
     staticVars.chatCardHelper = helpers.createChatCardTestHelper({
         message: staticVars.message
     })
+
+    try {
+        await staticVars.chatCardHelper.waitForCard({
+            timeout: 5000
+        })
+    } catch {
+        await gift?.GiftClass?.giftActivity?.({
+            actor,
+            message: staticVars.message,
+            actorRepository: runtime.infrastructure.actorRepository,
+            ChatMessagePartInjector: runtime.ui.ChatMessagePartInjector
+        })
+
+        staticVars.message = game.messages.get(staticVars.message.id) ?? staticVars.message
+        allowMockRollMessageUpdates(staticVars.message)
+        staticVars.chatCardHelper = helpers.createChatCardTestHelper({
+            message: staticVars.message
+        })
+        await waiters.waitForNextFrame()
+    }
+}
+
+const FIEND_STAGE_4_CHOICE_UUID =
+          "Compendium.transformations.gh-transformations.Item.IEyyfet4TphAPoVB"
+
+async function createCharacterClassWithHitDice({
+    actor,
+    helpers,
+    className,
+    hitDiceValue,
+    hitDiceMax = hitDiceValue,
+    levels = 1
+})
+{
+    const foundCharacterClass = await helpers.getCharacterClass(className)
+    const classItem = await helpers.createActorItemAndWait(
+        actor,
+        foundCharacterClass,
+        {
+            setTransformationFlags: false,
+            setDdbImporterFlag: false,
+            applyAdvancements: false,
+            levels: levels
+        }
+    )
+
+    await classItem.update({
+        "system.hd.value": hitDiceValue,
+        "system.hd.max": hitDiceMax,
+        "system.hd.spent": Math.max(hitDiceMax - hitDiceValue, 0)
+    })
+
+    return actor.items.get(classItem.id) ?? classItem
+}
+
+function createGiftTestChatMessage(actor, {
+    content = `<div class="midi-dnd5e-buttons"></div>`
+} = {})
+{
+    return {
+        id: foundry.utils.randomID(),
+        content,
+        flags: {},
+        rolls: [],
+        speaker: {
+            actor: actor?.id ?? null,
+            alias: actor?.name ?? null
+        },
+        async update(data = {})
+        {
+            const expanded = foundry.utils.expandObject(data)
+            foundry.utils.mergeObject(this, expanded, {
+                inplace: true,
+                overwrite: true,
+                insertKeys: true,
+                insertValues: true
+            })
+            return this
+        }
+    }
+}
+
+function getClassItemsSortedByHitDie(actor)
+{
+    return [...(actor?.items?.filter(item => item.type === "class") ?? [])]
+    .sort((left, right) =>
+        Number.parseInt(
+            String(right.system?.hd?.denomination ?? "d0").replace("d", "")
+        ) -
+        Number.parseInt(
+            String(left.system?.hd?.denomination ?? "d0").replace("d", "")
+        )
+    )
+}
+
+function createUnbridledPowerTestActorRepository()
+{
+    return {
+        getHighestAvailableHitDice(actor)
+        {
+            return getClassItemsSortedByHitDie(actor)
+            .map(item => ({
+                denomination: item.system?.hd?.denomination ?? null,
+                value: Math.max(Number(item.system?.hd?.value ?? 0), 0),
+                spent: Math.max(Number(item.system?.hd?.spent ?? 0), 0),
+                max: Math.max(Number(item.system?.hd?.max ?? 0), 0)
+            }))
+            .find(entry =>
+                Boolean(entry.denomination) && entry.value > 0
+            ) ?? null
+        },
+
+        getAvailableHitDice(actor)
+        {
+            return getClassItemsSortedByHitDie(actor)
+            .reduce(
+                (total, item) =>
+                    total + Math.max(Number(item.system?.hd?.value ?? 0), 0),
+                0
+            )
+        },
+
+        async consumeHitDie(actor, amount)
+        {
+            let remainingToConsume = Math.max(Number(amount ?? 0), 0)
+
+            for (const classItem of getClassItemsSortedByHitDie(actor)) {
+                if (remainingToConsume <= 0) break
+
+                const currentValue = Math.max(
+                    Number(classItem.system?.hd?.value ?? 0),
+                    0
+                )
+                if (currentValue <= 0) continue
+
+                const spend = Math.min(currentValue, remainingToConsume)
+                const currentSpent = Math.max(
+                    Number(classItem.system?.hd?.spent ?? 0),
+                    0
+                )
+
+                remainingToConsume -= spend
+
+                await classItem.update({
+                    "system.hd.value": currentValue - spend,
+                    "system.hd.spent": currentSpent + spend
+                })
+            }
+        },
+
+        async applyDamage(actor, amount)
+        {
+            const currentHp = Math.max(
+                Number(actor.system?.attributes?.hp?.value ?? 0),
+                0
+            )
+
+            await actor.update({
+                "system.attributes.hp.value": Math.max(
+                    currentHp - Number(amount ?? 0),
+                    0
+                )
+            })
+        }
+    }
+}
+
+async function prepareFiendGiftClassChatCard({
+    actor,
+    runtime,
+    helpers,
+    waiters,
+    staticVars,
+    giftId,
+    itemName
+})
+{
+    const gift = giftsOfDamnation.find(entry => entry.id === giftId)
+    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+
+    await waiters.waitForDomainStability({
+        actor,
+        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+    })
+    await waiters.waitForNextFrame()
+    await waiters.waitForCondition(() =>
+        actor.items.some(i => i.name === itemName)
+    )
+
+    staticVars.message = createGiftTestChatMessage(actor)
+
+    await gift?.GiftClass?.giftActivity?.({
+        actor,
+        message: staticVars.message,
+        actorRepository: runtime.infrastructure.actorRepository,
+        ChatMessagePartInjector: runtime.ui.ChatMessagePartInjector
+    })
+
+    staticVars.chatCardHelper = helpers.createChatCardTestHelper({
+        message: staticVars.message
+    })
+}
+
+async function prepareFiendUnbridledPowerClassChatCard({
+    actor,
+    runtime,
+    helpers,
+    waiters,
+    staticVars
+})
+{
+    const gift = giftsOfDamnation.find(entry =>
+        entry.id === "giftOfUnbridledPower"
+    )
+
+    await runtime.services.applyFiendGiftOfDamnation({
+        actor,
+        gift
+    })
+
+    await waiters.waitForDomainStability({
+        actor,
+        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+    })
+    await waiters.waitForNextFrame()
+    await waiters.waitForCondition(() =>
+        actor.items.some(item => item.name === "Gift of Unbridled Power")
+    )
+
+    staticVars.unbridledPowerGiftClass = gift?.GiftClass ?? null
+    staticVars.unbridledPowerActorRepository =
+        createUnbridledPowerTestActorRepository()
+    staticVars.message = createGiftTestChatMessage(actor)
+
+    allowMockRollMessageUpdates(staticVars.message)
+
+    await staticVars.unbridledPowerGiftClass?.giftActivity?.({
+        actor,
+        message: staticVars.message,
+        actorRepository: staticVars.unbridledPowerActorRepository,
+        ChatMessagePartInjector: runtime.ui.ChatMessagePartInjector
+    })
+
+    staticVars.chatCardHelper = helpers.createChatCardTestHelper({
+        message: staticVars.message
+    })
+}
+
+async function waitForWindowByTitle({
+    waiters,
+    title
+})
+{
+    await waiters.waitForCondition(() =>
+        Array.from(ui.windows.values()).some(window =>
+            window?.title === title
+        )
+    )
+    await waiters.waitForNextFrame()
+
+    return Array.from(ui.windows.values()).find(window =>
+        window?.title === title
+    ) ?? null
+}
+
+function getApplicationRoot(application)
+{
+    return application?.element?.[0] ?? application?.element ?? null
+}
+
+function findSpellSlotLevelGroup(root, level)
+{
+    return Array.from(
+        root?.querySelectorAll?.(
+            ".fiend-unbridled-power-spell-slot-recovery__group"
+        ) ?? []
+    ).find(group =>
+        group.querySelector(
+            ".fiend-unbridled-power-spell-slot-recovery__level"
+        )?.textContent?.trim() === String(level)
+    ) ?? null
+}
+
+function getSpellSlotCheckboxes(group)
+{
+    return Array.from(group?.querySelectorAll?.("[data-slot-checkbox]") ?? [])
 }
 
 export const fiendTestDef = {
@@ -3159,7 +3497,7 @@ export const fiendTestDef = {
             steps: [
                 async ({actor, runtime, helpers, waiters, staticVars}) =>
                 {
-                    await prepareFiendGiftChatCard({
+                    await prepareFiendGiftClassChatCard({
                         actor,
                         runtime,
                         helpers,
@@ -3282,7 +3620,7 @@ export const fiendTestDef = {
             steps: [
                 async ({actor, runtime, helpers, waiters, staticVars}) =>
                 {
-                    await prepareFiendGiftChatCard({
+                    await prepareFiendGiftClassChatCard({
                         actor,
                         runtime,
                         helpers,
@@ -3354,6 +3692,701 @@ export const fiendTestDef = {
                             Array.from(effect.statuses ?? []).includes("prone")
                         )
                     ).to.equal(true)
+                } finally {
+                    rollHelper.restore()
+                }
+            }
+        },
+
+        {
+            name: `Gift of Martial Prowess uses the previous attack formula and keeps both rolls visible`,
+
+            setup: async ({actor, helpers, staticVars}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await setFiendStage3GiftChoices(actor)
+                staticVars.classItem = await createCharacterClassWithHitDice({
+                    actor,
+                    helpers,
+                    className: "Fighter",
+                    hitDiceValue: 4
+                })
+                staticVars.initialHitDice =
+                    actor.items.get(staticVars.classItem.id)?.system?.hd?.value
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                },
+                {
+                    stage: 4,
+                    choose: FIEND_STAGE_4_CHOICE_UUID
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars}) =>
+                {
+                    const transformation =
+                              runtime.services.transformationRegistry.getEntryForActor(actor)
+
+                    await transformation.TransformationClass.onRoll(actor, {
+                        hookName: "dnd5e.rollAttack",
+                        natural: 15,
+                        total: 18,
+                        roll: {
+                            formula: "2d20kh+7"
+                        }
+                    })
+
+                    await prepareFiendGiftChatCard({
+                        actor,
+                        runtime,
+                        helpers,
+                        waiters,
+                        staticVars,
+                        giftId: "giftOfMartialProwess",
+                        itemName: "Gift of Martial Prowess"
+                    })
+                }
+            ],
+
+            await: async ({staticVars}) =>
+            {
+                await staticVars.chatCardHelper.waitForCard()
+                await staticVars.chatCardHelper.waitForButton({
+                    text: "Attack"
+                })
+            },
+
+            assertions: async ({actor, expect, waiters, helpers, staticVars}) =>
+            {
+                const {chatCardHelper} = staticVars
+                const rollHelper = helpers.createDeterministicRollHelper()
+
+                try {
+                    const card = chatCardHelper.getCardElement({require: true})
+
+                    expect(card, "Gift of Martial Prowess chat card should render").to.exist
+                    expect(card.dataset.gift).to.equal("giftOfMartialProwess")
+
+                    chatCardHelper.assertButtonExists({
+                        text: "Attack"
+                    }, expect)
+
+                    rollHelper.queueRoll({
+                        formula: "2d20kh+7",
+                        total: 18,
+                        diceResults: [12, 18]
+                    })
+
+                    await chatCardHelper.clickButton({
+                        text: "Attack"
+                    })
+
+                    await waiters.waitForCondition(() =>
+                        rollHelper.getCalls().some(call =>
+                            call.type === "roll" &&
+                            call.formula === "2d20kh+7"
+                        )
+                    )
+
+                    const attackRolls =
+                              await chatCardHelper.waitForPresentedRolls({count: 1})
+
+                    expect(attackRolls[0]?.formula).to.equal("2d20kh+7")
+                    expect(attackRolls[0]?.total).to.equal(18)
+                    expect(chatCardHelper.hasButton({
+                        text: "Attack"
+                    })).to.equal(false)
+
+                    await chatCardHelper.waitForButton({
+                        text: "Roll Damage"
+                    })
+
+                    allowMockRollMessageUpdates(chatCardHelper.getMessage())
+                    await waiters.waitForCondition(() =>
+                        Array.isArray(chatCardHelper.getMessage()?.rolls) &&
+                        chatCardHelper.getMessage().rolls.length >= 1
+                    )
+
+                    rollHelper.queueRoll({
+                        formula: "3d10",
+                        total: 21,
+                        diceResults: [8, 7, 6]
+                    })
+
+                    await chatCardHelper.clickButton({
+                        text: "Roll Damage"
+                    })
+
+                    await waiters.waitForCondition(() =>
+                        rollHelper.getCalls().some(call =>
+                            call.type === "roll" &&
+                            call.formula === "3d10"
+                        )
+                    )
+
+                    const finalRolls =
+                              await chatCardHelper.waitForPresentedRolls({count: 2})
+
+                    expect(finalRolls[0]?.formula).to.equal("2d20kh+7")
+                    expect(finalRolls[0]?.total).to.equal(18)
+                    expect(finalRolls[1]?.formula).to.equal("3d10")
+                    expect(finalRolls[1]?.total).to.equal(21)
+                    expect(chatCardHelper.hasButton({
+                        text: "Roll Damage"
+                    })).to.equal(false)
+
+                    allowMockRollMessageUpdates(chatCardHelper.getMessage())
+                    await chatCardHelper.getMessage().update({
+                        "flags.transformations.martialProwessDamagePersistenceCheck": true
+                    })
+                    await waiters.waitForNextFrame()
+
+                    const persistedRolls = chatCardHelper.getPresentedRolls()
+                    expect(persistedRolls.map(roll => roll.total)).to.deep.equal([
+                        18,
+                        21
+                    ])
+                    expect(
+                        actor.items.get(staticVars.classItem.id)?.system?.hd?.value
+                    ).to.equal(staticVars.initialHitDice)
+                } finally {
+                    rollHelper.restore()
+                }
+            }
+        },
+
+        {
+            name: `Gift of Martial Prowess falls back to 1d20 without a stored attack roll`,
+
+            setup: async ({actor, helpers}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await setFiendStage3GiftChoices(actor)
+                await createCharacterClassWithHitDice({
+                    actor,
+                    helpers,
+                    className: "Fighter",
+                    hitDiceValue: 4
+                })
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                },
+                {
+                    stage: 4,
+                    choose: FIEND_STAGE_4_CHOICE_UUID
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars}) =>
+                {
+                    await prepareFiendGiftChatCard({
+                        actor,
+                        runtime,
+                        helpers,
+                        waiters,
+                        staticVars,
+                        giftId: "giftOfMartialProwess",
+                        itemName: "Gift of Martial Prowess"
+                    })
+                }
+            ],
+
+            await: async ({staticVars}) =>
+            {
+                await staticVars.chatCardHelper.waitForCard()
+                await staticVars.chatCardHelper.waitForButton({
+                    text: "Attack"
+                })
+            },
+
+            assertions: async ({expect, waiters, helpers, staticVars}) =>
+            {
+                const {chatCardHelper, message} = staticVars
+                const rollHelper = helpers.createDeterministicRollHelper()
+
+                try {
+                    rollHelper.queueRoll({
+                        formula: "1d20",
+                        total: 11,
+                        diceResults: [11]
+                    })
+
+                    await chatCardHelper.clickButton({
+                        text: "Attack"
+                    })
+
+                    await waiters.waitForCondition(() =>
+                        rollHelper.getCalls().some(call =>
+                            call.type === "roll" &&
+                            call.formula === "1d20"
+                        )
+                    )
+
+                    const presentedRolls =
+                              await chatCardHelper.waitForPresentedRolls({count: 1})
+
+                    expect(message.flags?.transformations?.attackFormula).to.equal("1d20")
+                    expect(presentedRolls[0]?.formula).to.equal("1d20")
+                    expect(presentedRolls[0]?.total).to.equal(11)
+                    await chatCardHelper.waitForButton({
+                        text: "Roll Damage"
+                    })
+                } finally {
+                    rollHelper.restore()
+                }
+            }
+        },
+
+        {
+            name: `Gift of Unbridled Power does not render a card with fewer than two available hit dice`,
+
+            setup: async ({actor, helpers, staticVars}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await setFiendStage3GiftChoices(actor)
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                },
+                {
+                    stage: 4,
+                    choose: FIEND_STAGE_4_CHOICE_UUID
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars}) =>
+                {
+                    staticVars.classItem = await createCharacterClassWithHitDice({
+                        actor,
+                        helpers,
+                        className: "Wizard",
+                        hitDiceValue: 1
+                    })
+
+                    await prepareFiendUnbridledPowerClassChatCard({
+                        actor,
+                        runtime,
+                        helpers,
+                        waiters,
+                        staticVars
+                    })
+                }
+            ],
+
+            assertions: async ({actor, expect, staticVars}) =>
+            {
+                const {chatCardHelper, message} = staticVars
+
+                expect(message).to.exist
+                expect(chatCardHelper.getCardElement()).to.equal(null)
+                expect(chatCardHelper.hasButton({
+                    text: "Roll"
+                })).to.equal(false)
+                expect(chatCardHelper.getButtons()).to.have.length(0)
+                expect(message.flags?.transformations).to.equal(undefined)
+                expect(String(message.content ?? "")).to.not.equal("")
+                expect(message.content).to.not.contain("<button")
+                expect(message.content).to.not.contain(`data-transformations-card`)
+                expect(
+                    actor.items.get(staticVars.classItem.id)?.system?.hd?.value
+                ).to.equal(1)
+            }
+        },
+
+        {
+            name: `Gift of Unbridled Power restores spell slots, consumes hit dice, and keeps the roll visible`,
+
+            setup: async ({actor, helpers, staticVars}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await setFiendStage3GiftChoices(actor)
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                },
+                {
+                    stage: 4,
+                    choose: FIEND_STAGE_4_CHOICE_UUID
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars}) =>
+                {
+                    staticVars.classItem = await createCharacterClassWithHitDice({
+                        actor,
+                        helpers,
+                        className: "Wizard",
+                        hitDiceValue: 4,
+                        levels: 20
+                    })
+                    staticVars.initialHitDice =
+                        actor.items.get(staticVars.classItem.id)?.system?.hd?.value
+                    staticVars.initialHp = actor.system.attributes.hp.value
+
+                    await actor.update({
+                        "system.spells.spell1.override": 3,
+                        "system.spells.spell1.value": 0,
+                        "system.spells.spell2.override": 2,
+                        "system.spells.spell2.value": 0,
+                        "system.spells.spell3.override": 1,
+                        "system.spells.spell3.value": 1,
+                        "system.spells.pact.max": 0,
+                        "system.spells.pact.value": 0,
+                        "system.spells.pact.level": 0
+                    })
+
+                    await prepareFiendUnbridledPowerClassChatCard({
+                        actor,
+                        runtime,
+                        helpers,
+                        waiters,
+                        staticVars
+                    })
+                }
+            ],
+
+            assertions: async ({actor, runtime, expect, waiters, helpers, staticVars}) =>
+            {
+                const {
+                          chatCardHelper,
+                          message,
+                          unbridledPowerGiftClass: GiftClass,
+                          unbridledPowerActorRepository: actorRepository
+                      } = staticVars
+                const rollHelper = helpers.createDeterministicRollHelper()
+                const dialogCalls = []
+                const dialogFactory = {
+                    async openFiendUnbridledPowerSpellSlotRecovery(args)
+                    {
+                        dialogCalls.push(args)
+                        return [
+                            {
+                                slotKey: "spell1",
+                                level: 1,
+                                cost: 1,
+                                slotType: "spell"
+                            },
+                            {
+                                slotKey: "spell1",
+                                level: 1,
+                                cost: 1,
+                                slotType: "spell"
+                            },
+                            {
+                                slotKey: "spell2",
+                                level: 2,
+                                cost: 2,
+                                slotType: "spell"
+                            }
+                        ]
+                    }
+                }
+
+                try {
+                    const card = chatCardHelper.getCardElement()
+
+                    // expect(card, "Gift of Unbridled Power chat card should render").to.exist
+                    expect(card.dataset.gift).to.equal("giftOfUnbridledPower")
+                    expect(message.content).to.contain(`data-gift="giftOfUnbridledPower"`)
+                    expect(message.flags?.transformations?.state).to.equal("initial")
+                    expect(message.flags?.transformations?.hitDie).to.equal("d6")
+                    chatCardHelper.assertButtonExists({
+                        text: "Roll"
+                    }, expect)
+
+                    rollHelper.queueRoll({
+                        formula: "2d6",
+                        total: 4,
+                        diceResults: [1, 3]
+                    })
+
+                    await GiftClass.actions.roll({
+                        actor,
+                        message,
+                        actorRepository,
+                        RollService,
+                        ChatMessagePartInjector: runtime.ui.ChatMessagePartInjector,
+                        GiftClass
+                    })
+
+                    await waiters.waitForCondition(() =>
+                        rollHelper.getCalls().some(call =>
+                            call.type === "roll" &&
+                            call.formula === "2d6"
+                        )
+                    )
+
+                    await waiters.waitForCondition(() =>
+                        actor.items.get(staticVars.classItem.id)?.system?.hd?.value ===
+                        staticVars.initialHitDice - 2
+                    )
+
+                    const presentedRolls =
+                              await chatCardHelper.waitForPresentedRolls({count: 1})
+
+                    expect(presentedRolls[0]?.formula).to.equal("2d6")
+                    expect(presentedRolls[0]?.total).to.equal(4)
+                    expect(message.flags?.transformations?.state).to.equal("rolled")
+                    expect(message.flags?.transformations?.rollFormula).to.equal("2d6")
+                    expect(message.flags?.transformations?.recoveryBudget).to.equal(4)
+                    expect(chatCardHelper.hasButton({
+                        text: "Roll"
+                    })).to.equal(false)
+                    chatCardHelper.assertButtonExists({
+                        text: "Recover spell slots"
+                    }, expect)
+
+                    await message.update({
+                        "flags.transformations.unbridledPowerRollPersistenceCheck": true
+                    })
+                    await waiters.waitForNextFrame()
+
+                    expect(chatCardHelper.getPresentedRolls()[0]?.total).to.equal(4)
+
+                    await GiftClass.actions.recoverSpellSlots({
+                        actor,
+                        message,
+                        actorRepository,
+                        dialogFactory,
+                        ChatMessagePartInjector: runtime.ui.ChatMessagePartInjector,
+                        GiftClass
+                    })
+
+                    expect(dialogCalls).to.have.length(1)
+                    expect(dialogCalls[0]?.actor).to.equal(actor)
+                    expect(dialogCalls[0]?.amount).to.equal(4)
+
+                    await waiters.waitForCondition(() =>
+                        actor.system.spells.spell1.value === 2 &&
+                        actor.system.spells.spell2.value === 1
+                    )
+                    await waiters.waitForCondition(() =>
+                        actor.system.attributes.hp.value === staticVars.initialHp - 8
+                    )
+
+                    expect(actor.system.spells.spell1.value).to.equal(2)
+                    expect(actor.system.spells.spell2.value).to.equal(1)
+                    expect(actor.system.spells.spell3.value).to.equal(1)
+                    expect(actor.system.attributes.hp.value).to.equal(
+                        staticVars.initialHp - 8
+                    )
+                    expect(
+                        actor.items.get(staticVars.classItem.id)?.system?.hd?.value
+                    ).to.equal(staticVars.initialHitDice - 2)
+                    expect(message.flags?.transformations?.state).to.equal("complete")
+                    expect(chatCardHelper.hasButton({
+                        text: "Recover spell slots"
+                    })).to.equal(false)
+
+                    await message.update({
+                        "flags.transformations.unbridledPowerCompletePersistenceCheck": true
+                    })
+                    await waiters.waitForNextFrame()
+
+                    const persistedRolls = chatCardHelper.getPresentedRolls()
+                    expect(persistedRolls).to.have.length(1)
+                    expect(persistedRolls[0]?.formula).to.equal("2d6")
+                    expect(persistedRolls[0]?.total).to.equal(4)
+                } finally {
+                    rollHelper.restore()
+                }
+            }
+        },
+
+        {
+            name: `Gift of Unbridled Power keeps the rolled recovery state when the dialog closes`,
+
+            setup: async ({actor, helpers, staticVars}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await setFiendStage3GiftChoices(actor)
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                },
+                {
+                    stage: 4,
+                    choose: FIEND_STAGE_4_CHOICE_UUID
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars}) =>
+                {
+                    staticVars.classItem = await createCharacterClassWithHitDice({
+                        actor,
+                        helpers,
+                        className: "Wizard",
+                        hitDiceValue: 4,
+                        levels: 20
+                    })
+                    staticVars.initialHitDice =
+                        actor.items.get(staticVars.classItem.id)?.system?.hd?.value
+                    staticVars.initialHp = actor.system.attributes.hp.value
+
+                    await actor.update({
+                        "system.spells.spell1.override": 2,
+                        "system.spells.spell1.value": 0,
+                        "system.spells.spell2.override": 1,
+                        "system.spells.spell2.value": 0,
+                        "system.spells.pact.max": 0,
+                        "system.spells.pact.value": 0,
+                        "system.spells.pact.level": 0
+                    })
+
+                    await prepareFiendUnbridledPowerClassChatCard({
+                        actor,
+                        runtime,
+                        helpers,
+                        waiters,
+                        staticVars
+                    })
+                }
+            ],
+
+            assertions: async ({actor, runtime, expect, waiters, helpers, staticVars}) =>
+            {
+                const {
+                          chatCardHelper,
+                          message,
+                          unbridledPowerGiftClass: GiftClass,
+                          unbridledPowerActorRepository: actorRepository
+                      } = staticVars
+                const rollHelper = helpers.createDeterministicRollHelper()
+                const dialogCalls = []
+                const dialogFactory = {
+                    async openFiendUnbridledPowerSpellSlotRecovery(args)
+                    {
+                        dialogCalls.push(args)
+                        return null
+                    }
+                }
+
+                try {
+                    const card = chatCardHelper.getCardElement()
+
+                    // expect(card, "Gift of Unbridled Power chat card should render").to.exist
+                    expect(card.dataset.gift).to.equal("giftOfUnbridledPower")
+                    chatCardHelper.assertButtonExists({
+                        text: "Roll"
+                    }, expect)
+
+                    rollHelper.queueRoll({
+                        formula: "2d6",
+                        total: 5,
+                        diceResults: [2, 3]
+                    })
+
+                    await GiftClass.actions.roll({
+                        actor,
+                        message,
+                        actorRepository,
+                        RollService,
+                        ChatMessagePartInjector: runtime.ui.ChatMessagePartInjector,
+                        GiftClass
+                    })
+
+                    await waiters.waitForCondition(() =>
+                        rollHelper.getCalls().some(call =>
+                            call.type === "roll" &&
+                            call.formula === "2d6"
+                        )
+                    )
+
+                    chatCardHelper.assertButtonExists({
+                        text: "Recover spell slots"
+                    }, expect)
+
+                    await GiftClass.actions.recoverSpellSlots({
+                        actor,
+                        message,
+                        actorRepository,
+                        dialogFactory,
+                        ChatMessagePartInjector: runtime.ui.ChatMessagePartInjector,
+                        GiftClass
+                    })
+
+                    expect(dialogCalls).to.have.length(1)
+                    expect(dialogCalls[0]?.actor).to.equal(actor)
+                    expect(dialogCalls[0]?.amount).to.equal(5)
+
+                    expect(actor.system.spells.spell1.value).to.equal(0)
+                    expect(actor.system.spells.spell2.value).to.equal(0)
+                    expect(actor.system.attributes.hp.value).to.equal(
+                        staticVars.initialHp
+                    )
+                    expect(
+                        actor.items.get(staticVars.classItem.id)?.system?.hd?.value
+                    ).to.equal(staticVars.initialHitDice - 2)
+                    expect(message.flags?.transformations?.state).to.equal("rolled")
+                    expect(message.flags?.transformations?.recoveryBudget).to.equal(5)
+
+                    await message.update({
+                        "flags.transformations.unbridledPowerCancelPersistenceCheck": true
+                    })
+                    await waiters.waitForNextFrame()
+
+                    chatCardHelper.assertButtonExists({
+                        text: "Recover spell slots"
+                    }, expect)
+                    expect(chatCardHelper.getPresentedRolls()[0]?.formula).to.equal("2d6")
+                    expect(chatCardHelper.getPresentedRolls()[0]?.total).to.equal(5)
                 } finally {
                     rollHelper.restore()
                 }

@@ -1,0 +1,73 @@
+<div class="fiend-unbridled-power-spell-slot-recovery">
+    <div class="fiend-unbridled-power-spell-slot-recovery__summary">
+        <div class="fiend-unbridled-power-spell-slot-recovery__stat">
+            <span class="fiend-unbridled-power-spell-slot-recovery__stat-label">
+                Recovery Pool
+            </span>
+            <strong class="fiend-unbridled-power-spell-slot-recovery__stat-value">
+                {{amount}}
+            </strong>
+        </div>
+
+        <div class="fiend-unbridled-power-spell-slot-recovery__stat">
+            <span class="fiend-unbridled-power-spell-slot-recovery__stat-label">
+                Remaining
+            </span>
+            <strong class="fiend-unbridled-power-spell-slot-recovery__stat-value"
+                    data-remaining>
+                {{amount}}
+            </strong>
+        </div>
+    </div>
+
+    {{#if hasRecoverableSlots}}
+        <div class="fiend-unbridled-power-spell-slot-recovery__groups">
+            {{#each groups}}
+                <fieldset class="fiend-unbridled-power-spell-slot-recovery__group">
+                    <legend class="fiend-unbridled-power-spell-slot-recovery__legend">
+                        {{label}}
+                    </legend>
+
+                    <div class="fiend-unbridled-power-spell-slot-recovery__level">
+                        {{level}}
+                    </div>
+
+                    <div class="fiend-unbridled-power-spell-slot-recovery__options"
+                         aria-label="{{label}}">
+                        {{#each options}}
+                            <label class="fiend-unbridled-power-spell-slot-recovery__slot"
+                                   title="{{label}} (cost: {{cost}})">
+                                <input
+                                    type="checkbox"
+                                    data-slot-checkbox
+                                    data-slot-key="{{slotKey}}"
+                                    data-slot-level="{{level}}"
+                                    data-slot-cost="{{cost}}"
+                                    data-slot-type="{{slotType}}"
+                                    aria-label="{{label}} (cost: {{cost}})">
+                                <span class="fiend-unbridled-power-spell-slot-recovery__slot-mark"
+                                      aria-hidden="true"></span>
+                            </label>
+                        {{/each}}
+                    </div>
+                </fieldset>
+            {{/each}}
+        </div>
+
+        <div class="fiend-unbridled-power-spell-slot-recovery__actions">
+            <button type="button" data-action="confirm" disabled>
+                OK
+            </button>
+        </div>
+    {{else}}
+        <p class="fiend-unbridled-power-spell-slot-recovery__empty">
+            No spent spell slots can be recovered.
+        </p>
+
+        <div class="fiend-unbridled-power-spell-slot-recovery__actions">
+            <button type="button" data-action="close">
+                Close
+            </button>
+        </div>
+    {{/if}}
+</div>
