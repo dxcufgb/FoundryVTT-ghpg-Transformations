@@ -1,5 +1,6 @@
 import { path, resolve } from "../rules/RuleBuilder.js"
 import { AdvancementDTOValidator } from "./AdvancementDTOValidator.js"
+import { DamagePartDTOValidator } from "./DamagePartDTOValidator.js"
 import { BaseDTOValidator } from "./BaseDTOValidator.js"
 import { ActivityDTOValidator } from "./ActivityDTOValidator.js"
 import { EffectDTOValidator } from "./EffectDTOValidator.js"
@@ -10,6 +11,11 @@ export class ItemDTOValidator extends BaseDTOValidator
     static rules = {
 
         type: path("item.type").equals(),
+        activationType: resolve(ctx =>
+            ctx.item.system?.activation?.type ??
+            ctx.item.activation?.type ??
+            null
+        ).equals(),
         systemSubType: path("item.system.type.subtype").equals(),
         systemType: path("item.system.type.value").equals(),
         usesLeft: resolve(ctx =>
@@ -31,11 +37,64 @@ export class ItemDTOValidator extends BaseDTOValidator
         // rule engine
         super.validate(this.buildValidationDTO(dto), { item })
 
+        this.validateDamageParts(item, dto.damageParts)
         this.validateActivities(item, dto.activities)
         this.validateAdvancements(item, dto.advancements)
         this.validateEffects(item, dto.effects)
 
         return true
+    }
+
+    // ------------------------------------------------
+    // Damage Parts
+    // ------------------------------------------------
+
+    validateDamageParts(item, damageParts)
+    {
+        if (!damageParts) return
+
+        if (Array.isArray(damageParts)) {
+            const itemDamageParts =
+                item.system?.damage?.parts ??
+                item.system?.damage?.base?.parts ??
+                item.damage?.parts ??
+                []
+
+            damageParts.forEach((damagePartDTO, index) =>
+            {
+                const damagePart = itemDamageParts[index]
+
+                this.assert.isOk(
+                    damagePart,
+                    `[${this.path}.damageParts[${index}]] Damage part not found`
+                )
+
+                new DamagePartDTOValidator({
+                    assert: this.assert,
+                    path: `${this.path}.damageParts[${index}]`,
+                    strict: this.strict
+                }).validate(damagePart, damagePartDTO)
+            })
+
+            return
+        }
+
+        for (const [damagePartKey, damagePartDTO] of Object.entries(damageParts)) {
+            const damagePart =
+                item.system?.damage?.[damagePartKey] ??
+                item.damage?.[damagePartKey]
+
+            this.assert.isOk(
+                damagePart,
+                `[${this.path}.damageParts.${damagePartKey}] Damage part not found`
+            )
+
+            new DamagePartDTOValidator({
+                assert: this.assert,
+                path: `${this.path}.damageParts.${damagePartKey}`,
+                strict: this.strict
+            }).validate(damagePart, damagePartDTO)
+        }
     }
 
     // ------------------------------------------------

@@ -3,17 +3,31 @@ export const stage2 = {
     grants: {
         items: [
             {
-                uuid: ""
-            }
-        ]
-    },
-    choices: {
-        items: [
-            {
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.6rVQqrBxeoqLBp3X"
             },
             {
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.7aZ5kLXScwDDwX7E",
+                requires: {
+                    items: [
+                        "Compendium.transformations.gh-transformations.Item.x72rfx8vOfW4PCLZ"
+                    ]
+                }
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.zOGFmHYkrM4ZKbEU",
+                requires: {
+                    items: [
+                        "Compendium.transformations.gh-transformations.Item.9uBHDM8XzGoUek8Y"
+                    ]
+                }
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.uvW6tQLGDIGoCLtu",
+                requires: {
+                    items: [
+                        "Compendium.transformations.gh-transformations.Item.uvXqAIXFpzl5Gb9G"
+                    ]
+                }
             }
         ]
     }

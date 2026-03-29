@@ -8,8 +8,11 @@ export class DamagePartValidationDTO
     constructor()
     {
         this.custom = null
+        this.customEnabled = null
         this.roll = null
+        this.scalingNumber = null
         this.damageTypes = null
         this.numberOfTypes = null
+        this.bonus = null
     }
 }

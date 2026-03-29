@@ -3,7 +3,9 @@ import { ItemUsesDTOValidator } from "../../DTOValidators/ItemUsesDTOValidator.j
 import { ItemUsesRecoveryDTOValidator } from "../../DTOValidators/ItemUsesRecoveryDTOValidator.js"
 import { ActivityValidationDTO } from "../activity/ActivityValidationDTO.js"
 import { AdvancementValidationDTO } from "../advancement/AdvancementValidationDTO.js"
+import { DamagePartValidationDTO } from "../damagePart/DamagePartValidationDTO.js"
 import { EffectValidationDTO } from "../effect/EffectValidationDTO.js"
+import { RangeValidationDTO } from "../range/RangeValidationDTO.js"
 
 // @ts-check
 export class ItemValidationDTO
@@ -16,13 +18,34 @@ export class ItemValidationDTO
         this.expectedItemUuids = []
 
         this.type = null
+        this.activationType = null
         this.usesLeft = null
         this.uses = new ItemUsesValidationDTO()
 
         this.numberOfActivities = null
+        this.damageParts = {}
         this.activities = [] // ActivityValidationDTO[]
         this.effects = []    // EffectValidationDTO[]
         this.advancements = []
+
+        defineLazyDTOProperty(this, "range", () => new RangeValidationDTO())
+    }
+
+    addDamagePart(partKeyOrConfigure, maybeConfigure = null)
+    {
+        const partKey =
+                  typeof partKeyOrConfigure === "string"
+                      ? partKeyOrConfigure
+                      : "base"
+        const configure =
+                  typeof partKeyOrConfigure === "function"
+                      ? partKeyOrConfigure
+                      : maybeConfigure
+
+        const dto = new DamagePartValidationDTO()
+        configure(dto)
+        this.damageParts[partKey] = dto
+        return this
     }
 
     addActivity(configure)
@@ -79,4 +102,65 @@ class ItemUsesRecoveryValidationDTO
         this.period = null
         this.type = null
     }
+}
+
+function defineLazyDTOProperty(target, propertyName, createDTO)
+{
+    let proxy = null
+
+    Object.defineProperty(target, propertyName, {
+        enumerable: true,
+        configurable: true,
+        get()
+        {
+            if (Object.prototype.hasOwnProperty.call(this, `__${propertyName}`))
+                return this[`__${propertyName}`]
+
+            if (!proxy) {
+                proxy = new Proxy({}, {
+                    get: (_, key) =>
+                    {
+                        if (key === "constructor")
+                            return undefined
+
+                        const current = this[`__${propertyName}`]
+                        return current?.[key]
+                    },
+                    set: (_, key, value) =>
+                    {
+                        const dto = createDTO()
+                        Object.defineProperty(this, `__${propertyName}`, {
+                            value: dto,
+                            writable: true,
+                            configurable: true
+                        })
+                        Object.defineProperty(this, propertyName, {
+                            value: dto,
+                            writable: true,
+                            enumerable: true,
+                            configurable: true
+                        })
+                        dto[key] = value
+                        return true
+                    }
+                })
+            }
+
+            return proxy
+        },
+        set(value)
+        {
+            Object.defineProperty(this, `__${propertyName}`, {
+                value,
+                writable: true,
+                configurable: true
+            })
+            Object.defineProperty(this, propertyName, {
+                value,
+                writable: true,
+                enumerable: true,
+                configurable: true
+            })
+        }
+    })
 }

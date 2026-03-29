@@ -229,6 +229,122 @@ export const HagTestDef = {
                 })
                 validate(actorDto, {assert})
             }
+        },
+        {
+            name: (loopVars) => `stage 2 with ${loopVars.sisterhood}`,
+            loop: () => [
+                {
+                    sisterhood: "The Green Sisterhood",
+                    sisterhoodUuid: "Compendium.transformations.gh-transformations.Item.x72rfx8vOfW4PCLZ",
+                    adept: "Compendium.transformations.gh-transformations.Item.7aZ5kLXScwDDwX7E",
+                    spell: "Compendium.transformations.gh-transformations.Item.kkfFADuQHxFgxeaP",
+                    spellData: {
+                        name: "Invisibility (Adept of the Green Sisterhood)"
+                    }
+                },
+                {
+                    sisterhood: "The Red Sisterhood",
+                    sisterhoodUuid: "Compendium.transformations.gh-transformations.Item.9uBHDM8XzGoUek8Y",
+                    adept: "Compendium.transformations.gh-transformations.Item.zOGFmHYkrM4ZKbEU",
+                    spell: "Compendium.transformations.gh-transformations.Item.PplpAQyFEx9XTHiE",
+                    spellData: {
+                        name: "Charm Person (Adept of the Red Sisterhood)"
+                    }
+                },
+                {
+                    sisterhood: "The Sea Sisterhood",
+                    sisterhoodUuid: "Compendium.transformations.gh-transformations.Item.uvXqAIXFpzl5Gb9G",
+                    adept: "Compendium.transformations.gh-transformations.Item.uvW6tQLGDIGoCLtu",
+                    spell: "Compendium.transformations.gh-transformations.Item.OhHNB8vk37DW2Dom",
+                    spellData: {
+                        name: "Disguise Self (Adept of the Sea Sisterhood)"
+                    }
+                }
+            ],
+            steps: [
+                {
+                    stage: 1,
+                    choose: (loopVars) => loopVars.sisterhoodUuid,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await helpers.hag.chooseSaveProficiencyOnStage1({
+                            waiters,
+                            runtime,
+                            actor,
+                            choice: "str"
+                        })
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    loopVars.sisterhoodUuid,
+                    loopVars.adept,
+                    loopVars.spell,
+                    "Compendium.transformations.gh-transformations.Item.ZzTR302lGjMOrQnx",
+                    "Compendium.transformations.gh-transformations.Item.6rVQqrBxeoqLBp3X"
+                ]
+                actorDto.addItem(item =>
+                {
+                    item.itemName = loopVars.sisterhood
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Claw"
+                    item.addActivity(activity => {
+                        activity.name = "Midi Attack"
+                        activity.activationType = "action"
+                    })
+                    item.addDamagePart("base", damagePart => {
+                        damagePart.roll = "1d6"
+                        damagePart.type = "slashing"
+                        damagePart.bonus = "@mod"
+                    })
+                    item.range.reach = 5
+                    item.range.units = "ft"
+                })
+                actorDto.addItem(item => {
+                    item.itemName = loopVars.spellData.name
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Iron Sensitivity"
+                    item.uses.max = 1
+                    item.uses.addRecovery(recovery => {
+                        recovery.period = "lr"
+                        recovery.type = "recoverAll"
+                    })
+                    item.uses.addRecovery(recovery => {
+                        recovery.period = "sr"
+                        recovery.type = "recoverAll"
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Midi Save"
+                        activity.addConsumption(consumption => {
+                            consumption.numberOfTargets = 1
+                            consumption.addTarget(target => {
+                                target.type = "item"
+                                target.value = 1
+                            })
+                        })
+                        activity.saveDc = 15
+                        activity.addEffect(effect => {
+                            effect.name = "Stunned"
+                            effect.statuses = ["stunned"]
+                            effect.duration.turns = 1
+                        })
+                    })
+                })
+                validate(actorDto, {assert})
+            }
         }
     ],
     itemBehaviorTests: [
