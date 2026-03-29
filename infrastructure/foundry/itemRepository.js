@@ -469,6 +469,7 @@ export function createItemRepository({
                     const grantApplied = await advancementGrantResolver.resolve({
                         actor,
                         grant,
+                        mode: advancementConfiguration.mode,
                         sourceItem: parentItem
                     })
 

@@ -1,9 +1,11 @@
-import { SKILL } from "../../config/constants.js"
+import { ABILITY, SKILL } from "../../config/constants.js"
 
 const DAMAGE_TYPE_ICON_PATH =
           "modules/transformations/icons/damageTypes"
 const SKILL_ICON_PATH =
           "modules/transformations/icons/skills"
+const ABILITY_ICON_PATH =
+          "modules/transformations/icons/abilities"
 
 export const DAMAGE_TYPE_CHOICES = Object.freeze({
     acid: Object.freeze({
@@ -163,5 +165,38 @@ export const SKILL_CHOICES = Object.freeze({
         id: SKILL.SURVIVAL,
         label: "Survival",
         icon: `${SKILL_ICON_PATH}/Survival.png`
+    })
+})
+
+export const SAVE_CHOICES = Object.freeze({
+    str: Object.freeze({
+        id: ABILITY.STRENGTH,
+        label: "Strength",
+        icon: `${ABILITY_ICON_PATH}/Strength.svg`
+    }),
+    dex: Object.freeze({
+        id: ABILITY.DEXTERITY,
+        label: "Dexterity",
+        icon: `${ABILITY_ICON_PATH}/Dexterity.svg`
+    }),
+    con: Object.freeze({
+        id: ABILITY.CONSTITUTION,
+        label: "Constitution",
+        icon: `${ABILITY_ICON_PATH}/Constitution.svg`
+    }),
+    int: Object.freeze({
+        id: ABILITY.INTELLIGENCE,
+        label: "Intelligence",
+        icon: `${ABILITY_ICON_PATH}/Intelligence.svg`
+    }),
+    wis: Object.freeze({
+        id: ABILITY.WISDOM,
+        label: "Wisdom",
+        icon: `${ABILITY_ICON_PATH}/Wisdom.svg`
+    }),
+    cha: Object.freeze({
+        id: ABILITY.CHARISMA,
+        label: "Charisma",
+        icon: `${ABILITY_ICON_PATH}/Charisma.svg`
     })
 })

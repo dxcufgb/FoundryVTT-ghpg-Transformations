@@ -247,6 +247,57 @@ quench.registerBatch(
                     harness.restore()
                 }
             })
+
+            it("includes originating item data when dispatching saving throw trigger context", async function()
+            {
+                const actor = createActor()
+                const harness = createHookHarness()
+                const sourceUuid =
+                          "Compendium.transformations.gh-transformations.Item.EIdDZiQTXHP8J1hU"
+                const item = {
+                    id: "item-1",
+                    name: "Hideous Appearance",
+                    uuid: "Actor.actor-1.Item.item-1",
+                    flags: {
+                        transformations: {
+                            sourceUuid
+                        }
+                    }
+                }
+
+                try {
+                    const callback = harness.callbacks.get("dnd5e.rollSavingThrow")
+                    expect(callback).to.be.a("function")
+
+                    callback(
+                        [createRoll({natural: 2, total: 7, isSuccess: false})],
+                        {
+                            subject: actor,
+                            ability: "wis",
+                            workflow: {
+                                item
+                            }
+                        }
+                    )
+
+                    await flushAsyncWork()
+
+                    const savingThrowCall =
+                              harness.calls.triggerRuntime.find(call =>
+                                  call.name === "savingThrow"
+                              )
+
+                    expect(savingThrowCall).to.exist
+                    expect(savingThrowCall.data?.saves?.current?.item).to.deep.equal({
+                        id: "item-1",
+                        name: "Hideous Appearance",
+                        uuid: "Actor.actor-1.Item.item-1",
+                        sourceUuid
+                    })
+                } finally {
+                    harness.restore()
+                }
+            })
         })
     }
 )

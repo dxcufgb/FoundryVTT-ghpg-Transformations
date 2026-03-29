@@ -32,6 +32,14 @@ function resolveActorFromSubject(subject)
     )
 }
 
+async function resolveItemFromContext(context)
+{
+    const item = await fromUuid(context.subject.flags?.transformations?.saveItemUuid)
+    await context.subject.unsetFlag("transformations", "saveItemUuid")
+    if (!item) return
+    return item
+}
+
 export function registerDnd5eHooks({
     transformationService,
     transformationRegistry,
@@ -110,8 +118,8 @@ export function registerDnd5eHooks({
         debouncedTracker.pulse(pulseName)
 
         if (!actor || !roll) return
-
-        ;(async () =>
+            ;
+        (async () =>
         {
             await dispatchTransformationRoll({
                 hookName,
@@ -137,28 +145,28 @@ export function registerDnd5eHooks({
         const natural = getNaturalRoll(roll)
 
         ;(async () =>
-        {
-            await dispatchTransformationRoll({
-                hookName,
-                actor,
-                rolls,
-                roll,
-                context
-            })
+    {
+        await dispatchTransformationRoll({
+            hookName,
+            actor,
+            rolls,
+            roll,
+            context
+        })
 
-            if (hasProcessedRoll(roll, "skillCheck")) return
+        if (hasProcessedRoll(roll, "skillCheck")) return
 
-            await triggerRuntime.run("skillCheck", actor, {
-                checks: {
-                    current: {
-                        ability: context.ability,
-                        skill: context.skill,
-                        naturalRoll: natural,
-                        total: roll.total
-                    }
+        await triggerRuntime.run("skillCheck", actor, {
+            checks: {
+                current: {
+                    ability: context.ability,
+                    skill: context.skill,
+                    naturalRoll: natural,
+                    total: roll.total
                 }
-            })
-        })()
+            }
+        })
+    })()
     }
 
     Hooks.on("dnd5e.damageActor", (actor) =>
@@ -263,6 +271,8 @@ export function registerDnd5eHooks({
 
         (async () =>
         {
+            const item = await resolveItemFromContext(context)
+
             await dispatchTransformationRoll({
                 hookName: "dnd5e.rollSavingThrow",
                 actor,
@@ -276,6 +286,7 @@ export function registerDnd5eHooks({
                     current: {
                         ability: context.ability,
                         isSpell: context?.subject?.getFlag("transformations", "saveIsSpell"),
+                        item: item,
                         naturalRoll: natural,
                         total: roll.total,
                         success: roll.isSuccess

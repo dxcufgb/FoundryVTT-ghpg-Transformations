@@ -5,6 +5,7 @@ import { fiend } from "./fiend.flags.js"
 import { infernalSmite } from "./infernalSmite.flags.js"
 import { giftOfJoyousLife } from "./giftOfJoyousLife.flags.js";
 import { giftOfUnsurpassedFortune } from "./giftOfUnsurpassedFortune.flags.js";
+import { hag } from "./hag.flags.js"
 
 export const transformationFlagEntries = [
     aberrantHorror,
@@ -13,5 +14,6 @@ export const transformationFlagEntries = [
     fiend,
     infernalSmite,
     giftOfJoyousLife,
-    giftOfUnsurpassedFortune
+    giftOfUnsurpassedFortune,
+    hag
 ]

@@ -32,7 +32,7 @@ export class AberrantHorror extends Transformation
         }
     }
 
-    static async onPreRollSavingThrow(actor, context, options = {})
+    static async onPreRollSavingThrow(context, actor, options = {})
     {
         this.logger?.debug?.("AberrantHorror.onPreRollSavingThrow", actor, context, options)
         if (context.workflow?.item?.type !== "spell") return

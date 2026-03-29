@@ -1,4 +1,5 @@
-import { DAMAGE_TYPE_CHOICES } from "./advancementCatalog.js"
+import { DAMAGE_TYPE_CHOICES, SKILL_CHOICES } from "./advancementCatalog.js"
+import { createSkillChoiceDescription, createSkillChoiceName, resolveSkillChoiceValue } from "./advancementSkillResolver.js"
 
 export function createAdvancementGrantResolver({
     activeEffectRepository,
@@ -10,12 +11,14 @@ export function createAdvancementGrantResolver({
     })
 
     const grantHandlers = Object.freeze({
-        dv: applyDamageVulnerabilityGrant
+        dv: applyDamageVulnerabilityGrant,
+        skills: applySkillGrant
     })
 
     async function resolve({
         actor,
         grant,
+        mode,
         sourceItem = null
     })
     {
@@ -28,6 +31,9 @@ export function createAdvancementGrantResolver({
         const parsedGrant = parseGrant(grant)
         if (!parsedGrant) {
             return false
+        }
+        if (!parsedGrant.mode) {
+            parsedGrant.mode = mode
         }
 
         const handler = grantHandlers[parsedGrant.type]
@@ -61,7 +67,7 @@ export function createAdvancementGrantResolver({
             return null
         }
 
-        const [type, value] = rawGrant.split(":")
+        const [type, value, mode = null] = rawGrant.split(":")
         if (!type || !value) {
             logger.warn(
                 "Advancement grant skipped: malformed grant",
@@ -73,7 +79,8 @@ export function createAdvancementGrantResolver({
         return {
             raw: rawGrant,
             type,
-            value
+            value,
+            mode
         }
     }
 
@@ -113,6 +120,74 @@ export function createAdvancementGrantResolver({
                 transformations: {
                     advancementGrant: parsedGrant.raw,
                     advancementGrantType: "damageVulnerability"
+                }
+            }
+        })
+
+        return effect != null
+    }
+
+    async function applySkillGrant({
+        actor,
+        sourceItem,
+        parsedGrant
+    })
+    {
+        const entry = SKILL_CHOICES[parsedGrant.value]
+        if (!entry) {
+            logger.warn(
+                "Advancement grant skipped: unknown skill",
+                parsedGrant.value
+            )
+            return false
+        }
+
+        const mode = parsedGrant.mode ?? "forcedExpertise"
+        const currentValue = Number(actor?.system?.skills?.[parsedGrant.value]?.value ?? 0)
+        const resolvedSkillValue = resolveSkillChoiceValue({
+            currentValue,
+            mode,
+            logger
+        })
+
+        if (resolvedSkillValue == null) {
+            logger.debug(
+                "Advancement grant skipped: skill mode did not resolve",
+                parsedGrant.raw
+            )
+            return false
+        }
+
+        const effect = await activeEffectRepository.create({
+            actor,
+            name: createSkillChoiceName(
+                entry.label,
+                mode,
+                resolvedSkillValue
+            ),
+            label: entry.label,
+            description: createSkillChoiceDescription(
+                entry.label,
+                mode,
+                resolvedSkillValue
+            ),
+            source: "transformation",
+            icon: entry.icon,
+            origin: sourceItem?.uuid ?? actor?.uuid ?? "",
+            skillIdentifier: parsedGrant.value,
+            changes: [{
+                key: `system.skills.${parsedGrant.value}.value`,
+                mode: globalThis.CONST?.ACTIVE_EFFECT_MODES?.UPGRADE ?? 4,
+                value: resolvedSkillValue
+            }],
+            flags: {
+                dnd5e: {
+                    hidden: true
+                },
+                transformations: {
+                    advancementGrant: parsedGrant.raw,
+                    advancementGrantType: "skill",
+                    advancementGrantMode: mode
                 }
             }
         })

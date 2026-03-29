@@ -11,17 +11,25 @@ function createLogger()
     }
 }
 
-function createActor(skillValues = {})
+function createActor(skillValues = {}, saveProficiencies = {})
 {
     return {
         id: "actor-1",
         uuid: "Actor.actor-1",
         system: {
+            abilities: {
+                str: {proficient: saveProficiencies.str ?? 0},
+                dex: {proficient: saveProficiencies.dex ?? 0},
+                con: {proficient: saveProficiencies.con ?? 0},
+                int: {proficient: saveProficiencies.int ?? 0},
+                wis: {proficient: saveProficiencies.wis ?? 0},
+                cha: {proficient: saveProficiencies.cha ?? 0}
+            },
             skills: {
-                acr: { value: skillValues.acr ?? 0 },
-                arc: { value: skillValues.arc ?? 0 },
-                ath: { value: skillValues.ath ?? 0 },
-                sur: { value: skillValues.sur ?? 0 }
+                acr: {value: skillValues.acr ?? 0},
+                arc: {value: skillValues.arc ?? 0},
+                ath: {value: skillValues.ath ?? 0},
+                sur: {value: skillValues.sur ?? 0}
             }
         }
     }
@@ -29,7 +37,7 @@ function createActor(skillValues = {})
 
 function createHandler({
     dialogResult = "acid",
-    createResult = { id: "effect-1" }
+    createResult = {id: "effect-1"}
 } = {})
 {
     const calls = {
@@ -65,14 +73,14 @@ function createHandler({
 
 quench.registerBatch(
     "transformations.infrastructure.advancementChoiceHandler",
-    ({ describe, it, expect }) =>
+    ({describe, it, expect}) =>
     {
-        describe("createAdvancementChoiceHandler", function()
+        describe("createAdvancementChoiceHandler", function ()
         {
-            it("opens the choice dialog and creates a hidden damage resistance effect", async function()
+            it("opens the choice dialog and creates a hidden damage resistance effect", async function ()
             {
                 const actor = createActor()
-                const { calls, handler } = createHandler({
+                const {calls, handler} = createHandler({
                     dialogResult: "acid"
                 })
 
@@ -145,31 +153,34 @@ quench.registerBatch(
                 })
             })
 
-            it("passes a clamped multi-choice count to the dialog and applies each selected damage resistance", async function()
-            {
-                const { calls, handler } = createHandler({
-                    dialogResult: ["acid", "cold"]
-                })
+            it(
+                "passes a clamped multi-choice count to the dialog and applies each selected damage resistance",
+                async function ()
+                {
+                    const {calls, handler} = createHandler({
+                        dialogResult: ["acid", "cold"]
+                    })
 
-                const result = await handler.choose({
-                    actor: createActor(),
-                    advancementChoices: [
-                        "dr:acid",
-                        "dr:cold"
-                    ],
-                    numberOfChoices: 5
-                })
+                    const result = await handler.choose({
+                        actor: createActor(),
+                        advancementChoices: [
+                            "dr:acid",
+                            "dr:cold"
+                        ],
+                        numberOfChoices: 5
+                    })
 
-                expect(result).to.equal(true)
-                expect(calls.dialog).to.have.length(1)
-                expect(calls.dialog[0].choiceCount).to.equal(2)
-                expect(calls.createdEffects.map(effect => effect.resistanceIdentifier))
+                    expect(result).to.equal(true)
+                    expect(calls.dialog).to.have.length(1)
+                    expect(calls.dialog[0].choiceCount).to.equal(2)
+                    expect(calls.createdEffects.map(effect => effect.resistanceIdentifier))
                     .to.deep.equal(["acid", "cold"])
-            })
+                }
+            )
 
-            it("returns false when the dialog is cancelled", async function()
+            it("returns false when the dialog is cancelled", async function ()
             {
-                const { calls, handler } = createHandler({
+                const {calls, handler} = createHandler({
                     dialogResult: null
                 })
 
@@ -182,9 +193,9 @@ quench.registerBatch(
                 expect(calls.createdEffects).to.have.length(0)
             })
 
-            it("returns null when advancement choices mix different handler types", async function()
+            it("returns null when advancement choices mix different handler types", async function ()
             {
-                const { calls, handler } = createHandler()
+                const {calls, handler} = createHandler()
 
                 const result = await handler.choose({
                     actor: createActor(),
@@ -199,14 +210,14 @@ quench.registerBatch(
                 expect(calls.createdEffects).to.have.length(0)
             })
 
-            it("expands the skills wildcard into all registered skill choices", async function()
+            it("expands the skills wildcard into all registered skill choices", async function ()
             {
-                const { calls, handler } = createHandler({
+                const {calls, handler} = createHandler({
                     dialogResult: "arc"
                 })
 
                 await handler.choose({
-                    actor: createActor({ arc: 1 }),
+                    actor: createActor({arc: 1}),
                     advancementChoices: ["skills:*"]
                 })
 
@@ -231,9 +242,110 @@ quench.registerBatch(
                 ).to.equal(true)
             })
 
-            it("creates an expertise effect for forcedExpertise skill choices", async function()
+            it("opens the choice dialog and creates a hidden saving throw proficiency effect", async function ()
             {
-                const { calls, handler } = createHandler({
+                const actor = createActor()
+                const {calls, handler} = createHandler({
+                    dialogResult: "str"
+                })
+
+                const result = await handler.choose({
+                    actor,
+                    advancementChoices: [
+                        "saves:str",
+                        "saves:dex"
+                    ]
+                })
+
+                expect(result).to.equal(true)
+                expect(calls.dialog).to.have.length(1)
+                expect(calls.dialog[0].choices).to.deep.equal([
+                    {
+                        icon: "modules/transformations/icons/abilities/Strength.svg",
+                        id: "str",
+                        label: "Strength",
+                        raw: "saves:str",
+                        value: "str"
+                    },
+                    {
+                        icon: "modules/transformations/icons/abilities/Dexterity.svg",
+                        id: "dex",
+                        label: "Dexterity",
+                        raw: "saves:dex",
+                        value: "dex"
+                    }
+                ])
+                expect(calls.dialog[0].title).to.equal(
+                    "Choose saving throw proficiency"
+                )
+                expect(calls.dialog[0].description).to.equal(
+                    "Choose 1 saving throw proficiency from the available options."
+                )
+                expect(calls.createdEffects).to.have.length(1)
+                expect(calls.createdEffects[0]).to.deep.equal({
+                    actor,
+                    name: "Saving Throw Proficiency: Strength",
+                    label: "Strength",
+                    description: "Gain proficiency in strength saving throws.",
+                    source: "transformation",
+                    icon: "modules/transformations/icons/abilities/Strength.svg",
+                    origin: "Actor.actor-1",
+                    saveIdentifier: "str",
+                    changes: [
+                        {
+                            key: "system.abilities.str.proficient",
+                            mode: UPGRADE_MODE,
+                            value: 1
+                        }
+                    ],
+                    flags: {
+                        dnd5e: {
+                            hidden: true
+                        },
+                        transformations: {
+                            advancementChoice: "saves:str",
+                            advancementChoiceType: "save"
+                        }
+                    }
+                })
+            })
+
+            it("expands the saves wildcard into all registered save choices", async function ()
+            {
+                const {calls, handler} = createHandler({
+                    dialogResult: "wis"
+                })
+
+                await handler.choose({
+                    actor: createActor(),
+                    advancementChoices: ["saves:*"]
+                })
+
+                expect(calls.dialog).to.have.length(1)
+                expect(calls.dialog[0].title).to.equal(
+                    "Choose saving throw proficiency"
+                )
+                expect(calls.dialog[0].description).to.equal(
+                    "Choose 1 saving throw proficiency from the available options."
+                )
+                expect(calls.dialog[0].choices).to.have.length(6)
+                expect(calls.dialog[0].choices[0]).to.deep.equal({
+                    icon: "modules/transformations/icons/abilities/Strength.svg",
+                    id: "str",
+                    label: "Strength",
+                    raw: "saves:str",
+                    value: "str"
+                })
+                expect(
+                    calls.dialog[0].choices.some(choice =>
+                        choice.id === "cha" && choice.label === "Charisma"
+                    )
+                ).to.equal(true)
+            })
+
+            it("creates an expertise effect for forcedExpertise skill choices", async function ()
+            {
+                const {calls, handler} = createHandler({
                     dialogResult: "arc"
                 })
 
@@ -265,14 +377,14 @@ quench.registerBatch(
                 })
             })
 
-            it("creates proficiency instead of expertise for upgrade mode on an untrained skill", async function()
+            it("creates proficiency instead of expertise for upgrade mode on an untrained skill", async function ()
             {
-                const { calls, handler } = createHandler({
+                const {calls, handler} = createHandler({
                     dialogResult: "arc"
                 })
 
                 const result = await handler.choose({
-                    actor: createActor({ arc: 0 }),
+                    actor: createActor({arc: 0}),
                     advancementChoices: ["skills:arc:upgrade"]
                 })
 
@@ -283,14 +395,14 @@ quench.registerBatch(
                 expect(calls.createdEffects[0].changes[0].value).to.equal(1)
             })
 
-            it("creates expertise for upgrade mode on a proficient skill", async function()
+            it("creates expertise for upgrade mode on a proficient skill", async function ()
             {
-                const { calls, handler } = createHandler({
+                const {calls, handler} = createHandler({
                     dialogResult: "arc"
                 })
 
                 const result = await handler.choose({
-                    actor: createActor({ arc: 1 }),
+                    actor: createActor({arc: 1}),
                     advancementChoices: ["skills:arc:upgrade"]
                 })
 
@@ -300,14 +412,14 @@ quench.registerBatch(
                 expect(calls.createdEffects[0].changes[0].value).to.equal(2)
             })
 
-            it("does not create an effect for expertise mode if the actor is not proficient", async function()
+            it("does not create an effect for expertise mode if the actor is not proficient", async function ()
             {
-                const { calls, handler } = createHandler({
+                const {calls, handler} = createHandler({
                     dialogResult: "arc"
                 })
 
                 const result = await handler.choose({
-                    actor: createActor({ arc: 0 }),
+                    actor: createActor({arc: 0}),
                     advancementChoices: ["skills:arc:expertise"]
                 })
 
@@ -315,10 +427,10 @@ quench.registerBatch(
                 expect(calls.createdEffects).to.have.length(0)
             })
 
-            it("returns effect payloads without applying them when apply is false", async function()
+            it("returns effect payloads without applying them when apply is false", async function ()
             {
                 const actor = createActor()
-                const { calls, handler } = createHandler({
+                const {calls, handler} = createHandler({
                     dialogResult: ["acid", "cold"]
                 })
 

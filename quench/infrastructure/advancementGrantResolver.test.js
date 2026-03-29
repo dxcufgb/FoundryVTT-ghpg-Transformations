@@ -14,7 +14,15 @@ function createActor()
 {
     return {
         id: "actor-1",
-        uuid: "Actor.actor-1"
+        uuid: "Actor.actor-1",
+        system: {
+            skills: {
+                acr: { value: 0 },
+                arc: { value: 0 },
+                ath: { value: 0 },
+                sur: { value: 0 }
+            }
+        }
     }
 }
 
@@ -85,6 +93,47 @@ quench.registerBatch(
                         transformations: {
                             advancementGrant: "dv:acid",
                             advancementGrantType: "damageVulnerability"
+                        }
+                    }
+                })
+            })
+
+            it("creates a hidden skill proficiency effect for supported skill grants", async function()
+            {
+                const actor = createActor()
+                const { calls, resolver } = createResolver()
+
+                const result = await resolver.resolve({
+                    actor,
+                    grant: "skills:arc:upgrade"
+                })
+
+                expect(result).to.equal(true)
+                expect(calls.createdEffects).to.have.length(1)
+                expect(calls.createdEffects[0]).to.deep.equal({
+                    actor,
+                    name: "Skill Proficiency: Arcana",
+                    label: "Arcana",
+                    description: "Gain proficiency in Arcana.",
+                    source: "transformation",
+                    icon: "modules/transformations/icons/skills/Arcana.png",
+                    origin: "Actor.actor-1",
+                    skillIdentifier: "arc",
+                    changes: [
+                        {
+                            key: "system.skills.arc.value",
+                            mode: globalThis.CONST?.ACTIVE_EFFECT_MODES?.UPGRADE ?? 4,
+                            value: 1
+                        }
+                    ],
+                    flags: {
+                        dnd5e: {
+                            hidden: true
+                        },
+                        transformations: {
+                            advancementGrant: "skills:arc:upgrade",
+                            advancementGrantType: "skill",
+                            advancementGrantMode: "upgrade"
                         }
                     }
                 })
