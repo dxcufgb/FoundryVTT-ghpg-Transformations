@@ -158,6 +158,78 @@ export function createAdvancementChoiceHandler({
         return results.every(Boolean)
     }
 
+    async function chooseItemPool({
+        actor,
+        itemChoices = [],
+        numberOfChoices = 1,
+        sourceItem = null
+    })
+    {
+        logger.debug("advancementChoiceHandler.chooseItemPool", {
+            actor,
+            itemChoices,
+            numberOfChoices,
+            sourceItem
+        })
+
+        if (!Array.isArray(itemChoices) || !itemChoices.length) {
+            return null
+        }
+
+        const choiceCount = Math.min(
+            Math.max(Number(numberOfChoices) || 1, 1),
+            itemChoices.length
+        )
+
+        if (choiceCount !== 1) {
+            logger.warn(
+                "Advancement item choice pool currently supports single selection only",
+                itemChoices
+            )
+            return null
+        }
+
+        const dialogFactory = getDialogFactory?.()
+        if (!dialogFactory?.openStageChoiceDialog) {
+            logger.warn(
+                "Advancement item choice skipped: choice dialog not available",
+                itemChoices
+            )
+            return null
+        }
+
+        const testChoice = globalThis.___TransformationTestEnvironment___
+            ?.choosenAdvancement
+            ?.find(choice => choice.name === sourceItem?.name)
+
+        const selectedUuid = testChoice
+            ? normalizeSelectedItemUuid(testChoice.choice)
+            : await promptForItemPoolChoice({
+                actor,
+                dialogFactory,
+                choices: itemChoices,
+                sourceItem
+            })
+
+        if (!selectedUuid) {
+            return false
+        }
+
+        const selectedChoice = itemChoices.find(choice =>
+            choice.uuid === selectedUuid
+        )
+
+        if (!selectedChoice) {
+            logger.warn(
+                "Advancement item choice dialog returned unknown selection",
+                selectedUuid
+            )
+            return null
+        }
+
+        return selectedChoice
+    }
+
     function parseChoices(advancementChoices = [])
     {
         logger.debug("advancementChoiceHandler.parseChoices", {
@@ -430,6 +502,35 @@ export function createAdvancementChoiceHandler({
             : selectedChoices
     }
 
+    async function promptForItemPoolChoice({
+        actor,
+        dialogFactory,
+        choices,
+        sourceItem
+    })
+    {
+        logger.debug("advancementChoiceHandler.promptForItemPoolChoice", {
+            actor,
+            choices,
+            sourceItem
+        })
+
+        return dialogFactory.openStageChoiceDialog({
+            actor,
+            choices,
+            stage:
+                `advancement-${sourceItem?.id ?? sourceItem?.uuid ?? sourceItem?.name ?? actor?.id ?? "item"}`
+        })
+    }
+
+    function normalizeSelectedItemUuid(choice)
+    {
+        if (typeof choice === "string")
+            return choice
+
+        return choice?.uuid ?? choice?.id ?? null
+    }
+
     async function applyDamageResistanceChoice({
         actor,
         sourceItem,
@@ -631,6 +732,7 @@ export function createAdvancementChoiceHandler({
     }
 
     return Object.freeze({
-        choose
+        choose,
+        chooseItemPool
     })
 }

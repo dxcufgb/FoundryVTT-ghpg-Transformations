@@ -37,11 +37,13 @@ function createActor(skillValues = {}, saveProficiencies = {})
 
 function createHandler({
     dialogResult = "acid",
+    stageDialogResult = "Compendium.transformations.gh-transformations.Item.sKoEV2o2qWnMSxMW",
     createResult = {id: "effect-1"}
 } = {})
 {
     const calls = {
         dialog: [],
+        stageDialog: [],
         createdEffects: []
     }
 
@@ -60,6 +62,13 @@ function createHandler({
                 return typeof dialogResult === "function"
                     ? dialogResult(data)
                     : dialogResult
+            },
+            async openStageChoiceDialog(data)
+            {
+                calls.stageDialog.push(data)
+                return typeof stageDialogResult === "function"
+                    ? stageDialogResult(data)
+                    : stageDialogResult
             }
         }),
         logger: createLogger()
@@ -499,6 +508,54 @@ quench.registerBatch(
                         source: "transformation"
                     }
                 ])
+            })
+
+            it("opens the transformation choice dialog for item pool choices", async function ()
+            {
+                const actor = createActor()
+                const sourceItem = {
+                    id: "parent-item-1",
+                    name: "Parent Item",
+                    uuid: "Item.parent-item-1"
+                }
+                const {calls, handler} = createHandler({
+                    stageDialogResult: "Compendium.transformations.gh-transformations.Item.MPBBGWM5q6YwOZHU"
+                })
+
+                const result = await handler.chooseItemPool({
+                    actor,
+                    sourceItem,
+                    itemChoices: [
+                        {
+                            uuid: "Compendium.transformations.gh-transformations.Item.sKoEV2o2qWnMSxMW",
+                            name: "First Choice",
+                            img: "first.png",
+                            description: "<p>First</p>"
+                        },
+                        {
+                            uuid: "Compendium.transformations.gh-transformations.Item.MPBBGWM5q6YwOZHU",
+                            name: "Second Choice",
+                            img: "second.png",
+                            description: "<p>Second</p>"
+                        }
+                    ]
+                })
+
+                expect(calls.dialog).to.have.length(0)
+                expect(calls.stageDialog).to.have.length(1)
+                expect(calls.stageDialog[0].actor).to.equal(actor)
+                expect(calls.stageDialog[0].choices.map(choice => choice.uuid))
+                .to.deep.equal([
+                    "Compendium.transformations.gh-transformations.Item.sKoEV2o2qWnMSxMW",
+                    "Compendium.transformations.gh-transformations.Item.MPBBGWM5q6YwOZHU"
+                ])
+                expect(calls.stageDialog[0].stage).to.equal("advancement-parent-item-1")
+                expect(result).to.deep.equal({
+                    uuid: "Compendium.transformations.gh-transformations.Item.MPBBGWM5q6YwOZHU",
+                    name: "Second Choice",
+                    img: "second.png",
+                    description: "<p>Second</p>"
+                })
             })
         })
     }

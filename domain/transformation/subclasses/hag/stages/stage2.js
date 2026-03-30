@@ -11,7 +11,8 @@ export const stage2 = {
                     items: [
                         "Compendium.transformations.gh-transformations.Item.x72rfx8vOfW4PCLZ"
                     ]
-                }
+                },
+                replaces: "Compendium.transformations.gh-transformations.Item.x72rfx8vOfW4PCLZ"
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.zOGFmHYkrM4ZKbEU",
@@ -19,7 +20,8 @@ export const stage2 = {
                     items: [
                         "Compendium.transformations.gh-transformations.Item.9uBHDM8XzGoUek8Y"
                     ]
-                }
+                },
+                replaces: "Compendium.transformations.gh-transformations.Item.9uBHDM8XzGoUek8Y"
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.uvW6tQLGDIGoCLtu",
@@ -27,7 +29,8 @@ export const stage2 = {
                     items: [
                         "Compendium.transformations.gh-transformations.Item.uvXqAIXFpzl5Gb9G"
                     ]
-                }
+                },
+                replaces: "Compendium.transformations.gh-transformations.Item.uvXqAIXFpzl5Gb9G"
             }
         ]
     }

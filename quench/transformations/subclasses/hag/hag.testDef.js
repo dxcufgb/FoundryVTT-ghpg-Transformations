@@ -288,16 +288,11 @@ export const HagTestDef = {
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
-                    loopVars.sisterhoodUuid,
                     loopVars.adept,
                     loopVars.spell,
                     "Compendium.transformations.gh-transformations.Item.ZzTR302lGjMOrQnx",
                     "Compendium.transformations.gh-transformations.Item.6rVQqrBxeoqLBp3X"
                 ]
-                actorDto.addItem(item =>
-                {
-                    item.itemName = loopVars.sisterhood
-                })
                 actorDto.addItem(item => {
                     item.itemName = "Claw"
                     item.addActivity(activity => {
@@ -342,6 +337,378 @@ export const HagTestDef = {
                             effect.duration.turns = 1
                         })
                     })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 3 with The Green Sisterhood with Summon Gasdra`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.x72rfx8vOfW4PCLZ",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await helpers.hag.chooseSaveProficiencyOnStage1({
+                            waiters,
+                            runtime,
+                            actor,
+                            choice: "str"
+                        })
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await helpers.hag.chooseTransformationChoiceByUuid({
+                            waiters,
+                            runtime,
+                            actor,
+                            stage: 3,
+                            choiceUuid: "Compendium.transformations.gh-transformations.Item.sKoEV2o2qWnMSxMW"
+                        })
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.h9DWEfJyHqROMaf3",
+                    "Compendium.transformations.gh-transformations.Item.6rVQqrBxeoqLBp3X",
+                    "Compendium.transformations.gh-transformations.Item.Gqw92KcRDG2QvOYg",
+                    "Compendium.transformations.gh-transformations.Item.Y7lbGMGK76JZzI8h",
+                    "Compendium.transformations.gh-transformations.Item.sKoEV2o2qWnMSxMW"
+                ]
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Master of the Green Sisterhood"
+                    item.addActivity(activity => {
+                        activity.name = "Hag Spell Recovery"
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Mimic"
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Summon Gasdra"
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Claw"
+                    item.addActivity(activity => {
+                        activity.name = "Midi Attack"
+                        activity.activationType = "action"
+                    })
+                    item.addDamagePart("base", damagePart => {
+                        damagePart.roll = "2d6"
+                        damagePart.type = "slashing"
+                        damagePart.bonus = "@mod"
+                    })
+                    item.range.reach = 5
+                    item.range.units = "ft"
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Purity’s Pain"
+                    item.addActivity(activity => {
+                        activity.name = "Purity induced Pain"
+                        activity.addDamagePart(damagePart => {
+                            damagePart.bonus = "@abilities.cha.mod"
+                            damagePart.roll = "3d6"
+                            damagePart.type = "psychic"
+                        })
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Fear of Purity"
+                        activity.addConsumption(consumption => {
+                            consumption.number = 1
+                            consumption.addTarget(target => {
+                                target.type = "activity"
+                                target.value = 1
+                            })
+                        })
+                        activity.uses.max = 1
+                        activity.uses.addRecovery(recovery => {
+                            recovery.period = "lr"
+                            recovery.type = "recoverAll"
+                        })
+                        activity.uses.addRecovery(recovery => {
+                            recovery.period = "sr"
+                            recovery.type = "recoverAll"
+                        })
+                        activity.saveDc = 18
+                        activity.saveAbiliy = "wis"
+                        activity.addEffect(effect => {
+                            effect.name = "Frightened"
+                            effect.statuses = ["frightened"]
+                        })
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 3 with The Green Sisterhood with Create Hag's Eye`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.x72rfx8vOfW4PCLZ",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await helpers.hag.chooseSaveProficiencyOnStage1({
+                            waiters,
+                            runtime,
+                            actor,
+                            choice: "str"
+                        })
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await helpers.hag.chooseTransformationChoiceByUuid({
+                            waiters,
+                            runtime,
+                            actor,
+                            stage: 3,
+                            choiceUuid: "Compendium.transformations.gh-transformations.Item.MPBBGWM5q6YwOZHU"
+                        })
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.h9DWEfJyHqROMaf3",
+                    "Compendium.transformations.gh-transformations.Item.6rVQqrBxeoqLBp3X",
+                    "Compendium.transformations.gh-transformations.Item.Gqw92KcRDG2QvOYg",
+                    "Compendium.transformations.gh-transformations.Item.Y7lbGMGK76JZzI8h",
+                    "Compendium.transformations.gh-transformations.Item.MPBBGWM5q6YwOZHU"
+                ]
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Create Hag's Eye"
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 3 with The Red Sisterhood`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.9uBHDM8XzGoUek8Y",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await helpers.hag.chooseSaveProficiencyOnStage1({
+                            waiters,
+                            runtime,
+                            actor,
+                            choice: "str"
+                        })
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.6rVQqrBxeoqLBp3X",
+                    "Compendium.transformations.gh-transformations.Item.Y7lbGMGK76JZzI8h",
+                    "Compendium.transformations.gh-transformations.Item.TIKmev4FNvD6wfqU",
+                    "Compendium.transformations.gh-transformations.Item.0QxkaaXnKKlzdAha"
+                ]
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Master of the Red Sisterhood"
+                    item.addActivity(activity => {
+                        activity.name = "Challenge Mental Influence"
+                        activity.addConsumption(consumption => {
+                            consumption.number = 1
+                            consumption.addTarget(target => {
+                                target.type = "activity"
+                                target.value = 1
+                            })
+                        })
+                        activity.uses.max = 1
+                        activity.uses.addRecovery(recovery => {
+                            recovery.period = "lr"
+                            recovery.type = "recoverAll"
+                        })
+                        activity.uses.addRecovery(recovery => {
+                            recovery.period = "sr"
+                            recovery.type = "recoverAll"
+                        })
+                        activity.target.affects.type = "creature"
+                        activity.target.affects.count = 1
+                        activity.checkDc = 14 + 3
+                        activity.checkAbiliy = "cha"
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Hag Charm Person"
+                        activity.activity = "bonus"
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Claw"
+                    item.addActivity(activity => {
+                        activity.name = "Midi Attack"
+                        activity.activationType = "action"
+                        activity.addDamagePart(damagePart => {
+                            damagePart.roll = "1d6"
+                            damagePart.type = "slashing"
+                            damagePart.bonus = "@mod"
+                        })
+                        activity.addDamagePart(damagePart => {
+                            damagePart.roll = "1d4"
+                            damagePart.type = "psychic"
+                        })
+                    })
+                    item.addDamagePart("base", damagePart => {
+                        damagePart.roll = "1d6"
+                        damagePart.type = "slashing"
+                        damagePart.bonus = "@mod"
+                    })
+                    item.range.reach = 5
+                    item.range.units = "ft"
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 3 with The Sea Sisterhood`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.uvXqAIXFpzl5Gb9G",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await helpers.hag.chooseSaveProficiencyOnStage1({
+                            waiters,
+                            runtime,
+                            actor,
+                            choice: "str"
+                        })
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            {
+                const actorWisdomModifier = actor.system.abilities.wis.mod
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.6rVQqrBxeoqLBp3X",
+                    "Compendium.transformations.gh-transformations.Item.Y7lbGMGK76JZzI8h",
+                    "Compendium.transformations.gh-transformations.Item.Gqw92KcRDG2QvOYg"
+                ]
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Master of the Sea Sisterhood"
+                    item.addActivity(activity => {
+                        activity.name = "Frightening Gaze"
+                        activity.activationType = "bonus"
+                        activity.addConsumption(consumption => {
+                            consumption.number = 1
+                            consumption.addTarget(target => {
+                                target.type = "activity"
+                                target.value = 1
+                            })
+                        })
+                        activity.uses.max = 1
+                        activity.uses.addRecovery(recovery => {
+                            recovery.period = "lr"
+                            recovery.type = "recoverAll"
+                        })
+                        activity.uses.addRecovery(recovery => {
+                            recovery.period = "sr"
+                            recovery.type = "recoverAll"
+                        })
+                        activity.target.affects.type = "creature"
+                        activity.target.affects.count = 1
+                        activity.range.value = 30
+                        activity.range.unit = "ft"
+                        activity.saveDc = 14 + actorWisdomModifier
+                        activity.saveAbiliy = "wis"
+                        activity.addEffect(effect => {
+                            effect.name = "Frightened"
+                            effect.statuses = ["frightened"]
+                        })
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Grant Water Breathing"
+                        activity.activity = "action"
+                        activity.range.unit = "touch"
+                        activity.target.affects.type = "creature"
+                        activity.target.affects.count = 1
+                        activity.addEffect(effect => {
+                            effect.name = "Water Breathing"
+                            effect.description = "You can breathe under water for the number of minutes rolled on the hit die."
+                        })
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Claw"
+                    item.addActivity(activity => {
+                        activity.name = "Midi Attack"
+                        activity.activationType = "action"
+                    })
+                    item.addDamagePart("base", damagePart => {
+                        damagePart.roll = "2d6"
+                        damagePart.type = "slashing"
+                        damagePart.bonus = "@mod"
+                    })
+                    item.range.reach = 5
+                    item.range.units = "ft"
                 })
                 validate(actorDto, {assert})
             }

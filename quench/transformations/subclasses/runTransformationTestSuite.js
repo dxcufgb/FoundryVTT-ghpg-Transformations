@@ -13,6 +13,7 @@ import { setupTest } from "../../testLifecycle.js"
 import { chooseDamageResistanceOnStage1 } from "../../helpers/fiend/chooseDamageResistanceOnStage1.js";
 import { createChatCardTestHelper, createDeterministicRollHelper } from "../../helpers/index.js";
 import { chooseSaveProficiencyOnStage1 } from "../../helpers/hag/chooseSaveProficiencyOnStage1.js";
+import { chooseTransformationChoiceByUuid } from "../../helpers/hag/chooseTransformationChoiceByUuid.js";
 
 export function runTransformationTestSuite({
     mochaFunctions,
@@ -37,7 +38,8 @@ export function runTransformationTestSuite({
             chooseDamageResistanceOnStage1
         },
         hag: {
-            chooseSaveProficiencyOnStage1
+            chooseSaveProficiencyOnStage1,
+            chooseTransformationChoiceByUuid
         }
     }
     const waiters = {

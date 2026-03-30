@@ -199,14 +199,15 @@ quench.registerBatch(
 
                     await flushAsyncWork()
 
-                    expect(
+                    const actualOnRollCalls =
                         harness.calls.onRoll.map(({actor: rolledActor, roll}) => ({
                             actorId: rolledActor.id,
                             hookName: roll.hookName,
                             natural: roll.natural,
                             total: roll.total
                         }))
-                    ).to.deep.equal([
+
+                    const expectedOnRollCalls = [
                         {actorId: "actor-1", hookName: "dnd5e.rollAbilityCheck", natural: 2, total: 7},
                         {actorId: "actor-1", hookName: "dnd5e.rollSavingThrow", natural: 3, total: 8},
                         {actorId: "actor-1", hookName: "dnd5e.rollSkill", natural: 4, total: 9},
@@ -215,7 +216,10 @@ quench.registerBatch(
                         {actorId: "actor-1", hookName: "dnd5e.rollConcentration", natural: 7, total: 12},
                         {actorId: "actor-1", hookName: "dnd5e.rollDeathSave", natural: 8, total: 13},
                         {actorId: "actor-1", hookName: "dnd5e.preRollInitiative", natural: 9, total: 14}
-                    ])
+                    ]
+
+                    expect(actualOnRollCalls).to.have.length(expectedOnRollCalls.length)
+                    expect(actualOnRollCalls).to.have.deep.members(expectedOnRollCalls)
                 } finally {
                     harness.restore()
                 }

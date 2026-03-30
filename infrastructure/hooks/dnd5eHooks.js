@@ -34,10 +34,66 @@ function resolveActorFromSubject(subject)
 
 async function resolveItemFromContext(context)
 {
-    const item = await fromUuid(context.subject.flags?.transformations?.saveItemUuid)
-    await context.subject.unsetFlag("transformations", "saveItemUuid")
-    if (!item) return
-    return item
+    const actor = resolveActorFromSubject(context?.subject)
+    const workflowItem = context?.workflow?.item ?? null
+
+    if (workflowItem) {
+        await clearSavedItemReference(actor)
+        return normalizeTriggerItem(workflowItem)
+    }
+
+    const savedItemUuid =
+              actor?.flags?.transformations?.saveItemUuid ??
+              actor?.getFlag?.("transformations", "saveItemUuid") ??
+              null
+
+    if (!savedItemUuid) {
+        await clearSavedItemReference(actor)
+        return null
+    }
+
+    const uuidResolver =
+              globalThis?.fromUuid ??
+              (typeof fromUuid === "function" ? fromUuid : null)
+
+    const item = uuidResolver
+        ? await uuidResolver(savedItemUuid)
+        : null
+
+    await clearSavedItemReference(actor)
+
+    return normalizeTriggerItem(item, savedItemUuid)
+}
+
+function normalizeTriggerItem(item, fallbackSourceUuid = null)
+{
+    if (!item && !fallbackSourceUuid) return null
+
+    const sourceUuid =
+              item?.flags?.transformations?.sourceUuid ??
+              fallbackSourceUuid ??
+              null
+
+    return {
+        id: item?.id ?? null,
+        name: item?.name ?? null,
+        uuid: item?.uuid ?? sourceUuid,
+        sourceUuid
+    }
+}
+
+async function clearSavedItemReference(actor)
+{
+    if (!actor) return
+
+    if (typeof actor.unsetFlag === "function") {
+        await actor.unsetFlag("transformations", "saveItemUuid")
+        return
+    }
+
+    if (typeof actor.setFlag === "function") {
+        await actor.setFlag("transformations", "saveItemUuid", null)
+    }
 }
 
 export function registerDnd5eHooks({

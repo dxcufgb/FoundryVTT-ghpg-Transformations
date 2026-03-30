@@ -752,6 +752,78 @@ quench.registerBatch(
                 expect(hasReplacement).to.equal(true)
             })
 
+            it("removes items awarded by the replaced item when stage 4 is applied", async function()
+            {
+                const originalUuid = "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz"
+                const replacementUuid = "Compendium.transformations.gh-transformations.Item.bZIioCqc5wwEUdKG"
+                const awardedUuid =
+                    transformationDef?.stages?.[2]?.choices?.items?.[0]?.uuid
+
+                expect(awardedUuid, "Awarded item UUID not found").to.be.a("string")
+
+                const originalDoc = await fromUuid(originalUuid)
+                const awardedDoc = await fromUuid(awardedUuid)
+
+                expect(originalDoc, "Original compendium item not found").to.exist
+                expect(awardedDoc, "Awarded compendium item not found").to.exist
+
+                await runtime.infrastructure.itemRepository.addItemFromUuid({
+                    actor,
+                    uuid: originalUuid
+                })
+
+                await waitForNextFrame()
+
+                const originalItemOnActor = actor.items.find(i =>
+                    i.flags?.transformations?.sourceUuid === originalUuid
+                )
+                expect(originalItemOnActor, "Original item not added to actor").to.exist
+
+                const awardedItem = await runtime.infrastructure.itemRepository.createObjectOnActor(
+                    actor,
+                    awardedDoc,
+                    originalItemOnActor,
+                    {
+                        applyAdvancements: false
+                    }
+                )
+
+                expect(awardedItem, "Awarded item not created").to.exist
+
+                await waitForCondition(() =>
+                    actor.items.some(i => i.id === awardedItem.id)
+                )
+
+                const awardedItemOnActor = actor.items.get(awardedItem.id)
+                expect(awardedItemOnActor?.flags?.transformations?.awardedByItem)
+                .to.equal(originalItemOnActor.uuid)
+
+                await advanceStageAndWait({
+                    actor,
+                    stage: 4,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+
+                await waitForCondition(() =>
+                    !actor.items.some(i =>
+                        i.flags?.transformations?.sourceUuid === originalUuid
+                    )
+                )
+
+                await waitForCondition(() =>
+                    actor.items.some(i =>
+                        i.flags?.transformations?.sourceUuid === replacementUuid
+                    )
+                )
+
+                await waitForCondition(() =>
+                    !actor.items.some(i => i.id === awardedItem.id)
+                )
+
+                const hasAwardedItem = actor.items.some(i => i.id === awardedItem.id)
+                expect(hasAwardedItem).to.equal(false)
+            })
+
             it("opens the stage 4 choice dialog when actor has spell slots", async function()
             {
 
