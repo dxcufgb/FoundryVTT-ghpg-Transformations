@@ -6,6 +6,7 @@ export async function preloadTemplates(logger = null) {
         "modules/transformations/scripts/templates/dialogs/fiend-gift-of-damnation-dialog.hbs",
         "modules/transformations/scripts/templates/dialogs/fiend-unbridled-power-spell-slot-recovery-dialog.hbs",
         "modules/transformations/scripts/templates/dialogs/fey-exhaustion-recovery-dialog.hbs",
+        "modules/transformations/scripts/templates/dialogs/hag-spell-recovery-dialog.hbs",
         "modules/transformations/scripts/templates/dialogs/transformation-choice.hbs",
         "modules/transformations/scripts/templates/dialogs/transformation-config.hbs"
     ];

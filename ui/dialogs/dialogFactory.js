@@ -13,6 +13,9 @@ import { FiendGiftOfDamnationDialog } from "./fiendGiftOfDamnationDialog.js"
 import { createFiendUnbridledPowerSpellSlotRecoveryViewModel } from "../viewModels/createFiendUnbridledPowerSpellSlotRecoveryViewModel.js"
 import { createFiendUnbridledPowerSpellSlotRecoveryController } from "../controllers/fiendUnbridledPowerSpellSlotRecoveryController.js"
 import { FiendUnbridledPowerSpellSlotRecoveryDialog } from "./fiendUnbridledPowerSpellSlotRecoveryDialog.js"
+import { createHagSpellRecoveryViewModel } from "../viewModels/createHagSpellRecoveryViewModel.js"
+import { createHagSpellRecoveryController } from "../controllers/hagSpellRecoveryController.js"
+import { HagSpellRecoveryDialog } from "./hagSpellRecoveryDialog.js"
 
 export function createDialogFactory({
     applyFiendGiftOfDamnation,
@@ -326,6 +329,44 @@ export function createDialogFactory({
         })
     }
 
+    async function openHagSpellRecovery({
+        actor
+    })
+    {
+        logger.debug("openHagSpellRecovery", {
+            actor
+        })
+
+        if (!actor) {
+            return false
+        }
+
+        closeExistingDialog(HagSpellRecoveryDialog)
+
+        return new Promise(resolve =>
+        {
+            const viewModel =
+                      createHagSpellRecoveryViewModel({
+                          actor,
+                          logger
+                      })
+
+            const controller =
+                      createHagSpellRecoveryController({
+                          resolve,
+                          logger
+                      })
+
+            const dialog = new HagSpellRecoveryDialog({
+                viewModel,
+                controller,
+                logger
+            })
+
+            dialog.render(true)
+        })
+    }
+
     return Object.freeze({
         openTransformationConfig,
         openStageChoiceDialog,
@@ -333,7 +374,8 @@ export function createDialogFactory({
         showItemInfoDialog,
         openFeyExhaustionRecovery,
         openFiendGiftOfDamnation,
-        openFiendUnbridledPowerSpellSlotRecovery
+        openFiendUnbridledPowerSpellSlotRecovery,
+        openHagSpellRecovery
     })
 
     function closeExistingDialog(dialog)

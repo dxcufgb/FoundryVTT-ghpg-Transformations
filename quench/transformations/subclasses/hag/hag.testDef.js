@@ -2,6 +2,24 @@
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js";
 import { validate } from "../../../helpers/DTOValidators/validate.js";
 
+function getUiWindows()
+{
+    if (!ui?.windows) return []
+    if (typeof ui.windows.values === "function") {
+        return Array.from(ui.windows.values())
+    }
+
+    return Object.values(ui.windows)
+}
+
+function findUiWindowBySelector(selector)
+{
+    return getUiWindows().find(app =>
+        app?.element?.querySelector?.(selector) ||
+        app?.element?.[0]?.querySelector?.(selector)
+    ) ?? null
+}
+
 export const HagTestDef = {
     id: "hag",
     rollTableOrigin: "NA",
@@ -854,6 +872,496 @@ export const HagTestDef = {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.stats.exhaustion = staticVars.initialExhaustion + 1
                 validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: `Create Hag's Eye adds a Hag's Eye item to the actor inventory`,
+
+            setup: async ({actor}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "hag": {
+                            1: "Compendium.transformations.gh-transformations.Item.x72rfx8vOfW4PCLZ"
+                        }
+                    }
+                })
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Hag Form",
+                        choice: {
+                            id: "str",
+                            label: "Strength",
+                            icon: "modules/transformations/icons/abilities/Strength.svg",
+                            raw: "saves:str",
+                            value: "str"
+                        }
+                    },
+                    {
+                        name: "Master of the Green Sisterhood",
+                        choice: "Compendium.transformations.gh-transformations.Item.MPBBGWM5q6YwOZHU"
+                    }
+                ]
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                }
+            ],
+
+            steps: [
+                async ({actor, staticVars}) =>
+                {
+                    staticVars.initialHagsEyeCount = actor.items.filter(item =>
+                        item.flags?.transformations?.sourceUuid === "Compendium.transformations.gh-transformations.Item.K5VdnECeAQMHonCF"
+                    ).length
+
+                    const createHagsEyeItem = actor.items.find(item =>
+                        item.name === "Create Hag's Eye"
+                    )
+
+                    if (!createHagsEyeItem) {
+                        throw new Error("Create Hag's Eye item not present on actor")
+                    }
+
+                    const activity = createHagsEyeItem.system.activities.find(activity =>
+                        activity.name === "Midi Use"
+                    )
+
+                    if (!activity) {
+                        throw new Error("Create Hag's Eye activity not present on item")
+                    }
+
+                    await activity.use({actor})
+                }
+            ],
+
+            await: async ({runtime, waiters, actor, staticVars}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await waiters.waitForCondition(() =>
+                    actor.items.filter(item =>
+                        item.flags?.transformations?.sourceUuid === "Compendium.transformations.gh-transformations.Item.K5VdnECeAQMHonCF"
+                    ).length === staticVars.initialHagsEyeCount + 1
+                )
+            },
+
+            assertions: async ({actor, assert, expect, staticVars}) =>
+            {
+                const hagsEyes = actor.items.filter(item =>
+                    item.flags?.transformations?.sourceUuid === "Compendium.transformations.gh-transformations.Item.K5VdnECeAQMHonCF"
+                )
+
+                expect(
+                    hagsEyes.length,
+                    "Create Hag's Eye should add one Hag's Eye to the actor inventory"
+                ).to.equal(staticVars.initialHagsEyeCount + 1)
+                expect(
+                    hagsEyes.at(-1),
+                    "Created Hag's Eye item should exist on the actor"
+                ).to.exist
+
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.K5VdnECeAQMHonCF"
+                ]
+                validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: `Hag Spell Recovery opens its dialog and restores an eligible spell slot`,
+
+            setup: async ({actor}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "hag": {
+                            1: "Compendium.transformations.gh-transformations.Item.x72rfx8vOfW4PCLZ"
+                        }
+                    }
+                })
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Hag Form",
+                        choice: {
+                            id: "str",
+                            label: "Strength",
+                            icon: "modules/transformations/icons/abilities/Strength.svg",
+                            raw: "saves:str",
+                            value: "str"
+                        }
+                    },
+                    {
+                        name: "Master of the Green Sisterhood",
+                        choice: "Compendium.transformations.gh-transformations.Item.MPBBGWM5q6YwOZHU"
+                    }
+                ]
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                }
+            ],
+
+            steps: [
+                async ({actor, helpers, staticVars}) =>
+                {
+                    const foundCharacterClass = await helpers.getCharacterClass("Wizard")
+                    const classItem = await helpers.createActorItemAndWait(
+                        actor,
+                        foundCharacterClass,
+                        {
+                            setTransformationFlags: false,
+                            setDdbImporterFlag: false,
+                            applyAdvancements: false,
+                            levels: 6
+                        }
+                    )
+
+                    await classItem.update({
+                        "system.hd.value": 3,
+                        "system.hd.max": 6,
+                        "system.hd.spent": 3
+                    })
+
+                    staticVars.classItemId = classItem.id
+
+                    await actor.update({
+                        "system.spells.spell1.override": 2,
+                        "system.spells.spell1.value": 1,
+                        "system.spells.spell2.override": 1,
+                        "system.spells.spell2.value": 0,
+                        "system.spells.spell3.override": 1,
+                        "system.spells.spell3.value": 0,
+                        "system.spells.pact.max": 0,
+                        "system.spells.pact.value": 0,
+                        "system.spells.pact.level": 0
+                    })
+
+                    staticVars.initialSpell1Value = actor.system.spells.spell1.value
+                    staticVars.initialSpell2Value = actor.system.spells.spell2.value
+                    staticVars.initialSpell3Value = actor.system.spells.spell3.value
+                    staticVars.initialHitDiceValue =
+                        actor.items.get(classItem.id)?.system?.hd?.value
+
+                    const masterOfTheGreenSisterhood = actor.items.find(item =>
+                        item.name === "Master of the Green Sisterhood"
+                    )
+
+                    if (!masterOfTheGreenSisterhood) {
+                        throw new Error("Master of the Green Sisterhood item not present on actor")
+                    }
+
+                    const activity = masterOfTheGreenSisterhood.system.activities.find(activity =>
+                        activity.name === "Hag Spell Recovery"
+                    )
+
+                    if (!activity) {
+                        throw new Error("Hag Spell Recovery activity not present on item")
+                    }
+
+                    await activity.use({actor})
+                }
+            ],
+
+            await: async ({runtime, waiters, staticVars, actor}) =>
+            {
+                await waiters.waitForCondition(() =>
+                    document.querySelector(".hag-spell-recovery") != null
+                )
+
+                const dialog = document.querySelector(".hag-spell-recovery")
+
+                if (!dialog) {
+                    throw new Error("Hag Spell Recovery dialog did not open")
+                }
+
+                staticVars.dialog = dialog
+
+                const levelLabels = Array.from(
+                    dialog.querySelectorAll(".hag-spell-recovery__level")
+                ).map(element => element.textContent.trim())
+
+                if (!levelLabels.includes("2")) {
+                    throw new Error("Expected level 2 spell slot options in Hag Spell Recovery dialog")
+                }
+
+                const level2Group = Array.from(
+                    dialog.querySelectorAll(".hag-spell-recovery__group")
+                ).find(group =>
+                    group.querySelector(".hag-spell-recovery__level")
+                    ?.textContent?.trim() === "2"
+                )
+
+                if (!level2Group) {
+                    throw new Error("Level 2 spell slot group not found in Hag Spell Recovery dialog")
+                }
+
+                const level2Radio = level2Group.querySelector("[data-slot-radio]")
+                if (!level2Radio) {
+                    throw new Error("No selectable spell slot found in level 2 group")
+                }
+
+                level2Radio.checked = true
+                level2Radio.dispatchEvent(new Event("change", {bubbles: true}))
+                await waiters.waitForNextFrame()
+
+                const confirmButton =
+                    dialog.querySelector("[data-action='confirm']")
+
+                if (!confirmButton) {
+                    throw new Error("Hag Spell Recovery confirm button not found")
+                }
+
+                confirmButton.click()
+                await waiters.waitForNextFrame()
+
+                await waiters.waitForCondition(() =>
+                    document.querySelector(".hag-spell-recovery") == null
+                )
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, expect, waiters, staticVars}) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.system.spells.spell2.value === staticVars.initialSpell2Value + 1 &&
+                    actor.items.get(staticVars.classItemId)?.system?.hd?.value ===
+                    staticVars.initialHitDiceValue - 2
+                )
+
+                expect(actor.system.spells.spell1.value).to.equal(staticVars.initialSpell1Value)
+                expect(actor.system.spells.spell2.value).to.equal(staticVars.initialSpell2Value + 1)
+                expect(actor.system.spells.spell3.value).to.equal(staticVars.initialSpell3Value)
+                expect(
+                    actor.items.get(staticVars.classItemId)?.system?.hd?.value
+                ).to.equal(staticVars.initialHitDiceValue - 2)
+                expect(
+                    document.querySelector(".hag-spell-recovery") != null
+                ).to.equal(false)
+            }
+        },
+
+        {
+            name: `Grant Water Breathing rolls a hit die, removes the button, and keeps the roll visible`,
+
+            setup: async ({actor}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "hag": {
+                            1: "Compendium.transformations.gh-transformations.Item.uvXqAIXFpzl5Gb9G"
+                        }
+                    }
+                })
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Hag Form",
+                        choice: {
+                            id: "str",
+                            label: "Strength",
+                            icon: "modules/transformations/icons/abilities/Strength.svg",
+                            raw: "saves:str",
+                            value: "str"
+                        }
+                    }
+                ]
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                }
+            ],
+
+            steps: [
+                async ({actor, helpers, waiters, staticVars}) =>
+                {
+                    const foundCharacterClass = await helpers.getCharacterClass("Wizard")
+                    const classItem = await helpers.createActorItemAndWait(
+                        actor,
+                        foundCharacterClass,
+                        {
+                            setTransformationFlags: false,
+                            setDdbImporterFlag: false,
+                            applyAdvancements: false,
+                            levels: 4
+                        }
+                    )
+
+                    await classItem.update({
+                        "system.hd.value": 2,
+                        "system.hd.max": 4,
+                        "system.hd.spent": 2
+                    })
+
+                    staticVars.classItemId = classItem.id
+                    staticVars.initialHitDiceValue =
+                        actor.items.get(classItem.id)?.system?.hd?.value
+                    staticVars.initialMessageCount = game.messages.contents.length
+
+                    const masterOfTheSeaSisterhood = actor.items.find(item =>
+                        item.name === "Master of the Sea Sisterhood"
+                    )
+
+                    if (!masterOfTheSeaSisterhood) {
+                        throw new Error("Master of the Sea Sisterhood item not present on actor")
+                    }
+
+                    const activity = masterOfTheSeaSisterhood.system.activities.find(activity =>
+                        activity.name === "Grant Water Breathing"
+                    )
+
+                    if (!activity) {
+                        throw new Error("Grant Water Breathing activity not present on item")
+                    }
+
+                    const activityUseResult = await activity.use({actor})
+
+                    await waiters.waitForCondition(() =>
+                        game.messages.contents.length > staticVars.initialMessageCount
+                    )
+
+                    staticVars.message =
+                        game.messages.get(
+                            activityUseResult?.message?.id ??
+                            activityUseResult?.chatMessage?.id ??
+                            activityUseResult?.changes?.message?.id ??
+                            ""
+                        ) ??
+                        game.messages.contents.at(-1)
+
+                    staticVars.chatCardHelper = helpers.createChatCardTestHelper({
+                        message: staticVars.message
+                    })
+                }
+            ],
+
+            await: async ({staticVars}) =>
+            {
+                await staticVars.chatCardHelper.waitForCard()
+                await staticVars.chatCardHelper.waitForButton({
+                    text: "Roll Duration"
+                })
+            },
+
+            assertions: async ({actor, expect, helpers, waiters, staticVars}) =>
+            {
+                const {chatCardHelper, message} = staticVars
+                const rollHelper = helpers.createDeterministicRollHelper()
+
+                try {
+                    const card = chatCardHelper.getCardElement({require: true})
+
+                    expect(card).to.exist
+                    expect(card.dataset.hagActivity).to.equal("grantWaterBreathing")
+                    expect(message.flags?.transformations?.hagActivity).to.equal("grantWaterBreathing")
+                    expect(message.flags?.transformations?.state).to.equal("initial")
+                    expect(message.flags?.transformations?.hitDie).to.equal("d6")
+
+                    chatCardHelper.assertButtonExists({
+                        text: "Roll Duration"
+                    }, expect)
+
+                    rollHelper.queueRoll({
+                        formula: "d6",
+                        total: 4,
+                        diceResults: [4]
+                    })
+
+                    await waiters.waitForCondition(() =>
+                        chatCardHelper.getLiveRoot()
+                        ?.querySelector?.("[data-transformations-action='rollDuration']") != null
+                    )
+
+                    const liveRollButton = chatCardHelper.getLiveRoot()
+                    .querySelector("[data-transformations-action='rollDuration']")
+
+                    if (!liveRollButton) {
+                        throw new Error("Live Grant Water Breathing roll button not found")
+                    }
+
+                    liveRollButton.click()
+                    await waiters.waitForNextFrame()
+
+                    await waiters.waitForCondition(() =>
+                        rollHelper.getCalls().some(call =>
+                            call.type === "roll" &&
+                            call.formula === "d6"
+                        )
+                    )
+
+                    await waiters.waitForCondition(() =>
+                        actor.items.get(staticVars.classItemId)?.system?.hd?.value ===
+                        staticVars.initialHitDiceValue - 1
+                    )
+
+                    const presentedRolls =
+                        await chatCardHelper.waitForPresentedRolls({count: 1})
+
+                    await waiters.waitForCondition(() =>
+                        chatCardHelper.getCardElement()?.dataset?.state === "rolled"
+                    )
+
+                    const rolledCard = chatCardHelper.getCardElement({require: true})
+                    const currentMessage = chatCardHelper.getMessage()
+
+                    expect(presentedRolls[0]?.formula).to.equal("1d6")
+                    expect(presentedRolls[0]?.total).to.equal(4)
+                    expect(rolledCard.dataset.state).to.equal("rolled")
+                    expect(chatCardHelper.hasButton({
+                        text: "Roll Duration"
+                    })).to.equal(false)
+
+                    await currentMessage.update({
+                        "flags.transformations.grantWaterBreathingPersistenceCheck": true
+                    })
+                    await waiters.waitForNextFrame()
+
+                    expect(chatCardHelper.getPresentedRolls()[0]?.total).to.equal(4)
+                    expect(
+                        actor.items.get(staticVars.classItemId)?.system?.hd?.value
+                    ).to.equal(staticVars.initialHitDiceValue - 1)
+                } finally {
+                    rollHelper.restore()
+                }
             }
         }
     ]

@@ -100,6 +100,7 @@ export function registerDnd5eHooks({
     transformationService,
     transformationRegistry,
     actorRepository,
+    itemRepository,
     dialogFactory,
     triggerRuntime,
     onceService,
@@ -484,7 +485,9 @@ export function registerDnd5eHooks({
             usage,
             changes.message,
             actorRepository,
-            ChatMessagePartInjector
+            ChatMessagePartInjector,
+            itemRepository,
+            dialogFactory
         )
 
     })

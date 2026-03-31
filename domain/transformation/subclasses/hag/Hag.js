@@ -1,4 +1,7 @@
 import { Transformation } from "../../Transformation.js"
+import { createHagsEye } from "./Activities/CreateHagsEye.js"
+import { GrantWaterBreathing } from "./Activities/GrantWaterBreathing.js"
+import { hagSpellRecovery } from "./Activities/HagSpellRecovery.js"
 
 /**
  * Domain subclass.
@@ -31,4 +34,69 @@ export class Hag extends Transformation
         )
     }
 
+    static async onRenderChatMessage({
+        message,
+        html,
+        actor,
+        actorRepository,
+        ChatMessagePartInjector,
+        RollService,
+        logger
+    })
+    {
+        if (!actor?.isOwner) return
+
+        if (message?.flags?.transformations?.hagActivity === GrantWaterBreathing.id) {
+            GrantWaterBreathing.bind({
+                actor,
+                message,
+                html,
+                actorRepository,
+                ChatMessagePartInjector,
+                RollService,
+                logger
+            })
+        }
+    }
+
+    static async onActivityUse(
+        activity,
+        usage,
+        message,
+        actorRepository,
+        ChatMessagePartInjector,
+        itemRepository,
+        dialogFactory
+    )
+    {
+        const activityName = activity.name
+        const itemName = activity?.parent?.parent?.name ?? activity?.parent?.name ?? usage?.workflow?.item?.name
+        switch (activityName) {
+            case "Midi Use":
+                switch (itemName) {
+                    case "Create Hag's Eye":
+                        await createHagsEye({
+                            actor: usage?.workflow?.actor,
+                            itemRepository
+                        })
+                        break
+                }
+                break
+            case "Hag Spell Recovery":
+                await hagSpellRecovery({
+                    actor: usage?.workflow?.actor,
+                    actorRepository,
+                    dialogFactory
+                })
+                break
+            case "Grant Water Breathing":
+                await GrantWaterBreathing.activityUse({
+                    actor: usage?.workflow?.actor,
+                    message,
+                    actorRepository,
+                    ChatMessagePartInjector
+                })
+                break
+        }
+    }
 }
