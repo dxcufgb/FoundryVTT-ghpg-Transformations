@@ -12,6 +12,8 @@ import { waitForDomainStability } from "../../helpers/waitForDomainStability.js"
 import { setupTest } from "../../testLifecycle.js"
 import { chooseDamageResistanceOnStage1 } from "../../helpers/fiend/chooseDamageResistanceOnStage1.js";
 import { createChatCardTestHelper, createDeterministicRollHelper } from "../../helpers/index.js";
+import { chooseSaveProficiencyOnStage1 } from "../../helpers/hag/chooseSaveProficiencyOnStage1.js";
+import { chooseTransformationChoiceByUuid } from "../../helpers/hag/chooseTransformationChoiceByUuid.js";
 
 export function runTransformationTestSuite({
     mochaFunctions,
@@ -34,6 +36,10 @@ export function runTransformationTestSuite({
         },
         fiend: {
             chooseDamageResistanceOnStage1
+        },
+        hag: {
+            chooseSaveProficiencyOnStage1,
+            chooseTransformationChoiceByUuid
         }
     }
     const waiters = {
@@ -291,7 +297,7 @@ export function runTransformationTestSuite({
                         if (behavior.trigger) {
                             const triggerValue =
                                       typeof behavior.trigger === "function"
-                                          ? behavior.trigger(loopVars)
+                                          ? behavior.trigger({actor, runtime, helpers, waiters, loopVars, staticVars})
                                           : behavior.trigger
 
                             await triggerFunction(runtime, triggerValue, actor)

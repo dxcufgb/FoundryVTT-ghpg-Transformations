@@ -32,10 +32,75 @@ function resolveActorFromSubject(subject)
     )
 }
 
+async function resolveItemFromContext(context)
+{
+    const actor = resolveActorFromSubject(context?.subject)
+    const workflowItem = context?.workflow?.item ?? null
+
+    if (workflowItem) {
+        await clearSavedItemReference(actor)
+        return normalizeTriggerItem(workflowItem)
+    }
+
+    const savedItemUuid =
+              actor?.flags?.transformations?.saveItemUuid ??
+              actor?.getFlag?.("transformations", "saveItemUuid") ??
+              null
+
+    if (!savedItemUuid) {
+        await clearSavedItemReference(actor)
+        return null
+    }
+
+    const uuidResolver =
+              globalThis?.fromUuid ??
+              (typeof fromUuid === "function" ? fromUuid : null)
+
+    const item = uuidResolver
+        ? await uuidResolver(savedItemUuid)
+        : null
+
+    await clearSavedItemReference(actor)
+
+    return normalizeTriggerItem(item, savedItemUuid)
+}
+
+function normalizeTriggerItem(item, fallbackSourceUuid = null)
+{
+    if (!item && !fallbackSourceUuid) return null
+
+    const sourceUuid =
+              item?.flags?.transformations?.sourceUuid ??
+              fallbackSourceUuid ??
+              null
+
+    return {
+        id: item?.id ?? null,
+        name: item?.name ?? null,
+        uuid: item?.uuid ?? sourceUuid,
+        sourceUuid
+    }
+}
+
+async function clearSavedItemReference(actor)
+{
+    if (!actor) return
+
+    if (typeof actor.unsetFlag === "function") {
+        await actor.unsetFlag("transformations", "saveItemUuid")
+        return
+    }
+
+    if (typeof actor.setFlag === "function") {
+        await actor.setFlag("transformations", "saveItemUuid", null)
+    }
+}
+
 export function registerDnd5eHooks({
     transformationService,
     transformationRegistry,
     actorRepository,
+    itemRepository,
     dialogFactory,
     triggerRuntime,
     onceService,
@@ -110,8 +175,8 @@ export function registerDnd5eHooks({
         debouncedTracker.pulse(pulseName)
 
         if (!actor || !roll) return
-
-        ;(async () =>
+            ;
+        (async () =>
         {
             await dispatchTransformationRoll({
                 hookName,
@@ -137,28 +202,28 @@ export function registerDnd5eHooks({
         const natural = getNaturalRoll(roll)
 
         ;(async () =>
-        {
-            await dispatchTransformationRoll({
-                hookName,
-                actor,
-                rolls,
-                roll,
-                context
-            })
+    {
+        await dispatchTransformationRoll({
+            hookName,
+            actor,
+            rolls,
+            roll,
+            context
+        })
 
-            if (hasProcessedRoll(roll, "skillCheck")) return
+        if (hasProcessedRoll(roll, "skillCheck")) return
 
-            await triggerRuntime.run("skillCheck", actor, {
-                checks: {
-                    current: {
-                        ability: context.ability,
-                        skill: context.skill,
-                        naturalRoll: natural,
-                        total: roll.total
-                    }
+        await triggerRuntime.run("skillCheck", actor, {
+            checks: {
+                current: {
+                    ability: context.ability,
+                    skill: context.skill,
+                    naturalRoll: natural,
+                    total: roll.total
                 }
-            })
-        })()
+            }
+        })
+    })()
     }
 
     Hooks.on("dnd5e.damageActor", (actor) =>
@@ -263,6 +328,8 @@ export function registerDnd5eHooks({
 
         (async () =>
         {
+            const item = await resolveItemFromContext(context)
+
             await dispatchTransformationRoll({
                 hookName: "dnd5e.rollSavingThrow",
                 actor,
@@ -276,6 +343,7 @@ export function registerDnd5eHooks({
                     current: {
                         ability: context.ability,
                         isSpell: context?.subject?.getFlag("transformations", "saveIsSpell"),
+                        item: item,
                         naturalRoll: natural,
                         total: roll.total,
                         success: roll.isSuccess
@@ -417,7 +485,9 @@ export function registerDnd5eHooks({
             usage,
             changes.message,
             actorRepository,
-            ChatMessagePartInjector
+            ChatMessagePartInjector,
+            itemRepository,
+            dialogFactory
         )
 
     })

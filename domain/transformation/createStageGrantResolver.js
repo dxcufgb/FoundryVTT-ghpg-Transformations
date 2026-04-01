@@ -11,14 +11,14 @@ export function createStageGrantResolver({
         stage
     })
     {
-        logger.debug("createStageGrantResolver.resolve", { definition, stage })
+        logger.debug("createStageGrantResolver.resolve", {definition, stage})
         if (!definition || !stage) {
             return empty()
         }
 
         const stageDef =
-            definition.stages?.get?.(stage) ??
-            definition.stages?.[stage]
+                  definition.stages?.get?.(stage) ??
+                  definition.stages?.[stage]
 
         if (!stageDef) {
             return empty()
@@ -42,12 +42,13 @@ export function createStageGrantResolver({
 
     function normalizeItems(items = [])
     {
-        logger.debug("createStageGrantResolver.normalizeItems", { items })
+        logger.debug("createStageGrantResolver.normalizeItems", {items})
         if (!Array.isArray(items)) return []
 
         return items.map(item => ({
             uuid: item.uuid,
-            replacesUuid: item.replaces?.uuid ?? null,
+            requiresUuids: normalizeRequiredItems(item.requires?.items),
+            replacesUuid: normalizeUuidReference(item.replaces),
             overrides: item.overrides ?? null,
             postCreateScript: item.postCreateScript ?? null
         }))
@@ -81,11 +82,32 @@ export function createStageGrantResolver({
 
         if (!grantsDef) return false
 
-        if (grantsDef.requires?.items?.length) {
-            const actorHasItems = requiresService.actorHasItems({ actor, items: grantsDef.requires.items })
+        const requiredItems = normalizeRequiredItems(grantsDef.requires?.items)
+
+        if (requiredItems.length) {
+            const actorHasItems = requiresService.actorHasItems({
+                actor,
+                items: requiredItems
+            })
             if (!actorHasItems) return false
         }
 
         return true
+    }
+
+    function normalizeRequiredItems(items)
+    {
+        if (!items) return []
+        return Array.isArray(items) ? items : [items]
+    }
+
+    function normalizeUuidReference(reference)
+    {
+        if (!reference) return null
+
+        if (typeof reference === "string")
+            return reference
+
+        return reference.uuid ?? null
     }
 }

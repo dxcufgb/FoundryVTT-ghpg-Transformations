@@ -1,4 +1,13 @@
-import { DAMAGE_TYPE_CHOICES, SKILL_CHOICES } from "./advancementCatalog.js"
+import {
+    DAMAGE_TYPE_CHOICES,
+    SAVE_CHOICES,
+    SKILL_CHOICES
+} from "./advancementCatalog.js"
+import {
+    createSkillChoiceDescription,
+    createSkillChoiceName,
+    resolveSkillChoiceValue
+} from "./advancementSkillResolver.js"
 
 export function createAdvancementChoiceHandler({
     activeEffectRepository,
@@ -12,6 +21,7 @@ export function createAdvancementChoiceHandler({
 
     const handlers = Object.freeze({
         dr: createDamageResistanceChoices,
+        saves: createSaveChoices,
         skills: createSkillChoices
     })
 
@@ -148,6 +158,78 @@ export function createAdvancementChoiceHandler({
         return results.every(Boolean)
     }
 
+    async function chooseItemPool({
+        actor,
+        itemChoices = [],
+        numberOfChoices = 1,
+        sourceItem = null
+    })
+    {
+        logger.debug("advancementChoiceHandler.chooseItemPool", {
+            actor,
+            itemChoices,
+            numberOfChoices,
+            sourceItem
+        })
+
+        if (!Array.isArray(itemChoices) || !itemChoices.length) {
+            return null
+        }
+
+        const choiceCount = Math.min(
+            Math.max(Number(numberOfChoices) || 1, 1),
+            itemChoices.length
+        )
+
+        if (choiceCount !== 1) {
+            logger.warn(
+                "Advancement item choice pool currently supports single selection only",
+                itemChoices
+            )
+            return null
+        }
+
+        const dialogFactory = getDialogFactory?.()
+        if (!dialogFactory?.openStageChoiceDialog) {
+            logger.warn(
+                "Advancement item choice skipped: choice dialog not available",
+                itemChoices
+            )
+            return null
+        }
+
+        const testChoice = globalThis.___TransformationTestEnvironment___
+            ?.choosenAdvancement
+            ?.find(choice => choice.name === sourceItem?.name)
+
+        const selectedUuid = testChoice
+            ? normalizeSelectedItemUuid(testChoice.choice)
+            : await promptForItemPoolChoice({
+                actor,
+                dialogFactory,
+                choices: itemChoices,
+                sourceItem
+            })
+
+        if (!selectedUuid) {
+            return false
+        }
+
+        const selectedChoice = itemChoices.find(choice =>
+            choice.uuid === selectedUuid
+        )
+
+        if (!selectedChoice) {
+            logger.warn(
+                "Advancement item choice dialog returned unknown selection",
+                selectedUuid
+            )
+            return null
+        }
+
+        return selectedChoice
+    }
+
     function parseChoices(advancementChoices = [])
     {
         logger.debug("advancementChoiceHandler.parseChoices", {
@@ -207,6 +289,8 @@ export function createAdvancementChoiceHandler({
         switch (type) {
             case "skills":
                 return Object.keys(SKILL_CHOICES)
+            case "saves":
+                return Object.keys(SAVE_CHOICES)
             case "dr":
                 return Object.keys(DAMAGE_TYPE_CHOICES)
             default:
@@ -317,6 +401,57 @@ export function createAdvancementChoiceHandler({
         }
     }
 
+    function createSaveChoices(parsedChoices = [], choicesCount)
+    {
+        logger.debug("advancementChoiceHandler.createSaveChoices", {
+            parsedChoices
+        })
+
+        const choices = parsedChoices.flatMap(choice =>
+        {
+            const entry = SAVE_CHOICES[choice.value]
+
+            if (!entry) {
+                logger.warn(
+                    "Unknown save advancement choice",
+                    choice.value
+                )
+                return []
+            }
+
+            return [{
+                ...entry,
+                raw: choice.raw,
+                value: choice.value
+            }]
+        })
+
+        return {
+            choices,
+            title: "Choose saving throw proficiency",
+            description:
+                `Choose ${choicesCount} saving throw proficiency from the available options.`,
+            getSelection: ({actor, sourceItem, selectedChoice}) =>
+                buildSaveChoiceEffectData({
+                    actor,
+                    sourceItem,
+                    selectedChoice
+                }) ?? [],
+            getSelectionChanges: ({actor, sourceItem, selectedChoice}) =>
+                buildSaveChoiceEffectData({
+                    actor,
+                    sourceItem,
+                    selectedChoice
+                })?.changes ?? [],
+            applySelection: ({actor, sourceItem, selectedChoice}) =>
+                applySaveChoice({
+                    actor,
+                    sourceItem,
+                    selectedChoice
+                })
+        }
+    }
+
     async function promptForChoice({
         actor,
         dialogFactory,
@@ -367,6 +502,35 @@ export function createAdvancementChoiceHandler({
             : selectedChoices
     }
 
+    async function promptForItemPoolChoice({
+        actor,
+        dialogFactory,
+        choices,
+        sourceItem
+    })
+    {
+        logger.debug("advancementChoiceHandler.promptForItemPoolChoice", {
+            actor,
+            choices,
+            sourceItem
+        })
+
+        return dialogFactory.openStageChoiceDialog({
+            actor,
+            choices,
+            stage:
+                `advancement-${sourceItem?.id ?? sourceItem?.uuid ?? sourceItem?.name ?? actor?.id ?? "item"}`
+        })
+    }
+
+    function normalizeSelectedItemUuid(choice)
+    {
+        if (typeof choice === "string")
+            return choice
+
+        return choice?.uuid ?? choice?.id ?? null
+    }
+
     async function applyDamageResistanceChoice({
         actor,
         sourceItem,
@@ -406,7 +570,8 @@ export function createAdvancementChoiceHandler({
         const mode = selectedChoice.mode ?? "forcedExpertise"
         const resolvedSkillValue = resolveSkillChoiceValue({
             currentValue: skillValue,
-            mode
+            mode,
+            logger
         })
 
         if (resolvedSkillValue == null) {
@@ -426,6 +591,29 @@ export function createAdvancementChoiceHandler({
         })
 
         if (!effectData) return false
+
+        const effect = await activeEffectRepository.create(effectData)
+
+        return effect != null
+    }
+
+    async function applySaveChoice({
+        actor,
+        sourceItem,
+        selectedChoice
+    })
+    {
+        logger.debug("advancementChoiceHandler.applySaveChoice", {
+            actor,
+            sourceItem,
+            selectedChoice
+        })
+
+        const effectData = buildSaveChoiceEffectData({
+            actor,
+            sourceItem,
+            selectedChoice
+        })
 
         const effect = await activeEffectRepository.create(effectData)
 
@@ -475,7 +663,8 @@ export function createAdvancementChoiceHandler({
         const mode = selectedChoice.mode ?? "forcedExpertise"
         const resolvedSkillValue = resolveSkillChoiceValue({
             currentValue: skillValue,
-            mode
+            mode,
+            logger
         })
 
         if (resolvedSkillValue == null) {
@@ -509,50 +698,41 @@ export function createAdvancementChoiceHandler({
         }
     }
 
-    function resolveSkillChoiceValue({
-        currentValue,
-        mode
+    function buildSaveChoiceEffectData({
+        actor,
+        sourceItem,
+        selectedChoice
     })
     {
-        switch (mode) {
-            case "expertise":
-                return currentValue >= 1 ? 2 : null
-            case "forcedExpertise":
-                return 2
-            case "upgrade":
-                return currentValue >= 1 ? 2 : 1
-            default:
-                logger.warn(
-                    "Unknown skill advancement mode",
-                    mode
-                )
-                return null
+        return {
+            actor,
+            name: `Saving Throw Proficiency: ${selectedChoice.label}`,
+            label: selectedChoice.label,
+            description:
+                `Gain proficiency in ${selectedChoice.label.toLowerCase()} saving throws.`,
+            source: "transformation",
+            icon: selectedChoice.icon,
+            origin: sourceItem?.uuid ?? actor?.uuid ?? "",
+            saveIdentifier: selectedChoice.value,
+            changes: [{
+                key: `system.abilities.${selectedChoice.value}.proficient`,
+                mode: globalThis.CONST?.ACTIVE_EFFECT_MODES?.UPGRADE ?? 4,
+                value: 1
+            }],
+            flags: {
+                dnd5e: {
+                    hidden: true
+                },
+                transformations: {
+                    advancementChoice: selectedChoice.raw,
+                    advancementChoiceType: "save"
+                }
+            }
         }
-    }
-
-    function createSkillChoiceName(label, mode, resolvedSkillValue)
-    {
-        if (mode === "upgrade" && resolvedSkillValue === 1) {
-            return `Skill Proficiency: ${label}`
-        }
-
-        return `Skill Expertise: ${label}`
-    }
-
-    function createSkillChoiceDescription(label, mode, resolvedSkillValue)
-    {
-        if (mode === "upgrade" && resolvedSkillValue === 1) {
-            return `Gain proficiency in ${label}.`
-        }
-
-        if (mode === "expertise") {
-            return `Gain expertise in ${label} if you are already proficient.`
-        }
-
-        return `Gain expertise in ${label}.`
     }
 
     return Object.freeze({
-        choose
+        choose,
+        chooseItemPool
     })
 }

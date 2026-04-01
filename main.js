@@ -152,6 +152,7 @@ Hooks.once("setup", async () =>
         triggerRuntime: services.triggerRuntime,
         onceService: infrastructure.onceService,
         actorRepository: infrastructure.actorRepository,
+        itemRepository: infrastructure.itemRepository,
         activeEffectRepository: infrastructure.activeEffectRepository,
         dialogFactory: moduleUi.dialogs,
         ChatMessagePartInjector: moduleUi.ChatMessagePartInjector,

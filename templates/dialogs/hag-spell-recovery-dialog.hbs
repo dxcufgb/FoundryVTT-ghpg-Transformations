@@ -1,0 +1,96 @@
+<div class="hag-spell-recovery">
+    <p class="hag-spell-recovery__description">
+        Recover one expended spell slot by spending Hit Point Dice equal to the slot's level.
+        You can recover a spell slot of a level no higher than one third of your character level, rounded up.
+    </p>
+
+    <div class="hag-spell-recovery__summary">
+        <div class="hag-spell-recovery__stat">
+            <span class="hag-spell-recovery__stat-label">
+                Hit Dice Available
+            </span>
+            <strong class="hag-spell-recovery__stat-value">
+                {{availableHitDice}}
+            </strong>
+        </div>
+
+        <div class="hag-spell-recovery__stat">
+            <span class="hag-spell-recovery__stat-label">
+                Character Level
+            </span>
+            <strong class="hag-spell-recovery__stat-value">
+                {{characterLevel}}
+            </strong>
+        </div>
+
+        <div class="hag-spell-recovery__stat">
+            <span class="hag-spell-recovery__stat-label">
+                Max Slot Level
+            </span>
+            <strong class="hag-spell-recovery__stat-value">
+                {{maxRecoverableLevel}}
+            </strong>
+        </div>
+
+        <div class="hag-spell-recovery__stat">
+            <span class="hag-spell-recovery__stat-label">
+                Selected Cost
+            </span>
+            <strong class="hag-spell-recovery__stat-value" data-selected-cost>
+                0
+            </strong>
+        </div>
+    </div>
+
+    {{#if hasRecoverableSlots}}
+        <div class="hag-spell-recovery__groups">
+            {{#each groups}}
+                <fieldset class="hag-spell-recovery__group">
+                    <legend class="hag-spell-recovery__legend">
+                        {{label}}
+                    </legend>
+
+                    <div class="hag-spell-recovery__level">
+                        {{level}}
+                    </div>
+
+                    <div class="hag-spell-recovery__options"
+                         aria-label="{{label}}">
+                        {{#each options}}
+                            <label class="hag-spell-recovery__slot"
+                                   title="{{label}} (cost: {{cost}})">
+                                <input
+                                    type="radio"
+                                    name="hag-spell-recovery-choice"
+                                    data-slot-radio
+                                    data-slot-key="{{slotKey}}"
+                                    data-slot-level="{{level}}"
+                                    data-slot-cost="{{cost}}"
+                                    data-slot-type="{{slotType}}"
+                                    aria-label="{{label}} (cost: {{cost}})">
+                                <span class="hag-spell-recovery__slot-mark"
+                                      aria-hidden="true"></span>
+                            </label>
+                        {{/each}}
+                    </div>
+                </fieldset>
+            {{/each}}
+        </div>
+
+        <div class="hag-spell-recovery__actions">
+            <button type="button" data-action="confirm" disabled>
+                Recover Spell Slot
+            </button>
+        </div>
+    {{else}}
+        <p class="hag-spell-recovery__empty">
+            No eligible expended spell slots can be recovered.
+        </p>
+
+        <div class="hag-spell-recovery__actions">
+            <button type="button" data-action="close">
+                Close
+            </button>
+        </div>
+    {{/if}}
+</div>

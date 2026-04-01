@@ -11,10 +11,26 @@ export class ActivityDTOValidator extends BaseDTOValidator
 
         activationType: path("activity.activation.type").equals(),
         saveDc: path("activity.save.dc.value").equals(),
+        checkDc: path("activity.check.dc.value").equals(),
         spellUuid: path("activity.spell.uuid").equals(),
         attackBonus: path("activity.attack.bonus").equals(),
+        usesLeft: resolve(ctx =>
+        {
+            const uses = ctx.activity?.uses
+            if (!uses) return null
+
+            if (uses.value != null)
+                return uses.value
+
+            if (uses.max != null && uses.spent != null)
+                return Math.max((uses.max ?? 0) - (uses.spent ?? 0), 0)
+
+            return null
+        }).equals(),
         abilityTypes: resolve(ctx => Array.from(ctx.activity.availableAbilities ?? [])).equalsArray(),
         saveAbility: resolve(ctx => Array.from(ctx.activity.save?.ability ?? [])).equalsArray(),
+        checkAbility: resolve(ctx => Array.from(ctx.activity.check?.ability ?? [])).equalsArray(),
+        checkAssociated: resolve(ctx => Array.from(ctx.activity.check?.associated ?? [])).equalsArray(),
         isConcentration: path("activity.duration.concentration").equals()
     }
 
@@ -28,7 +44,7 @@ export class ActivityDTOValidator extends BaseDTOValidator
             throw new Error(`[${this.path}] Missing activity`)
 
         // run rule DSL
-        super.validate(this.buildValidationDTO(dto), { activity })
+        super.validate(this.buildValidationDTO(dto), {activity})
 
         this.validateDamageParts(activity, dto.damageParts)
         // this.validateConsumption(activity, dto.consumption)

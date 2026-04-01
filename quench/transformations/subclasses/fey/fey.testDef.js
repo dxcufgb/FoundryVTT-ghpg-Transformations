@@ -1450,7 +1450,6 @@ export const feyTestDef = {
                         })
                         activity.addDamagePart(damagePart =>
                         {
-                            damagePart.bonus = "@mod"
                             damagePart.roll = "2d6"
                             damagePart.numberOfTypes = 1
                             damagePart.damageTypes = ["psychic"]

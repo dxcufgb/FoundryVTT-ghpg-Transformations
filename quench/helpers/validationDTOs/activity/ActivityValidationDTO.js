@@ -1,5 +1,7 @@
 import { ActivityDTOValidator } from "../../DTOValidators/ActivityDTOValidator.js"
 import { ActivityDurationDTOValidator } from "../../DTOValidators/ActivityDurationDTOValidator.js"
+import { ActivityUsesDTOValidator } from "../../DTOValidators/ActivityUsesDTOValidator.js"
+import { ActivityUsesRecoveryDTOValidator } from "../../DTOValidators/ActivityUsesRecoveryDTOValidator.js"
 import { AffectsDTOValidator } from "../../DTOValidators/AffectsDTOValidator.js"
 import { ConsumptionValidationDTO } from "../consumption/ConsumptionValidationDTO.js"
 import { DamagePartValidationDTO } from "../damagePart/DamagePartValidationDTO.js"
@@ -12,7 +14,8 @@ import { TemplateDTOValidator } from "../../DTOValidators/TemplateDTOValidator.j
 export class ActivityValidationDTO
 {
     static validator = ActivityDTOValidator
-    constructor ()
+
+    constructor()
     {
         this.name = null
         this.abilityTypes = null
@@ -22,7 +25,11 @@ export class ActivityValidationDTO
         this.saveAbility = null
         this.saveDc = null
 
+        this.checkAbility = null
+        this.checkDc = null
+
         this.spellUuid = null
+        this.usesLeft = null
 
         this.damageParts = [] // DamagePartValidationDTO[]
         this.consumption = new ConsumptionValidationDTO()
@@ -30,6 +37,7 @@ export class ActivityValidationDTO
         this.effects = []
         this.range = new RangeValidationDTO()
         this.target = new TargetValidationDTO()
+        this.uses = new ActivityUsesValidationDTO()
     }
 
     addDamagePart(configure)
@@ -65,7 +73,7 @@ class TargetValidationDTO
 {
     static validator = TargetDTOValidator
 
-    constructor ()
+    constructor()
     {
         this.affects = new AffectsValidationDTO()
         this.template = new TemplateValidationDTO()
@@ -79,7 +87,7 @@ class AffectsValidationDTO
 {
     static validator = AffectsDTOValidator
 
-    constructor ()
+    constructor()
     {
         this.choice = null
         this.count = null
@@ -93,7 +101,7 @@ class TemplateValidationDTO
 {
     static validator = TemplateDTOValidator
 
-    constructor ()
+    constructor()
     {
         this.contiguous = null
         this.count = null
@@ -108,7 +116,8 @@ class TemplateValidationDTO
 class ActivityDurationValidationDTO
 {
     static validator = ActivityDurationDTOValidator
-    constructor ()
+
+    constructor()
     {
         this.concentration = null
         this.override = null
@@ -116,5 +125,36 @@ class ActivityDurationValidationDTO
         this.special = null
         this.units = null
         this.value = null
+    }
+}
+
+class ActivityUsesValidationDTO
+{
+    static validator = ActivityUsesDTOValidator
+
+    constructor()
+    {
+        this.max = null
+        this.value = null
+        this.recovery = []
+    }
+
+    addRecovery(configure)
+    {
+        const dto = new ActivityUsesRecoveryValidationDTO()
+        configure(dto)
+        this.recovery.push(dto)
+        return this
+    }
+}
+
+class ActivityUsesRecoveryValidationDTO
+{
+    static validator = ActivityUsesRecoveryDTOValidator
+
+    constructor()
+    {
+        this.period = null
+        this.type = null
     }
 }

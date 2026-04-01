@@ -199,14 +199,15 @@ quench.registerBatch(
 
                     await flushAsyncWork()
 
-                    expect(
+                    const actualOnRollCalls =
                         harness.calls.onRoll.map(({actor: rolledActor, roll}) => ({
                             actorId: rolledActor.id,
                             hookName: roll.hookName,
                             natural: roll.natural,
                             total: roll.total
                         }))
-                    ).to.deep.equal([
+
+                    const expectedOnRollCalls = [
                         {actorId: "actor-1", hookName: "dnd5e.rollAbilityCheck", natural: 2, total: 7},
                         {actorId: "actor-1", hookName: "dnd5e.rollSavingThrow", natural: 3, total: 8},
                         {actorId: "actor-1", hookName: "dnd5e.rollSkill", natural: 4, total: 9},
@@ -215,7 +216,10 @@ quench.registerBatch(
                         {actorId: "actor-1", hookName: "dnd5e.rollConcentration", natural: 7, total: 12},
                         {actorId: "actor-1", hookName: "dnd5e.rollDeathSave", natural: 8, total: 13},
                         {actorId: "actor-1", hookName: "dnd5e.preRollInitiative", natural: 9, total: 14}
-                    ])
+                    ]
+
+                    expect(actualOnRollCalls).to.have.length(expectedOnRollCalls.length)
+                    expect(actualOnRollCalls).to.have.deep.members(expectedOnRollCalls)
                 } finally {
                     harness.restore()
                 }
@@ -243,6 +247,57 @@ quench.registerBatch(
                     expect(
                         harness.calls.triggerRuntime.filter(call => call.name === "skillCheck")
                     ).to.have.length(1)
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("includes originating item data when dispatching saving throw trigger context", async function()
+            {
+                const actor = createActor()
+                const harness = createHookHarness()
+                const sourceUuid =
+                          "Compendium.transformations.gh-transformations.Item.EIdDZiQTXHP8J1hU"
+                const item = {
+                    id: "item-1",
+                    name: "Hideous Appearance",
+                    uuid: "Actor.actor-1.Item.item-1",
+                    flags: {
+                        transformations: {
+                            sourceUuid
+                        }
+                    }
+                }
+
+                try {
+                    const callback = harness.callbacks.get("dnd5e.rollSavingThrow")
+                    expect(callback).to.be.a("function")
+
+                    callback(
+                        [createRoll({natural: 2, total: 7, isSuccess: false})],
+                        {
+                            subject: actor,
+                            ability: "wis",
+                            workflow: {
+                                item
+                            }
+                        }
+                    )
+
+                    await flushAsyncWork()
+
+                    const savingThrowCall =
+                              harness.calls.triggerRuntime.find(call =>
+                                  call.name === "savingThrow"
+                              )
+
+                    expect(savingThrowCall).to.exist
+                    expect(savingThrowCall.data?.saves?.current?.item).to.deep.equal({
+                        id: "item-1",
+                        name: "Hideous Appearance",
+                        uuid: "Actor.actor-1.Item.item-1",
+                        sourceUuid
+                    })
                 } finally {
                     harness.restore()
                 }

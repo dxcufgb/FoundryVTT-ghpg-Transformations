@@ -49,12 +49,27 @@ export function createItemRepository({
         return actor.items.filter(item => item.type === type) ?? null
     }
 
+    function findEmbeddedAwardedByItem(actor, parentItemUuid)
+    {
+        logger.debug("createItemRepository.findEmbeddedAwardedByItem", {
+            actor,
+            parentItemUuid
+        })
+        if (!actor || !parentItemUuid) return []
+
+        return actor.items.filter(item =>
+            item.flags?.transformations?.awardedByItem === parentItemUuid
+        )
+    }
+
     async function addTransformationItem({
         actor,
         sourceItem,
         replacesUuid,
         isPrerequisite,
-        postCreateScript = null
+        postCreateScript = null,
+        parentItem = "",
+        createOptions = {}
     })
     {
         logger.debug("createItemRepository.addTransformationItem", {
@@ -62,7 +77,9 @@ export function createItemRepository({
             sourceItem,
             replacesUuid,
             isPrerequisite,
-            postCreateScript
+            postCreateScript,
+            parentItem,
+            createOptions
         })
         if (!actor || !sourceItem) return null
 
@@ -91,11 +108,16 @@ export function createItemRepository({
                     const toRemove = findEmbeddedByUuidFlag(actor, replacesUuid)
 
                     if (toRemove) {
-                        await toRemove.delete()
+                        await deleteEmbeddedWithAwardedItems(actor, toRemove)
                     }
                 }
 
-                const created = await createObjectOnActor(actor, sourceItem)
+                const created = await createObjectOnActor(
+                    actor,
+                    sourceItem,
+                    parentItem,
+                    createOptions
+                )
 
                 if (created && postCreateScript) {
                     await runPostCreateScript({
@@ -429,6 +451,7 @@ export function createItemRepository({
         // queries
         findEmbeddedById,
         findEmbeddedByUuidFlag,
+        findEmbeddedAwardedByItem,
         getEmbeddedAddedByTransformation,
         findEmbeddedByType,
         findAllEmbeddedByType,
@@ -469,6 +492,7 @@ export function createItemRepository({
                     const grantApplied = await advancementGrantResolver.resolve({
                         actor,
                         grant,
+                        mode: advancementConfiguration.mode,
                         sourceItem: parentItem
                     })
 
@@ -481,16 +505,65 @@ export function createItemRepository({
                 }
             }
             if (advancementConfiguration.items) {
+                const createOptions = buildAdvancementItemCreateOptions(advancementConfiguration)
+
                 for (const item of advancementConfiguration.items) {
-                    const sourceItem = await fromUuid(item.uuid)
+                    const itemUuid =
+                              typeof item === "string"
+                                  ? item
+                                  : item?.uuid
+                    const sourceItem = await fromUuid(itemUuid)
                     await createObjectOnActor(
                         actor,
                         sourceItem,
-                        parentItem?.uuid ?? ""
+                        parentItem?.uuid ?? "",
+                        createOptions
                     )
                 }
             }
-            if (advancementConfiguration.choices) {
+            if (isItemPoolChoiceConfiguration(advancementConfiguration)) {
+                const createOptions =
+                          buildAdvancementItemCreateOptions(advancementConfiguration)
+                const totalChoices =
+                          resolveItemPoolChoiceCount(advancementConfiguration)
+                let remainingChoices = await buildAdvancementItemChoices(
+                    advancementConfiguration.pool
+                )
+                let selectedChoices = 0
+
+                while (
+                    selectedChoices < totalChoices &&
+                    remainingChoices.length > 0
+                    )
+                {
+                    const selectedChoice =
+                              await advancementChoiceHandler.chooseItemPool({
+                                  actor,
+                                  itemChoices: remainingChoices,
+                                  sourceItem: parentItem
+                              })
+
+                    if (!selectedChoice) {
+                        logger.warn(
+                            "Advancement item choice skipped: no selection returned",
+                            advancementConfiguration
+                        )
+                        break
+                    }
+
+                    await addTransformationItem({
+                        actor,
+                        sourceItem: selectedChoice.sourceItem,
+                        parentItem,
+                        createOptions
+                    })
+
+                    remainingChoices = remainingChoices.filter(choice =>
+                        choice.uuid !== selectedChoice.uuid
+                    )
+                    selectedChoices += 1
+                }
+            } else if (Array.isArray(advancementConfiguration.choices)) {
                 for (const choices of advancementConfiguration.choices) {
                     const choicePool = Array.isArray(choices?.pool)
                         ? choices.pool
@@ -514,8 +587,132 @@ export function createItemRepository({
                         )
                     }
                 }
+            } else if (advancementConfiguration.choices) {
+                logger.warn(
+                    "Advancement choice skipped: unsupported choice configuration",
+                    advancementConfiguration.choices
+                )
             }
         }
+    }
+
+    function isItemPoolChoiceConfiguration(advancementConfiguration)
+    {
+        return !Array.isArray(advancementConfiguration) &&
+            Array.isArray(advancementConfiguration?.pool) &&
+            advancementConfiguration.pool.every(entry =>
+                typeof entry === "string" || entry?.uuid != null
+            )
+    }
+
+    function resolveItemPoolChoiceCount(advancementConfiguration)
+    {
+        const firstChoice = Object.values(advancementConfiguration?.choices ?? {})[0]
+        return firstChoice?.count ?? 1
+    }
+
+    async function buildAdvancementItemChoices(pool = [])
+    {
+        const choices = []
+
+        for (const entry of pool) {
+            const uuid =
+                      typeof entry === "string"
+                          ? entry
+                          : entry?.uuid
+
+            if (!uuid) continue
+
+            const sourceItem = await fromUuid(uuid)
+            if (!sourceItem) {
+                logger.warn(
+                    "Advancement item choice skipped: item not found",
+                    uuid
+                )
+                continue
+            }
+
+            choices.push({
+                uuid,
+                name: sourceItem.name,
+                img: sourceItem.img,
+                description: sourceItem.system?.description?.value ?? "",
+                sourceItem
+            })
+        }
+
+        return choices
+    }
+
+    function buildAdvancementItemCreateOptions(advancementConfiguration = {})
+    {
+        const spellOverrides = buildAdvancementSpellOverrides(advancementConfiguration)
+
+        return Object.keys(spellOverrides).length > 0
+            ? {overrides: spellOverrides}
+            : {}
+    }
+
+    function buildAdvancementSpellOverrides(advancementConfiguration = {})
+    {
+        if (advancementConfiguration?.type !== "spell") {
+            return {}
+        }
+
+        const spellConfiguration = advancementConfiguration?.spell
+        if (!spellConfiguration || typeof spellConfiguration !== "object") {
+            return {}
+        }
+
+        const overrides = {}
+        const ability = resolveSpellAdvancementAbility(
+            spellConfiguration.ability
+        )
+
+        if (ability != null) {
+            overrides["system.ability"] = ability
+        }
+
+        if (spellConfiguration.method != null) {
+            overrides["system.method"] = spellConfiguration.method
+        }
+
+        if (spellConfiguration.prepared != null) {
+            overrides["system.prepared"] =
+                spellConfiguration.prepared
+        }
+
+        if (spellConfiguration.uses?.max != null) {
+            overrides["system.uses.max"] = spellConfiguration.uses.max
+            overrides["system.uses.value"] = spellConfiguration.uses.value
+        }
+
+        if (spellConfiguration.uses?.per != null) {
+            overrides["system.uses.recovery"] = [{
+                period: spellConfiguration.uses.per,
+                type: "recoverAll"
+            }]
+        }
+
+        if (spellConfiguration.uses?.requireSlot != null) {
+            overrides["system.uses.requireSlot"] =
+                spellConfiguration.uses.requireSlot
+        }
+
+        return overrides
+    }
+
+    function resolveSpellAdvancementAbility(ability)
+    {
+        if (typeof ability === "string" && ability.length > 0) {
+            return ability
+        }
+
+        if (Array.isArray(ability) && ability.length === 1) {
+            return ability[0] ?? null
+        }
+
+        return null
     }
 
     async function createObjectOnActor(actor, sourceItem, parentItem = "", options = {})
@@ -602,5 +799,39 @@ export function createItemRepository({
                 return created ?? null
             })()
         )
+    }
+
+    async function deleteEmbeddedWithAwardedItems(actor, item)
+    {
+        logger.debug("createItemRepository.deleteEmbeddedWithAwardedItems", {
+            actor,
+            item
+        })
+        if (!actor || !item) return
+
+        const itemsToDelete = collectItemAndAwardedDescendants(actor, item)
+        if (!itemsToDelete.length) return
+
+        debouncedTracker.pulse("deleteEmbeddedDocuments")
+        await actor.deleteEmbeddedDocuments(
+            "Item",
+            itemsToDelete.map(entry => entry.id)
+        )
+    }
+
+    function collectItemAndAwardedDescendants(actor, item, collected = new Map())
+    {
+        if (!actor || !item?.id || collected.has(item.id)) {
+            return Array.from(collected.values())
+        }
+
+        collected.set(item.id, item)
+
+        const awardedItems = findEmbeddedAwardedByItem(actor, item.uuid)
+        for (const awardedItem of awardedItems) {
+            collectItemAndAwardedDescendants(actor, awardedItem, collected)
+        }
+
+        return Array.from(collected.values())
     }
 }
