@@ -26,12 +26,18 @@ export class Hag extends Transformation
     static async onPreRollSavingThrow(context, actor, options = {})
     {
         this.logger?.debug?.("Hag.onPreRollSavingThrow", actor, context, options)
-        if (context.workflow?.item?.flags.transformations.sourceUuid !== "Compendium.transformations.gh-transformations.Item.EIdDZiQTXHP8J1hU") return
-        context.subject.setFlag(
-            "transformations",
-            "saveItemUuid",
-            "Compendium.transformations.gh-transformations.Item.EIdDZiQTXHP8J1hU"
-        )
+        const itemsWithCustomSavingThrowTriggers = [
+            "Compendium.transformations.gh-transformations.Item.EIdDZiQTXHP8J1hU",
+            "Compendium.transformations.gh-transformations.Item.6xN7rWi01hoqVLtv"
+        ]
+
+        if (itemsWithCustomSavingThrowTriggers.find(i => i === context.workflow?.item?.flags.transformations.sourceUuid)) {
+            context.subject.setFlag(
+                "transformations",
+                "saveItemUuid",
+                context.workflow?.item?.flags.transformations.sourceUuid
+            )
+        }
     }
 
     static async onRenderChatMessage({

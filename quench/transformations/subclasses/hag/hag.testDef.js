@@ -2,6 +2,84 @@
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js";
 import { validate } from "../../../helpers/DTOValidators/validate.js";
 
+function allowMockRollMessageUpdates(message)
+{
+    let latestRolls = null
+
+    const getRelatedMessages = () =>
+        [
+            message,
+            game.messages?.get(message?.id)
+        ]
+        .filter(Boolean)
+        .filter((candidate, index, collection) =>
+            collection.findIndex(entry => entry === candidate) === index
+        )
+
+    function applyRolls(rolls)
+    {
+        latestRolls = rolls
+
+        for (const currentMessage of getRelatedMessages()) {
+            Object.defineProperty(currentMessage, "rolls", {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value: rolls
+            })
+        }
+    }
+
+    function patchMessage(currentMessage)
+    {
+        if (!currentMessage || currentMessage.__mockRollsEnabled) {
+            if (currentMessage && Array.isArray(latestRolls)) {
+                applyRolls(latestRolls)
+            }
+            return
+        }
+
+        const originalUpdate = currentMessage.update.bind(currentMessage)
+
+        Object.defineProperty(currentMessage, "__mockRollsEnabled", {
+            configurable: true,
+            enumerable: false,
+            writable: true,
+            value: true
+        })
+
+        if (Array.isArray(latestRolls)) {
+            applyRolls(latestRolls)
+        }
+
+        currentMessage.update = async function update(data = {}, ...args)
+        {
+            if (Array.isArray(data?.rolls)) {
+                const {rolls, ...remaining} = data
+
+                applyRolls(rolls)
+
+                if (Object.keys(remaining).length === 0) {
+                    return this
+                }
+
+                const result = await originalUpdate(remaining, ...args)
+                applyRolls(rolls)
+                patchMessage(game.messages?.get(message?.id))
+                return result
+            }
+
+            const result = await originalUpdate(data, ...args)
+            patchMessage(game.messages?.get(message?.id))
+            return result
+        }
+    }
+
+    for (const currentMessage of getRelatedMessages()) {
+        patchMessage(currentMessage)
+    }
+}
+
 function getUiWindows()
 {
     if (!ui?.windows) return []
@@ -730,6 +808,208 @@ export const HagTestDef = {
                 })
                 validate(actorDto, {assert})
             }
+        },
+        {
+            name: `stage 4 with Evil Eye`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.uvXqAIXFpzl5Gb9G",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await helpers.hag.chooseSaveProficiencyOnStage1({
+                            waiters,
+                            runtime,
+                            actor,
+                            choice: "str"
+                        })
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.Xjl2r8LyJwtM1v9B",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            {
+                const actorCharismaModifier = actor.system.abilities.cha.mod
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.Xjl2r8LyJwtM1v9B",
+                    "Compendium.transformations.gh-transformations.Item.6xN7rWi01hoqVLtv"
+                ]
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Evil Eye"
+                    item.addActivity(activity => {
+                        activity.name = "Bloody Gaze"
+                        activity.activationType = "action"
+                        activity.addConsumption(consumption => {
+                            consumption.number = 1
+                            consumption.addTarget(target => {
+                                target.type = "activity"
+                                target.value = 1
+                            })
+                        })
+                        activity.uses.max = 1
+                        activity.uses.addRecovery(recovery => {
+                            recovery.period = "lr"
+                            recovery.type = "recoverAll"
+                        })
+                        activity.target.affects.type = "creature"
+                        activity.target.affects.count = 1
+                        activity.range.value = 30
+                        activity.range.unit = "ft"
+                        activity.saveDc = 14 + actorCharismaModifier
+                        activity.saveAbiliy = "wis"
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Arch-Crone’s Hunger"
+                    item.addActivity(activity => {
+                        activity.name = "Eat Normal Food"
+                        activity.activationType = "special"
+                        activity.saveDc = 18
+                        activity.saveAbiliy = "con"
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: (loopVars) => `stage 4 with Grandmothers Curse and ${loopVars.shadowsteelCurseName}`,
+            loop: () => [
+                {
+                    shadowsteelCurseName: "Curse of Uncontrollable Wrath",
+                    shadowsteelCurseUuid: "Compendium.transformations.gh-transformations.Item.5RfQnEucJf3qTMPE"
+                },
+                {
+                    shadowsteelCurseName: "Curse of Ravenous Hunger",
+                    shadowsteelCurseUuid: "Compendium.transformations.gh-transformations.Item.osLCRe9zw7pSqwtP"
+                },
+                {
+                    shadowsteelCurseName: "Curse of Lost Sentiment",
+                    shadowsteelCurseUuid: "Compendium.transformations.gh-transformations.Item.ldvsuYNMihg5LNt5"
+                },
+                {
+                    shadowsteelCurseName: "Curse of Insatiable Greed",
+                    shadowsteelCurseUuid: "Compendium.transformations.gh-transformations.Item.pQY1AvkxOmUQAor3"
+                },
+                {
+                    shadowsteelCurseName: "Curse of Ill-Fated Fortune",
+                    shadowsteelCurseUuid: "Compendium.transformations.gh-transformations.Item.9bwXQS1GB23Xuy8e"
+                },
+                {
+                    shadowsteelCurseName: "Curse of Foul Blight",
+                    shadowsteelCurseUuid: "Compendium.transformations.gh-transformations.Item.Coqe6hVJWyzuUH4C"
+                },
+                {
+                    shadowsteelCurseName: "Curse of Fastidious Pride",
+                    shadowsteelCurseUuid: "Compendium.transformations.gh-transformations.Item.ZoFVuJg59gqu6gSM"
+                },
+                {
+                    shadowsteelCurseName: "Curse of Damned Aging",
+                    shadowsteelCurseUuid: "Compendium.transformations.gh-transformations.Item.CjXLAAbjedJIYyCU"
+                },
+                {
+                    shadowsteelCurseName: "Curse of Crushing Sensation",
+                    shadowsteelCurseUuid: "Compendium.transformations.gh-transformations.Item.jLTfPpvW44ig6wWI"
+                },
+                {
+                    shadowsteelCurseName: "Curse of Conceited Obsession",
+                    shadowsteelCurseUuid: "Compendium.transformations.gh-transformations.Item.0vvQkWQdeXgf3QLR"
+                }
+            ],
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.uvXqAIXFpzl5Gb9G",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await helpers.hag.chooseSaveProficiencyOnStage1({
+                            waiters,
+                            runtime,
+                            actor,
+                            choice: "str"
+                        })
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.eG2vyH78glP3sdsV",
+                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    {
+                        await helpers.hag.chooseTransformationChoiceByUuid({
+                            waiters,
+                            runtime,
+                            actor,
+                            stage: 4,
+                            choiceUuid: loopVars.shadowsteelCurseUuid
+                        })
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            {
+                const actorCharismaModifier = actor.system.abilities.cha.mod
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    loopVars.shadowsteelCurseUuid,
+                    "Compendium.transformations.gh-transformations.Item.eG2vyH78glP3sdsV"
+                ]
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Grandmother’s Curse"
+                })
+                actorDto.addItem(item => {
+                    item.itemName = loopVars.shadowsteelCurseName
+                    item.type = "spell"
+                    item.uses.max = 1
+                    item.uses.value = 1
+                    item.uses.spent = 0
+                    item.uses.addRecovery(recovery => {
+                        recovery.period = "lr"
+                        recovery.type = "recoverAll"
+                    })
+                    item.prepared = 2
+                })
+                validate(actorDto, {assert})
+            }
         }
     ],
     itemBehaviorTests: [
@@ -1132,7 +1412,7 @@ export const HagTestDef = {
                 await waiters.waitForNextFrame()
 
                 const confirmButton =
-                    dialog.querySelector("[data-action='confirm']")
+                          dialog.querySelector("[data-action='confirm']")
 
                 if (!confirmButton) {
                     throw new Error("Hag Spell Recovery confirm button not found")
@@ -1288,6 +1568,8 @@ export const HagTestDef = {
                 const rollHelper = helpers.createDeterministicRollHelper()
 
                 try {
+                    allowMockRollMessageUpdates(staticVars.message)
+
                     const card = chatCardHelper.getCardElement({require: true})
 
                     expect(card).to.exist
@@ -1334,7 +1616,7 @@ export const HagTestDef = {
                     )
 
                     const presentedRolls =
-                        await chatCardHelper.waitForPresentedRolls({count: 1})
+                              await chatCardHelper.waitForPresentedRolls({count: 1})
 
                     await waiters.waitForCondition(() =>
                         chatCardHelper.getCardElement()?.dataset?.state === "rolled"
@@ -1362,6 +1644,218 @@ export const HagTestDef = {
                 } finally {
                     rollHelper.restore()
                 }
+            }
+        },
+
+        {
+            name: `Arch-crone's Hunger Eat Normal Food constitution saving throw success does not add exhaustion`,
+
+            setup: async ({actor}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "hag": {
+                            1: "Compendium.transformations.gh-transformations.Item.x72rfx8vOfW4PCLZ"
+                        }
+                    }
+                })
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Hag Form",
+                        choice: {
+                            id: "str",
+                            label: "Strength",
+                            icon: "modules/transformations/icons/abilities/Strength.svg",
+                            raw: "saves:str",
+                            value: "str"
+                        }
+                    },
+                    {
+                        name: "Master of the Green Sisterhood",
+                        choice: "Compendium.transformations.gh-transformations.Item.MPBBGWM5q6YwOZHU"
+                    }
+                ]
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.Xjl2r8LyJwtM1v9B"
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, staticVars}) =>
+                {
+                    staticVars.initialExhaustion = actor.system.attributes.exhaustion
+
+                    const archCronesHunger = actor.items.find(item =>
+                        item.flags?.transformations?.sourceUuid === "Compendium.transformations.gh-transformations.Item.6xN7rWi01hoqVLtv"
+                    )
+
+                    if (!archCronesHunger) {
+                        throw new Error("Arch-crone's Hunger item not present on actor")
+                    }
+
+                    const activity = archCronesHunger.system.activities.find(activity =>
+                        activity.name === "Eat Normal Food"
+                    )
+
+                    if (!activity) {
+                        throw new Error("Eat Normal Food activity not present on Arch-crone's Hunger")
+                    }
+
+                    const sourceArchCronesHunger =
+                        await fromUuid(archCronesHunger.flags.transformations.sourceUuid)
+
+                    await runtime.services.triggerRuntime.run("savingThrow", actor, {
+                        saves: {
+                            current: {
+                                ability: "con",
+                                isSpell: false,
+                                item: sourceArchCronesHunger,
+                                naturalRoll: 18,
+                                total: 18,
+                                success: true
+                            }
+                        }
+                    })
+                }
+            ],
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, assert, staticVars}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.stats.exhaustion = staticVars.initialExhaustion
+                validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: `Arch-crone's Hunger Eat Normal Food constitution saving throw failure adds exhaustion`,
+
+            setup: async ({actor}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "hag": {
+                            1: "Compendium.transformations.gh-transformations.Item.x72rfx8vOfW4PCLZ"
+                        }
+                    }
+                })
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Hag Form",
+                        choice: {
+                            id: "str",
+                            label: "Strength",
+                            icon: "modules/transformations/icons/abilities/Strength.svg",
+                            raw: "saves:str",
+                            value: "str"
+                        }
+                    },
+                    {
+                        name: "Master of the Green Sisterhood",
+                        choice: "Compendium.transformations.gh-transformations.Item.MPBBGWM5q6YwOZHU"
+                    }
+                ]
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.Xjl2r8LyJwtM1v9B"
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, staticVars}) =>
+                {
+                    staticVars.initialExhaustion = actor.system.attributes.exhaustion
+
+                    const archCronesHunger = actor.items.find(item =>
+                        item.flags?.transformations?.sourceUuid === "Compendium.transformations.gh-transformations.Item.6xN7rWi01hoqVLtv"
+                    )
+
+                    if (!archCronesHunger) {
+                        throw new Error("Arch-crone's Hunger item not present on actor")
+                    }
+
+                    const activity = archCronesHunger.system.activities.find(activity =>
+                        activity.name === "Eat Normal Food"
+                    )
+
+                    if (!activity) {
+                        throw new Error("Eat Normal Food activity not present on Arch-crone's Hunger")
+                    }
+
+                    const sourceArchCronesHunger =
+                        await fromUuid(archCronesHunger.flags.transformations.sourceUuid)
+
+                    await runtime.services.triggerRuntime.run("savingThrow", actor, {
+                        saves: {
+                            current: {
+                                ability: "con",
+                                isSpell: false,
+                                item: sourceArchCronesHunger,
+                                naturalRoll: 17,
+                                total: 17,
+                                success: false
+                            }
+                        }
+                    })
+                }
+            ],
+
+            await: async ({runtime, waiters, actor, staticVars}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await waiters.waitForCondition(() =>
+                    actor.system.attributes.exhaustion ===
+                    staticVars.initialExhaustion + 1
+                )
+            },
+
+            assertions: async ({actor, assert, staticVars}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.stats.exhaustion = staticVars.initialExhaustion + 1
+                validate(actorDto, {assert})
             }
         }
     ]

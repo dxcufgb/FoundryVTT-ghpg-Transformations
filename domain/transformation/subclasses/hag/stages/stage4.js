@@ -3,23 +3,17 @@ export const stage4 = {
     grants: {
         items: [
             {
-                uuid: "",
-                replaces: {
-                    uuid: ""
-                }
+                uuid: "Compendium.transformations.gh-transformations.Item.6xN7rWi01hoqVLtv"
             }
         ]
     },
     choices: {
         items: [
             {
-                uuid: "",
-                requires: {
-                    actor: "HAS_SPELL_SLOTS"
-                }
+                uuid: "Compendium.transformations.gh-transformations.Item.eG2vyH78glP3sdsV"
             },
             {
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.Xjl2r8LyJwtM1v9B"
             }
         ]
     }

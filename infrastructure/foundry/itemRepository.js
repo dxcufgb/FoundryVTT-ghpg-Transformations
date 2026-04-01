@@ -68,7 +68,8 @@ export function createItemRepository({
         replacesUuid,
         isPrerequisite,
         postCreateScript = null,
-        parentItem = ""
+        parentItem = "",
+        createOptions = {}
     })
     {
         logger.debug("createItemRepository.addTransformationItem", {
@@ -77,7 +78,8 @@ export function createItemRepository({
             replacesUuid,
             isPrerequisite,
             postCreateScript,
-            parentItem
+            parentItem,
+            createOptions
         })
         if (!actor || !sourceItem) return null
 
@@ -113,7 +115,8 @@ export function createItemRepository({
                 const created = await createObjectOnActor(
                     actor,
                     sourceItem,
-                    parentItem
+                    parentItem,
+                    createOptions
                 )
 
                 if (created && postCreateScript) {
@@ -502,18 +505,27 @@ export function createItemRepository({
                 }
             }
             if (advancementConfiguration.items) {
+                const createOptions = buildAdvancementItemCreateOptions(advancementConfiguration)
+
                 for (const item of advancementConfiguration.items) {
-                    const sourceItem = await fromUuid(item.uuid)
+                    const itemUuid =
+                              typeof item === "string"
+                                  ? item
+                                  : item?.uuid
+                    const sourceItem = await fromUuid(itemUuid)
                     await createObjectOnActor(
                         actor,
                         sourceItem,
-                        parentItem?.uuid ?? ""
+                        parentItem?.uuid ?? "",
+                        createOptions
                     )
                 }
             }
             if (isItemPoolChoiceConfiguration(advancementConfiguration)) {
+                const createOptions =
+                          buildAdvancementItemCreateOptions(advancementConfiguration)
                 const totalChoices =
-                    resolveItemPoolChoiceCount(advancementConfiguration)
+                          resolveItemPoolChoiceCount(advancementConfiguration)
                 let remainingChoices = await buildAdvancementItemChoices(
                     advancementConfiguration.pool
                 )
@@ -522,13 +534,14 @@ export function createItemRepository({
                 while (
                     selectedChoices < totalChoices &&
                     remainingChoices.length > 0
-                ) {
+                    )
+                {
                     const selectedChoice =
-                        await advancementChoiceHandler.chooseItemPool({
-                            actor,
-                            itemChoices: remainingChoices,
-                            sourceItem: parentItem
-                        })
+                              await advancementChoiceHandler.chooseItemPool({
+                                  actor,
+                                  itemChoices: remainingChoices,
+                                  sourceItem: parentItem
+                              })
 
                     if (!selectedChoice) {
                         logger.warn(
@@ -541,7 +554,8 @@ export function createItemRepository({
                     await addTransformationItem({
                         actor,
                         sourceItem: selectedChoice.sourceItem,
-                        parentItem
+                        parentItem,
+                        createOptions
                     })
 
                     remainingChoices = remainingChoices.filter(choice =>
@@ -628,6 +642,77 @@ export function createItemRepository({
         }
 
         return choices
+    }
+
+    function buildAdvancementItemCreateOptions(advancementConfiguration = {})
+    {
+        const spellOverrides = buildAdvancementSpellOverrides(advancementConfiguration)
+
+        return Object.keys(spellOverrides).length > 0
+            ? {overrides: spellOverrides}
+            : {}
+    }
+
+    function buildAdvancementSpellOverrides(advancementConfiguration = {})
+    {
+        if (advancementConfiguration?.type !== "spell") {
+            return {}
+        }
+
+        const spellConfiguration = advancementConfiguration?.spell
+        if (!spellConfiguration || typeof spellConfiguration !== "object") {
+            return {}
+        }
+
+        const overrides = {}
+        const ability = resolveSpellAdvancementAbility(
+            spellConfiguration.ability
+        )
+
+        if (ability != null) {
+            overrides["system.ability"] = ability
+        }
+
+        if (spellConfiguration.method != null) {
+            overrides["system.method"] = spellConfiguration.method
+        }
+
+        if (spellConfiguration.prepared != null) {
+            overrides["system.prepared"] =
+                spellConfiguration.prepared
+        }
+
+        if (spellConfiguration.uses?.max != null) {
+            overrides["system.uses.max"] = spellConfiguration.uses.max
+            overrides["system.uses.value"] = spellConfiguration.uses.value
+        }
+
+        if (spellConfiguration.uses?.per != null) {
+            overrides["system.uses.recovery"] = [{
+                period: spellConfiguration.uses.per,
+                type: "recoverAll"
+            }]
+        }
+
+        if (spellConfiguration.uses?.requireSlot != null) {
+            overrides["system.uses.requireSlot"] =
+                spellConfiguration.uses.requireSlot
+        }
+
+        return overrides
+    }
+
+    function resolveSpellAdvancementAbility(ability)
+    {
+        if (typeof ability === "string" && ability.length > 0) {
+            return ability
+        }
+
+        if (Array.isArray(ability) && ability.length === 1) {
+            return ability[0] ?? null
+        }
+
+        return null
     }
 
     async function createObjectOnActor(actor, sourceItem, parentItem = "", options = {})
