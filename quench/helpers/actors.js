@@ -49,7 +49,7 @@ export async function createTestActor({
 
 function handlePreCreationExtras(actorMap, options)
 {
-    //nothing as of yet
+    //nothing yet
 }
 
 async function handlePostCreationExtras(actor, options)

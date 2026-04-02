@@ -505,14 +505,16 @@ export function createItemRepository({
                 }
             }
             if (advancementConfiguration.items) {
-                const createOptions = buildAdvancementItemCreateOptions(advancementConfiguration)
-
                 for (const item of advancementConfiguration.items) {
                     const itemUuid =
                               typeof item === "string"
                                   ? item
                                   : item?.uuid
                     const sourceItem = await fromUuid(itemUuid)
+                    const createOptions = buildAdvancementItemCreateOptions(
+                        advancementConfiguration,
+                        sourceItem
+                    )
                     await createObjectOnActor(
                         actor,
                         sourceItem,
@@ -522,8 +524,6 @@ export function createItemRepository({
                 }
             }
             if (isItemPoolChoiceConfiguration(advancementConfiguration)) {
-                const createOptions =
-                          buildAdvancementItemCreateOptions(advancementConfiguration)
                 const totalChoices =
                           resolveItemPoolChoiceCount(advancementConfiguration)
                 let remainingChoices = await buildAdvancementItemChoices(
@@ -550,6 +550,11 @@ export function createItemRepository({
                         )
                         break
                     }
+
+                    const createOptions = buildAdvancementItemCreateOptions(
+                        advancementConfiguration,
+                        selectedChoice.sourceItem
+                    )
 
                     await addTransformationItem({
                         actor,
@@ -644,16 +649,25 @@ export function createItemRepository({
         return choices
     }
 
-    function buildAdvancementItemCreateOptions(advancementConfiguration = {})
+    function buildAdvancementItemCreateOptions(
+        advancementConfiguration = {},
+        sourceItem               = null
+    )
     {
-        const spellOverrides = buildAdvancementSpellOverrides(advancementConfiguration)
+        const spellOverrides = buildAdvancementSpellOverrides(
+            advancementConfiguration,
+            sourceItem
+        )
 
         return Object.keys(spellOverrides).length > 0
             ? {overrides: spellOverrides}
             : {}
     }
 
-    function buildAdvancementSpellOverrides(advancementConfiguration = {})
+    function buildAdvancementSpellOverrides(
+        advancementConfiguration = {},
+        sourceItem               = null
+    )
     {
         if (advancementConfiguration?.type !== "spell") {
             return {}
@@ -699,7 +713,40 @@ export function createItemRepository({
                 spellConfiguration.uses.requireSlot
         }
 
+        if (spellConfiguration.uses) {
+            for (const activityPath of resolveSpellActivityPaths(sourceItem)) {
+                overrides[`${activityPath}.consumption.targets`] = [{
+                    type: "itemUses",
+                    value: "1"
+                }]
+            }
+        }
+
         return overrides
+    }
+
+    function resolveSpellActivityPaths(sourceItem = null)
+    {
+        const activities = sourceItem?.system?.activities
+        if (!activities) return []
+
+        if (Array.isArray(activities)) {
+            return activities.map((_, index) => `system.activities.${index}`)
+        }
+
+        if (Array.isArray(activities.contents)) {
+            return activities.contents.map(
+                (_, index) => `system.activities.contents.${index}`
+            )
+        }
+
+        if (typeof activities === "object") {
+            return Object.keys(activities)
+            .filter(key => key !== "contents")
+            .map(key => `system.activities.${key}`)
+        }
+
+        return []
     }
 
     function resolveSpellAdvancementAbility(ability)

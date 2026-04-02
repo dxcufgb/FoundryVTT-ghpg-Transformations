@@ -80,24 +80,6 @@ function allowMockRollMessageUpdates(message)
     }
 }
 
-function getUiWindows()
-{
-    if (!ui?.windows) return []
-    if (typeof ui.windows.values === "function") {
-        return Array.from(ui.windows.values())
-    }
-
-    return Object.values(ui.windows)
-}
-
-function findUiWindowBySelector(selector)
-{
-    return getUiWindows().find(app =>
-        app?.element?.querySelector?.(selector) ||
-        app?.element?.[0]?.querySelector?.(selector)
-    ) ?? null
-}
-
 export const HagTestDef = {
     id: "hag",
     rollTableOrigin: "NA",
@@ -125,7 +107,7 @@ export const HagTestDef = {
                     }
                 }
             ],
-            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            finalAssertions: async ({actor, assert, loopVars}) =>
             {
                 const actorCharismaModifier = actor.system.abilities.cha.mod
                 const actorDto = new ActorValidationDTO(actor)
@@ -232,7 +214,7 @@ export const HagTestDef = {
                     }
                 }
             ],
-            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            finalAssertions: async ({actor, assert}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -282,7 +264,7 @@ export const HagTestDef = {
                     }
                 }
             ],
-            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            finalAssertions: async ({actor, assert}) =>
             {
                 const actorWisdomModifier = actor.system.abilities.wis.mod
                 const actorDto = new ActorValidationDTO(actor)
@@ -361,7 +343,7 @@ export const HagTestDef = {
                 {
                     stage: 1,
                     choose: (loopVars) => loopVars.sisterhoodUuid,
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters, helpers}) =>
                     {
                         await helpers.hag.chooseSaveProficiencyOnStage1({
                             waiters,
@@ -374,13 +356,13 @@ export const HagTestDef = {
                 },
                 {
                     stage: 2,
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
                 }
             ],
-            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            finalAssertions: async ({actor, assert, loopVars}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -443,7 +425,7 @@ export const HagTestDef = {
                 {
                     stage: 1,
                     choose: "Compendium.transformations.gh-transformations.Item.x72rfx8vOfW4PCLZ",
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters, helpers}) =>
                     {
                         await helpers.hag.chooseSaveProficiencyOnStage1({
                             waiters,
@@ -456,14 +438,14 @@ export const HagTestDef = {
                 },
                 {
                     stage: 2,
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
                 },
                 {
                     stage: 3,
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters, helpers}) =>
                     {
                         await helpers.hag.chooseTransformationChoiceByUuid({
                             waiters,
@@ -476,7 +458,7 @@ export const HagTestDef = {
                     }
                 }
             ],
-            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            finalAssertions: async ({actor, assert}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -558,7 +540,7 @@ export const HagTestDef = {
                 {
                     stage: 1,
                     choose: "Compendium.transformations.gh-transformations.Item.x72rfx8vOfW4PCLZ",
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters, helpers}) =>
                     {
                         await helpers.hag.chooseSaveProficiencyOnStage1({
                             waiters,
@@ -571,14 +553,14 @@ export const HagTestDef = {
                 },
                 {
                     stage: 2,
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
                 },
                 {
                     stage: 3,
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters, helpers}) =>
                     {
                         await helpers.hag.chooseTransformationChoiceByUuid({
                             waiters,
@@ -591,7 +573,7 @@ export const HagTestDef = {
                     }
                 }
             ],
-            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            finalAssertions: async ({actor, assert}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -614,7 +596,7 @@ export const HagTestDef = {
                 {
                     stage: 1,
                     choose: "Compendium.transformations.gh-transformations.Item.9uBHDM8XzGoUek8Y",
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters, helpers}) =>
                     {
                         await helpers.hag.chooseSaveProficiencyOnStage1({
                             waiters,
@@ -627,20 +609,20 @@ export const HagTestDef = {
                 },
                 {
                     stage: 2,
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
                 },
                 {
                     stage: 3,
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
                 }
             ],
-            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            finalAssertions: async ({actor, assert}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -712,7 +694,7 @@ export const HagTestDef = {
                 {
                     stage: 1,
                     choose: "Compendium.transformations.gh-transformations.Item.uvXqAIXFpzl5Gb9G",
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters, helpers}) =>
                     {
                         await helpers.hag.chooseSaveProficiencyOnStage1({
                             waiters,
@@ -725,20 +707,20 @@ export const HagTestDef = {
                 },
                 {
                     stage: 2,
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
                 },
                 {
                     stage: 3,
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
                 }
             ],
-            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            finalAssertions: async ({actor, assert}) =>
             {
                 const actorWisdomModifier = actor.system.abilities.wis.mod
                 const actorDto = new ActorValidationDTO(actor)
@@ -815,7 +797,7 @@ export const HagTestDef = {
                 {
                     stage: 1,
                     choose: "Compendium.transformations.gh-transformations.Item.uvXqAIXFpzl5Gb9G",
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters, helpers}) =>
                     {
                         await helpers.hag.chooseSaveProficiencyOnStage1({
                             waiters,
@@ -828,14 +810,14 @@ export const HagTestDef = {
                 },
                 {
                     stage: 2,
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
                 },
                 {
                     stage: 3,
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
@@ -843,13 +825,13 @@ export const HagTestDef = {
                 {
                     stage: 4,
                     choose: "Compendium.transformations.gh-transformations.Item.Xjl2r8LyJwtM1v9B",
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
                     }
                 }
             ],
-            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            finalAssertions: async ({actor, assert}) =>
             {
                 const actorCharismaModifier = actor.system.abilities.cha.mod
                 const actorDto = new ActorValidationDTO(actor)
@@ -943,7 +925,7 @@ export const HagTestDef = {
                 {
                     stage: 1,
                     choose: "Compendium.transformations.gh-transformations.Item.uvXqAIXFpzl5Gb9G",
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters, helpers}) =>
                     {
                         await helpers.hag.chooseSaveProficiencyOnStage1({
                             waiters,
@@ -956,14 +938,14 @@ export const HagTestDef = {
                 },
                 {
                     stage: 2,
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
                 },
                 {
                     stage: 3,
-                    await: async ({runtime, actor, waiters, helpers, loopVars}) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
@@ -984,9 +966,8 @@ export const HagTestDef = {
                     }
                 }
             ],
-            finalAssertions: async ({actor, assert, loopVars, validators}) =>
+            finalAssertions: async ({actor, assert, loopVars}) =>
             {
-                const actorCharismaModifier = actor.system.abilities.cha.mod
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
                     loopVars.shadowsteelCurseUuid,
@@ -1049,16 +1030,26 @@ export const HagTestDef = {
             ],
 
             steps: [
-                async ({actor, runtime, helpers, waiters, staticVars}) =>
+                async ({actor, runtime, staticVars}) =>
                 {
                     staticVars.initialExhaustion = actor.system.attributes.exhaustion
-                    const sourceHideousAppearance = await fromUuid(actor.items.find(i => i.name == "Hideous Appearance").flags.transformations.sourceUuid)
+                    const hideousAppearance = actor.items.find(i => i.name === "Hideous Appearance")
+
+                    if (!hideousAppearance) {
+                        throw new Error("Hideous Appearance item not present on actor")
+                    }
+
                     await runtime.services.triggerRuntime.run("rollSavingThrow", actor, {
                         saves: {
                             current: {
                                 ability: "wis",
                                 isSpell: false,
-                                item: sourceHideousAppearance,
+                                item: {
+                                    id: hideousAppearance.id,
+                                    name: hideousAppearance.name,
+                                    uuid: hideousAppearance.uuid,
+                                    sourceUuid: hideousAppearance.flags.transformations.sourceUuid
+                                },
                                 naturalRoll: 18,
                                 total: 18,
                                 success: true
@@ -1076,7 +1067,7 @@ export const HagTestDef = {
                 })
             },
 
-            assertions: async ({actor, assert, waiters, helpers, staticVars}) =>
+            assertions: async ({actor, assert, staticVars}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.stats.exhaustion = staticVars.initialExhaustion
@@ -1120,16 +1111,26 @@ export const HagTestDef = {
             ],
 
             steps: [
-                async ({actor, runtime, helpers, waiters, staticVars}) =>
+                async ({actor, runtime, staticVars}) =>
                 {
                     staticVars.initialExhaustion = actor.system.attributes.exhaustion
-                    const sourceHideousAppearance = await fromUuid(actor.items.find(i => i.name == "Hideous Appearance").flags.transformations.sourceUuid)
+                    const hideousAppearance = actor.items.find(i => i.name === "Hideous Appearance")
+
+                    if (!hideousAppearance) {
+                        throw new Error("Hideous Appearance item not present on actor")
+                    }
+
                     await runtime.services.triggerRuntime.run("savingThrow", actor, {
                         saves: {
                             current: {
                                 ability: "wis",
                                 isSpell: false,
-                                item: sourceHideousAppearance,
+                                item: {
+                                    id: hideousAppearance.id,
+                                    name: hideousAppearance.name,
+                                    uuid: hideousAppearance.uuid,
+                                    sourceUuid: hideousAppearance.flags.transformations.sourceUuid
+                                },
                                 naturalRoll: 17,
                                 total: 17,
                                 success: false
@@ -1147,7 +1148,7 @@ export const HagTestDef = {
                 })
             },
 
-            assertions: async ({actor, assert, waiters, helpers, staticVars}) =>
+            assertions: async ({actor, assert, staticVars}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.stats.exhaustion = staticVars.initialExhaustion + 1
@@ -1717,15 +1718,17 @@ export const HagTestDef = {
                         throw new Error("Eat Normal Food activity not present on Arch-crone's Hunger")
                     }
 
-                    const sourceArchCronesHunger =
-                        await fromUuid(archCronesHunger.flags.transformations.sourceUuid)
-
                     await runtime.services.triggerRuntime.run("savingThrow", actor, {
                         saves: {
                             current: {
                                 ability: "con",
                                 isSpell: false,
-                                item: sourceArchCronesHunger,
+                                item: {
+                                    id: archCronesHunger.id,
+                                    name: archCronesHunger.name,
+                                    uuid: archCronesHunger.uuid,
+                                    sourceUuid: archCronesHunger.flags.transformations.sourceUuid
+                                },
                                 naturalRoll: 18,
                                 total: 18,
                                 success: true
@@ -1821,15 +1824,17 @@ export const HagTestDef = {
                         throw new Error("Eat Normal Food activity not present on Arch-crone's Hunger")
                     }
 
-                    const sourceArchCronesHunger =
-                        await fromUuid(archCronesHunger.flags.transformations.sourceUuid)
-
                     await runtime.services.triggerRuntime.run("savingThrow", actor, {
                         saves: {
                             current: {
                                 ability: "con",
                                 isSpell: false,
-                                item: sourceArchCronesHunger,
+                                item: {
+                                    id: archCronesHunger.id,
+                                    name: archCronesHunger.name,
+                                    uuid: archCronesHunger.uuid,
+                                    sourceUuid: archCronesHunger.flags.transformations.sourceUuid
+                                },
                                 naturalRoll: 17,
                                 total: 17,
                                 success: false

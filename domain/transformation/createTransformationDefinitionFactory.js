@@ -41,8 +41,6 @@ export function createTransformationDefinitionFactory({
             return null
         }
 
-        const system = item.system ?? {}
-
         const rollTableEffects = createRollTableEffects(TransformationClass)
 
         const definition = new TransformationDefinition({

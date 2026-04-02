@@ -7,7 +7,7 @@ export function registerActorHooks({
     renderTemplate,
     debouncedTracker,
     dialogFactory,
-    logger,
+    logger
 })
 {
     logger.debug("registerActorHooks", {
@@ -52,7 +52,16 @@ export function registerActorHooks({
             transformations
         })
 
-        injectTransformationLegendInTraitsTab(renderTemplate, game, moduleUi, app, html, transformationTypes, config.editable, logger)
+        await injectTransformationLegendInTraitsTab(
+            renderTemplate,
+            game,
+            moduleUi,
+            app,
+            html,
+            transformationTypes,
+            config.editable,
+            logger
+        )
     })
 
     Hooks.on("updateActor", (actor, diff, options, userId) =>
@@ -72,16 +81,16 @@ export function registerActorHooks({
 
 function getPillsContainer(app, logger)
 {
-    logger.debug("getPillsContainer", { app })
+    logger.debug("getPillsContainer", {app})
     return (
         app.element
-            .querySelector('[data-tab="details"] .pills-lg > .background')
+        .querySelector('[data-tab="details"] .pills-lg > .background')
             ?.parentElement
     ) ?? (
-            app.element
-                .querySelector('[data-tab="details"] .pills-lg > [data-item-type="background"]')
-                ?.parentElement
-        )
+        app.element
+        .querySelector('[data-tab="details"] .pills-lg > [data-item-type="background"]')
+            ?.parentElement
+    )
 
 }
 
@@ -113,7 +122,8 @@ async function injectTransformationLegendInTraitsTab(renderTemplate, game, modul
         actor,
         transformationTypes,
         isGM,
-        editMode)
+        editMode
+    )
     const cardHtml = await renderTemplate(
         "modules/transformations/scripts/templates/components/transformation-card.hbs",
         viewModel

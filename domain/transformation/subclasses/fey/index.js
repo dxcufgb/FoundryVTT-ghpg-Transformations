@@ -8,7 +8,7 @@ export const Fey = Object.freeze({
     Definition: FeyDefinition,
     Stages: feyStages,
     Triggers: feyTriggers,
-    Effects: {},//feyEffects,
+    Effects: {},
     Macros: {},
     handlers: {}
 })

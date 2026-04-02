@@ -28,16 +28,15 @@ export async function handleDevilishContractorClick({
     logger
 })
 {
-    logger?.debug?.("handleDevilishContractorClick", { actor })
+    logger?.debug?.("handleDevilishContractorClick", {actor})
 
     const stage = actor.getFlag("transformations", "stage") ?? 0
     let applied = false
 
     if (stage > 0) {
-        applied = await dialogFactory.openFiendGiftOfDamnation({
+        await dialogFactory.openFiendGiftOfDamnation({
             actor,
             stage
         })
     }
-    if (!applied) return
 }
