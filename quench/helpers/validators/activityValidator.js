@@ -57,7 +57,7 @@ export function activityValidator({
                 foundDamagePart = damagePart
             })
             if (foundDamagePart) {
-                const damagePartApi = damagePartValidator({ damagePart: foundDamagePart, assert })
+                const damagePartApi = damagePartValidator({damagePart: foundDamagePart, assert})
                 api.damagePart = damagePartApi
             }
             return api
@@ -161,7 +161,10 @@ export function activityValidator({
                 foundConsumptionTarget = consumptionTarget
             })
             if (foundConsumptionTarget) {
-                const consumptionTargetApi = consumptionTargetValidator({ consumptionTarget: foundConsumptionTarget, assert })
+                const consumptionTargetApi = consumptionTargetValidator({
+                    consumptionTarget: foundConsumptionTarget,
+                    assert
+                })
                 api.consumptionTarget = consumptionTargetApi
             }
             return api
@@ -171,10 +174,13 @@ export function activityValidator({
         {
             safe(() =>
             {
-                const { result, length } = generalValidationFunctions({ assert }).hasNumberOfEffects(activity, expectedNumberOfEffects)
+                const {result, length} = generalValidationFunctions({assert}).hasNumberOfEffects(
+                    activity,
+                    expectedNumberOfEffects
+                )
                 assert.isTrue(
                     result,
-                    `number of activites (${length}) was not equal to expected number of activites (${expectedNumberOfEffects})`
+                    `number of activities (${length}) was not equal to expected number of activities (${expectedNumberOfEffects})`
                 )
             })
             return api
@@ -194,7 +200,7 @@ export function activityValidator({
                 foundEffect = effect
             })
             if (foundEffect) {
-                const effectApi = effectValidator({ effect: foundEffect, assert })
+                const effectApi = effectValidator({effect: foundEffect, assert})
                 api.effect = effectApi
             }
             return api

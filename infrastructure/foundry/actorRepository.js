@@ -226,12 +226,12 @@ export function createActorRepository({
         logger.debug("createActorRepository.resolveActor", {target})
         if (!target) return null
 
-        // TokenDocument â†’ synthetic actor
+        // TokenDocument synthetic actor
         if (target.documentName === "Token") {
             return target.actor ?? null
         }
 
-        // Token object â†’ synthetic actor
+        // Token object synthetic actor
         if (target.isToken) {
             return target.actor ?? target.parent?.actor ?? null
         }

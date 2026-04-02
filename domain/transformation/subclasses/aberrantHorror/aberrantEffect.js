@@ -2,9 +2,9 @@ import { RollTableEffect } from "../../../rollTable/RollTableEffect.js"
 
 export class AberrantEffect extends RollTableEffect
 {
-    constructor (args)
+    constructor(args)
     {
-        args?.logger?.debug?.("AberrantEffect.constructor", { args })
+        args?.logger?.debug?.("AberrantEffect.constructor", {args})
         super(args)
         this.iconSuffix = "Unstable_Form.png"
         this.addFlag("removeOnLongRest", true)
@@ -19,7 +19,7 @@ export class AberrantEffect extends RollTableEffect
 
     async beforeApply()
     {
-        super.beforeApply()
+        await super.beforeApply()
         this.logger?.debug?.("AberrantEffect.beforeApply", {})
         await this.activeEffectRepository.removeByOrigin(this.actor, this.origin)
     }

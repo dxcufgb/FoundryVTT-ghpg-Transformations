@@ -218,7 +218,7 @@ Hooks.once("setup", async () =>
         }
 
         logger.log("applying transformation flags!")
-        TransformationsDev.applyFlags()
+        await TransformationsDev.applyFlags()
         logger.log("flags applied!")
     }
     createDnd5eConfig({

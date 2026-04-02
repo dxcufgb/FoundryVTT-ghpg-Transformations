@@ -1,7 +1,6 @@
 import { Hag as HagClass } from "./Hag.js";
 import { HagDefinition } from "./HagDefinition.js";
 import { hagStages } from "./stages/hagStages.js";
-import { createHagMacroHandlers } from "./macros/handlers.js";
 import { hagTriggers } from "./triggers/hagTriggers.js";
 
 export const Hag = Object.freeze({
@@ -9,10 +8,7 @@ export const Hag = Object.freeze({
     Definition: HagDefinition,
     Stages: hagStages,
     Triggers: hagTriggers,
-    Effects: [],
-    Macros: [],
-    handlers: {
-        type: HagClass.type,
-        createMacroHandlers: createHagMacroHandlers
-    }
+    Effects: {},
+    Macros: {},
+    handlers: {}
 });

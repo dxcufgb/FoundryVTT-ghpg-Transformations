@@ -32,40 +32,40 @@ export function actorValidator({
             safe(() =>
             {
                 api
-                    .hasDisadvantage("acr")
-                    .hasDisadvantage("ani")
-                    .hasDisadvantage("arc")
-                    .hasDisadvantage("ath")
-                    .hasDisadvantage("dec")
-                    .hasDisadvantage("his")
-                    .hasDisadvantage("ins")
-                    .hasDisadvantage("itm")
-                    .hasDisadvantage("inv")
-                    .hasDisadvantage("med")
-                    .hasDisadvantage("nat")
-                    .hasDisadvantage("prc")
-                    .hasDisadvantage("prf")
-                    .hasDisadvantage("per")
-                    .hasDisadvantage("rel")
-                    .hasDisadvantage("slt")
-                    .hasDisadvantage("ste")
-                    .hasDisadvantage("sur")
-                    .hasDisadvantage("str", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("dex", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("con", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("int", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("wis", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("cha", ROLL_TYPE.ABILITY_CHECK)
-                    .hasDisadvantage("str", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("dex", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("con", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("int", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("wis", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("cha", ROLL_TYPE.SAVING_THROW)
-                    .hasDisadvantage("concentration")
-                    .hasDisadvantage("death")
-                    .hasDisadvantage("init")
-                    .hasToolsDisadvantage()
+                .hasDisadvantage("acr")
+                .hasDisadvantage("ani")
+                .hasDisadvantage("arc")
+                .hasDisadvantage("ath")
+                .hasDisadvantage("dec")
+                .hasDisadvantage("his")
+                .hasDisadvantage("ins")
+                .hasDisadvantage("itm")
+                .hasDisadvantage("inv")
+                .hasDisadvantage("med")
+                .hasDisadvantage("nat")
+                .hasDisadvantage("prc")
+                .hasDisadvantage("prf")
+                .hasDisadvantage("per")
+                .hasDisadvantage("rel")
+                .hasDisadvantage("slt")
+                .hasDisadvantage("ste")
+                .hasDisadvantage("sur")
+                .hasDisadvantage("str", ROLL_TYPE.ABILITY_CHECK)
+                .hasDisadvantage("dex", ROLL_TYPE.ABILITY_CHECK)
+                .hasDisadvantage("con", ROLL_TYPE.ABILITY_CHECK)
+                .hasDisadvantage("int", ROLL_TYPE.ABILITY_CHECK)
+                .hasDisadvantage("wis", ROLL_TYPE.ABILITY_CHECK)
+                .hasDisadvantage("cha", ROLL_TYPE.ABILITY_CHECK)
+                .hasDisadvantage("str", ROLL_TYPE.SAVING_THROW)
+                .hasDisadvantage("dex", ROLL_TYPE.SAVING_THROW)
+                .hasDisadvantage("con", ROLL_TYPE.SAVING_THROW)
+                .hasDisadvantage("int", ROLL_TYPE.SAVING_THROW)
+                .hasDisadvantage("wis", ROLL_TYPE.SAVING_THROW)
+                .hasDisadvantage("cha", ROLL_TYPE.SAVING_THROW)
+                .hasDisadvantage("concentration")
+                .hasDisadvantage("death")
+                .hasDisadvantage("init")
+                .hasToolsDisadvantage()
             })
             return api
         },
@@ -106,7 +106,7 @@ export function actorValidator({
                 }
             })
             if (foundItem) {
-                const itemApi = itemValidator({ item: foundItem, assert })
+                const itemApi = itemValidator({item: foundItem, assert})
                 api.item = itemApi
             }
             return api
@@ -170,7 +170,7 @@ export function actorValidator({
                         )
                         break
                     default:
-                        console.error(`Unkown matchMode (${matchMode}) in actorValidator.hasEffects`)
+                        console.error(`Unknown matchMode (${matchMode}) in actorValidator.hasEffects`)
                 }
                 assert.equal(
                     activityEffects.length,
@@ -201,11 +201,13 @@ export function actorValidator({
         {
             safe(() =>
             {
-                const { result, length } = generalValidationFunctions({ assert }).hasNumberOfEffects(actor, expectedNumberOfEffects)
+                const {result, length} = generalValidationFunctions({assert}).hasNumberOfEffects(
+                    actor,
+                    expectedNumberOfEffects
+                )
                 assert.isTrue(
                     result,
-                    `Actual number of activites (${length}) was not equal to expected number of activites (${expectedNumberOfEffects})`
-
+                    `Actual number of activities (${length}) was not equal to expected number of activities (${expectedNumberOfEffects})`
                 )
             })
             return api
@@ -378,7 +380,8 @@ export function actorValidator({
 
                 assert.ok(
                     expectedNotResistances.every(r => !actual.includes(r)),
-                    `Expected none of [${expectedNotResistances.join(", ")}] to be present, but found: ${expectedNotResistances.filter(r => actual.includes(r)).join(", ")
+                    `Expected none of [${expectedNotResistances.join(", ")}] to be present, but found: ${expectedNotResistances.filter(
+                        r => actual.includes(r)).join(", ")
                     }`
                 )
             })

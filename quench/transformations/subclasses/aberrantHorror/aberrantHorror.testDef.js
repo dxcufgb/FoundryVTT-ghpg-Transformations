@@ -15,14 +15,14 @@ export const AberrantHorrorTestDef = {
             steps: [
                 {
                     stage: 1,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, validators }) =>
+            finalAssertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -36,7 +36,7 @@ export const AberrantHorrorTestDef = {
                     item.systemType = "humanoid"
                     item.systemSubType = "Aberration"
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -45,7 +45,7 @@ export const AberrantHorrorTestDef = {
             steps: [
                 {
                     stage: 1,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -53,7 +53,7 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -61,7 +61,7 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, validators }) =>
+            finalAssertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -71,7 +71,7 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
                     "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
                 ]
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -80,7 +80,7 @@ export const AberrantHorrorTestDef = {
             steps: [
                 {
                     stage: 1,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -88,7 +88,7 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -96,7 +96,7 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, validators }) =>
+            finalAssertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -106,7 +106,7 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
                     "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E"
                 ]
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -115,7 +115,7 @@ export const AberrantHorrorTestDef = {
             steps: [
                 {
                     stage: 1,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -123,7 +123,7 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -131,14 +131,14 @@ export const AberrantHorrorTestDef = {
                 },
                 {
                     stage: 3,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, validators }) =>
+            finalAssertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -149,7 +149,7 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
                     "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat"
                 ]
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -158,7 +158,7 @@ export const AberrantHorrorTestDef = {
             steps: [
                 {
                     stage: 1,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -166,7 +166,7 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -175,14 +175,14 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, validators }) =>
+            finalAssertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -193,7 +193,7 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
                     "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5"
                 ]
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -202,7 +202,7 @@ export const AberrantHorrorTestDef = {
             steps: [
                 {
                     stage: 1,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -210,7 +210,7 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -219,14 +219,14 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, validators }) =>
+            finalAssertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -237,7 +237,7 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
                     "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat"
                 ]
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -246,7 +246,7 @@ export const AberrantHorrorTestDef = {
             steps: [
                 {
                     stage: 1,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -254,7 +254,7 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -263,21 +263,21 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
                 },
                 {
                     stage: 4,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
                     }
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, validators }) =>
+            finalAssertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -289,13 +289,13 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
                     "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
                 ]
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "stage 4 Entropic Abomation with actor spell slots",
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "system.spells.spell1.override": 1,
@@ -305,7 +305,7 @@ export const AberrantHorrorTestDef = {
             steps: [
                 {
                     stage: 1,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -313,7 +313,7 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -322,7 +322,7 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
@@ -330,14 +330,14 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 4,
                     choose: "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
                     }
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, validators }) =>
+            finalAssertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -349,13 +349,13 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
                     "Compendium.transformations.gh-transformations.Item.dPug75X8a0sc0dLz"
                 ]
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
-            name: "stage 4 Poisonouse Mutations with actor spell slots",
-            setup: async ({ actor }) =>
+            name: "stage 4 Poisonous Mutations with actor spell slots",
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "system.spells.spell1.override": 1,
@@ -365,7 +365,7 @@ export const AberrantHorrorTestDef = {
             steps: [
                 {
                     stage: 1,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -373,7 +373,7 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -382,7 +382,7 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 3,
                     choose: "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
@@ -390,14 +390,14 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 4,
                     choose: "Compendium.transformations.gh-transformations.Item.Q0c1NafrnW9C7tDz",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
                     }
                 }
             ],
 
-            finalAssertions: async ({ actor, assert, validators }) =>
+            finalAssertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -409,14 +409,14 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
                     "Compendium.transformations.gh-transformations.Item.Q0c1NafrnW9C7tDz"
                 ]
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Long rest triggers mutation roll and applies Aberrant Slow Speech, stage 1",
 
-            setup: async ({ runtime }) =>
+            setup: async ({runtime}) =>
             {
                 await ChatMessage.deleteDocuments(
                     game.messages.contents.map(m => m.id)
@@ -427,7 +427,7 @@ export const AberrantHorrorTestDef = {
             steps: [
                 {
                     stage: 1,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(
                             runtime,
@@ -442,7 +442,7 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            finalAwait: async ({ actor, waiters }) =>
+            finalAwait: async ({actor, waiters}) =>
             {
                 await waiters.waitForCondition(() =>
                     actor.effects.filter(e =>
@@ -451,28 +451,28 @@ export const AberrantHorrorTestDef = {
                 )
             },
 
-            finalAssertions: async ({ actor, assert, validators }) =>
+            finalAssertions: async ({actor, assert, validators}) =>
             {
                 const effectsDto = new EffectValidationDTO()
                 effectsDto.count = 1
                 effectsDto.has = ["Aberrant Slow Speech"]
-                effectsDto.withOrigin = { origin: "Unstable Form", expected: 1 }
+                effectsDto.withOrigin = {origin: "Unstable Form", expected: 1}
 
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectsDto
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
 
                 const messageDto = new MessageValidationDTO("RollTable")
                 messageDto.count = 1
                 messageDto.flavors.values = ["Unstable Form Stage 1"]
-                validate(messageDto, { assert })
+                validate(messageDto, {assert})
             }
         },
 
         {
             name: "Long rest triggers mutation roll and applies Aberrant Slow Speech, stage 2",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await ChatMessage.deleteDocuments(
                     game.messages.contents.map(m => m.id)
@@ -483,7 +483,7 @@ export const AberrantHorrorTestDef = {
             steps: [
                 {
                     stage: 1,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -492,18 +492,18 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
 
                 },
                 {
-                    trigger: "longRest",
+                    trigger: "longRest"
                 }
             ],
 
-            finalAwait: async ({ runtime, actor, waiters }) => 
+            finalAwait: async ({runtime, actor, waiters}) =>
             {
                 await waiters.waitForCondition(() =>
                     actor.effects.filter(e =>
@@ -512,7 +512,7 @@ export const AberrantHorrorTestDef = {
                 )
             },
 
-            finalAssertions: async ({ actor, assert, validators }) =>
+            finalAssertions: async ({actor, assert, validators}) =>
             {
                 const messageDto = new MessageValidationDTO("RollTable")
                 messageDto.count = 1
@@ -521,20 +521,20 @@ export const AberrantHorrorTestDef = {
                 const effectDto = new EffectValidationDTO()
                 effectDto.count = 1
                 effectDto.has = ["Aberrant Slow Speech"]
-                effectDto.withOrigin = { origin: "Unstable Form", expected: 1 }
+                effectDto.withOrigin = {origin: "Unstable Form", expected: 1}
 
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectDto
 
-                validate(messageDto, { assert })
-                validate(actorDto, { assert })
+                validate(messageDto, {assert})
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Long rest triggers mutation roll and applies Aberrant Slow Speech, stage 3",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await ChatMessage.deleteDocuments(
                     game.messages.contents.map(m => m.id)
@@ -545,7 +545,7 @@ export const AberrantHorrorTestDef = {
             steps: [
                 {
                     stage: 1,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -553,7 +553,7 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -561,17 +561,17 @@ export const AberrantHorrorTestDef = {
                 },
                 {
                     stage: 3,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
                 },
                 {
-                    trigger: "longRest",
+                    trigger: "longRest"
                 }
             ],
 
-            finalAwait: async ({ runtime, actor, waiters }) => 
+            finalAwait: async ({runtime, actor, waiters}) =>
             {
                 await waiters.waitForCondition(() =>
                     actor.effects.filter(e =>
@@ -580,7 +580,7 @@ export const AberrantHorrorTestDef = {
                 )
             },
 
-            finalAssertions: async ({ actor, assert, validators }) =>
+            finalAssertions: async ({actor, assert, validators}) =>
             {
                 const messageDto = new MessageValidationDTO("RollTable")
                 messageDto.count = 1
@@ -589,20 +589,20 @@ export const AberrantHorrorTestDef = {
                 const effectDto = new EffectValidationDTO()
                 effectDto.count = 1
                 effectDto.has = ["Aberrant Slow Speech"]
-                effectDto.withOrigin = { origin: "Unstable Form", expected: 1 }
+                effectDto.withOrigin = {origin: "Unstable Form", expected: 1}
 
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectDto
 
-                validate(messageDto, { assert })
-                validate(actorDto, { assert })
+                validate(messageDto, {assert})
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Long rest triggers mutation roll and applies Aberrant Slow Speech, stage 4",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await ChatMessage.deleteDocuments(
                     game.messages.contents.map(m => m.id)
@@ -613,7 +613,7 @@ export const AberrantHorrorTestDef = {
             steps: [
                 {
                     stage: 1,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
                     }
@@ -621,7 +621,7 @@ export const AberrantHorrorTestDef = {
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
@@ -629,14 +629,14 @@ export const AberrantHorrorTestDef = {
                 },
                 {
                     stage: 3,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
                     }
                 },
                 {
                     stage: 4,
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
                     }
@@ -644,7 +644,7 @@ export const AberrantHorrorTestDef = {
                 {
                     trigger: "longRest",
 
-                    await: async ({ runtime, actor, waiters }) =>
+                    await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForDomainStability({
                             actor,
@@ -654,7 +654,7 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            finalAwait: async ({ runtime, actor, waiters }) => 
+            finalAwait: async ({runtime, actor, waiters}) =>
             {
                 await waiters.waitForCondition(() =>
                     actor.effects.filter(e =>
@@ -663,7 +663,7 @@ export const AberrantHorrorTestDef = {
                 )
             },
 
-            finalAssertions: async ({ actor, assert, validators }) =>
+            finalAssertions: async ({actor, assert, validators}) =>
             {
                 const messageDto = new MessageValidationDTO("RollTable")
                 messageDto.count = 1
@@ -672,20 +672,20 @@ export const AberrantHorrorTestDef = {
                 const effectDto = new EffectValidationDTO()
                 effectDto.count = 1
                 effectDto.has = ["Aberrant Slow Speech"]
-                effectDto.withOrigin = { origin: "Unstable Form", expected: 1 }
+                effectDto.withOrigin = {origin: "Unstable Form", expected: 1}
 
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectDto
 
-                validate(messageDto, { assert })
-                validate(actorDto, { assert })
+                validate(messageDto, {assert})
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Aberrant Loss Of Vitality removes all modifiers from hit die rolls",
 
-            setup: async ({ game, actor, staticVars }) =>
+            setup: async ({game, actor, staticVars}) =>
             {
                 staticVars.context = {
                     rolls: [
@@ -702,7 +702,7 @@ export const AberrantHorrorTestDef = {
 
             steps: [
                 {
-                    await: async ({ runtime, actor, waiters, staticVars }) =>
+                    await: async ({runtime, actor, waiters, staticVars}) =>
                     {
                         const transformation = runtime.services.transformationRegistry.getEntryForActor(actor)
                         transformation.TransformationClass.onPreRollHitDie(staticVars.context, actor)
@@ -710,19 +710,19 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            finalAssertions: async ({ staticVars, assert, validators }) =>
+            finalAssertions: async ({staticVars, assert, validators}) =>
             {
                 const contextDto = new ContextValidationDTO(staticVars.context)
-                contextDto.rolls.values = [{ parts: ["max(1, 1d8 )"] }]
+                contextDto.rolls.values = [{parts: ["max(1, 1d8 )"]}]
 
-                validate(contextDto, { assert })
+                validate(contextDto, {assert})
             }
         },
 
         {
             name: "Aberrant Confusion adds stunned for first round of combat after initiative",
 
-            setup: async ({ game, actor, staticVars }) =>
+            setup: async ({game, actor, staticVars}) =>
             {
                 await ChatMessage.deleteDocuments(
                     game.messages.contents.map(m => m.id)
@@ -734,7 +734,7 @@ export const AberrantHorrorTestDef = {
             steps: [
                 {
                     trigger: "initiative",
-                    await: async ({ runtime, actor, waiters, staticVars }) =>
+                    await: async ({runtime, actor, waiters, staticVars}) =>
                     {
                         await waiters.waitForDomainStability({
                             actor,
@@ -744,14 +744,14 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            finalAwait: async ({ actor, waiters }) =>
+            finalAwait: async ({actor, waiters}) =>
             {
                 await waiters.waitForCondition(() =>
                     actor.effects.find(e => e.name == "Stunned")
                 )
             },
 
-            finalAssertions: async ({ actor, assert, validators }) =>
+            finalAssertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasEffect = "Stunned"
@@ -763,10 +763,10 @@ export const AberrantHorrorTestDef = {
                 ]
                 messageDto.contents.mode = "equal"
 
-                validate(messageDto, { assert })
-                validate(actorDto, { assert })
+                validate(messageDto, {assert})
+                validate(actorDto, {assert})
             }
-        },
+        }
     ],
 
     itemBehaviorTests: [
@@ -774,10 +774,10 @@ export const AberrantHorrorTestDef = {
             name: "Aberrant Form grants temp HP when bloodied",
 
             requiredPath: [
-                { stage: 1 }
+                {stage: 1}
             ],
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "system.attributes.movement.walk": 30
@@ -785,7 +785,7 @@ export const AberrantHorrorTestDef = {
             },
 
             steps: [
-                async ({ actor, runtime }) =>
+                async ({actor, runtime}) =>
                 {
                     await runtime.services.triggerRuntime.run("bloodied", actor)
                 }
@@ -801,17 +801,17 @@ export const AberrantHorrorTestDef = {
                 )
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const prof = actor.system.attributes.prof
                 const actorDto = new ActorValidationDTO(actor)
-                actorDto.stats.hp = [{ value: 1 + prof, variant: "temp" }]
+                actorDto.stats.hp = [{value: 1 + prof, variant: "temp"}]
                 actorDto.addItem(item =>
                 {
                     item.expectedItemUuids = ["Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu"]
                     item.usesLeft = 0
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -819,10 +819,10 @@ export const AberrantHorrorTestDef = {
             name: "Aberrant Form only grants temp HP once per rest",
 
             requiredPath: [
-                { stage: 1 }
+                {stage: 1}
             ],
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "system.attributes.movement.walk": 30
@@ -830,7 +830,7 @@ export const AberrantHorrorTestDef = {
             },
 
             steps: [
-                async ({ actor, runtime, waiters }) =>
+                async ({actor, runtime, waiters}) =>
                 {
                     // 1️⃣ Find item fresh
                     let item = actor.items.find(i =>
@@ -862,7 +862,7 @@ export const AberrantHorrorTestDef = {
                     })
                 },
 
-                async ({ actor, runtime, waiters }) =>
+                async ({actor, runtime, waiters}) =>
                 {
                     // 6️⃣ Explicitly trigger bloodied
                     await runtime.services.triggerRuntime.run("bloodied", actor)
@@ -875,7 +875,7 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -883,11 +883,11 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
-                actorDto.stats.hp = [{ value: 0, variant: "temp" }]
-                validate(actorDto, { assert })
+                actorDto.stats.hp = [{value: 0, variant: "temp"}]
+                validate(actorDto, {assert})
             }
         },
 
@@ -895,10 +895,10 @@ export const AberrantHorrorTestDef = {
             name: "Aberrant Mutation: Chitinous Shell applies AC +2 and -10 movement",
 
             requiredPath: [
-                { stage: 1 }
+                {stage: 1}
             ],
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "system.attributes.movement.walk": 30
@@ -906,7 +906,7 @@ export const AberrantHorrorTestDef = {
             },
 
             steps: [
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -917,7 +917,7 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -925,7 +925,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
 
@@ -935,16 +935,16 @@ export const AberrantHorrorTestDef = {
                     expected: 1,
                     matchMode: "or",
                     filters: [
-                        { key: "name", value: "Chitinous Shell" },
-                        { key: "name", value: "Poisonous Mutations" }
+                        {key: "name", value: "Chitinous Shell"},
+                        {key: "name", value: "Poisonous Mutations"}
                     ]
                 }
 
                 actorDto.stats.ac = 12
-                actorDto.stats.movementSpeed = [{ type: "walk", value: 20 }]
+                actorDto.stats.movementSpeed = [{type: "walk", value: 20}]
                 actorDto.effects = effectDto
 
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -952,10 +952,10 @@ export const AberrantHorrorTestDef = {
             name: "Aberrant Mutation: Eldritch Limbs grants weapon",
 
             requiredPath: [
-                { stage: 1 }
+                {stage: 1}
             ],
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "system.attributes.movement.walk": 30
@@ -963,7 +963,7 @@ export const AberrantHorrorTestDef = {
             },
 
             steps: [
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -974,7 +974,7 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -982,7 +982,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 const effectDto = new EffectValidationDTO(actor)
@@ -991,8 +991,8 @@ export const AberrantHorrorTestDef = {
                     expected: 1,
                     matchMode: "or",
                     filters: [
-                        { key: "name", value: "Eldritch Limbs" },
-                        { key: "name", value: "Poisonous Mutations" }
+                        {key: "name", value: "Eldritch Limbs"},
+                        {key: "name", value: "Poisonous Mutations"}
                     ]
                 }
 
@@ -1002,7 +1002,7 @@ export const AberrantHorrorTestDef = {
                     item.type = "weapon"
                 })
 
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1010,10 +1010,10 @@ export const AberrantHorrorTestDef = {
             name: "Aberrant Mutation: Eldritch Limbs weapon attacks",
 
             requiredPath: [
-                { stage: 1 }
+                {stage: 1}
             ],
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "system.attributes.movement.walk": 30
@@ -1021,7 +1021,7 @@ export const AberrantHorrorTestDef = {
             },
 
             steps: [
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -1032,7 +1032,7 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1040,7 +1040,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
 
@@ -1058,7 +1058,7 @@ export const AberrantHorrorTestDef = {
                         })
                     })
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1066,10 +1066,10 @@ export const AberrantHorrorTestDef = {
             name: "Aberrant Mutation: Slimy Form grants acid, fire and cold resistance",
 
             requiredPath: [
-                { stage: 1 }
+                {stage: 1}
             ],
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "system.attributes.movement.walk": 30
@@ -1077,7 +1077,7 @@ export const AberrantHorrorTestDef = {
             },
 
             steps: [
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -1088,7 +1088,7 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1096,7 +1096,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
 
@@ -1108,14 +1108,14 @@ export const AberrantHorrorTestDef = {
                     expected: 1,
                     matchMode: "or",
                     filters: [
-                        { key: "name", value: "Slimy Form" },
-                        { key: "name", value: "Poisonous Mutations" }
+                        {key: "name", value: "Slimy Form"},
+                        {key: "name", value: "Poisonous Mutations"}
                     ]
                 }
 
                 actorDto.effects = effectDto
 
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1123,11 +1123,11 @@ export const AberrantHorrorTestDef = {
             name: "Switching activities replaces previous effect Chitinous shell -> Slimy Form",
 
             requiredPath: [
-                { stage: 1 }
+                {stage: 1}
             ],
 
             steps: [
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -1137,7 +1137,7 @@ export const AberrantHorrorTestDef = {
                     })
                 },
 
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -1148,7 +1148,7 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1156,7 +1156,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
 
@@ -1169,14 +1169,14 @@ export const AberrantHorrorTestDef = {
                     expected: 1,
                     matchMode: "or",
                     filters: [
-                        { key: "name", value: "Slimy Form" },
-                        { key: "name", value: "Poisonous Mutations" }
+                        {key: "name", value: "Slimy Form"},
+                        {key: "name", value: "Poisonous Mutations"}
                     ]
                 }
 
                 actorDto.effects = effectDto
 
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1184,11 +1184,11 @@ export const AberrantHorrorTestDef = {
             name: "Switching activities replaces previous effect Slimy Form -> Chitinous shell",
 
             requiredPath: [
-                { stage: 1 }
+                {stage: 1}
             ],
 
             steps: [
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -1198,7 +1198,7 @@ export const AberrantHorrorTestDef = {
                     })
                 },
 
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -1210,7 +1210,7 @@ export const AberrantHorrorTestDef = {
 
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1218,7 +1218,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
 
@@ -1231,14 +1231,14 @@ export const AberrantHorrorTestDef = {
                     expected: 1,
                     matchMode: "or",
                     filters: [
-                        { key: "name", value: "Chitinous Shell" },
-                        { key: "name", value: "Poisonous Mutations" }
+                        {key: "name", value: "Chitinous Shell"},
+                        {key: "name", value: "Poisonous Mutations"}
                     ]
                 }
 
                 actorDto.effects = effectDto
 
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1246,14 +1246,14 @@ export const AberrantHorrorTestDef = {
             name: "Efficient killer grants updated Eldritch Limbs",
 
             requiredPath: [
-                { stage: 1 },
+                {stage: 1},
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
                 }
             ],
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "system.attributes.movement.walk": 30
@@ -1261,7 +1261,7 @@ export const AberrantHorrorTestDef = {
             },
 
             steps: [
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -1272,7 +1272,7 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1280,7 +1280,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const validationLoopConstants = [
                     {
@@ -1318,7 +1318,7 @@ export const AberrantHorrorTestDef = {
                         })
                     })
 
-                    validate(actorDto, { assert })
+                    validate(actorDto, {assert})
                 }
             }
         },
@@ -1327,21 +1327,21 @@ export const AberrantHorrorTestDef = {
             name: "Writhing Tendrils",
 
             requiredPath: [
-                { stage: 1 },
+                {stage: 1},
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E"
                 }
             ],
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "system.attributes.movement.walk": 30
                 })
             },
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1349,7 +1349,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const prof = actor.system.attributes.prof
 
@@ -1391,7 +1391,7 @@ export const AberrantHorrorTestDef = {
             name: "Hideous Appearance hide hideous form",
 
             requiredPath: [
-                { stage: 1 },
+                {stage: 1},
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
@@ -1400,7 +1400,7 @@ export const AberrantHorrorTestDef = {
 
             steps: [
 
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -1408,10 +1408,10 @@ export const AberrantHorrorTestDef = {
                         effectName: "Hiding Hideous Appearance",
                         macroTrigger: "on"
                     })
-                },
+                }
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1419,7 +1419,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 const effectDto = new EffectValidationDTO()
@@ -1427,7 +1427,7 @@ export const AberrantHorrorTestDef = {
                 effectDto.has.push("Hiding Hideous Appearance")
 
                 actorDto.effects = effectDto
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1435,21 +1435,21 @@ export const AberrantHorrorTestDef = {
             name: "Hideous Appearance saving throw success on bloodied",
 
             requiredPath: [
-                { stage: 1 },
+                {stage: 1},
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
                 }
             ],
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 globalThis.___TransformationTestEnvironment___.saveResult = 13
                 globalThis.___TransformationTestEnvironment___.saveRolled = false
             },
 
             steps: [
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -1457,12 +1457,12 @@ export const AberrantHorrorTestDef = {
                         effectName: "Hiding Hideous Appearance",
                         macroTrigger: "on"
                     })
-                },
+                }
             ],
 
             trigger: "bloodied",
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1470,7 +1470,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
                 const actorDto = new ActorValidationDTO(actor)
@@ -1479,7 +1479,7 @@ export const AberrantHorrorTestDef = {
                 effectDto.has.push("Hiding Hideous Appearance")
 
                 actorDto.effects = effectDto
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1487,21 +1487,21 @@ export const AberrantHorrorTestDef = {
             name: "Hideous Appearance saving throw fail on bloodied",
 
             requiredPath: [
-                { stage: 1 },
+                {stage: 1},
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
                 }
             ],
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 globalThis.___TransformationTestEnvironment___.saveResult = 12
                 globalThis.___TransformationTestEnvironment___.saveRolled = false
             },
 
             steps: [
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -1509,12 +1509,12 @@ export const AberrantHorrorTestDef = {
                         effectName: "Hiding Hideous Appearance",
                         macroTrigger: "on"
                     })
-                },
+                }
             ],
 
             trigger: "bloodied",
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1522,7 +1522,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
                 const actorDto = new ActorValidationDTO(actor)
@@ -1531,7 +1531,7 @@ export const AberrantHorrorTestDef = {
                 effectDto.notHas.push("Hiding Hideous Appearance")
 
                 actorDto.effects = effectDto
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1539,21 +1539,21 @@ export const AberrantHorrorTestDef = {
             name: "Hideous Appearance saving throw success on unconscious",
 
             requiredPath: [
-                { stage: 1 },
+                {stage: 1},
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
                 }
             ],
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 globalThis.___TransformationTestEnvironment___.saveResult = 13
                 globalThis.___TransformationTestEnvironment___.saveRolled = false
             },
 
             steps: [
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -1561,12 +1561,12 @@ export const AberrantHorrorTestDef = {
                         effectName: "Hiding Hideous Appearance",
                         macroTrigger: "on"
                     })
-                },
+                }
             ],
 
             trigger: "unconscious",
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1574,7 +1574,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
                 const actorDto = new ActorValidationDTO(actor)
@@ -1583,7 +1583,7 @@ export const AberrantHorrorTestDef = {
                 effectDto.has.push("Hiding Hideous Appearance")
 
                 actorDto.effects = effectDto
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1591,21 +1591,21 @@ export const AberrantHorrorTestDef = {
             name: "Hideous Appearance saving throw fail on unconscious",
 
             requiredPath: [
-                { stage: 1 },
+                {stage: 1},
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
                 }
             ],
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 globalThis.___TransformationTestEnvironment___.saveResult = 12
                 globalThis.___TransformationTestEnvironment___.saveRolled = false
             },
 
             steps: [
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -1613,12 +1613,12 @@ export const AberrantHorrorTestDef = {
                         effectName: "Hiding Hideous Appearance",
                         macroTrigger: "on"
                     })
-                },
+                }
             ],
 
             trigger: "unconscious",
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1626,7 +1626,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
 
@@ -1636,7 +1636,7 @@ export const AberrantHorrorTestDef = {
                 effectDto.notHas.push("Hiding Hideous Appearance")
 
                 actorDto.effects = effectDto
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1644,21 +1644,21 @@ export const AberrantHorrorTestDef = {
             name: "Hideous Appearance saving throw success on beginConcentration",
 
             requiredPath: [
-                { stage: 1 },
+                {stage: 1},
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
                 }
             ],
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 globalThis.___TransformationTestEnvironment___.saveResult = 13
                 globalThis.___TransformationTestEnvironment___.saveRolled = false
             },
 
             steps: [
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -1666,12 +1666,12 @@ export const AberrantHorrorTestDef = {
                         effectName: "Hiding Hideous Appearance",
                         macroTrigger: "on"
                     })
-                },
+                }
             ],
 
             trigger: "concentration",
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1679,7 +1679,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
                 const actorDto = new ActorValidationDTO(actor)
@@ -1688,7 +1688,7 @@ export const AberrantHorrorTestDef = {
                 effectDto.has.push("Hiding Hideous Appearance")
 
                 actorDto.effects = effectDto
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
@@ -1696,21 +1696,21 @@ export const AberrantHorrorTestDef = {
             name: "Hideous Appearance saving throw fail on beginConcentration",
 
             requiredPath: [
-                { stage: 1 },
+                {stage: 1},
                 {
                     stage: 2,
                     choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
                 }
             ],
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 globalThis.___TransformationTestEnvironment___.saveResult = 12
                 globalThis.___TransformationTestEnvironment___.saveRolled = false
             },
 
             steps: [
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -1718,12 +1718,12 @@ export const AberrantHorrorTestDef = {
                         effectName: "Hiding Hideous Appearance",
                         macroTrigger: "on"
                     })
-                },
+                }
             ],
 
             trigger: "concentration",
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1731,7 +1731,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
                 const actorDto = new ActorValidationDTO(actor)
@@ -1740,14 +1740,14 @@ export const AberrantHorrorTestDef = {
                 effectDto.notHas.push("Hiding Hideous Appearance")
 
                 actorDto.effects = effectDto
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Terrifying Visage saving throw details",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "flags.transformations.stageChoices": {
@@ -1760,12 +1760,12 @@ export const AberrantHorrorTestDef = {
             },
 
             requiredPath: [
-                { stage: 1 },
-                { stage: 2 },
-                { stage: 3 }
+                {stage: 1},
+                {stage: 2},
+                {stage: 3}
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1773,7 +1773,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorProf = actor.system.attributes.prof
                 const actorDto = new ActorValidationDTO(actor)
@@ -1786,14 +1786,14 @@ export const AberrantHorrorTestDef = {
                         activity.saveDc = (8 + actorProf + 3)
                     })
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Constricting Tendrils saving throw details",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "flags.transformations.stageChoices": {
@@ -1806,12 +1806,12 @@ export const AberrantHorrorTestDef = {
             },
 
             requiredPath: [
-                { stage: 1 },
-                { stage: 2 },
-                { stage: 3 }
+                {stage: 1},
+                {stage: 2},
+                {stage: 3}
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1819,7 +1819,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorProf = actor.system.attributes.prof
                 const actorDto = new ActorValidationDTO(actor)
@@ -1833,14 +1833,14 @@ export const AberrantHorrorTestDef = {
                         activity.saveDc = (8 + actorProf + 3)
                     })
                 })
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Unstable Existence saving throws results of 3 or higher does not trigger roll on unstable form table",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "flags.transformations.stageChoices": {
@@ -1853,18 +1853,18 @@ export const AberrantHorrorTestDef = {
             },
 
             requiredPath: [
-                { stage: 1 },
-                { stage: 2 },
-                { stage: 3 }
+                {stage: 1},
+                {stage: 2},
+                {stage: 3}
             ],
 
             steps: [
-                async ({ actor, runtime, helpers }) =>
+                async ({actor, runtime, helpers}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 100
                     await runtime.services.triggerRuntime.run("longRest", actor)
                 },
-                async ({ actor, runtime, helpers }) =>
+                async ({actor, runtime, helpers}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 10
                     await runtime.services.triggerRuntime.run("savingThrow", actor, {
@@ -1880,7 +1880,7 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1888,23 +1888,23 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorEffectDto = new EffectValidationDTO()
-                actorEffectDto.name = "Aberrant Powerfull Lower Limbs"
+                actorEffectDto.name = "Aberrant Powerful Lower Limbs"
                 actorEffectDto.count = 1
 
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = actorEffectDto
 
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Unstable Existence saving throws results of 2 triggers roll on unstable form table",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "flags.transformations.stageChoices": {
@@ -1917,18 +1917,18 @@ export const AberrantHorrorTestDef = {
             },
 
             requiredPath: [
-                { stage: 1 },
-                { stage: 2 },
-                { stage: 3 }
+                {stage: 1},
+                {stage: 2},
+                {stage: 3}
             ],
 
             steps: [
-                async ({ actor, runtime, helpers }) =>
+                async ({actor, runtime, helpers}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 100
                     await runtime.services.triggerRuntime.run("longRest", actor)
                 },
-                async ({ actor, runtime, helpers }) =>
+                async ({actor, runtime, helpers}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 10
                     await runtime.services.triggerRuntime.run("savingThrow", actor, {
@@ -1944,7 +1944,7 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -1952,7 +1952,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert }) =>
+            assertions: async ({actor, assert}) =>
             {
                 const actorEffectDto = new EffectValidationDTO()
                 actorEffectDto.name = "Aberrant Confusions"
@@ -1961,14 +1961,14 @@ export const AberrantHorrorTestDef = {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = actorEffectDto
 
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Unstable Existence saving throws results of 2 triggers roll on unstable form table, not applied due to not being lower result",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "flags.transformations.stageChoices": {
@@ -1981,18 +1981,18 @@ export const AberrantHorrorTestDef = {
             },
 
             requiredPath: [
-                { stage: 1 },
-                { stage: 2 },
-                { stage: 3 }
+                {stage: 1},
+                {stage: 2},
+                {stage: 3}
             ],
 
             steps: [
-                async ({ actor, runtime, helpers }) =>
+                async ({actor, runtime, helpers}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 10
                     await runtime.services.triggerRuntime.run("longRest", actor)
                 },
-                async ({ actor, runtime, helpers }) =>
+                async ({actor, runtime, helpers}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 100
                     await runtime.services.triggerRuntime.run("savingThrow", actor, {
@@ -2008,7 +2008,7 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -2016,7 +2016,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert }) =>
+            assertions: async ({actor, assert}) =>
             {
                 const actorEffectDto = new EffectValidationDTO()
                 actorEffectDto.name = "Aberrant Confusions"
@@ -2025,14 +2025,14 @@ export const AberrantHorrorTestDef = {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = actorEffectDto
 
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Eldritch Aberration damage types and dice rolls",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "flags.transformations.stageChoices": {
@@ -2046,13 +2046,13 @@ export const AberrantHorrorTestDef = {
             },
 
             requiredPath: [
-                { stage: 1 },
-                { stage: 2 },
-                { stage: 3 },
-                { stage: 4 }
+                {stage: 1},
+                {stage: 2},
+                {stage: 3},
+                {stage: 4}
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -2060,7 +2060,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
 
@@ -2085,14 +2085,14 @@ export const AberrantHorrorTestDef = {
                     })
                 })
 
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Poisonous Mutations damage types and dice rolls",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "flags.transformations.stageChoices": {
@@ -2106,13 +2106,13 @@ export const AberrantHorrorTestDef = {
             },
 
             requiredPath: [
-                { stage: 1 },
-                { stage: 2 },
-                { stage: 3 },
-                { stage: 4 }
+                {stage: 1},
+                {stage: 2},
+                {stage: 3},
+                {stage: 4}
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
@@ -2120,7 +2120,7 @@ export const AberrantHorrorTestDef = {
                 })
             },
 
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.addItem(item =>
@@ -2148,7 +2148,7 @@ export const AberrantHorrorTestDef = {
         {
             name: "Poisonous Mutations applied when Chitinous Shell is activated",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "flags.transformations.stageChoices": {
@@ -2162,14 +2162,14 @@ export const AberrantHorrorTestDef = {
             },
 
             requiredPath: [
-                { stage: 1 },
-                { stage: 2 },
-                { stage: 3 },
-                { stage: 4 }
+                {stage: 1},
+                {stage: 2},
+                {stage: 3},
+                {stage: 4}
             ],
 
             steps: [
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -2180,34 +2180,34 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
                     asyncTrackers: runtime.dependencies.utils.asyncTrackers
                 })
             },
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const effectsDto = new EffectValidationDTO()
                 effectsDto.match = {
                     expected: 2,
                     matchMode: "and",
                     filters: [
-                        { key: "name", value: "Chitinous Shell" },
-                        { key: "name", value: "Poisonous Mutations" }
+                        {key: "name", value: "Chitinous Shell"},
+                        {key: "name", value: "Poisonous Mutations"}
                     ]
                 }
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectsDto
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Poisonous Mutations applied when Eldritch Limbs is activated",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "flags.transformations.stageChoices": {
@@ -2221,14 +2221,14 @@ export const AberrantHorrorTestDef = {
             },
 
             requiredPath: [
-                { stage: 1 },
-                { stage: 2 },
-                { stage: 3 },
-                { stage: 4 }
+                {stage: 1},
+                {stage: 2},
+                {stage: 3},
+                {stage: 4}
             ],
 
             steps: [
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -2239,34 +2239,34 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
                     asyncTrackers: runtime.dependencies.utils.asyncTrackers
                 })
             },
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const effectsDto = new EffectValidationDTO()
                 effectsDto.match = {
                     expected: 2,
                     matchMode: "and",
                     filters: [
-                        { key: "name", value: "Eldritch Limbs" },
-                        { key: "name", value: "Poisonous Mutations" }
+                        {key: "name", value: "Eldritch Limbs"},
+                        {key: "name", value: "Poisonous Mutations"}
                     ]
                 }
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectsDto
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Poisonous Mutations applied when Slimy Form is activated",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "flags.transformations.stageChoices": {
@@ -2280,14 +2280,14 @@ export const AberrantHorrorTestDef = {
             },
 
             requiredPath: [
-                { stage: 1 },
-                { stage: 2 },
-                { stage: 3 },
-                { stage: 4 }
+                {stage: 1},
+                {stage: 2},
+                {stage: 3},
+                {stage: 4}
             ],
 
             steps: [
-                async ({ actor, helpers }) =>
+                async ({actor, helpers}) =>
                 {
                     await helpers.applyItemActivityEffect({
                         actor,
@@ -2298,34 +2298,34 @@ export const AberrantHorrorTestDef = {
                 }
             ],
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
                     asyncTrackers: runtime.dependencies.utils.asyncTrackers
                 })
             },
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const effectsDto = new EffectValidationDTO()
                 effectsDto.match = {
                     expected: 2,
                     matchMode: "and",
                     filters: [
-                        { key: "name", value: "Slimy Form" },
-                        { key: "name", value: "Poisonous Mutations" }
+                        {key: "name", value: "Slimy Form"},
+                        {key: "name", value: "Poisonous Mutations"}
                     ]
                 }
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectsDto
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Entropic Abomination applied when actor is bloodied and result on rolltable is lower than current",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "flags.transformations.stageChoices": {
@@ -2339,19 +2339,19 @@ export const AberrantHorrorTestDef = {
             },
 
             requiredPath: [
-                { stage: 1 },
-                { stage: 2 },
-                { stage: 3 },
-                { stage: 4 }
+                {stage: 1},
+                {stage: 2},
+                {stage: 3},
+                {stage: 4}
             ],
 
             steps: [
-                async ({ actor, runtime, waiters }) =>
+                async ({actor, runtime, waiters}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 100
                     await runtime.services.triggerRuntime.run("longRest", actor)
                 },
-                async ({ actor, runtime, waiters }) =>
+                async ({actor, runtime, waiters}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 26
                 }
@@ -2359,27 +2359,27 @@ export const AberrantHorrorTestDef = {
 
             trigger: "bloodied",
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForCondition(() =>
                     actor.effects.find(e => e.name == "Aberrant Confusion")
                 )
             },
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const effectsDto = new EffectValidationDTO()
                 effectsDto.count = 1
                 effectsDto.has.push("Aberrant Confusion")
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectsDto
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Entropic Abomination not applied when actor is bloodied and result on rolltable is not lower than current",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "flags.transformations.stageChoices": {
@@ -2393,19 +2393,19 @@ export const AberrantHorrorTestDef = {
             },
 
             requiredPath: [
-                { stage: 1 },
-                { stage: 2 },
-                { stage: 3 },
-                { stage: 4 }
+                {stage: 1},
+                {stage: 2},
+                {stage: 3},
+                {stage: 4}
             ],
 
             steps: [
-                async ({ actor, runtime, waiters }) =>
+                async ({actor, runtime, waiters}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 26
                     await runtime.services.triggerRuntime.run("longRest", actor)
                 },
-                async ({ actor, runtime, waiters }) =>
+                async ({actor, runtime, waiters}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 100
                 }
@@ -2413,28 +2413,28 @@ export const AberrantHorrorTestDef = {
 
             trigger: "bloodied",
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
                     asyncTrackers: runtime.dependencies.utils.asyncTrackers
                 })
             },
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const effectsDto = new EffectValidationDTO()
                 effectsDto.count = 1
                 effectsDto.has.push("Aberrant Confusion")
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectsDto
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Entropic Abomination applied when actor fails saving throw and result on rolltable is lower than current",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 globalThis.___TransformationTestEnvironment___.saveResult = 5
                 globalThis.___TransformationTestEnvironment___.saveRolled = false
@@ -2450,19 +2450,19 @@ export const AberrantHorrorTestDef = {
             },
 
             requiredPath: [
-                { stage: 1 },
-                { stage: 2 },
-                { stage: 3 },
-                { stage: 4 }
+                {stage: 1},
+                {stage: 2},
+                {stage: 3},
+                {stage: 4}
             ],
 
             steps: [
-                async ({ actor, runtime, waiters }) =>
+                async ({actor, runtime, waiters}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 100
                     await runtime.services.triggerRuntime.run("longRest", actor)
                 },
-                async ({ actor, runtime, waiters }) =>
+                async ({actor, runtime, waiters}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 26
                     await runtime.services.triggerRuntime.run("savingThrow", actor, {
@@ -2480,25 +2480,25 @@ export const AberrantHorrorTestDef = {
 
             trigger: "savingThrow",
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForCondition(() =>
                     actor.effects.find(e => e.name == "Aberrant Confusion")
                 )
             },
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
                 dto.effects.has.push("Aberrant Confusion")
                 dto.effects.count = 1
-                validate(dto, { assert })
+                validate(dto, {assert})
             }
         },
 
         {
             name: "Entropic Abomination not applied when actor fails saving throw and result on rolltable is not lower than current",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "flags.transformations.stageChoices": {
@@ -2512,19 +2512,19 @@ export const AberrantHorrorTestDef = {
             },
 
             requiredPath: [
-                { stage: 1 },
-                { stage: 2 },
-                { stage: 3 },
-                { stage: 4 }
+                {stage: 1},
+                {stage: 2},
+                {stage: 3},
+                {stage: 4}
             ],
 
             steps: [
-                async ({ actor, runtime, waiters }) =>
+                async ({actor, runtime, waiters}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 26
                     await runtime.services.triggerRuntime.run("longRest", actor)
                 },
-                async ({ actor, runtime, waiters }) =>
+                async ({actor, runtime, waiters}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 100
                     await runtime.services.triggerRuntime.run("savingThrow", actor, {
@@ -2542,26 +2542,26 @@ export const AberrantHorrorTestDef = {
 
             trigger: "savingThrow",
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
                     asyncTrackers: runtime.dependencies.utils.asyncTrackers
                 })
             },
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
                 dto.effects.has.push("Aberrant Confusion")
                 dto.effects.count = 1
-                validate(dto, { assert })
+                validate(dto, {assert})
             }
         },
 
         {
             name: "Entropic Abomination not applied when actor succeeds saving throw and result on rolltable is lower than current",
 
-            setup: async ({ actor }) =>
+            setup: async ({actor}) =>
             {
                 await actor.update({
                     "flags.transformations.stageChoices": {
@@ -2575,14 +2575,14 @@ export const AberrantHorrorTestDef = {
             },
 
             requiredPath: [
-                { stage: 1 },
-                { stage: 2 },
-                { stage: 3 },
-                { stage: 4 }
+                {stage: 1},
+                {stage: 2},
+                {stage: 3},
+                {stage: 4}
             ],
 
             steps: [
-                async ({ actor, runtime, waiters }) =>
+                async ({actor, runtime, waiters}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 93
                     await runtime.services.triggerRuntime.run("longRest", actor)
@@ -2590,7 +2590,7 @@ export const AberrantHorrorTestDef = {
                         actor.effects.find(e => e.name == "Aberrant Slow Speech")
                     )
                 },
-                async ({ actor, runtime, waiters }) =>
+                async ({actor, runtime, waiters}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 26
                     await runtime.services.triggerRuntime.run("savingThrow", actor, {
@@ -2604,247 +2604,247 @@ export const AberrantHorrorTestDef = {
 
             trigger: "savingThrow",
 
-            await: async ({ runtime, waiters, actor }) =>
+            await: async ({runtime, waiters, actor}) =>
             {
                 await waiters.waitForDomainStability({
                     actor,
                     asyncTrackers: runtime.dependencies.utils.asyncTrackers
                 })
             },
-            assertions: async ({ actor, assert, validators }) =>
+            assertions: async ({actor, assert, validators}) =>
             {
                 const effectsDto = new EffectValidationDTO()
                 effectsDto.count = 1
                 effectsDto.has.push("Aberrant Slow Speech")
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectsDto
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
-        },
+        }
     ],
 
     rollTableEffects: [
         {
             name: "Aberrant Resilience",
             key: "AberrantResilience",
-            assertion: async ({ name, actor, assert, validators }) =>
+            assertion: async ({name, actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.rollModes.advantage.push({
                     identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
                 })
                 actorDto.effects.has.push(name)
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Aberrant Temporary Vitality Boost",
             key: "AberrantTemporaryVitalityBoost",
-            setup: async ({ actor, helpers }) =>
+            setup: async ({actor, helpers}) =>
             {
                 await actor.setFlag("transformations", "stage", 1)
             },
-            assertion: async ({ origin, actor, assert, validators }) =>
+            assertion: async ({origin, actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
-                actorDto.stats.hp.push({ value: 4, variant: "temp" })
+                actorDto.stats.hp.push({value: 4, variant: "temp"})
                 actorDto.effects.notHas.push(origin)
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
-            name: "Aberrant Powerfull Lower Limbs",
+            name: "Aberrant Powerful Lower Limbs",
             key: "AberrantPowerfullLowerLimbs",
-            assertion: async ({ name, actor, assert, validators }) =>
+            assertion: async ({name, actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
                 dto.stats.movementBonus = 5
                 dto.effects.has.push(name)
-                validate(dto, { assert })
+                validate(dto, {assert})
             }
         },
 
         {
             name: "Aberrant No Effect",
             key: "AberrantNoEffect",
-            assertion: async ({ origin, actor, assert, validators }) =>
+            assertion: async ({origin, actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
                 dto.effects.notHas.push(origin)
-                validate(dto, { assert })
+                validate(dto, {assert})
             }
         },
 
         {
             name: "Aberrant Slow Speech",
             key: "AberrantSlowSpeech",
-            assertion: async ({ name, actor, assert, validators }) =>
+            assertion: async ({name, actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
                 dto.effects.has.push(name)
-                validate(dto, { assert })
+                validate(dto, {assert})
             }
         },
 
         {
             name: "Aberrant Loss Of Vitality",
             key: "AberrantLossOfVitality",
-            assertion: async ({ name, actor, assert, validators }) =>
+            assertion: async ({name, actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
                 dto.effects.has.push(name)
-                validate(dto, { assert })
+                validate(dto, {assert})
             }
         },
 
         {
             name: "Aberrant Clumsiness",
             key: "AberrantClumsiness",
-            assertion: async ({ name, actor, assert, validators }) =>
+            assertion: async ({name, actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
                 dto.rollModes.disadvantage.push(
-                    { identifier: ABILITY.DEXTERITY, type: ROLL_TYPE.ABILITY_CHECK },
-                    { identifier: ABILITY.DEXTERITY, type: ROLL_TYPE.SAVING_THROW }
+                    {identifier: ABILITY.DEXTERITY, type: ROLL_TYPE.ABILITY_CHECK},
+                    {identifier: ABILITY.DEXTERITY, type: ROLL_TYPE.SAVING_THROW}
                 )
                 dto.effects.has.push(name)
-                validate(dto, { assert })
+                validate(dto, {assert})
             }
         },
 
         {
             name: "Aberrant Defenseless",
             key: "AberrantDefenseless",
-            assertion: async ({ name, actor, assert, validators }) =>
+            assertion: async ({name, actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
                 dto.rollModes.disadvantage.push(
-                    { identifier: ABILITY.CONSTITUTION, type: ROLL_TYPE.SAVING_THROW }
+                    {identifier: ABILITY.CONSTITUTION, type: ROLL_TYPE.SAVING_THROW}
                 )
                 dto.effects.has.push(name)
-                validate(dto, { assert })
+                validate(dto, {assert})
             }
         },
 
         {
             name: "Aberrant Distraction",
             key: "AberrantDistraction",
-            assertion: async ({ name, actor, assert, validators }) =>
+            assertion: async ({name, actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
                 dto.rollModes.disadvantage.push(
-                    { identifier: SKILL.PERCEPTION }
+                    {identifier: SKILL.PERCEPTION}
                 )
                 dto.effects.has.push(name)
-                validate(dto, { assert })
+                validate(dto, {assert})
             }
         },
 
         {
             name: "Aberrant Slugginess",
             key: "AberrantSlugginess",
-            assertion: async ({ name, actor, assert, validators }) =>
+            assertion: async ({name, actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
                 dto.effects.has.push(name)
-                validate(dto, { assert })
+                validate(dto, {assert})
             }
         },
 
         {
             name: "Aberrant Slowness",
             key: "AberrantSlowness",
-            assertion: async ({ name, actor, assert, validators }) =>
+            assertion: async ({name, actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
                 dto.stats.movementBonus = -15
                 dto.effects.has.push(name)
-                validate(dto, { assert })
+                validate(dto, {assert})
             }
         },
 
         {
             name: "Aberrant Confusion",
             key: "AberrantConfusion",
-            assertion: async ({ name, actor, assert, validators }) =>
+            assertion: async ({name, actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
                 dto.effects.has.push(name)
-                validate(dto, { assert })
+                validate(dto, {assert})
             }
         },
 
         {
             name: "Aberrant Exhaustion",
             key: "AberrantExhaustion",
-            assertion: async ({ origin, actor, assert, validators }) =>
+            assertion: async ({origin, actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
                 dto.effects.notHas.push(origin)
-                validate(dto, { assert })
+                validate(dto, {assert})
             }
         },
 
         {
             name: "Aberrant Disadvantage",
             key: "AberrantDisadvantage",
-            assertion: async ({ name, actor, assert, helpers, validators }) =>
+            assertion: async ({name, actor, assert, helpers, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects.has.push(name)
                 for (const ability of D20Identifiers.abilities) {
                     actorDto.rollModes.disadvantage.push(
-                        { identifier: ability, type: ROLL_TYPE.ABILITY_CHECK },
-                        { identifier: ability, type: ROLL_TYPE.SAVING_THROW }
+                        {identifier: ability, type: ROLL_TYPE.ABILITY_CHECK},
+                        {identifier: ability, type: ROLL_TYPE.SAVING_THROW}
                     )
                 }
                 for (const attribute of D20Identifiers.attributes) {
                     actorDto.rollModes.disadvantage.push(
-                        { identifier: attribute }
+                        {identifier: attribute}
                     )
                 }
                 for (const skill of D20Identifiers.skills) {
                     actorDto.rollModes.disadvantage.push(
-                        { identifier: skill }
+                        {identifier: skill}
                     )
                 }
                 actorDto.rollModes.toolDisadvantage = "1"
-                validate(actorDto, { assert })
+                validate(actorDto, {assert})
             }
         },
 
         {
             name: "Aberrant Weakness",
             key: "AberrantWeakness",
-            assertion: async ({ name, actor, assert, validators }) =>
+            assertion: async ({name, actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
                 dto.stats.hp.push(
-                    { value: 5, variant: "effectiveMax" },
-                    { value: 5, variant: "value" }
+                    {value: 5, variant: "effectiveMax"},
+                    {value: 5, variant: "value"}
                 )
                 dto.effects.has.push(name)
 
-                validate(dto, { assert })
+                validate(dto, {assert})
             }
         },
 
         {
             name: "Aberrant Overload",
             key: "AberrantOverload",
-            assertion: async ({ origin, actor, assert, validators }) =>
+            assertion: async ({origin, actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
                 dto.stats.hp.push(
-                    { value: 0, variant: "temp" },
-                    { value: 0, variant: "value" }
+                    {value: 0, variant: "temp"},
+                    {value: 0, variant: "value"}
                 )
                 dto.stats.deathSaveDelta = -3
                 dto.effects.notHas.push(origin)
-                validate(dto, { assert })
+                validate(dto, {assert})
             }
-        },
+        }
     ]
 }

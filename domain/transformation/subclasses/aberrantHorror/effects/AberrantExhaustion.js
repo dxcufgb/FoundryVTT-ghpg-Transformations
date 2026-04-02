@@ -12,10 +12,10 @@ export class AberrantExhaustion extends AberrantEffect {
     }
 
     constructor(args) {
-        args?.logger?.debug?.("AberrantExhaustion.constructor", { args })
+        args?.logger?.debug?.("AberrantExhaustion.constructor", {args})
         super(args);
         this.description =
-            "Your bodyâ€™s metabolism quickly drains your energy. You gain 2 Exhaustion levels.";
+            "Your body's metabolism quickly drains your energy. You gain 2 Exhaustion levels.";
     }
 
     async beforeApply() {
