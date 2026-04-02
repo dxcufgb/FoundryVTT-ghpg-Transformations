@@ -1,4 +1,5 @@
 import { applyGiftOfDamnation } from "./applyGiftOfDamnation.js"
+import { getHighestAvailableHitDieDenomination } from "./getHighestAvailableHitDieDenomination.js"
 
 export class GiftOfMartialProwess
 {
@@ -170,21 +171,7 @@ export class GiftOfMartialProwess
 
     static getActorHitDie(actor, actorRepository)
     {
-        const availableHitDie =
-                  actorRepository?.getHighestAvailableHitDice?.(actor)?.denomination
-        if (availableHitDie) return availableHitDie
-
-        const classHitDice = actor?.items
-            ?.filter(item => item.type === "class")
-            ?.map(item => item.system?.hd?.denomination)
-            ?.filter(Boolean) ?? []
-
-        const sortedHitDice = [...classHitDice].sort((left, right) =>
-            Number.parseInt(String(right).replace("d", "")) -
-            Number.parseInt(String(left).replace("d", ""))
-        )
-
-        return sortedHitDice[0] ?? "d6"
+        return getHighestAvailableHitDieDenomination(actor, actorRepository) ?? "d6"
     }
 
     static getGiftRolls({message, rolls})

@@ -1,14 +1,32 @@
+/*noinspection ALL*/
+:root {
+    --transformations-color-note-warn: var(--dnd5e-color-note-warn, #9b6903);
+    --transformations-color-gold: var(--dnd5e-color-gold, #9f9275);
+    --transformations-pill-background: var(--pill-background-color, #252830);
+    --transformations-font-size-11: var(--font-size-11, 0.6875rem);
+    --transformations-background-card: var(--dnd5e-background-card, #252830);
+    --transformations-shadow-45: var(--dnd5e-shadow-45, rgba(0, 0, 0, 0.45));
+    --transformations-font-roboto: var(--dnd5e-font-roboto, "Roboto", sans-serif);
+    --transformations-z-index-tooltip: var(--z-index-tooltip, 9999);
+    --transformations-font-size-13: var(--font-size-13, 0.8125rem);
+    --transformations-color-text-primary: var(--color-text-primary, #cfd2da);
+    --transformations-color-tan: var(--dnd5e-color-tan, #7a7971);
+    --transformations-color-border-light-primary: var(--color-dark-5, #555);
+    --transformations-color-border-highlight: var(--color-border-highlight, #c29a5b);
+    --transformations-color-shadow-primary: var(--color-shadow-primary, #c9593f);
+}
+
 @keyframes glow-pulse {
     0% {
-        box-shadow: 0 0 4px var(--dnd5e-color-note-warn);
+        box-shadow: 0 0 4px var(--transformations-color-note-warn);
     }
 
     50% {
-        box-shadow: 0 0 14px var(--dnd5e-color-gold);
+        box-shadow: 0 0 14px var(--transformations-color-gold);
     }
 
     100% {
-        box-shadow: 0 0 4px var(--dnd5e-color-note-warn);
+        box-shadow: 0 0 4px var(--transformations-color-note-warn);
     }
 }
 
@@ -17,19 +35,19 @@
 }
 
 .pill-lg.texture.transformation {
-    background: url("templates/img/transformation.png") no-repeat right, var(--pill-background-color);
+    background: url("templates/img/transformation.png") no-repeat right, var(--transformations-pill-background);
     background-size: contain;
     transition: box-shadow 200ms ease;
 }
 
 .pill-lg.transformation:hover:not(:has(a:hover)) {
-    box-shadow: 0 0 12px 0 var(--dnd5e-color-gold);
+    box-shadow: 0 0 12px 0 var(--transformations-color-gold);
 }
 
 .pill-lg .transformation-stage-select {
     width: fit-content;
     height: unset;
-    font-size: var(--font-size-11);
+    font-size: var(--transformations-font-size-11);
     min-width: 8ch;
 }
 
@@ -38,7 +56,7 @@
     overflow-y: auto;
     margin: 2rem 1.5rem 2.5rem;
     padding: 1rem 1.4rem;
-    background: var(--pill-background-color);
+    background: var(--transformations-pill-background);
     border-radius: 6px;
 }
 
@@ -85,13 +103,13 @@
     padding: 1rem 1.4rem;
     border-radius: 6px;
 
-    background: var(--pill-background-color);
-    border: 1px solid var(--color-border-light);
+    background: var(--transformations-pill-background);
+    border: 1px solid var(--transformations-color-border-light-primary);
 
     transition: background 0.15s ease, border-color 0.15s ease;
     max-width: 150px;
-    background: var(--pill-background-color);
-    color: var(--dnd5e-color-gold);
+    background: var(--transformations-pill-background);
+    color: var(--transformations-color-gold);
 }
 
 .choice-radio input[type="radio"] {
@@ -102,20 +120,20 @@
 
 .choice-radio:hover {
     animation: glow-pulse 1.5s infinite ease-in-out;
-    background: var(--pill-background-color);
+    background: var(--transformations-pill-background);
 }
 
 .choice-radio:has(input[type="radio"]:checked) {
-    box-shadow: 0 0 6px var(--dnd5e-color-gold),
-    0 0 12px var(--dnd5e-color-gold),
-    0 0 18px var(--dnd5e-color-gold);
-    background: var(--pill-background-color);
-    color: var(--dnd5e-color-gold);
+    box-shadow: 0 0 6px var(--transformations-color-gold),
+    0 0 12px var(--transformations-color-gold),
+    0 0 18px var(--transformations-color-gold);
+    background: var(--transformations-pill-background);
+    color: var(--transformations-color-gold);
     pointer-events: none;
 }
 
 .choice-radio:has(input[type="radio"]:focus-visible) {
-    outline: 2px solid var(--dnd5e-color-gold);
+    outline: 2px solid var(--transformations-color-gold);
     outline-offset: 2px;
 }
 
@@ -147,14 +165,14 @@
     position: fixed;
     min-width: 145px;
     width: max-content;
-    background: var(--dnd5e-background-card);
+    background: var(--transformations-background-card);
     border: none;
     border-radius: 3px;
-    box-shadow: 0 3px 6px var(--dnd5e-shadow-45);
-    font-family: var(--dnd5e-font-roboto);
-    z-index: var(--z-index-tooltip);
-    font-size: var(--font-size-13);
-    color: var(--color-text-primary);
+    box-shadow: 0 3px 6px var(--transformations-shadow-45);
+    font-family: var(--transformations-font-roboto);
+    z-index: var(--transformations-z-index-tooltip);
+    font-size: var(--transformations-font-size-13);
+    color: var(--transformations-color-text-primary);
 }
 
 .dnd5e-context-menu .context-items {
@@ -173,7 +191,7 @@
 }
 
 .dnd5e-context-menu .context-item:hover {
-    background: var(--dnd5e-color-tan);
+    background: var(--transformations-color-tan);
 }
 
 .dnd5e-context-menu i {
@@ -216,7 +234,7 @@
     padding: 10px 14px;
     border-radius: 8px;
 
-    background: var(--dnd5e-background-card, #2b2b2b);
+    background: var(--transformations-background-card);
     border: 1px solid #555;
 
     cursor: pointer;
@@ -344,15 +362,15 @@
 
 .choice-button:hover {
     animation: glow-pulse 1.5s infinite ease-in-out;
-    background: var(--pill-background-color);
+    background: var(--transformations-pill-background);
 }
 
 .choice-button[data-selected="true"] {
-    box-shadow: 0 0 6px var(--dnd5e-color-gold),
-    0 0 12px var(--dnd5e-color-gold),
-    0 0 18px var(--dnd5e-color-gold);
-    background: var(--pill-background-color);
-    color: var(--dnd5e-color-gold);
+    box-shadow: 0 0 6px var(--transformations-color-gold),
+    0 0 12px var(--transformations-color-gold),
+    0 0 18px var(--transformations-color-gold);
+    background: var(--transformations-pill-background);
+    color: var(--transformations-color-gold);
     pointer-events: none;
 }
 
@@ -375,12 +393,12 @@
 
 .item-info-dialog .item-description {
     width: 100%;
-    border: 1px solid var(--color-border-light-primary);
+    border: 1px solid var(--transformations-color-border-light-primary);
     text-align: justify;
     max-height: 250px;
     overflow-y: auto;
     padding: 1rem 1.4rem;
-    background: var(--pill-background-color);
+    background: var(--transformations-pill-background);
     border-radius: 6px;
 }
 
@@ -490,7 +508,7 @@
     margin: 1.5rem 0 2rem;
     padding: 1rem 1.4rem;
 
-    background: var(--pill-background-color);
+    background: var(--transformations-pill-background);
     border-radius: 6px;
 
     max-width: 30rem;
@@ -538,9 +556,9 @@
     flex-direction: column;
     gap: 0.2rem;
     padding: 0.65rem 0.75rem;
-    border: 1px solid color-mix(in srgb, var(--color-border-light-primary) 60%, transparent);
+    border: 1px solid color-mix(in srgb, var(--transformations-color-border-light-primary) 60%, transparent);
     border-radius: 8px;
-    background: color-mix(in srgb, var(--dnd5e-background-card) 94%, white 6%);
+    background: color-mix(in srgb, var(--transformations-background-card) 94%, white 6%);
 }
 
 .fiend-unbridled-power-spell-slot-recovery__stat-label {
@@ -566,9 +584,9 @@
     gap: 0.75rem;
     margin: 0;
     padding: 0.7rem 0.8rem;
-    border: 1px solid color-mix(in srgb, var(--color-border-light-primary) 55%, transparent);
+    border: 1px solid color-mix(in srgb, var(--transformations-color-border-light-primary) 55%, transparent);
     border-radius: 8px;
-    background: color-mix(in srgb, var(--pill-background-color) 95%, white 5%);
+    background: color-mix(in srgb, var(--transformations-pill-background) 95%, white 5%);
 }
 
 .fiend-unbridled-power-spell-slot-recovery__legend {
@@ -590,8 +608,8 @@
     width: 2rem;
     height: 2rem;
     border-radius: 6px;
-    background: color-mix(in srgb, var(--dnd5e-background-card) 88%, white 12%);
-    border: 1px solid color-mix(in srgb, var(--color-border-light-primary) 60%, transparent);
+    background: color-mix(in srgb, var(--transformations-background-card) 88%, white 12%);
+    border: 1px solid color-mix(in srgb, var(--transformations-color-border-light-primary) 60%, transparent);
     font-size: 0.95rem;
     font-weight: 700;
     line-height: 1;
@@ -622,24 +640,23 @@
     width: 1rem;
     height: 1rem;
     border-radius: 3px;
-    border: 1px solid color-mix(in srgb, var(--color-border-light-primary) 75%, transparent);
-    background: color-mix(in srgb, var(--dnd5e-background-card) 92%, white 8%);
-    transition:
-        border-color 120ms ease,
-        background-color 120ms ease;
+    border: 1px solid color-mix(in srgb, var(--transformations-color-border-light-primary) 75%, transparent);
+    background: color-mix(in srgb, var(--transformations-background-card) 92%, white 8%);
+    transition: border-color 120ms ease,
+    background-color 120ms ease;
 }
 
 .fiend-unbridled-power-spell-slot-recovery__slot:hover .fiend-unbridled-power-spell-slot-recovery__slot-mark {
-    border-color: color-mix(in srgb, var(--color-border-highlight) 70%, transparent);
+    border-color: color-mix(in srgb, var(--transformations-color-border-highlight) 70%, transparent);
 }
 
 .fiend-unbridled-power-spell-slot-recovery__slot input[type="checkbox"]:checked + .fiend-unbridled-power-spell-slot-recovery__slot-mark {
-    background: color-mix(in srgb, var(--color-shadow-primary) 65%, white 35%);
-    border-color: color-mix(in srgb, var(--color-shadow-primary) 75%, transparent);
+    background: color-mix(in srgb, var(--transformations-color-shadow-primary) 65%, white 35%);
+    border-color: color-mix(in srgb, var(--transformations-color-shadow-primary) 75%, transparent);
 }
 
 .fiend-unbridled-power-spell-slot-recovery__slot input[type="checkbox"]:focus-visible + .fiend-unbridled-power-spell-slot-recovery__slot-mark {
-    outline: 2px solid color-mix(in srgb, var(--color-shadow-primary) 70%, white 30%);
+    outline: 2px solid color-mix(in srgb, var(--transformations-color-shadow-primary) 70%, white 30%);
     outline-offset: 2px;
 }
 
@@ -664,9 +681,9 @@
 .fiend-unbridled-power-spell-slot-recovery__empty {
     margin: 0;
     padding: 0.8rem 0.9rem;
-    border: 1px solid color-mix(in srgb, var(--color-border-light-primary) 50%, transparent);
+    border: 1px solid color-mix(in srgb, var(--transformations-color-border-light-primary) 50%, transparent);
     border-radius: 8px;
-    background: color-mix(in srgb, var(--pill-background-color) 96%, white 4%);
+    background: color-mix(in srgb, var(--transformations-pill-background) 96%, white 4%);
     line-height: 1.5;
 }
 
@@ -684,9 +701,9 @@
 .hag-spell-recovery__description {
     margin: 0;
     padding: 0.8rem 0.9rem;
-    border: 1px solid color-mix(in srgb, var(--color-border-light-primary) 55%, transparent);
+    border: 1px solid color-mix(in srgb, var(--transformations-color-border-light-primary) 55%, transparent);
     border-radius: 8px;
-    background: color-mix(in srgb, var(--dnd5e-background-card) 95%, white 5%);
+    background: color-mix(in srgb, var(--transformations-background-card) 95%, white 5%);
     line-height: 1.45;
 }
 
@@ -701,9 +718,9 @@
     flex-direction: column;
     gap: 0.2rem;
     padding: 0.65rem 0.75rem;
-    border: 1px solid color-mix(in srgb, var(--color-border-light-primary) 60%, transparent);
+    border: 1px solid color-mix(in srgb, var(--transformations-color-border-light-primary) 60%, transparent);
     border-radius: 8px;
-    background: color-mix(in srgb, var(--dnd5e-background-card) 94%, white 6%);
+    background: color-mix(in srgb, var(--transformations-background-card) 94%, white 6%);
 }
 
 .hag-spell-recovery__stat-label {
@@ -729,9 +746,9 @@
     gap: 0.75rem;
     margin: 0;
     padding: 0.7rem 0.8rem;
-    border: 1px solid color-mix(in srgb, var(--color-border-light-primary) 55%, transparent);
+    border: 1px solid color-mix(in srgb, var(--transformations-color-border-light-primary) 55%, transparent);
     border-radius: 8px;
-    background: color-mix(in srgb, var(--pill-background-color) 95%, white 5%);
+    background: color-mix(in srgb, var(--transformations-pill-background) 95%, white 5%);
 }
 
 .hag-spell-recovery__legend {
@@ -753,8 +770,8 @@
     width: 2rem;
     height: 2rem;
     border-radius: 6px;
-    background: color-mix(in srgb, var(--dnd5e-background-card) 88%, white 12%);
-    border: 1px solid color-mix(in srgb, var(--color-border-light-primary) 60%, transparent);
+    background: color-mix(in srgb, var(--transformations-background-card) 88%, white 12%);
+    border: 1px solid color-mix(in srgb, var(--transformations-color-border-light-primary) 60%, transparent);
     font-size: 0.95rem;
     font-weight: 700;
     line-height: 1;
@@ -782,30 +799,28 @@
     width: 1rem;
     height: 1rem;
     border-radius: 999px;
-    border: 1px solid color-mix(in srgb, var(--color-border-light-primary) 85%, transparent);
-    background: color-mix(in srgb, var(--dnd5e-background-card) 92%, white 8%);
-    transition:
-        border-color 120ms ease,
-        background 120ms ease;
+    border: 1px solid color-mix(in srgb, var(--transformations-color-border-light-primary) 85%, transparent);
+    background: color-mix(in srgb, var(--transformations-background-card) 92%, white 8%);
+    transition: border-color 120ms ease,
+    background 120ms ease;
 }
 
 .hag-spell-recovery__slot:hover .hag-spell-recovery__slot-mark {
-    border-color: color-mix(in srgb, var(--color-shadow-primary) 55%, transparent);
+    border-color: color-mix(in srgb, var(--transformations-color-shadow-primary) 55%, transparent);
 }
 
 .hag-spell-recovery__slot input[type="radio"]:checked + .hag-spell-recovery__slot-mark {
-    border-color: color-mix(in srgb, var(--color-shadow-primary) 70%, transparent);
-    background:
-        radial-gradient(
+    border-color: color-mix(in srgb, var(--transformations-color-shadow-primary) 70%, transparent);
+    background: radial-gradient(
             circle at 50% 50%,
-            color-mix(in srgb, var(--color-shadow-primary) 70%, white 30%) 0 38%,
+            color-mix(in srgb, var(--transformations-color-shadow-primary) 70%, white 30%) 0 38%,
             transparent 39%
-        ),
-        color-mix(in srgb, var(--dnd5e-background-card) 92%, white 8%);
+    ),
+    color-mix(in srgb, var(--transformations-background-card) 92%, white 8%);
 }
 
 .hag-spell-recovery__slot input[type="radio"]:focus-visible + .hag-spell-recovery__slot-mark {
-    outline: 2px solid color-mix(in srgb, var(--color-shadow-primary) 70%, white 30%);
+    outline: 2px solid color-mix(in srgb, var(--transformations-color-shadow-primary) 70%, white 30%);
     outline-offset: 2px;
 }
 
@@ -826,8 +841,8 @@
 .hag-spell-recovery__empty {
     margin: 0;
     padding: 0.8rem 0.9rem;
-    border: 1px solid color-mix(in srgb, var(--color-border-light-primary) 50%, transparent);
+    border: 1px solid color-mix(in srgb, var(--transformations-color-border-light-primary) 50%, transparent);
     border-radius: 8px;
-    background: color-mix(in srgb, var(--pill-background-color) 96%, white 4%);
+    background: color-mix(in srgb, var(--transformations-pill-background) 96%, white 4%);
     line-height: 1.5;
 }

@@ -42,12 +42,10 @@ export class TransformationConfigDialog
             options
         })
         super(options)
-        console.log(
-            "Dialog constructed with actorUuid:",
+        logger?.debug?.("TransformationConfigDialog constructed", {
             actorUuid,
-            "instance",
-            this
-        )
+            dialog: this
+        })
         this.actorUuid = actorUuid
         this.viewModel = viewModel
         this.controller = controller
@@ -64,13 +62,6 @@ export class TransformationConfigDialog
     {
         this.logger?.debug?.("TransformationConfigDialog.onSave", { event, target })
         event.preventDefault()
-
-        console.log(
-            "onSave using actorUuid:",
-            this.actorUuid,
-            "instance",
-            this
-        )
 
         const formData = new FormData(target.form)
         const selectedId = formData.get("transformation")

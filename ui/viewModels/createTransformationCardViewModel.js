@@ -13,7 +13,7 @@ export function createTransformationCardViewModel(actor, transformationTypes, is
 
     const editable = isGM && editMode
 
-    // ðŸ”¹ Load available subclasses (same logic as config dialog)
+    // Load available subclasses using the same logic as the config dialog.
     const subclasses = Object.entries(transformationTypes).map(([id, label]) => ({
         id,
         label,
