@@ -13,7 +13,7 @@ export const onSavingThrow = {
                     saves: {
                         current: {
                             item: {
-                                uuid: HIDEOUS_APPEARANCE_UUID
+                                sourceUuid: HIDEOUS_APPEARANCE_UUID
                             },
                             success: false
                         }
@@ -38,7 +38,7 @@ export const onSavingThrow = {
                     saves: {
                         current: {
                             item: {
-                                uuid: ARCH_CRONES_HUNGER_UUID
+                                sourceUuid: ARCH_CRONES_HUNGER_UUID
                             },
                             success: false
                         }

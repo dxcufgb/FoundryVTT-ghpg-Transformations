@@ -98,8 +98,43 @@ function createEmbeddedItem(actor, data, id)
 
     item.flags ??= {}
     item.system ??= {}
+    normalizeCreatedItem(item)
 
     return item
+}
+
+function normalizeCreatedItem(item)
+{
+    if (!item?.system) return item
+
+    normalizeSpellPreparation(item.system)
+    normalizeItemUses(item.system)
+
+    return item
+}
+
+function normalizeSpellPreparation(system)
+{
+    if (system.method == null && system.prepared == null) return
+
+    system.preparation ??= {}
+
+    if (system.method != null && system.preparation.mode == null) {
+        system.preparation.mode = system.method
+    }
+
+    if (system.prepared != null && system.preparation.prepared == null) {
+        system.preparation.prepared = system.prepared
+    }
+}
+
+function normalizeItemUses(system)
+{
+    if (!system.uses) return
+
+    if (system.uses.value == null && system.uses.max != null) {
+        system.uses.value = system.uses.max
+    }
 }
 
 function deepClone(value)
@@ -202,7 +237,15 @@ quench.registerBatch(
                     type: "spell",
                     system: {
                         uses: {},
-                        preparation: {}
+                        preparation: {},
+                        activities: {
+                            contents: [{
+                                name: "Cast Granted Spell",
+                                consumption: {
+                                    targets: []
+                                }
+                            }]
+                        }
                     }
                 }
 
@@ -258,6 +301,12 @@ quench.registerBatch(
                         type: "recoverAll"
                     }])
                     expect(createdSpell.system.uses.requireSlot).to.equal(false)
+                    expect(
+                        createdSpell.system.activities.contents[0].consumption.targets
+                    ).to.deep.equal([{
+                        type: "itemUses",
+                        value: "1"
+                    }])
                 } finally {
                     restoreFoundry()
 
@@ -285,7 +334,15 @@ quench.registerBatch(
                             value: "<p>First</p>"
                         },
                         uses: {},
-                        preparation: {}
+                        preparation: {},
+                        activities: {
+                            contents: [{
+                                name: "Cast First Spell",
+                                consumption: {
+                                    targets: []
+                                }
+                            }]
+                        }
                     }
                 }
                 const secondSpell = {
@@ -298,7 +355,15 @@ quench.registerBatch(
                             value: "<p>Second</p>"
                         },
                         uses: {},
-                        preparation: {}
+                        preparation: {},
+                        activities: {
+                            contents: [{
+                                name: "Cast Second Spell",
+                                consumption: {
+                                    targets: []
+                                }
+                            }]
+                        }
                     }
                 }
 
@@ -377,6 +442,12 @@ quench.registerBatch(
                         type: "recoverAll"
                     }])
                     expect(createdSpell.system.uses.requireSlot).to.equal(false)
+                    expect(
+                        createdSpell.system.activities.contents[0].consumption.targets
+                    ).to.deep.equal([{
+                        type: "itemUses",
+                        value: "1"
+                    }])
                 } finally {
                     restoreFoundry()
 
