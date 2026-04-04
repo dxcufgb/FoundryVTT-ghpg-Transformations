@@ -3,8 +3,8 @@ import {
     hideousAppearanceSaveVariables
 } from "./hideousAppearance.js"
 
-export const onConcentration = {
-    name: "concentration",
+export const onUnconscious = {
+    name: "unconscious",
     variables: hideousAppearanceSaveVariables,
     actionGroups: [
         createHideousAppearanceSaveActionGroup()

@@ -1,10 +1,12 @@
+import {
+    createHideousAppearanceSaveActionGroup,
+    hideousAppearanceSaveVariables
+} from "./hideousAppearance.js"
+
 export const onBloodied = {
     name: "bloodied",
+    variables: hideousAppearanceSaveVariables,
     actionGroups: [
-        {
-            name: "Lich Bloodied Placeholder",
-            when: {},
-            actions: []
-        }
+        createHideousAppearanceSaveActionGroup()
     ]
 }

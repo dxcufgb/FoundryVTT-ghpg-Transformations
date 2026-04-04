@@ -1,5 +1,6 @@
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js";
 import { validate } from "../../../helpers/DTOValidators/validate.js";
+import { EffectValidationDTO } from "../../../helpers/validationDTOs/effect/EffectValidationDTO.js";
 
 function normalizeText(value)
 {
@@ -152,6 +153,47 @@ function findSelectContainingOptions(root, expectedOptions = [])
             )
         )
     }) ?? null
+}
+
+const MEMORI_LICHDOM_UUID =
+    "Compendium.transformations.gh-transformations.Item.5NEzTu8Y5PGmmCOO"
+const ACOLYTE_OF_UNDEATH_UUID =
+    "Compendium.transformations.gh-transformations.Item.mYwSUxSiNQqP4mZ2"
+const HIDEOUS_APPEARANCE_EFFECT_NAME = "Hiding Hideous Appearance"
+const lichStageTwoRequiredPath = [
+    {
+        stage: 1,
+        choose: MEMORI_LICHDOM_UUID
+    },
+    {
+        stage: 2,
+        choose: ACOLYTE_OF_UNDEATH_UUID
+    }
+]
+
+async function addWizardClass(actor, helpers)
+{
+    const foundCharacterClass = await helpers.getCharacterClass("Wizard")
+    await helpers.createActorItemAndWait(
+        actor,
+        foundCharacterClass,
+        {
+            setTransformationFlags: false,
+            setDdbImporterFlag: false,
+            applyAdvancements: false,
+            levels: 4
+        }
+    )
+}
+
+async function applyHidingHideousAppearance(actor, helpers)
+{
+    await helpers.applyItemActivityEffect({
+        actor,
+        itemName: "Hideous Appearance",
+        effectName: HIDEOUS_APPEARANCE_EFFECT_NAME,
+        macroTrigger: "on"
+    })
 }
 
 export const lichTestDef = {
@@ -955,6 +997,294 @@ export const lichTestDef = {
                               null
                     applicationElement?.remove?.()
                 }
+            }
+        },
+        {
+            name: "Hideous Appearance hide hideous form",
+
+            setup: async ({actor, helpers}) =>
+            {
+                await addWizardClass(actor, helpers)
+            },
+
+            requiredPath: lichStageTwoRequiredPath,
+
+            steps: [
+                async ({actor, helpers}) =>
+                {
+                    await applyHidingHideousAppearance(actor, helpers)
+                }
+            ],
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.has.push(HIDEOUS_APPEARANCE_EFFECT_NAME)
+
+                actorDto.effects = effectDto
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "Hideous Appearance saving throw success on bloodied",
+
+            setup: async ({actor, helpers}) =>
+            {
+                await addWizardClass(actor, helpers)
+                globalThis.___TransformationTestEnvironment___.saveResult = 13
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            requiredPath: lichStageTwoRequiredPath,
+
+            steps: [
+                async ({actor, helpers}) =>
+                {
+                    await applyHidingHideousAppearance(actor, helpers)
+                }
+            ],
+
+            trigger: "bloodied",
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.has.push(HIDEOUS_APPEARANCE_EFFECT_NAME)
+
+                actorDto.effects = effectDto
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "Hideous Appearance saving throw fail on bloodied",
+
+            setup: async ({actor, helpers}) =>
+            {
+                await addWizardClass(actor, helpers)
+                globalThis.___TransformationTestEnvironment___.saveResult = 12
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            requiredPath: lichStageTwoRequiredPath,
+
+            steps: [
+                async ({actor, helpers}) =>
+                {
+                    await applyHidingHideousAppearance(actor, helpers)
+                }
+            ],
+
+            trigger: "bloodied",
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 0
+                effectDto.notHas.push(HIDEOUS_APPEARANCE_EFFECT_NAME)
+
+                actorDto.effects = effectDto
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "Hideous Appearance saving throw success on unconscious",
+
+            setup: async ({actor, helpers}) =>
+            {
+                await addWizardClass(actor, helpers)
+                globalThis.___TransformationTestEnvironment___.saveResult = 13
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            requiredPath: lichStageTwoRequiredPath,
+
+            steps: [
+                async ({actor, helpers}) =>
+                {
+                    await applyHidingHideousAppearance(actor, helpers)
+                }
+            ],
+
+            trigger: "unconscious",
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.has.push(HIDEOUS_APPEARANCE_EFFECT_NAME)
+
+                actorDto.effects = effectDto
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "Hideous Appearance saving throw fail on unconscious",
+
+            setup: async ({actor, helpers}) =>
+            {
+                await addWizardClass(actor, helpers)
+                globalThis.___TransformationTestEnvironment___.saveResult = 12
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            requiredPath: lichStageTwoRequiredPath,
+
+            steps: [
+                async ({actor, helpers}) =>
+                {
+                    await applyHidingHideousAppearance(actor, helpers)
+                }
+            ],
+
+            trigger: "unconscious",
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 0
+                effectDto.notHas.push(HIDEOUS_APPEARANCE_EFFECT_NAME)
+
+                actorDto.effects = effectDto
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "Hideous Appearance saving throw success on beginConcentration",
+
+            setup: async ({actor, helpers}) =>
+            {
+                await addWizardClass(actor, helpers)
+                globalThis.___TransformationTestEnvironment___.saveResult = 13
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            requiredPath: lichStageTwoRequiredPath,
+
+            steps: [
+                async ({actor, helpers}) =>
+                {
+                    await applyHidingHideousAppearance(actor, helpers)
+                }
+            ],
+
+            trigger: "concentration",
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 1
+                effectDto.has.push(HIDEOUS_APPEARANCE_EFFECT_NAME)
+
+                actorDto.effects = effectDto
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "Hideous Appearance saving throw fail on beginConcentration",
+
+            setup: async ({actor, helpers}) =>
+            {
+                await addWizardClass(actor, helpers)
+                globalThis.___TransformationTestEnvironment___.saveResult = 12
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            requiredPath: lichStageTwoRequiredPath,
+
+            steps: [
+                async ({actor, helpers}) =>
+                {
+                    await applyHidingHideousAppearance(actor, helpers)
+                }
+            ],
+
+            trigger: "concentration",
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+
+                const actorDto = new ActorValidationDTO(actor)
+                const effectDto = new EffectValidationDTO()
+                effectDto.count = 0
+                effectDto.notHas.push(HIDEOUS_APPEARANCE_EFFECT_NAME)
+
+                actorDto.effects = effectDto
+                validate(actorDto, {assert})
             }
         }
     ]
