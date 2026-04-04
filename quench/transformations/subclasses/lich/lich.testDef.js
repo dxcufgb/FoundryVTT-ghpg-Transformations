@@ -78,15 +78,16 @@ function findApplicationForElement(element)
             applicationRoot?.contains?.(element) ||
             applicationRoot?.shadowRoot === element.getRootNode?.() ||
             applicationRoot?.shadowRoot?.contains?.(element)
-        ) {
+        )
+        {
             return application
         }
     }
 
     const applicationElement =
-        element.closest?.("[data-appid]") ??
-        element.closest?.(".application") ??
-        null
+              element.closest?.("[data-appid]") ??
+              element.closest?.(".application") ??
+              null
     const applicationId = applicationElement?.dataset?.appid
 
     return (
@@ -360,6 +361,239 @@ export const lichTestDef = {
                         activity.activationType = "bonus"
                         activity.target.affects.count = 1
                         activity.target.affects.type = "creature"
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 2 with Acolyte of Undeath`,
+            steps: [
+                {
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        const foundCharacterClass = await helpers.getCharacterClass("Wizard")
+                        await helpers.createActorItemAndWait(
+                            actor,
+                            foundCharacterClass,
+                            {
+                                setTransformationFlags: false,
+                                setDdbImporterFlag: false,
+                                applyAdvancements: false,
+                                levels: 4
+                            }
+                        )
+                    }
+                },
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.5NEzTu8Y5PGmmCOO",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.mYwSUxSiNQqP4mZ2",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.mYwSUxSiNQqP4mZ2",
+                    "Compendium.transformations.gh-transformations.Item.b4rU3hux0unYcjCm"
+                ]
+                actorDto.addItem(item => {
+                    item.itemName = "Hideous Appearance"
+                    item.addActivity(activity => {
+                        activity.name = "Hide Hideous Appearance"
+                        activity.activationType = "action"
+                    })
+                    item.addEffect(effect => {
+                        effect.name = "Hiding Hideous Appearance"
+                        effect.description = "You are Hiding your Hideous Form"
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Saving Throw"
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Acolyte of Undeath"
+                    item.addActivity(activity => {
+                        activity.name = "Transform Into Zombie"
+                        activity.activationType = "reaction"
+                        activity.addSummon(summon => {
+                            summon.count = 1
+                            summon.uuid = "Compendium.transformations.creatures.Actor.HXxLcwk7jpvLY3Vg"
+                        })
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 2 with Binding Curse`,
+            steps: [
+                {
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        const foundCharacterClass = await helpers.getCharacterClass("Wizard")
+                        await helpers.createActorItemAndWait(
+                            actor,
+                            foundCharacterClass,
+                            {
+                                setTransformationFlags: false,
+                                setDdbImporterFlag: false,
+                                applyAdvancements: false,
+                                levels: 4
+                            }
+                        )
+                    }
+                },
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.5NEzTu8Y5PGmmCOO",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.Vg6fukPM6JxwmoMb",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.Vg6fukPM6JxwmoMb"
+                ]
+
+                actorDto.addItem(item => {
+                    item.itemName = "Binding Curse"
+                    item.uses.max = 3
+                    item.uses.addRecovery(recovery => {
+                        recovery.period = "lr"
+                        recovery.type = "recoverAll"
+                    })
+                    item.uses.addRecovery(recovery => {
+                        recovery.period = "sr"
+                        recovery.type = "recoverAll"
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Bind Creature"
+                        activity.activationType = "bonus"
+                        activity.duration.units = "minute"
+                        activity.duration.value = 1
+                        activity.addConsumption(consumption => {
+                            consumption.numberOfTargets = 1
+                            consumption.addTarget(target => {
+                                target.value = 1
+                                target.type = "item"
+                            })
+                        })
+                        activity.range.value = 30
+                        activity.range.unit = "ft"
+                        activity.target.value = 1
+                        activity.target.type = "creature"
+                        activity.saveAbility = ["cha"]
+                        activity.saveDc = 14
+                        activity.addEffect(effect => {
+                            effect.name = "Binding Curse"
+                            effect.description = "This creature cannot move more than 30 feet away from the lich which cast the curse.Whenever the Lich attacks this creature, weapon attacks and unarmed strikes deals an additional 2d6 Necrotic damage"
+                        })
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Damage"
+                        activity.addDamagePart(damagePart => {
+                            damagePart.roll = "2d6"
+                        })
+                        activity.critical.allow = true
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 2 with Corrupting Magic`,
+            steps: [
+                {
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        const foundCharacterClass = await helpers.getCharacterClass("Wizard")
+                        await helpers.createActorItemAndWait(
+                            actor,
+                            foundCharacterClass,
+                            {
+                                setTransformationFlags: false,
+                                setDdbImporterFlag: false,
+                                applyAdvancements: false,
+                                levels: 4
+                            }
+                        )
+                    }
+                },
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.5NEzTu8Y5PGmmCOO",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.l4qP3E5fOFZjLpNT",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.l4qP3E5fOFZjLpNT"
+                ]
+
+                actorDto.addItem(item => {
+                    item.itemName = "Corrupting Magic"
+                    item.addActivity(activity => {
+                        activity.name = "Life Force"
+                        activity.activationType = "special"
+                        activity.healing.roll = "1d6"
+                        activity.healing.type = "healing"
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Poison"
+                        activity.activationType = "special"
+                        activity.range.unit = "special"
+                        activity.range.special = "Within 10 ft from the killed creature"
+                        activity.target.value = 1
+                        activity.target.type = "creature"
+                        activity.addDamagePart(damagePart => {
+                            damagePart.roll = "1d6"
+                            damagePart.type = "poison"
+                        })
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Exhaustion"
+                        activity.activationType = "special"
+                        activity.range.unit = "special"
+                        activity.range.special = "Within 10 ft from the killed creature"
+                        activity.target.value = 1
                     })
                 })
                 validate(actorDto, {assert})
@@ -652,11 +886,11 @@ export const lichTestDef = {
                     if (!messageRoot) return false
 
                     const attackButton =
-                        findActionElement(messageRoot, {action: "attack"}) ??
-                        findActionElement(messageRoot, {text: "Attack"})
+                              findActionElement(messageRoot, {action: "attack"}) ??
+                              findActionElement(messageRoot, {text: "Attack"})
                     const damageButton =
-                        findActionElement(messageRoot, {action: "damage"}) ??
-                        findActionElement(messageRoot, {text: "Damage"})
+                              findActionElement(messageRoot, {action: "damage"}) ??
+                              findActionElement(messageRoot, {text: "Damage"})
 
                     return attackButton != null && damageButton != null
                 }, {
@@ -671,8 +905,8 @@ export const lichTestDef = {
                 expect(messageRoot).to.exist
 
                 const damageButton =
-                    findActionElement(messageRoot, {action: "damage"}) ??
-                    findActionElement(messageRoot, {text: "Damage"})
+                          findActionElement(messageRoot, {action: "damage"}) ??
+                          findActionElement(messageRoot, {text: "Damage"})
 
                 expect(
                     damageButton,
@@ -716,9 +950,9 @@ export const lichTestDef = {
                     await application.close({force: true})
                 } else {
                     const applicationElement =
-                        damageTypeSelect.closest?.("[data-appid]") ??
-                        damageTypeSelect.closest?.(".application") ??
-                        null
+                              damageTypeSelect.closest?.("[data-appid]") ??
+                              damageTypeSelect.closest?.(".application") ??
+                              null
                     applicationElement?.remove?.()
                 }
             }

@@ -4,20 +4,20 @@ export const stage2 = {
     grants: {
         items: [
             {
-                name: "Lich Stage 2 Base Feature",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.b4rU3hux0unYcjCm"
             }
         ]
     },
     choices: {
         items: [
             {
-                name: "Lich Stage 2 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.mYwSUxSiNQqP4mZ2"
             },
             {
-                name: "Lich Stage 2 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.Vg6fukPM6JxwmoMb"
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.l4qP3E5fOFZjLpNT"
             }
         ]
     }
