@@ -323,6 +323,16 @@ export async function getCharacterClass(characterClass)
     return await pack.getDocument(classEntry._id)
 }
 
+export async function getDndItem(item) {
+    const pack = game.packs.get("dnd5e.items")
+
+    await pack.getIndex()
+
+    const classEntry = pack.index.find(e => e.name === item)
+
+    return await pack.getDocument(classEntry._id)
+}
+
 export async function getCharacterRace(characterRace)
 {
     const pack = game.packs.get("dnd5e.races")

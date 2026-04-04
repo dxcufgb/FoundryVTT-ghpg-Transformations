@@ -6,6 +6,14 @@ import { infernalSmite } from "./infernalSmite.flags.js"
 import { giftOfJoyousLife } from "./giftOfJoyousLife.flags.js";
 import { giftOfUnsurpassedFortune } from "./giftOfUnsurpassedFortune.flags.js";
 import { hag } from "./hag.flags.js"
+import { lich } from "./lich.flags.js"
+import { lycanthrope } from "./lycanthrope.flags.js";
+import { ooze } from "./ooze.flags.js";
+import { primordial } from "./primordial.flags.js";
+import { seraph } from "./seraph.flags.js";
+import { shadowsteelGhoul } from "./shadowsteel-ghoul.flags.js";
+import { specter } from "./specter.flags.js";
+import { vampire } from "./vampire.flags.js";
 
 export const transformationFlagEntries = [
     aberrantHorror,
@@ -15,5 +23,13 @@ export const transformationFlagEntries = [
     infernalSmite,
     giftOfJoyousLife,
     giftOfUnsurpassedFortune,
-    hag
+    hag,
+    lich,
+    lycanthrope,
+    ooze,
+    primordial,
+    seraph,
+    shadowsteelGhoul,
+    specter,
+    vampire
 ]

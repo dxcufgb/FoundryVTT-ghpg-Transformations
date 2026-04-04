@@ -5,6 +5,7 @@ import { BaseDTOValidator } from "./BaseDTOValidator.js"
 export class ConsupmtionTargetDTOValidator extends BaseDTOValidator
 {
     static rules = {
+        target: path("target.target").equals(),
         type: path("target.type").equals(),
         value: path("target.value").equals()
     }
@@ -18,7 +19,7 @@ export class ConsupmtionTargetDTOValidator extends BaseDTOValidator
         if (!target)
             throw new Error(`[${this.path}] Missing consumption target`)
 
-        super.validate(this.buildValidationDTO(dto), { target })
+        super.validate(this.buildValidationDTO(dto), {target})
 
         return true
     }

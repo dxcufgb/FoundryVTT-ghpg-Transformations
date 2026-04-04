@@ -1,0 +1,105 @@
+<div class="transformations-spell-slot-recovery {{classPrefix}}">
+    {{#if description}}
+        <p class="transformations-spell-slot-recovery__description {{classPrefix}}__description">
+            {{description}}
+        </p>
+    {{/if}}
+
+    {{#if summaryStats.length}}
+        <div class="transformations-spell-slot-recovery__summary {{classPrefix}}__summary">
+            {{#each summaryStats}}
+                <div class="transformations-spell-slot-recovery__stat {{../classPrefix}}__stat">
+                    <span class="transformations-spell-slot-recovery__stat-label {{../classPrefix}}__stat-label">
+                        {{label}}
+                    </span>
+                    <strong class="transformations-spell-slot-recovery__stat-value {{../classPrefix}}__stat-value">
+                        {{value}}
+                    </strong>
+                </div>
+            {{/each}}
+
+            {{#if selectionSummary}}
+                <div class="transformations-spell-slot-recovery__stat {{classPrefix}}__stat">
+                    <span class="transformations-spell-slot-recovery__stat-label {{classPrefix}}__stat-label">
+                        {{selectionSummary.label}}
+                    </span>
+                    <strong class="transformations-spell-slot-recovery__stat-value {{classPrefix}}__stat-value" data-selection-summary>
+                        {{selectionSummary.initialValue}}
+                    </strong>
+                </div>
+            {{/if}}
+        </div>
+    {{else}}
+        {{#if selectionSummary}}
+            <div class="transformations-spell-slot-recovery__summary {{classPrefix}}__summary">
+                <div class="transformations-spell-slot-recovery__stat {{classPrefix}}__stat">
+                    <span class="transformations-spell-slot-recovery__stat-label {{classPrefix}}__stat-label">
+                        {{selectionSummary.label}}
+                    </span>
+                    <strong class="transformations-spell-slot-recovery__stat-value {{classPrefix}}__stat-value" data-selection-summary>
+                        {{selectionSummary.initialValue}}
+                    </strong>
+                </div>
+            </div>
+        {{/if}}
+    {{/if}}
+
+    {{#if hasRecoverableSlots}}
+        <div class="transformations-spell-slot-recovery__groups {{classPrefix}}__groups">
+            {{#each groups}}
+                <fieldset class="transformations-spell-slot-recovery__group {{../classPrefix}}__group" data-slot-group>
+                    <legend class="transformations-spell-slot-recovery__legend {{../classPrefix}}__legend">
+                        {{label}}
+                    </legend>
+
+                    <div class="transformations-spell-slot-recovery__group-row">
+                        <div class="transformations-spell-slot-recovery__level {{../classPrefix}}__level">
+                            {{level}}
+                        </div>
+
+                        <div class="transformations-spell-slot-recovery__options {{../classPrefix}}__options"
+                             aria-label="{{label}}">
+                            {{#each options}}
+                                <label class="transformations-spell-slot-recovery__slot {{../../classPrefix}}__slot"
+                                       title="{{label}} (cost: {{cost}})">
+                                    <input
+                                        type="{{../../inputType}}"
+                                        {{#if ../../inputName}}name="{{../../inputName}}"{{/if}}
+                                        data-slot-option
+                                        {{#if ../../isMultipleSelection}}data-slot-checkbox{{/if}}
+                                        {{#if ../../isSingleSelection}}data-slot-radio{{/if}}
+                                        data-slot-key="{{slotKey}}"
+                                        data-slot-level="{{level}}"
+                                        data-slot-cost="{{cost}}"
+                                        data-slot-type="{{slotType}}"
+                                        aria-label="{{label}} (cost: {{cost}})">
+                                    <span class="transformations-spell-slot-recovery__slot-mark {{../../classPrefix}}__slot-mark"
+                                          aria-hidden="true"></span>
+                                </label>
+                            {{/each}}
+                        </div>
+                    </div>
+                </fieldset>
+            {{/each}}
+        </div>
+
+        <div class="transformations-spell-slot-recovery__actions {{classPrefix}}__actions">
+            <button type="button" data-action="close">
+                {{cancelLabel}}
+            </button>
+            <button type="button" data-action="confirm" disabled>
+                {{confirmLabel}}
+            </button>
+        </div>
+    {{else}}
+        <p class="transformations-spell-slot-recovery__empty {{classPrefix}}__empty">
+            {{emptyMessage}}
+        </p>
+
+        <div class="transformations-spell-slot-recovery__actions {{classPrefix}}__actions">
+            <button type="button" data-action="close">
+                {{cancelLabel}}
+            </button>
+        </div>
+    {{/if}}
+</div>

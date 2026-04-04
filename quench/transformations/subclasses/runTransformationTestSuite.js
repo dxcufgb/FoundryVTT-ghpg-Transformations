@@ -1,4 +1,4 @@
-import { applyItemActivityEffect, createActorItemAndWait, expectItemsOnActor, expectRaceItemSubTypeOnActor, getCharacterClass, validateAllD20Disadvantage } from "../../helpers/actors.js"
+import { applyItemActivityEffect, createActorItemAndWait, expectItemsOnActor, expectRaceItemSubTypeOnActor, getCharacterClass, getDndItem, validateAllD20Disadvantage } from "../../helpers/actors.js"
 import { advanceStageAndChoose } from "../../helpers/adcanceStageAndExpectchoiceDialog.js"
 import { advanceStageAndWait } from "../../helpers/advanceStageAndWait.js"
 import { expectAsyncWork } from "../../helpers/async/expectAsyncWork.js"
@@ -23,6 +23,7 @@ export function runTransformationTestSuite({
     const {describe, it, assert, expect} = mochaFunctions
     const helpers = {
         getCharacterClass,
+        getDndItem,
         applyItemActivityEffect,
         expectItemsOnActor,
         expectRaceItemSubTypeOnActor,

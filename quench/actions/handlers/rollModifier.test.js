@@ -151,6 +151,92 @@ export function registerRollModifierActionTests({ describe, it, expect })
                 .to.equal("1d8 + @abilities.con.mod")
         })
 
+        it("adds a damage type to the current attack activity parts", async function()
+        {
+            const context = {
+                attacks: {
+                    current: {
+                        activity: {
+                            damage: {
+                                parts: [
+                                    {
+                                        types: new Set(["slashing"])
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+
+            const result = await handler({
+                actor,
+                action: {
+                    data: {
+                        mode: "addDamageType",
+                        damageType: "force"
+                    }
+                },
+                context
+            })
+
+            expect(result).to.equal(true)
+            expect(
+                Array.from(context.attacks.current.activity.damage.parts[0].types)
+            ).to.include("force")
+        })
+
+        it("adds a damage type to the current pre-roll damage activity parts", async function()
+        {
+            const context = {
+                damage: {
+                    current: {
+                        activity: {
+                            damage: {
+                                parts: [
+                                    {
+                                        types: new Set(["necrotic"])
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+
+            const result = await handler({
+                actor,
+                action: {
+                    data: {
+                        mode: "addDamageType",
+                        damageType: "force"
+                    }
+                },
+                context
+            })
+
+            expect(result).to.equal(true)
+            expect(
+                Array.from(context.damage.current.activity.damage.parts[0].types)
+            ).to.include("force")
+        })
+
+        it("returns false when addDamageType has no current attack context", async function()
+        {
+            const result = await handler({
+                actor,
+                action: {
+                    data: {
+                        mode: "addDamageType",
+                        damageType: "force"
+                    }
+                },
+                context: {}
+            })
+
+            expect(result).to.equal(false)
+        })
+
         it("removes all occurrences of the string if present multiple times", async function()
         {
             const context = {

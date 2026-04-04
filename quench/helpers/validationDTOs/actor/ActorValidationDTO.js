@@ -7,6 +7,7 @@ import { EffectValidationDTO } from "../effect/EffectValidationDTO.js"
 import { FlagValidationDTO } from "../flag/FlagValidationDTO.js"
 import { HitDieValidationDTO } from "../hitDie/HitDieValidationDTO.js"
 import { ItemValidationDTO } from "../item/ItemValidationDTO.js"
+import { ActorSpellSlotsValidationDTO } from "./ActorSpellSlotsValidationDTO.js"
 
 // @ts-check
 export class ActorValidationDTO
@@ -60,6 +61,7 @@ export class ActorStatsDTO
         this.vulnerabilities = []
         this.immunities = []
         this.hitDices = new HitDieValidationDTO()
+        this.spellSlots = new ActorSpellSlotsValidationDTO()
     }
 }
 
