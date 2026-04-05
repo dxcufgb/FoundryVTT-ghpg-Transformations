@@ -93,6 +93,24 @@ export class Transformation
         this.logger?.debug?.("Transformation.onActivityUse", activity, usage, message)
     }
 
+    static async preUpdateItem({
+        item,
+        changed,
+        actor,
+        options = {},
+        userId = null
+    })
+    {
+        this.logger?.debug?.(
+            "Transformation.preUpdateItem",
+            item,
+            changed,
+            actor,
+            options,
+            userId
+        )
+    }
+
     getStage()
     {
         this.logger?.debug?.("Transformation.getStage", {})

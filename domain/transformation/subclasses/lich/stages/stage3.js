@@ -4,20 +4,25 @@ export const stage3 = {
     grants: {
         items: [
             {
-                name: "Lich Stage 3 Base Feature",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.5Jr4ZiwRqJv1Lot9"
             }
         ]
     },
     choices: {
         items: [
             {
-                name: "Lich Stage 3 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.h0hvoW3lpVwBhbjk"
             },
             {
-                name: "Lich Stage 3 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.aEwUSvKYm17M9rRY",
+                requires: {
+                    items: [
+                        "Compendium.transformations.gh-transformations.Item.mYwSUxSiNQqP4mZ2"
+                    ]
+                }
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.fxVTPJ9l8u4MJaJe"
             }
         ]
     }

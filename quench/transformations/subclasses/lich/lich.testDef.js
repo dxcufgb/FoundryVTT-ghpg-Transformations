@@ -1,6 +1,7 @@
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js";
 import { validate } from "../../../helpers/DTOValidators/validate.js";
 import { EffectValidationDTO } from "../../../helpers/validationDTOs/effect/EffectValidationDTO.js";
+import { Lich } from "../../../../domain/transformation/subclasses/lich/Lich.js";
 
 function normalizeText(value)
 {
@@ -156,10 +157,22 @@ function findSelectContainingOptions(root, expectedOptions = [])
 }
 
 const MEMORI_LICHDOM_UUID =
-    "Compendium.transformations.gh-transformations.Item.5NEzTu8Y5PGmmCOO"
+          "Compendium.transformations.gh-transformations.Item.5NEzTu8Y5PGmmCOO"
 const ACOLYTE_OF_UNDEATH_UUID =
-    "Compendium.transformations.gh-transformations.Item.mYwSUxSiNQqP4mZ2"
+          "Compendium.transformations.gh-transformations.Item.mYwSUxSiNQqP4mZ2"
+const CORRUPTING_MAGIC_UUID =
+          "Compendium.transformations.gh-transformations.Item.l4qP3E5fOFZjLpNT"
+const ELDRITCH_CONCENTRATION_UUID =
+          "Compendium.transformations.gh-transformations.Item.h0hvoW3lpVwBhbjk"
 const HIDEOUS_APPEARANCE_EFFECT_NAME = "Hiding Hideous Appearance"
+const SOUL_VESSEL_ITEM_NAME = "Soul Vessel"
+const SOUL_VESSEL_CHARGED_FLAG_PATH = "transformations.lich.soulVesselCharged"
+const lichStageOneRequiredPath = [
+    {
+        stage: 1,
+        choose: MEMORI_LICHDOM_UUID
+    }
+]
 const lichStageTwoRequiredPath = [
     {
         stage: 1,
@@ -168,6 +181,20 @@ const lichStageTwoRequiredPath = [
     {
         stage: 2,
         choose: ACOLYTE_OF_UNDEATH_UUID
+    }
+]
+const lichEldritchConcentrationRequiredPath = [
+    {
+        stage: 1,
+        choose: MEMORI_LICHDOM_UUID
+    },
+    {
+        stage: 2,
+        choose: CORRUPTING_MAGIC_UUID
+    },
+    {
+        stage: 3,
+        choose: ELDRITCH_CONCENTRATION_UUID
     }
 ]
 
@@ -194,6 +221,58 @@ async function applyHidingHideousAppearance(actor, helpers)
         effectName: HIDEOUS_APPEARANCE_EFFECT_NAME,
         macroTrigger: "on"
     })
+}
+
+function getSoulVessel(actor)
+{
+    const soulVessel = actor.items.find(item => item.name === SOUL_VESSEL_ITEM_NAME)
+
+    if (!soulVessel) {
+        throw new Error("Soul Vessel item not present on actor")
+    }
+
+    return soulVessel
+}
+
+function getItemActivity(actor, itemName, activityName)
+{
+    const item = actor.items.find(entry => entry.name === itemName)
+
+    if (!item) {
+        throw new Error(`${itemName} item not present on actor`)
+    }
+
+    const activity = item.system.activities.find(entry => entry.name === activityName)
+
+    if (!activity) {
+        throw new Error(`${activityName} activity not present on ${itemName}`)
+    }
+
+    return {item, activity}
+}
+
+async function updateSoulVesselUses(actor, changed)
+{
+    const soulVessel = getSoulVessel(actor)
+    const options = {}
+
+    await Lich.preUpdateItem({
+        item: soulVessel,
+        changed,
+        options,
+        actor
+    })
+
+    await soulVessel.update(changed)
+
+    await Lich.updateItem({
+        item: soulVessel,
+        changed,
+        options,
+        actor
+    })
+
+    return soulVessel
 }
 
 export const lichTestDef = {
@@ -640,9 +719,342 @@ export const lichTestDef = {
                 })
                 validate(actorDto, {assert})
             }
+        },
+        {
+            name: `stage 3 with Eldritch Concentration`,
+            steps: [
+                {
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        const foundCharacterClass = await helpers.getCharacterClass("Wizard")
+                        await helpers.createActorItemAndWait(
+                            actor,
+                            foundCharacterClass,
+                            {
+                                setTransformationFlags: false,
+                                setDdbImporterFlag: false,
+                                applyAdvancements: false,
+                                levels: 4
+                            }
+                        )
+                    }
+                },
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.5NEzTu8Y5PGmmCOO",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.l4qP3E5fOFZjLpNT",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.h0hvoW3lpVwBhbjk",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.5Jr4ZiwRqJv1Lot9",
+                    "Compendium.transformations.gh-transformations.Item.h0hvoW3lpVwBhbjk"
+                ]
+
+                actorDto.addItem(item => {
+                    item.itemName = "Necromantic Dystrophia"
+                    item.addEffect(effect => {
+                        effect.name = "Necromantic Dystrophia"
+                        effect.changes = [
+                            {
+                                key: "system.abilities.con.check.roll.mode",
+                                value: -1,
+                                mode: 2
+                            }
+                        ]
+                        effect.flags = {
+                            dae: {
+                                disableCondition: "(actor.items.find(i => i.name === \"Soul Vessel\")?.system.uses?.value ?? 0) > 0"
+                            }
+                        }
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Eldritch Concentration"
+                    item.uses.max = 1
+                    item.uses.addRecovery(recovery => {
+                        recovery.period = "lr"
+                        recovery.type = "recoverAll"
+                    })
+                    item.uses.addRecovery(recovery => {
+                        recovery.period = "sr"
+                        recovery.type = "recoverAll"
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Eldritch Concentration"
+                        activity.activationType = "special"
+                        activity.addConsumption(consumption => {
+                            consumption.number = 1
+                            consumption.addTarget(target => {
+                                target.type = "item"
+                                target.amount = 1
+                            })
+                        })
+                        activity.addEffect(effect => {
+                            effect.name = "Eldritch Concentration"
+                            effect.changes = [
+                                {
+                                    key: "system.attributes.concentration.limit",
+                                    mode: 2,
+                                    value: 1
+                                }
+                            ]
+                        })
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 3 with Master of Undeath`,
+            steps: [
+                {
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        const foundCharacterClass = await helpers.getCharacterClass("Wizard")
+                        await helpers.createActorItemAndWait(
+                            actor,
+                            foundCharacterClass,
+                            {
+                                setTransformationFlags: false,
+                                setDdbImporterFlag: false,
+                                applyAdvancements: false,
+                                levels: 4
+                            }
+                        )
+                    }
+                },
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.5NEzTu8Y5PGmmCOO",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.mYwSUxSiNQqP4mZ2",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.aEwUSvKYm17M9rRY",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.aEwUSvKYm17M9rRY"
+                ]
+
+                actorDto.addItem(item => {
+                    item.itemName = "Master of Undeath"
+                    item.addActivity(activity => {
+                        activity.name = "Lich Zombie Healing"
+                        activity.activationType = "reaction"
+                        activity.addConsumption(consumption => {
+                            consumption.numberOfTargets = 1
+                            consumption.addTarget(target => {
+                                target.type = "item"
+                                target.amount = 1
+                                target.target = "soul-vessel"
+                            })
+                        })
+                        activity.range.type = "special"
+                        activity.range.special = "Any undead creature controlled by a Lich ability"
+                        activity.target.type = "special"
+                        activity.target.value = 1
+                        activity.range.special = "Any undead creature controlled by a Lich ability"
+                        activity.healing.custom = 1
+                        activity.healing.type = "healing"
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 3 with Unholy Healing`,
+            steps: [
+                {
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        const foundCharacterClass = await helpers.getCharacterClass("Wizard")
+                        await helpers.createActorItemAndWait(
+                            actor,
+                            foundCharacterClass,
+                            {
+                                setTransformationFlags: false,
+                                setDdbImporterFlag: false,
+                                applyAdvancements: false,
+                                levels: 4
+                            }
+                        )
+                    }
+                },
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.5NEzTu8Y5PGmmCOO",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.mYwSUxSiNQqP4mZ2",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.fxVTPJ9l8u4MJaJe",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fxVTPJ9l8u4MJaJe"
+                ]
+
+                actorDto.addItem(item => {
+                    item.itemName = "Unholy Healing"
+                    item.uses.max = 3
+                    item.uses.addRecovery(recovery => {
+                        recovery.period = "lr"
+                        recovery.type = "recoverAll"
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Activate Soul Vessel Healing"
+                        activity.activationType = "action"
+                        activity.addConsumption(consumption => {
+                            consumption.numberOfTargets = 1
+                            consumption.addTarget(target => {
+                                target.type = "item"
+                                target.amount = 1
+                            })
+                        })
+                        activity.addEffect(effect => {
+                            effect.name = "Unholy Healing"
+                            effect.description = "Your Soul vessel heals you 10 hp at the start of your turn for 1 minute"
+                        })
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Heal on round start"
+                        activity.activationType = "turnStart"
+                        activity.duration.value = 10
+                        activity.duration.type = "turn"
+                        activity.healing.type = "healing"
+                        activity.healing.custom = "10"
+                    })
+                })
+                validate(actorDto, {assert})
+            }
         }
     ],
     itemBehaviorTests: [
+        {
+            name: "Soul Vessel updates soulVesselCharged to false when uses reaches 0",
+
+            requiredPath: lichStageOneRequiredPath,
+
+            steps: [
+                async ({actor}) =>
+                {
+                    await actor.update({
+                        "flags.transformations.lich.soulVesselCharged": true
+                    })
+
+                    await updateSoulVesselUses(actor, {
+                        "system.uses.value": 1,
+                        "system.uses.spent": 0
+                    })
+                    await updateSoulVesselUses(actor, {
+                        "system.uses.value": 0,
+                        "system.uses.spent": 1
+                    })
+                }
+            ],
+
+            assertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.flags.match.push({
+                    path: SOUL_VESSEL_CHARGED_FLAG_PATH,
+                    expected: false
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "Soul Vessel updates soulVesselCharged to true when uses remains above 0",
+
+            requiredPath: lichStageOneRequiredPath,
+
+            steps: [
+                async ({actor}) =>
+                {
+                    await actor.update({
+                        "flags.transformations.lich.soulVesselCharged": false
+                    })
+
+                    await updateSoulVesselUses(actor, {
+                        "system.uses.value": 0,
+                        "system.uses.spent": 1
+                    })
+                    await updateSoulVesselUses(actor, {
+                        "system.uses.value": 1,
+                        "system.uses.spent": 0
+                    })
+                }
+            ],
+
+            assertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.flags.match.push({
+                    path: SOUL_VESSEL_CHARGED_FLAG_PATH,
+                    expected: true
+                })
+                validate(actorDto, {assert})
+            }
+        },
         {
             name: `Lich Magica Regain Spell slot`,
 
@@ -684,10 +1096,7 @@ export const lichTestDef = {
             steps: [
                 async ({actor, waiters, staticVars}) =>
                 {
-                    const soulVessel = actor.items.find(item => item.name === "Soul Vessel")
-                    if (!soulVessel) {
-                        throw new Error("Soul Vessel item not present on actor")
-                    }
+                    const soulVessel = getSoulVessel(actor)
 
                     const soulVesselUsesMax = Math.max(
                         Number(soulVessel.system?.uses?.max ?? 0),
@@ -829,7 +1238,7 @@ export const lichTestDef = {
             }
         },
         {
-            name: `Lich Magica Regain Memori Lichdom, unarmed strike has choice of force or bludgeoning damage`,
+            name: `Memori Lichdom, unarmed strike has choice of force or bludgeoning damage`,
 
             setup: async ({actor, helpers}) =>
             {
@@ -1284,6 +1693,69 @@ export const lichTestDef = {
                 effectDto.notHas.push(HIDEOUS_APPEARANCE_EFFECT_NAME)
 
                 actorDto.effects = effectDto
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "Eldritch Concentration adds one exhaustion level on use",
+
+            setup: async ({actor, helpers}) =>
+            {
+                await addWizardClass(actor, helpers)
+            },
+
+            requiredPath: lichEldritchConcentrationRequiredPath,
+
+            steps: [
+                async ({actor, runtime, staticVars}) =>
+                {
+                    const soulVessel = getSoulVessel(actor)
+
+                    await soulVessel.update({
+                        "system.uses.spent": 0
+                    })
+
+                    const {item, activity} = getItemActivity(
+                        actor,
+                        "Eldritch Concentration",
+                        "Eldritch Concentration"
+                    )
+
+                    staticVars.initialExhaustion =
+                        Number(actor.system?.attributes?.exhaustion) || 0
+
+                    await Lich.onActivityUse(
+                        activity,
+                        {
+                            workflow: {
+                                actor,
+                                item
+                            }
+                        },
+                        null,
+                        runtime.infrastructure.actorRepository
+                    )
+                }
+            ],
+
+            await: async ({runtime, waiters, actor, staticVars}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+
+                await waiters.waitForCondition(() =>
+                    (Number(actor.system?.attributes?.exhaustion) || 0) ===
+                    ((Number(staticVars.initialExhaustion) || 0) + 1)
+                )
+            },
+
+            assertions: async ({actor, assert, staticVars}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.stats.exhaustion =
+                    (Number(staticVars.initialExhaustion) || 0) + 1
                 validate(actorDto, {assert})
             }
         }
