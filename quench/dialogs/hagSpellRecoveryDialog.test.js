@@ -1,7 +1,7 @@
 import { createHagSpellRecoveryController }
     from "../../ui/controllers/hagSpellRecoveryController.js"
-import { HagSpellRecoveryDialog }
-    from "../../ui/dialogs/hagSpellRecoveryDialog.js"
+import { TransformationsSpellSlotRecoveryDialog }
+    from "../../ui/dialogs/transformationsSpellSlotRecoveryDialog.js"
 import { createHagSpellRecoveryViewModel }
     from "../../ui/viewModels/createHagSpellRecoveryViewModel.js"
 import { wait } from "../helpers/wait.js"
@@ -69,17 +69,24 @@ function createActorForHagSpellRecovery({
 function getGroups(dialog)
 {
     return Array.from(
-        dialog.element.querySelectorAll(".hag-spell-recovery__group")
+        dialog.element.querySelectorAll("[data-slot-group]")
     )
 }
 
 function getRadios(group)
 {
-    return Array.from(group.querySelectorAll("[data-slot-radio]"))
+    return Array.from(group.querySelectorAll("[data-slot-option]"))
+}
+
+function findGroupByLevel(dialog, level)
+{
+    return getGroups(dialog).find(group =>
+        getRadios(group)[0]?.dataset?.slotLevel === String(level)
+    ) ?? null
 }
 
 quench.registerBatch(
-    "transformations.Dialogs.hagSpellRecoveryDialog",
+    "transformations.Dialogs.transformationsSpellSlotRecoveryDialog.hag",
     ({describe, it, expect}) =>
     {
         const existingActorIds = game.actors.map(actor => actor.id)
@@ -207,11 +214,11 @@ quench.registerBatch(
             })
         })
 
-        describe("HagSpellRecoveryDialog", function()
+        describe("TransformationsSpellSlotRecoveryDialog (Hag)", function()
         {
             it("renders eligible slot groups and updates selected cost when a slot is chosen", async function()
             {
-                const dialog = new HagSpellRecoveryDialog({
+                const dialog = new TransformationsSpellSlotRecoveryDialog({
                     viewModel: createHagSpellRecoveryViewModel({
                         actor: createActorForHagSpellRecovery({
                             levels: 6,
@@ -238,16 +245,10 @@ quench.registerBatch(
                 await dialog.render(true)
 
                 const groups = getGroups(dialog)
-                const level1Group = groups.find(group =>
-                    group.querySelector(".hag-spell-recovery__level")
-                        ?.textContent?.trim() === "1"
-                )
-                const level2Group = groups.find(group =>
-                    group.querySelector(".hag-spell-recovery__level")
-                        ?.textContent?.trim() === "2"
-                )
+                const level1Group = findGroupByLevel(dialog, 1)
+                const level2Group = findGroupByLevel(dialog, 2)
                 const selectedCost =
-                    dialog.element.querySelector("[data-selected-cost]")
+                    dialog.element.querySelector("[data-selection-summary]")
                 const confirmButton =
                     dialog.element.querySelector("[data-action='confirm']")
 
@@ -272,7 +273,7 @@ quench.registerBatch(
             {
                 let confirmedValue = null
 
-                const dialog = new HagSpellRecoveryDialog({
+                const dialog = new TransformationsSpellSlotRecoveryDialog({
                     viewModel: createHagSpellRecoveryViewModel({
                         actor: createActorForHagSpellRecovery({
                             levels: 6,
@@ -298,11 +299,7 @@ quench.registerBatch(
 
                 await dialog.render(true)
 
-                const groups = getGroups(dialog)
-                const level2Group = groups.find(group =>
-                    group.querySelector(".hag-spell-recovery__level")
-                        ?.textContent?.trim() === "2"
-                )
+                const level2Group = findGroupByLevel(dialog, 2)
                 const radios = getRadios(level2Group)
                 const confirmButton =
                     dialog.element.querySelector("[data-action='confirm']")
@@ -329,7 +326,7 @@ quench.registerBatch(
             {
                 let cancelled = false
 
-                const dialog = new HagSpellRecoveryDialog({
+                const dialog = new TransformationsSpellSlotRecoveryDialog({
                     viewModel: createHagSpellRecoveryViewModel({
                         actor: createActorForHagSpellRecovery({
                             levels: 3,

@@ -7,7 +7,7 @@ export class GiftOfUnbridledPower
     static label = "Gift of Unbridled Power"
     static stage = 4
     static itemUuid = "Compendium.transformations.gh-transformations.Item.x7OlLmg3FMTF0WSv"
-    static description = "Placeholder effect for Gift of Unbridled Power."
+    static description = "Upon finishing a Short Rest, you can spend 2 Hit Point Dice and regain a number of spell slot levels equal to the highest number rolled. However, you take Psychic damage equal to twice the total that you rolled. You regain the reuse of this gift when you finish a Long Rest."
     static actions = {
 
         async roll({
@@ -191,9 +191,11 @@ export class GiftOfUnbridledPower
 
         const classItems = actor?.items?.filter(item => item.type === "class") ?? []
 
-        return classItems.reduce((total, item) =>
-            total + Math.max(Number(item.system?.hd?.value ?? 0), 0),
-        0)
+        return classItems.reduce(
+            (total, item) =>
+                total + Math.max(Number(item.system?.hd?.value ?? 0), 0),
+            0
+        )
     }
 
     static async restoreSpellSlots(actor, selectedSpellSlots)

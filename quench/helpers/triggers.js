@@ -19,8 +19,14 @@ export async function triggerFunction(runtime, trigger, actor)
         case ("preRollSavingThrow"):
             await runtime.services.triggerRuntime.run("preRollSavingThrow", actor)
             break
+        case ("preRollDamage"):
+            await runtime.services.triggerRuntime.run("preRollDamage", actor)
+            break
         case ("rollSavingThrow"):
             await runtime.services.triggerRuntime.run("rollSavingThrow", actor)
+            break
+        case ("attack"):
+            await runtime.services.triggerRuntime.run("attack", actor)
             break
         case ("unconscious"):
             await runtime.services.triggerRuntime.run("unconscious", actor)

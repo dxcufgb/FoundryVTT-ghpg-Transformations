@@ -7,7 +7,9 @@ export class GiftOfMartialProwess
     static label = "Gift of Martial Prowess"
     static stage = 4
     static itemUuid = "Compendium.transformations.gh-transformations.Item.dZI20tO77HzlsSiP"
-    static description = "Placeholder effect for Gift of Martial Prowess."
+    static description = "Once per turn, when you miss with a weapon attack or Unarmed Strike, you can reroll the attack roll. If the reroll hits, you must spend 3 Hit Point Dice and add the result to the attack’s normal damage as Force damage. If the reroll misses, you must spend 3 Hit Point Dice and take Psychic damage equal to the result. If you have fewer than 3 Hit Point Dice available, you cannot use this gift.\n" +
+        "\n" +
+        "Once you hit a target with an attack using a rerolled attack, you cannot use it again until you finish a Long Rest."
     static lastAttackRolls = new Map()
     static actions = {
 

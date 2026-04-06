@@ -4,8 +4,10 @@ import { ConsupmtionTargetDTOValidator } from "../../DTOValidators/ConsumptionTa
 export class ConsumptionTargetValidationDTO
 {
     static validator = ConsupmtionTargetDTOValidator
-    constructor ()
+
+    constructor()
     {
+        this.target = null
         this.type = null    // string
         this.value = null   // number | string
     }

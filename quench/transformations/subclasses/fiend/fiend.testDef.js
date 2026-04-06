@@ -538,19 +538,16 @@ function getApplicationRoot(application)
 function findSpellSlotLevelGroup(root, level)
 {
     return Array.from(
-        root?.querySelectorAll?.(
-            ".fiend-unbridled-power-spell-slot-recovery__group"
-        ) ?? []
+        root?.querySelectorAll?.("[data-slot-group]") ?? []
     ).find(group =>
-        group.querySelector(
-            ".fiend-unbridled-power-spell-slot-recovery__level"
-        )?.textContent?.trim() === String(level)
+        group.querySelector("[data-slot-option]")?.dataset?.slotLevel ===
+        String(level)
     ) ?? null
 }
 
 function getSpellSlotCheckboxes(group)
 {
-    return Array.from(group?.querySelectorAll?.("[data-slot-checkbox]") ?? [])
+    return Array.from(group?.querySelectorAll?.("[data-slot-option]") ?? [])
 }
 
 export const fiendTestDef = {
@@ -1334,8 +1331,6 @@ export const fiendTestDef = {
 
             finalAssertions: async ({actor, assert, loopVars, validators}) =>
             {
-                const actorProf = actor.system.attributes.prof
-
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.0GwDDz0VsTEFnHsn",
