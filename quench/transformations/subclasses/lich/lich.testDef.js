@@ -977,11 +977,242 @@ export const lichTestDef = {
                     })
                     item.addActivity(activity => {
                         activity.name = "Heal on round start"
-                        activity.activationType = "turnStart"
+                        activity.activationType = "special"
                         activity.duration.value = 10
                         activity.duration.type = "turn"
                         activity.healing.type = "healing"
                         activity.healing.custom = "10"
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 4 with Eldritch Omniscience`,
+            steps: [
+                {
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        const foundCharacterClass = await helpers.getCharacterClass("Wizard")
+                        await helpers.createActorItemAndWait(
+                            actor,
+                            foundCharacterClass,
+                            {
+                                setTransformationFlags: false,
+                                setDdbImporterFlag: false,
+                                applyAdvancements: false,
+                                levels: 4
+                            }
+                        )
+                    }
+                },
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.5NEzTu8Y5PGmmCOO",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.mYwSUxSiNQqP4mZ2",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.aEwUSvKYm17M9rRY",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.pTqaXSUUzxjXzMbZ",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.hPjZU5QFb77o2dMP",
+                    "Compendium.transformations.gh-transformations.Item.pTqaXSUUzxjXzMbZ"
+                ]
+
+                actorDto.addItem(item => {
+                    item.itemName = "Weight of the Ages"
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Eldritch Omniscience"
+                    item.addActivity(activity => {
+                        activity.name = "Capture Soul"
+                        activity.activationType = "special"
+                        activity.range.unit = "special"
+                        activity.range.special = "Killed by one of your spells"
+                        activity.target.affects.type = "creature"
+                        activity.target.affects.count = 1
+                        activity.target.affects.special = "Killed by one of your spells"
+                        activity.addConsumption(consumption => {
+                            consumption.numberOfTargets = 1
+                            consumption.addTarget(target => {
+                                target.type = "item"
+                                target.value = -1
+                                target.target = "soul-vessel"
+                            })
+                        })
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 4 with Lord of Undeath`,
+            steps: [
+                {
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        const foundCharacterClass = await helpers.getCharacterClass("Wizard")
+                        await helpers.createActorItemAndWait(
+                            actor,
+                            foundCharacterClass,
+                            {
+                                setTransformationFlags: false,
+                                setDdbImporterFlag: false,
+                                applyAdvancements: false,
+                                levels: 4
+                            }
+                        )
+                    }
+                },
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.5NEzTu8Y5PGmmCOO",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.mYwSUxSiNQqP4mZ2",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.aEwUSvKYm17M9rRY",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.X0WaGjUWo3zsu1sh",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.X0WaGjUWo3zsu1sh"
+                ]
+
+                actorDto.addItem(item => {
+                    item.itemName = "Lord of Undeath"
+                    item.addActivity(activity => {
+                        activity.name = "Transform Into Ghoul"
+                        activity.activationType = "reaction"
+                        activity.addSummon(summon => {
+                            summon.count = 1
+                            summon.uuid = "Compendium.transformations.creatures.Actor.9yFgkb5eigm0tNUI"
+                        })
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 4 with Soul-Shattering Attack`,
+            steps: [
+                {
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        const foundCharacterClass = await helpers.getCharacterClass("Wizard")
+                        await helpers.createActorItemAndWait(
+                            actor,
+                            foundCharacterClass,
+                            {
+                                setTransformationFlags: false,
+                                setDdbImporterFlag: false,
+                                applyAdvancements: false,
+                                levels: 4
+                            }
+                        )
+                    }
+                },
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.5NEzTu8Y5PGmmCOO",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.mYwSUxSiNQqP4mZ2",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.aEwUSvKYm17M9rRY",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.p5Ub9sHX1mCyNLEc",
+                    await: async ({runtime, actor, waiters, helpers}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorProf = actor.system.attributes.prof
+
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.p5Ub9sHX1mCyNLEc"
+                ]
+
+                actorDto.addItem(item => {
+                    item.itemName = "Soul-Shattering Attack"
+                    item.uses.max = 4 + actorProf
+                    item.uses.addRecovery(recovery => {
+                        recovery.period = "lr"
+                        recovery.type = "recoverAll"
                     })
                 })
                 validate(actorDto, {assert})

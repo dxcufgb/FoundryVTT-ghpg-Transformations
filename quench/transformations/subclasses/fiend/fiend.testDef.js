@@ -1331,8 +1331,6 @@ export const fiendTestDef = {
 
             finalAssertions: async ({actor, assert, loopVars, validators}) =>
             {
-                const actorProf = actor.system.attributes.prof
-
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.0GwDDz0VsTEFnHsn",
