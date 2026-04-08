@@ -5,7 +5,7 @@ export const onBloodied = {
         {
             name: "weakend-constitution-saving-throw",
             when: {
-                stage: { min: 3 },
+                stage: {min: 3}
             },
             actions: [
                 {
@@ -29,7 +29,13 @@ export const onBloodied = {
                     data: {
                         ability: "con",
                         dc: "20",
-                        key: "weakend-constitution-con-save"
+                        key: "weakend-constitution-con-save",
+                        title: "Weakend Constitution",
+                        flavor: {
+                            itemUuid: "Compendium.transformations.gh-transformations.Item.Uo86wtOs7PMOFlav",
+                            subtitle: "Transformation Feature",
+                            body: "When you become Bloodied for the first time after you roll Initiative, you must succeed on a DC 20 Constitution saving throw. On a failed save, you gain a level of Exhaustion."
+                        }
                     }
                 },
                 {

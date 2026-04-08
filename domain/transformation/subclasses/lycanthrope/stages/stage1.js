@@ -4,27 +4,23 @@ export const stage1 = {
     grants: {
         items: [
             {
-                name: "Lycanthrope Stage 1 Base Feature",
-                uuid: ""
-            },
-            {
-                name: "Lycanthrope Stage 1 Predatory Instincts",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.SfMTYtdWXJOeCVX7"
             }
         ],
         actor: {
-            creatureSubType: "lycanthrope"
+            creatureSubType: "monstrosity"
         }
     },
     choices: {
         items: [
             {
-                name: "Lycanthrope Stage 1 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.Dhdr9DZHA9qjXhYo"
             },
             {
-                name: "Lycanthrope Stage 1 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.CSIQIM4rTZt2eul4"
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.Wk2EIMS6AcMFoaSv"
             }
         ]
     }

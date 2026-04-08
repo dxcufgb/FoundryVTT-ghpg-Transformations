@@ -22,7 +22,7 @@ export const onBloodied = {
         {
             name: "aberrant-form-temp-hp",
             when: {
-                stage: { min: 1 }
+                stage: {min: 1}
             },
             actions: [
                 {
@@ -59,18 +59,25 @@ export const onBloodied = {
         {
             name: "hideous-appearance-save",
             when: {
-                stage: { min: 2 }
+                stage: {min: 2}
             },
             actions: [
                 {
                     type: "SAVE",
                     when: {
-                        effects: { name: "Hiding Hideous Appearance" }
+                        effects: {name: "Hiding Hideous Appearance"}
                     },
                     data: {
                         ability: "con",
                         dc: "@transformationSaveDC",
-                        key: "hideous-appearance-con-save"
+                        key: "hideous-appearance-con-save",
+                        title: "Hideous Appearance",
+                        flavor: {
+                            img: "",
+                            title: "",
+                            subtitle: "",
+                            body: "When you become bloodied you need to roll a constitution saving throw. If you fail this save, your Horrific Appearance is revealed."
+                        }
                     }
                 },
                 {
@@ -88,7 +95,7 @@ export const onBloodied = {
         {
             name: "bloodied-mutation-roll",
             when: {
-                stage: { min: 4 },
+                stage: {min: 4}
             },
             actions: [
                 {

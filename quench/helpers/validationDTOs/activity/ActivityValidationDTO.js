@@ -12,6 +12,8 @@ import { RangeValidationDTO } from "../range/RangeValidationDTO.js"
 import { SummonValidationDTO } from "../summon/SummonValidationDTO.js"
 import { TargetDTOValidator } from "../../DTOValidators/TargetDTOValidator.js"
 import { TemplateDTOValidator } from "../../DTOValidators/TemplateDTOValidator.js"
+import { TransformationDTOValidator } from "../../DTOValidators/TransformationDTOValidator.js"
+import { TransformationSettingsDTOValidator } from "../../DTOValidators/TransformationSettingsDTOValidator.js"
 
 // @ts-check
 export class ActivityValidationDTO
@@ -39,7 +41,10 @@ export class ActivityValidationDTO
         this.duration = new ActivityDurationValidationDTO()
         this.effects = []
         this.range = new RangeValidationDTO()
+        this.settings = new TransformationSettingsValidationDTO()
         this.target = new TargetValidationDTO()
+        this.transform = new TransformationValidationDTO()
+        this.transformationChoices = []
         this.uses = new ActivityUsesValidationDTO()
         this.summons = []
 
@@ -171,6 +176,36 @@ class ActivityUsesRecoveryValidationDTO
     {
         this.period = null
         this.type = null
+    }
+}
+
+export class TransformationSettingsValidationDTO
+{
+    static validator = TransformationSettingsDTOValidator
+
+    constructor()
+    {
+        this.preset = null
+        this.effects = []
+        this.keep = []
+        this.merge = []
+        this.other = []
+        this.spellLists = []
+        this.transformTokens = null
+        this.minimumAC = null
+        this.tempFormula = null
+    }
+}
+
+export class TransformationValidationDTO
+{
+    static validator = TransformationDTOValidator
+
+    constructor()
+    {
+        this.customize = null
+        this.mode = null
+        this.preset = null
     }
 }
 

@@ -3,11 +3,13 @@ import { FeyTests } from "./fey/fey.js"
 import { FiendTests } from "./fiend/fiend.js";
 import { HagTests } from "./hag/hag.js";
 import { LichTests } from "./lich/lich.js";
+import { LycanthropeTests } from "./lycanthrope/lycanthrope.js";
 
 export const TransformationSubclassTestRegistry = [
     AberrantHorrorTests,
     FeyTests,
     FiendTests,
     HagTests,
-    LichTests
+    LichTests,
+    LycanthropeTests
 ]
