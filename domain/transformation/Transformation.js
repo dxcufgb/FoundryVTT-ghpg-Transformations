@@ -89,6 +89,30 @@ export class Transformation
         )
     }
 
+    static async onPreRollAttack({
+        item,
+        rollConfig,
+        dialog,
+        message,
+        actor,
+        actorRepository,
+        itemRepository,
+        logger
+    } = {})
+    {
+        this.logger?.debug?.(
+            "Transformation.onPreRollAttack",
+            item,
+            rollConfig,
+            dialog,
+            message,
+            actor,
+            actorRepository,
+            itemRepository,
+            logger
+        )
+    }
+
     static async onActivityUse(activity, usage, message) {
         this.logger?.debug?.("Transformation.onActivityUse", activity, usage, message)
     }

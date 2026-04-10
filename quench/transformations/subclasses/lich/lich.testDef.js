@@ -24,10 +24,20 @@ function getUiWindows()
 
 function getApplicationRoot(application)
 {
+    if (
+        application?.nodeType === Node.ELEMENT_NODE ||
+        application instanceof ShadowRoot
+    ) {
+        return application
+    }
+
     return (
         application?.element?.[0] ??
         application?.element ??
+        application?.window?.content?.[0] ??
         application?.window?.content ??
+        application?.window?.element?.[0] ??
+        application?.window?.element ??
         null
     )
 }
@@ -105,11 +115,13 @@ function findApplicationForElement(element)
 
 function findActionElement(root, {
     action = null,
+    type = null,
     text = null
 } = {})
 {
-    const candidates = Array.from(
-        root?.querySelectorAll?.("button, a, [data-action]") ?? []
+    const candidates = queryAllIncludingShadowRoots(
+        root,
+        "button, a, [data-action], [data-type]"
     )
 
     if (action != null) {
@@ -119,6 +131,16 @@ function findActionElement(root, {
 
         if (actionMatch) {
             return actionMatch
+        }
+    }
+
+    if (type != null) {
+        const typeMatch = candidates.find(element =>
+            element.dataset?.type === type
+        )
+
+        if (typeMatch) {
+            return typeMatch
         }
     }
 
@@ -154,6 +176,120 @@ function findSelectContainingOptions(root, expectedOptions = [])
             )
         )
     }) ?? null
+}
+
+function findDamageRollDialog()
+{
+    const expectedTitle =
+              game.i18n?.localize?.("DND5E.DamageRoll") ??
+              "Damage Roll"
+    const applicationMatch = getUiWindows().find(application =>
+    {
+        if (!application) return false
+
+        if (application.constructor?.name === "DamageRollConfigurationDialog") {
+            return true
+        }
+
+        if (application.rollType === CONFIG.Dice.DamageRoll) {
+            return true
+        }
+
+        return false
+    }) ?? null
+
+    if (applicationMatch) {
+        return applicationMatch
+    }
+
+    return queryAllIncludingShadowRoots(
+        document,
+        "dialog.application.roll-configuration, .application.roll-configuration"
+    ).find(element =>
+        normalizeText(
+            element.querySelector(".window-title")?.textContent
+        ) === expectedTitle
+    ) ?? null
+}
+
+function findAttackRollDialog()
+{
+    const expectedTitle =
+              game.i18n?.localize?.("DND5E.AttackRoll") ??
+              "Attack Roll"
+    const applicationMatch = getUiWindows().find(application =>
+    {
+        if (!application) return false
+
+        if (application.constructor?.name === "AttackRollConfigurationDialog") {
+            return true
+        }
+
+        return false
+    }) ?? null
+
+    if (applicationMatch) {
+        return applicationMatch
+    }
+
+    return queryAllIncludingShadowRoots(
+        document,
+        "dialog.application.roll-configuration, .application.roll-configuration"
+    ).find(element =>
+        normalizeText(
+            element.querySelector(".window-title")?.textContent
+        ) === expectedTitle
+    ) ?? null
+}
+
+function getDamageTypeOptionsFromDialog(application)
+{
+    const applicationRoot = getApplicationRoot(application)
+    const selectOptions = queryAllIncludingShadowRoots(
+        applicationRoot,
+        "select[name$='.damageType'] option"
+    ).map(option =>
+        normalizeText(option.value || option.textContent).toLowerCase()
+    )
+    .filter(Boolean)
+
+    if (selectOptions.length) {
+        return Array.from(new Set(selectOptions))
+    }
+
+    const types = (application?.rolls ?? [])
+    .flatMap(roll => Array.from(roll?.options?.types ?? []))
+    .filter(Boolean)
+
+    return Array.from(new Set(types))
+}
+
+async function closeApplication(application)
+{
+    if (
+        application?.nodeType === Node.ELEMENT_NODE ||
+        application instanceof ShadowRoot
+    ) {
+        if (typeof application.close === "function") {
+            application.close()
+        }
+
+        application.remove?.()
+        return
+    }
+
+    if (typeof application?.close === "function") {
+        await application.close({force: true})
+        return
+    }
+
+    const applicationElement = getApplicationRoot(application)
+
+    if (typeof applicationElement?.close === "function") {
+        applicationElement.close()
+    }
+
+    applicationElement?.remove?.()
 }
 
 const MEMORI_LICHDOM_UUID =
@@ -785,7 +921,7 @@ export const lichTestDef = {
                         ]
                         effect.flags = {
                             dae: {
-                                disableCondition: "(actor.items.find(i => i.name === \"Soul Vessel\")?.system.uses?.value ?? 0) > 0"
+                                enableCondition: "@flags.transformations.lich.soulVesselCharged != 0"
                             }
                         }
                     })
@@ -1471,8 +1607,16 @@ export const lichTestDef = {
         {
             name: `Memori Lichdom, unarmed strike has choice of force or bludgeoning damage`,
 
-            setup: async ({actor, helpers}) =>
+            setup: async ({actor, helpers, staticVars}) =>
             {
+                staticVars.originalDice3d = game.dice3d
+                game.dice3d = {
+                    isEnabled() {
+                        return false
+                    },
+                    async showForRoll() {}
+                }
+
                 const unarmedStrike = await helpers.getDndItem("Unarmed Strike")
                 await helpers.createActorItemAndWait(
                     actor,
@@ -1568,74 +1712,106 @@ export const lichTestDef = {
                     if (!messageRoot) return false
 
                     const attackButton =
-                              findActionElement(messageRoot, {action: "attack"}) ??
+                              findActionElement(messageRoot, {action: "rollAttack"}) ??
                               findActionElement(messageRoot, {text: "Attack"})
-                    const damageButton =
-                              findActionElement(messageRoot, {action: "damage"}) ??
-                              findActionElement(messageRoot, {text: "Damage"})
 
-                    return attackButton != null && damageButton != null
+                    return attackButton != null
                 }, {
                     errorMessage:
-                        "Unarmed Strike chat message did not render Attack and Damage buttons"
+                        "Unarmed Strike chat message did not render Attack button"
+                })
+
+                const messageRoot = document.querySelector(staticVars.messageSelector)
+                const attackButton =
+                          findActionElement(messageRoot, {action: "rollAttack"}) ??
+                          findActionElement(messageRoot, {text: "Attack"})
+                if (!attackButton) {
+                    throw new Error("Expected Attack button on Unarmed Strike chat card")
+                }
+
+                attackButton.click()
+                await waiters.waitForNextFrame()
+
+                await waiters.waitForCondition(() =>
+                {
+                    const attackRollDialog = findAttackRollDialog()
+                    if (!attackRollDialog) return false
+
+                    staticVars.attackRollDialog = attackRollDialog
+                    const normalButton =
+                              findActionElement(
+                                  getApplicationRoot(attackRollDialog),
+                                  {action: "normal"}
+                              ) ??
+                              findActionElement(
+                                  getApplicationRoot(attackRollDialog),
+                                  {text: "Normal"}
+                              )
+
+                    return normalButton != null
+                }, {
+                    errorMessage:
+                        "Attack roll configuration dialog did not render Normal button"
+                })
+
+                const normalButton =
+                          findActionElement(
+                              getApplicationRoot(staticVars.attackRollDialog),
+                              {action: "normal"}
+                          ) ??
+                          findActionElement(
+                              getApplicationRoot(staticVars.attackRollDialog),
+                              {text: "Normal"}
+                          )
+
+                if (!normalButton) {
+                    throw new Error(
+                        "Expected Normal button in attack roll configuration dialog"
+                    )
+                }
+
+                normalButton.click()
+                await waiters.waitForNextFrame()
+
+                await waiters.waitForCondition(() =>
+                {
+                    const damageRollDialog = findDamageRollDialog()
+                    if (!damageRollDialog) return false
+
+                    staticVars.damageRollDialog = damageRollDialog
+                    const damageTypeOptions =
+                              getDamageTypeOptionsFromDialog(damageRollDialog)
+
+                    staticVars.damageTypeOptions = damageTypeOptions
+
+                    return (
+                        damageTypeOptions.includes("force") &&
+                        damageTypeOptions.includes("bludgeoning")
+                    )
+                }, {
+                    errorMessage:
+                        "Selecting Normal on the attack roll dialog did not open the damage roll dialog with force and bludgeoning choices"
                 })
             },
 
             assertions: async ({expect, waiters, staticVars}) =>
             {
-                const messageRoot = document.querySelector(staticVars.messageSelector)
-                expect(messageRoot).to.exist
+                try {
+                    const optionValues =
+                              staticVars.damageTypeOptions ??
+                              getDamageTypeOptionsFromDialog(staticVars.damageRollDialog)
 
-                const damageButton =
-                          findActionElement(messageRoot, {action: "damage"}) ??
-                          findActionElement(messageRoot, {text: "Damage"})
+                    expect(optionValues).to.include("force")
+                    expect(optionValues).to.include("bludgeoning")
 
-                expect(
-                    damageButton,
-                    "Expected Damage button on Unarmed Strike chat card"
-                ).to.exist
+                    const application =
+                              staticVars.damageRollDialog
 
-                damageButton.click()
-                await waiters.waitForNextFrame()
+                    await closeApplication(application)
 
-                await waiters.waitForCondition(() =>
-                    findSelectContainingOptions(document, [
-                        "force",
-                        "bludgeoning"
-                    ]) != null, {
-                    errorMessage:
-                        "Damage roll config dialog with force and bludgeoning choices did not open"
-                })
-
-                const damageTypeSelect = findSelectContainingOptions(document, [
-                    "force",
-                    "bludgeoning"
-                ])
-
-                expect(
-                    damageTypeSelect,
-                    "Expected damage type dropdown to include force and bludgeoning"
-                ).to.exist
-
-                const optionValues = Array.from(damageTypeSelect.options ?? [])
-                .map(option =>
-                    normalizeText(option.value || option.textContent).toLowerCase()
-                )
-                .filter(Boolean)
-
-                expect(optionValues).to.include("force")
-                expect(optionValues).to.include("bludgeoning")
-
-                const application = findApplicationForElement(damageTypeSelect)
-
-                if (application?.close) {
-                    await application.close({force: true})
-                } else {
-                    const applicationElement =
-                              damageTypeSelect.closest?.("[data-appid]") ??
-                              damageTypeSelect.closest?.(".application") ??
-                              null
-                    applicationElement?.remove?.()
+                    await waiters.waitForNextFrame()
+                } finally {
+                    game.dice3d = staticVars.originalDice3d
                 }
             }
         },

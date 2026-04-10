@@ -12,6 +12,158 @@ const placeholderChoices = Object.freeze([
     {name: "Lycanthrope Stage 4 Choice B", uuid: ""}
 ])
 
+const LycanthropeForms = [
+    {
+        name: "Hybrid Wolf Form",
+        hybridFrom: "Compendium.transformations.gh-transformations.Item.Dhdr9DZHA9qjXhYo",
+        formUuid: "Compendium.transformations.creatures.Actor.WexEE2d1QwzEvAUa",
+        effectActivityName: "Apply Hybrid Wolf effect",
+        effect: {
+            name: "Hybrid Wolf Form",
+            changes: [
+                {
+                    key: "system.abilities.str.value",
+                    mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+                    value: 18
+                },
+                {
+                    key: "system.attributes.movement.bonus",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: 10
+                },
+                {
+                    key: "system.traits.languages.custom",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: "Your ability to speak is reduced to short basic guttural responses"
+                },
+                {
+                    key: "macro.createItem",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: "Compendium.transformations.gh-transformations.Item.eVUH5GeBkB61uMbg"
+                },
+                {
+                    key: "macro.createItem",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: "Compendium.transformations.gh-transformations.Item.4XwffwdkK1n7ehJj"
+                },
+                {
+                    key: "macro.createItem",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: "Compendium.transformations.gh-transformations.Item.o2FZSdm3Uh2bu9x6"
+                },
+                {
+                    key: "flags.transformations.lycanthrope.hybridForm",
+                    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                    value: 1
+                }
+            ]
+        },
+        kindredForm: {
+            name: "Kindred Form: Wolf",
+            formUuid: "Compendium.transformations.creatures.Actor.R6uXrPnTdWhBYHkI"
+        }
+    },
+    {
+        name: "Hybrid Bear Form",
+        hybridFrom: "Compendium.transformations.gh-transformations.Item.CSIQIM4rTZt2eul4",
+        formUuid: "Compendium.transformations.creatures.Actor.ynpVNMtsu9Wzt3Jm",
+        effectActivityName: "Apply Hybrid Bear Effect",
+        effect: {
+            name: "Hybrid Bear Form",
+            changes: [
+                {
+                    key: "system.abilities.str.value",
+                    mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+                    value: 20
+                },
+                {
+                    key: "system.attributes.movement.climb",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: 30
+                },
+                {
+                    key: "system.traits.languages.custom",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: "Your ability to speak is reduced to short basic guttural responses"
+                },
+                {
+                    key: "macro.createItem",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: "Compendium.transformations.gh-transformations.Item.4XwffwdkK1n7ehJj"
+                },
+                {
+                    key: "flags.transformations.lycanthrope.hybridForm",
+                    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                    value: 1
+                }
+            ]
+        },
+        extraActivity: {
+            name: "Escape grapple",
+            targets: {
+                amount: 1,
+                type: "creature"
+            },
+            saveDC: (actor) => {return (8 + actor.system.abilities.str.mod + actor.system.attributes.prof)},
+            saveAbility: "str"
+        },
+        kindredForm: {
+            name: "Kindred Form: Bear",
+            formUuid: "Compendium.transformations.creatures.Actor.0SouwvicxOCMcQVL"
+        }
+    },
+    {
+        name: "Hybrid Rat Form",
+        hybridFrom: "Compendium.transformations.gh-transformations.Item.Wk2EIMS6AcMFoaSv",
+        formUuid: "Compendium.transformations.creatures.Actor.JqDEE1UJGf9KCpkr",
+        effectActivityName: "Apply Hybrid Rat Effect",
+        effect: {
+            name: "Hybrid Rat Form",
+            changes: [
+                {
+                    key: "system.abilities.dex.value",
+                    mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+                    value: 18
+                },
+                {
+                    key: "system.traits.languages.custom",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: "Your ability to speak is reduced to short basic guttural responses"
+                },
+                {
+                    key: "macro.createItem",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: "Compendium.transformations.gh-transformations.Item.eVUH5GeBkB61uMbg"
+                },
+                {
+                    key: "macro.createItem",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: "Compendium.transformations.gh-transformations.Item.4XwffwdkK1n7ehJj"
+                },
+                {
+                    key: "macro.createItem",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: "Compendium.transformations.gh-transformations.Item.o2FZSdm3Uh2bu9x6"
+                },
+                {
+                    key: "macro.createItem",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: "Compendium.transformations.gh-transformations.Item.oIEpysqxNtPgmgiw"
+                },
+                {
+                    key: "flags.transformations.lycanthrope.hybridForm",
+                    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                    value: 1
+                }
+            ]
+        },
+        kindredForm: {
+            name: "Kindred Form: Rat",
+            formUuid: "Compendium.transformations.creatures.Actor.QoWaPiY2BzgLO6d6"
+        }
+    }
+]
+
 export const lycanthropeTestDef = {
     id: "lycanthrope",
     name: "Lycanthrope",
@@ -22,130 +174,7 @@ export const lycanthropeTestDef = {
     scenarios: [
         {
             name: (loopVars) => `stage 1 with ${loopVars.name}`,
-            loop: () => [
-                {
-                    name: "Hybrid Wolf Form",
-                    hybridFrom: "Compendium.transformations.gh-transformations.Item.Dhdr9DZHA9qjXhYo",
-                    formUuid: "Compendium.transformations.creatures.Actor.WexEE2d1QwzEvAUa",
-                    effectActivityName: "Apply Hybrid Wolf effect",
-                    effect: {
-                        name: "Hybrid Wolf Form",
-                        changes: [
-                            {
-                                key: "system.abilities.str.value",
-                                mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
-                                value: 18
-                            },
-                            {
-                                key: "system.attributes.movement.bonus",
-                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-                                value: 10
-                            },
-                            {
-                                key: "system.traits.languages.custom",
-                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-                                value: "Your ability to speak is reduced to short basic guttural responses"
-                            },
-                            {
-                                key: "macro.createItem",
-                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                                value: "Compendium.transformations.gh-transformations.Item.eVUH5GeBkB61uMbg"
-                            },
-                            {
-                                key: "macro.createItem",
-                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                                value: "Compendium.transformations.gh-transformations.Item.4XwffwdkK1n7ehJj"
-                            },
-                            {
-                                key: "macro.createItem",
-                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                                value: "Compendium.transformations.gh-transformations.Item.o2FZSdm3Uh2bu9x6"
-                            }
-                        ]
-                    }
-                },
-                {
-                    name: "Hybrid Bear Form",
-                    hybridFrom: "Compendium.transformations.gh-transformations.Item.CSIQIM4rTZt2eul4",
-                    formUuid: "Compendium.transformations.creatures.Actor.ynpVNMtsu9Wzt3Jm",
-                    effectActivityName: "Apply Hybrid Bear Effect",
-                    effect: {
-                        name: "Hybrid Bear Form",
-                        changes: [
-                            {
-                                key: "system.abilities.str.value",
-                                mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
-                                value: 20
-                            },
-                            {
-                                key: "system.attributes.movement.climb",
-                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-                                value: 30
-                            },
-                            {
-                                key: "system.traits.languages.custom",
-                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-                                value: "Your ability to speak is reduced to short basic guttural responses"
-                            },
-                            {
-                                key: "macro.createItem",
-                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                                value: "Compendium.transformations.gh-transformations.Item.4XwffwdkK1n7ehJj"
-                            }
-                        ]
-                    },
-                    extraActivity: {
-                        name: "Escape grapple",
-                        targets: {
-                            amount: 1,
-                            type: "creature"
-                        },
-                        saveDC: (actor) => {return (8 + actor.system.abilities.str.mod + actor.system.attributes.prof)},
-                        saveAbility: "str"
-                    }
-                },
-                {
-                    name: "Hybrid Rat Form",
-                    hybridFrom: "Compendium.transformations.gh-transformations.Item.Wk2EIMS6AcMFoaSv",
-                    formUuid: "Compendium.transformations.creatures.Actor.JqDEE1UJGf9KCpkr",
-                    effectActivityName: "Apply Hybrid Rat Effect",
-                    effect: {
-                        name: "Hybrid Rat Form",
-                        changes: [
-                            {
-                                key: "system.abilities.dex.value",
-                                mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
-                                value: 18
-                            },
-                            {
-                                key: "system.traits.languages.custom",
-                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-                                value: "Your ability to speak is reduced to short basic guttural responses"
-                            },
-                            {
-                                key: "macro.createItem",
-                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                                value: "Compendium.transformations.gh-transformations.Item.eVUH5GeBkB61uMbg"
-                            },
-                            {
-                                key: "macro.createItem",
-                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                                value: "Compendium.transformations.gh-transformations.Item.4XwffwdkK1n7ehJj"
-                            },
-                            {
-                                key: "macro.createItem",
-                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                                value: "Compendium.transformations.gh-transformations.Item.o2FZSdm3Uh2bu9x6"
-                            },
-                            {
-                                key: "macro.createItem",
-                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                                value: "Compendium.transformations.gh-transformations.Item.oIEpysqxNtPgmgiw"
-                            }
-                        ]
-                    }
-                }
-            ],
+            loop: () => LycanthropeForms,
 
             steps: [
                 {
@@ -197,7 +226,7 @@ export const lycanthropeTestDef = {
                         activity.name = "Midi Transform"
                         activity.activationType = "action"
                         activity.duration.value = 1
-                        activity.duration.unit = "hour"
+                        activity.duration.units = "hour"
                         activity.settings.effects = ["all"]
                         activity.settings.keep = ["self"]
                         activity.settings.merge = ["saves", "skills"]
@@ -207,11 +236,16 @@ export const lycanthropeTestDef = {
                         activity.name = loopVars.effectActivityName
                         activity.activationType = ""
                         activity.duration.value = 1
-                        activity.duration.unit = "hour"
+                        activity.duration.units = "hour"
                         activity.addEffect(effect => {
                             effect.name = loopVars.effect.name
                             effect.changes = loopVars.effect.changes
                         })
+                    })
+                    item.addActivity(activity => {
+                        activity.name = loopVars.kindredForm.name
+                        activity.activationType = "special"
+                        activity.transformationChoices = [loopVars.kindredForm.formUuid]
                     })
                     if (loopVars.extraActivity) {
                         const calculatedDC = loopVars.extraActivity.saveDC(actor)
@@ -227,6 +261,195 @@ export const lycanthropeTestDef = {
                 })
                 validate(actorDto, {assert})
             }
+        },
+        {
+            name: `stage 2 with Hunter’s Focus`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.Dhdr9DZHA9qjXhYo",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.8U5fr6IwtSqVHCO4",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.8U5fr6IwtSqVHCO4",
+                    "Compendium.transformations.gh-transformations.Item.XdPwwrl91fjc9JMY"
+                ]
+
+                actorDto.addItem(item => {
+                    item.itemName = "Hunter’s Focus"
+                    item.addActivity(activity => {
+                        activity.name = "Mark Enemy"
+                        activity.activationType = "bonus"
+                        activity.duration.units = "hour"
+                        activity.duration.value = 1
+                        activity.range.value = 60
+                        activity.range.unit = "ft"
+                        activity.target.value = 1
+                        activity.addEffect(effect => {
+                            effect.name = "Hunter’s Mark"
+                            effect.changes = [
+                                {
+                                    key: "flags.transformations.lycanthrope.huntersMark",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                    value: 1
+                                }
+                            ]
+                        })
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Silver Sensitivity"
+                    item.addEffect(effect => {
+                        effect.name = "Silver Sensitivity"
+                        effect.changes = [
+                            {
+                                "key": "system.traits.dv.value",
+                                "value": "bludgeoning",
+                                "mode": 2
+                            },
+                            {
+                                "key": "system.traits.dv.value",
+                                "value": "piercing",
+                                "mode": 2
+                            },
+                            {
+                                "key": "system.traits.dv.value",
+                                "value": "slashing",
+                                "mode": 2
+                            },
+                            {
+                                "key": "system.traits.dv.bypasses",
+                                "value": "ada",
+                                "mode": 0
+                            },
+                            {
+                                "key": "system.traits.dv.bypasses",
+                                "value": "mgc",
+                                "mode": 0
+                            }
+                        ]
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 2 with Iron Pelt`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.Dhdr9DZHA9qjXhYo",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.G5LNiZBdQu2AYuSC",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.G5LNiZBdQu2AYuSC"
+                ]
+
+                actorDto.addItem(item => {
+                    item.itemName = "Iron Pelt"
+                    item.addEffect(effect => {
+                        effect.name = "Iron Pelt"
+                        effect.description = "While in hybrid form, you have Resistance to Bludgeoning, Piercing, and Slashing damage. Magical and silvered weapons ignore this resistance."
+                        effect.changes = [
+                            {
+                                "key": "system.traits.dr.value",
+                                "value": "bludgeoning",
+                                "mode": 2
+                            },
+                            {
+                                "key": "system.traits.dr.value",
+                                "value": "piercing",
+                                "mode": 2
+                            },
+                            {
+                                "key": "system.traits.dr.value",
+                                "value": "slashing",
+                                "mode": 2
+                            },
+                            {
+                                "key": "system.traits.dr.bypasses",
+                                "value": "mgc",
+                                "mode": 0
+                            },
+                            {
+                                "key": "system.traits.dr.bypasses",
+                                "value": "sil",
+                                "mode": 0
+                            }
+                        ]
+                        effect.flags = {
+                            dae: {
+                                enableCondition: "@flags.transformations.lycanthrope.hybridForm == 1"
+                            }
+                        }
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 2 with Kindred Form`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.Dhdr9DZHA9qjXhYo",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.sdbu5ta4xyeaFaNU",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.sdbu5ta4xyeaFaNU"
+                ]
+
+                actorDto.addItem(item => {
+                    item.itemName = "Kindred Form"
+                })
+                validate(actorDto, {assert})
+            }
         }
-    ]
+    ],
+    itemBehaviorTests: []
 }

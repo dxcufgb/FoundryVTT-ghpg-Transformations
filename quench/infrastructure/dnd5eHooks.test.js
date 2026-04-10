@@ -1,4 +1,5 @@
 import { registerDnd5eHooks } from "../../infrastructure/hooks/dnd5eHooks.js"
+import { Lycanthrope } from "../../domain/transformation/subclasses/lycanthrope/Lycanthrope.js"
 
 function createLogger()
 {
@@ -363,6 +364,64 @@ quench.registerBatch(
                     expect(preRollDamageCall.data?.damage?.current?.workflow).to.equal(workflow)
                     expect(preRollDamageCall.data?.damage?.current?.rolls).to.equal(rolls)
                 } finally {
+                    harness.restore()
+                }
+            })
+
+            it("delegates pre-roll attack handling to the transformation class", async function()
+            {
+                const actor = createActor()
+                const harness = createHookHarness({
+                    transformationOverrides: {
+                        TransformationClass: Lycanthrope
+                    }
+                })
+                const originalTargets = game.user.targets
+                const rollConfig = {
+                    subject: {
+                        actor,
+                        item: {actor}
+                    },
+                    disadvantage: true
+                }
+
+                game.user.targets = new Set([
+                    {
+                        actor: {
+                            flags: {
+                                transformations: {
+                                    lycanthrope: {
+                                        huntersMark: 1
+                                    }
+                                }
+                            },
+                            getFlag(scope, key)
+                            {
+                                if (
+                                    scope === "transformations" &&
+                                    key === "lycanthrope.huntersMark"
+                                ) {
+                                    return 1
+                                }
+
+                                return null
+                            }
+                        }
+                    }
+                ])
+
+                try {
+                    const callback = harness.callbacks.get("dnd5e.preRollAttack")
+                    expect(callback).to.be.a("function")
+
+                    callback({actor}, rollConfig)
+
+                    await flushAsyncWork()
+
+                    expect(rollConfig.advantage).to.equal(true)
+                    expect(rollConfig.disadvantage).to.equal(false)
+                } finally {
+                    game.user.targets = originalTargets
                     harness.restore()
                 }
             })
