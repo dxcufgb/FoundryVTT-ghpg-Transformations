@@ -17,7 +17,7 @@ export function createHideousAppearanceSaveActionGroup()
     return {
         name: "hideous-appearance-save",
         when: {
-            stage: { min: 2 }
+            stage: {min: 2}
         },
         actions: [
             {
@@ -30,7 +30,14 @@ export function createHideousAppearanceSaveActionGroup()
                 data: {
                     ability: "con",
                     dc: "@transformationSaveDC",
-                    key: "hideous-appearance-con-save"
+                    key: "hideous-appearance-con-save",
+                    title: "Hideous Appearance",
+                    flavor: {
+                        img: "",
+                        title: "",
+                        subtitle: "",
+                        body: "When you become bloodied you need to roll a constitution saving throw. If you fail this save, your Horrific Appearance is revealed."
+                    }
                 }
             },
             {

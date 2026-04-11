@@ -32,7 +32,10 @@ export class ActivityDTOValidator extends BaseDTOValidator
         saveAbility: resolve(ctx => Array.from(ctx.activity.save?.ability ?? [])).equalsArray(),
         checkAbility: resolve(ctx => Array.from(ctx.activity.check?.ability ?? [])).equalsArray(),
         checkAssociated: resolve(ctx => Array.from(ctx.activity.check?.associated ?? [])).equalsArray(),
-        isConcentration: path("activity.duration.concentration").equals()
+        isConcentration: path("activity.duration.concentration").equals(),
+        transformationChoices: resolve(ctx =>
+            Array.from(ctx.activity.availableProfiles ?? []).map(profile => profile.uuid)
+        ).equalsArray()
     }
 
     /**

@@ -5,11 +5,10 @@ import { waitForCondition } from "../helpers/waitForCondition.js"
 import { conditionsMet } from "../../domain/actions/conditionSchema.js"
 import { waitForDomainStability } from "../helpers/waitForDomainStability.js"
 import { setupTest, teardownAllTest, tearDownEachTest } from "../testLifecycle.js"
-import { interceptChatCreate } from "../helpers/interceptChatCreate.js"
 
 quench.registerBatch(
     "transformations.actions",
-    ({ describe, it, assert, expect }) =>
+    ({describe, it, assert, expect}) =>
     {
         let actor
         let runtime
@@ -18,12 +17,13 @@ quench.registerBatch(
         let actionHandlers
 
         const existingActorIds = game.actors.map(actor => actor.id)
+
         async function localSetupTest(currentTest, transformationId)
         {
-            ({ actor, runtime, actionExecutor, actionHandlers } = await setupTest({
+            ({actor, runtime, actionExecutor, actionHandlers} = await setupTest({
                 currentTest,
                 createObjects: {
-                    actor: { name: currentTest.title + `(${transformationId})`, options: { race: "humanoid" } },
+                    actor: {name: currentTest.title + `(${transformationId})`, options: {race: "humanoid"}},
                     runtime: {},
                     actionExecutor: {},
                     actionHandlers: {}
@@ -33,39 +33,36 @@ quench.registerBatch(
             transformationDef = await runtime.services.transformationQueryService.getDefinitionById(transformationId)
         }
 
-        after(async function()
+        after(async function ()
         {
             await wait(200)
             const existingIdSet = new Set(existingActorIds)
 
             const testActorIds = game.actors
-                .filter(actor => !existingIdSet.has(actor.id))
-                .map(actor => actor.id)
+            .filter(actor => !existingIdSet.has(actor.id))
+            .map(actor => actor.id)
 
             await teardownAllTest(testActorIds)
         })
-        describe("Transformation Actions", function()
+        describe("Transformation Actions", function ()
         {
             this.timeout(10_000)
-            let interceptor
-            beforeEach(async function()
+            beforeEach(async function ()
             {
                 await localSetupTest(this.currentTest, "aberrant-horror")
-                interceptor = interceptChatCreate({ debounceMs: 10 })
             })
 
-            afterEach(async function()
+            afterEach(async function ()
             {
                 await tearDownEachTest()
-                interceptor.restore()
             })
-            it("executes handlers sequentially in order", async function()
+            it("executes handlers sequentially in order", async function ()
             {
 
                 const calls = []
 
                 const handlers = {
-                    TEST: async ({ action }) =>
+                    TEST: async ({action}) =>
                     {
                         calls.push(action.id)
                     }
@@ -77,19 +74,18 @@ quench.registerBatch(
                         {
                             name: "order-test",
                             actions: [
-                                { id: 1, type: "TEST" },
-                                { id: 2, type: "TEST" }
+                                {id: 1, type: "TEST"},
+                                {id: 2, type: "TEST"}
                             ]
                         }
                     ],
                     handlers
                 })
 
-
                 expect(calls).to.deep.equal([1, 2])
             })
 
-            it("skips action when conditions are not met", async function()
+            it("skips action when conditions are not met", async function ()
             {
                 let called = false
 
@@ -104,7 +100,7 @@ quench.registerBatch(
                             name: "condition-test",
                             actions: [{
                                 type: "TEST",
-                                when: { actor: { hasSpellSlots: true } }
+                                when: {actor: {hasSpellSlots: true}}
                             }]
                         }
                     ],
@@ -114,7 +110,7 @@ quench.registerBatch(
                 expect(called).to.equal(false)
             })
 
-            it("skips action when handler missing", async function()
+            it("skips action when handler missing", async function ()
             {
 
                 await actionExecutor.execute({
@@ -122,7 +118,7 @@ quench.registerBatch(
                     actionGroups: [
                         {
                             name: "missing-handler",
-                            actions: [{ type: "UNKNOWN" }]
+                            actions: [{type: "UNKNOWN"}]
                         }
                     ],
                     handlers: {}
@@ -131,33 +127,33 @@ quench.registerBatch(
                 // Just assert no crash
             })
 
-            it("conditionsMet detects spell slots correctly", function()
+            it("conditionsMet detects spell slots correctly", function ()
             {
 
                 actor.system.spells = {
-                    spell1: { max: 2 }
+                    spell1: {max: 2}
                 }
 
                 const result = conditionsMet(actor, {
-                    actor: { hasSpellSlots: true }
+                    actor: {hasSpellSlots: true}
                 })
 
                 expect(result).to.equal(true)
             })
-            it("executes actions in declared order", async function()
+            it("executes actions in declared order", async function ()
             {
                 const callOrder = []
 
                 const handlers = {
                     FIRST: async () => callOrder.push("FIRST"),
                     SECOND: async () => callOrder.push("SECOND"),
-                    THIRD: async () => callOrder.push("THIRD"),
+                    THIRD: async () => callOrder.push("THIRD")
                 }
 
                 const actions = [
-                    { type: "FIRST" },
-                    { type: "SECOND" },
-                    { type: "THIRD" }
+                    {type: "FIRST"},
+                    {type: "SECOND"},
+                    {type: "THIRD"}
                 ]
 
                 await actionExecutor.execute({
@@ -173,14 +169,13 @@ quench.registerBatch(
                     handlers
                 })
 
-
                 expect(callOrder).to.deep.equal([
                     "FIRST",
                     "SECOND",
                     "THIRD"
                 ])
             })
-            it("stops executing further actions if a handler throws", async function()
+            it("stops executing further actions if a handler throws", async function ()
             {
                 const callOrder = []
 
@@ -195,9 +190,9 @@ quench.registerBatch(
                 }
 
                 const actions = [
-                    { type: "FIRST" },
-                    { type: "FAIL" },
-                    { type: "NEVER" }
+                    {type: "FIRST"},
+                    {type: "FAIL"},
+                    {type: "NEVER"}
                 ]
 
                 let errorCaught = false
@@ -228,7 +223,7 @@ quench.registerBatch(
                 ])
             })
 
-            it("does not duplicate an effect when action runs twice", async function()
+            it("does not duplicate an effect when action runs twice", async function ()
             {
                 const effectName = "Test Effect"
 
@@ -255,7 +250,6 @@ quench.registerBatch(
                     handlers: actionHandlers
                 })
 
-
                 await actionExecutor.execute({
                     actorId: actor.id,
                     actionGroups: [
@@ -269,13 +263,12 @@ quench.registerBatch(
                     handlers: actionHandlers
                 })
 
-
                 const matchingEffects = actor.effects.filter(e => e.name === effectName)
 
                 expect(matchingEffects.length).to.equal(1)
             })
 
-            it("stops executing remaining actions in group when blocker returns false", async function()
+            it("stops executing remaining actions in group when blocker returns false", async function ()
             {
 
                 const calls = []
@@ -298,8 +291,8 @@ quench.registerBatch(
                         {
                             name: "blocker-test",
                             actions: [
-                                { type: "FIRST", data: { blocker: true } },
-                                { type: "SECOND" }
+                                {type: "FIRST", data: {blocker: true}},
+                                {type: "SECOND"}
                             ]
                         }
                     ],
@@ -309,7 +302,7 @@ quench.registerBatch(
                 expect(calls).to.deep.equal(["FIRST"])
             })
 
-            it("executes once-only action only a single time", async function()
+            it("executes once-only action only a single time", async function ()
             {
                 let callCount = 0
 
@@ -356,7 +349,7 @@ quench.registerBatch(
                 expect(callCount).to.equal(1)
             })
 
-            it("resets once-only action on long rest", async function()
+            it("resets once-only action on long rest", async function ()
             {
                 let callCount = 0
 
@@ -398,7 +391,7 @@ quench.registerBatch(
                     "system.attributes.hp.value": actor.system.attributes.hp.max
                 })
 
-                Hooks.call("dnd5e.restCompleted", actor, { longRest: true })
+                Hooks.call("dnd5e.restCompleted", actor, {longRest: true})
 
                 await waitForCondition(() =>
                     actor.getFlag("transformations", "once") == null
@@ -416,7 +409,7 @@ quench.registerBatch(
                 expect(callCount).to.equal(2)
             })
 
-            it("full aberrant horror journey behaves correctly", async function()
+            it("full aberrant horror journey behaves correctly", async function ()
             {
                 globalThis.___TransformationTestEnvironment___.rollTableResult = 100
 
@@ -425,12 +418,20 @@ quench.registerBatch(
                     definition: transformationDef
                 })
 
-                await advanceStageAndWait({ actor, stage: 1, asyncTrackers: runtime.dependencies.utils.asyncTrackers })
-                await advanceStageAndChoose({ actor, stage: 2, choiceUuid: STAGE2_UUID, asyncTrackers: runtime.dependencies.utils.asyncTrackers })
-                await advanceStageAndWait({ actor, stage: 3, asyncTrackers: runtime.dependencies.utils.asyncTrackers })
-                await advanceStageAndWait({ actor, stage: 4, asyncTrackers: runtime.dependencies.utils.asyncTrackers })
+                await advanceStageAndWait({actor, stage: 1, asyncTrackers: runtime.dependencies.utils.asyncTrackers})
+                await advanceStageAndChoose({
+                    actor,
+                    stage: 2,
+                    choiceUuid: STAGE2_UUID,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await advanceStageAndWait({actor, stage: 3, asyncTrackers: runtime.dependencies.utils.asyncTrackers})
+                await advanceStageAndWait({actor, stage: 4, asyncTrackers: runtime.dependencies.utils.asyncTrackers})
 
-                await waitForDomainStability({ actor, asyncTrackers: runtime.dependencies.utils.asyncTrackers })
+                await waitForDomainStability({actor, asyncTrackers: runtime.dependencies.utils.asyncTrackers})
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
 
                 // Simulate bloodied
                 await actor.update({
@@ -443,6 +444,9 @@ quench.registerBatch(
 
                 const tempHpAfterFirst = actor.system.attributes.hp.temp
                 expect(tempHpAfterFirst).to.be.equal(5)
+                await waitForCondition(() =>
+                    game.messages.contents.length === 2
+                )
 
                 // Heal
                 await actor.update({
@@ -463,10 +467,15 @@ quench.registerBatch(
                     actor.system.attributes.hp.value < Math.floor(actor.system.attributes.hp.max / 2) + 1
                 )
 
+                await waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+
                 const tempHpAfterSecond = actor.system.attributes.hp.temp
 
                 expect(tempHpAfterSecond).to.equal(0)
-                expect(interceptor.getCount()).to.equal(1)
+                expect(game.messages.contents.length).to.equal(2)
             })
         })
 

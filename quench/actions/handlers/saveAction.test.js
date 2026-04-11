@@ -199,5 +199,39 @@ export function registerSaveActionTests({ describe, it, expect })
                 .to.equal(5)
         })
 
+        it("renders chat flavor with the chat-message-flavor template", async function()
+        {
+            globalThis.___TransformationTestEnvironment___.saveResult = 12
+
+            await handler({
+                actor,
+                action: {
+                    data: {
+                        ability: "wis",
+                        dc: 10,
+                        key: "flavor-test",
+                        flavor: {
+                            img: "icons/test.webp",
+                            title: "Wisdom Save",
+                            subtitle: "Lycanthrope",
+                            body: "Hold on to yourself."
+                        }
+                    }
+                },
+                context,
+                variables
+            })
+
+            const flavorHtml =
+                globalThis.___TransformationTestEnvironment___.saveOptions.message.data.flavor
+
+            expect(flavorHtml).to.be.a("string")
+            expect(flavorHtml).to.contain('class="chat-card item-card"')
+            expect(flavorHtml).to.contain('src="icons/test.webp"')
+            expect(flavorHtml).to.contain("Wisdom Save")
+            expect(flavorHtml).to.contain("Lycanthrope")
+            expect(flavorHtml).to.contain("Hold on to yourself.")
+        })
+
     })
 }

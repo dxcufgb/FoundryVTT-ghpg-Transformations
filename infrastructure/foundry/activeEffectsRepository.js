@@ -218,6 +218,77 @@ export function createActiveEffectRepository({
         )
     }
 
+    async function createFromUuid({
+        actor,
+        uuid,
+        source = "instantiated",
+        flags = {},
+        context = {}
+    })
+    {
+        logger.debug("createActiveEffectRepository.createFromUuid", {
+            actor,
+            uuid,
+            source,
+            flags,
+            context
+        })
+        if (!actor || !uuid) {
+            logger.warn("ActiveEffect.createFromUuid called without actor or uuid")
+            return null
+        }
+
+        return tracker.track(
+            (async () =>
+            {
+                debouncedTracker.pulse("fromUuid")
+                const sourceEffect = await fromUuid(uuid)
+
+                if (!sourceEffect) {
+                    logger.warn("ActiveEffect not found for UUID", uuid)
+                    return null
+                }
+
+                const effectData =
+                    typeof sourceEffect?.toObject === "function"
+                        ? foundry.utils.deepClone(sourceEffect.toObject())
+                        : foundry.utils.deepClone(sourceEffect)
+
+                if (!effectData?.name) {
+                    logger.warn("Resolved ActiveEffect UUID is missing effect data", uuid)
+                    return null
+                }
+
+                effectData.flags ??= {}
+                effectData.origin = effectData.origin || uuid
+                effectData.flags = {
+                    ...effectData.flags,
+                    ...flags,
+                    ddbimporter: {
+                        ...(effectData.flags.ddbimporter ?? {}),
+                        ...(flags.ddbimporter ?? {}),
+                        ignoreItemImport: true
+                    },
+                    transformations: {
+                        ...(effectData.flags.transformations ?? {}),
+                        ...(flags.transformations ?? {}),
+                        addedByTransformation: true,
+                        source,
+                        context
+                    }
+                }
+
+                debouncedTracker.pulse("createEmbeddedDocuments")
+                const [effect] = await actor.createEmbeddedDocuments(
+                    "ActiveEffect",
+                    [effectData]
+                )
+
+                return effect ?? null
+            })()
+        )
+    }
+
     function getTransformationEffects(actor)
     {
         logger.debug("createActiveEffectRepository.getTransformationEffects", { actor })
@@ -310,6 +381,7 @@ export function createActiveEffectRepository({
         hasByName,
         getIdsByName,
         create,
+        createFromUuid,
         clearTransformation,
         removeEffectsOnLongRest,
         removeByOrigin
