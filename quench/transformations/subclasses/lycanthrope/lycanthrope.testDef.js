@@ -449,6 +449,141 @@ export const lycanthropeTestDef = {
                 })
                 validate(actorDto, {assert})
             }
+        },
+        {
+            name: `stage 3 with Bestial Vigor`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.Dhdr9DZHA9qjXhYo",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.sdbu5ta4xyeaFaNU",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.ML93ufjDC9nIprs6",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.ML93ufjDC9nIprs6",
+                    "Compendium.transformations.gh-transformations.Item.iv0DZ6tbH0U0TNi2"
+                ]
+
+                actorDto.addItem(item => {
+                    item.itemName = "Frayed Thoughts"
+                    item.addEffect(effect => {
+                        effect.name = "Frayed Thoughts"
+                        effect.description = "You have Disadvantage on Intelligence ability checks and saving throws."
+                        effect.changes = [
+                            {
+                                key: "system.abilities.int.check.roll.mode",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: -1
+                            },
+                            {
+                                key: "system.abilities.int.save.roll.mode",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: -1
+                            }
+                        ]
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Bestial Vigor"
+                    item.addEffect(effect => {
+                        effect.name = "Bestial Vigor"
+                        effect.description = "Your Hit Point Maximum increases by an amount equal to your character level, and it increases by 1 every time you gain a character level."
+                        effect.changes = [
+                            {
+                                key: "system.attributes.hp.bonuses.level",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: 1
+                            }
+                        ]
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Bestial Vigor"
+                        activity.activationType = "turnStart"
+                        activity.healing.formula = "5"
+                        activity.healing.type = "temp"
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 3 with Shapeshifter’s Savagery`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.Dhdr9DZHA9qjXhYo",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.sdbu5ta4xyeaFaNU",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.9bwCUcoYrRhHL9Mh",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.9bwCUcoYrRhHL9Mh"
+                ]
+
+                actorDto.addItem(item => {
+                    item.itemName = "Shapeshifter’s Savagery"
+                    item.addEffect(effect => {
+                        effect.name = "Shapeshifter’s Savagery"
+                        effect.description = "You have Immunity to the Charmed and Frightened conditions."
+                        effect.changes = [
+                            {
+                                key: "system.traits.ci.value",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: "frightened"
+                            },
+                            {
+                                key: "system.traits.ci.value",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: "charmed"
+                            }
+                        ]
+                    })
+                })
+                validate(actorDto, {assert})
+            }
         }
     ],
     itemBehaviorTests: []
