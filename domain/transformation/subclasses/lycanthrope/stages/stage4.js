@@ -4,20 +4,17 @@ export const stage4 = {
     grants: {
         items: [
             {
-                name: "Lycanthrope Stage 4 Base Feature",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.EqE7zKj2fzb1iBlR"
             }
         ]
     },
     choices: {
         items: [
             {
-                name: "Lycanthrope Stage 4 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.nnZFTTr8OfkHoj8A"
             },
             {
-                name: "Lycanthrope Stage 4 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.IKbEWxQP01NILuq6"
             }
         ]
     }

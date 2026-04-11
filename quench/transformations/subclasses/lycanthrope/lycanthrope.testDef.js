@@ -584,6 +584,168 @@ export const lycanthropeTestDef = {
                 })
                 validate(actorDto, {assert})
             }
+        },
+        {
+            name: `stage 4 with Hybrid Form Affinity`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.Dhdr9DZHA9qjXhYo",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.sdbu5ta4xyeaFaNU",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.9bwCUcoYrRhHL9Mh",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.IKbEWxQP01NILuq6",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.IKbEWxQP01NILuq6",
+                    "Compendium.transformations.gh-transformations.Item.EqE7zKj2fzb1iBlR"
+                ]
+
+                actorDto.addItem(item => {
+                    item.itemName = "Hybrid Form Affinity"
+                    item.addEffect(effect => {
+                        effect.name = "Hybrid Form Affinity"
+                        effect.changes = [
+                            {
+                                key: "system.abilities.wis.check.roll.mode",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: 1
+                            },
+                            {
+                                key: "system.abilities.wis.save.roll.mode",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: 1
+                            }
+                        ]
+                        effect.flags = {
+                            "ActiveAuras": {
+                                "isAura": true,
+                                "aura": "Allies",
+                                "nameOverride": "",
+                                "radius": "20",
+                                "alignment": "",
+                                "type": "",
+                                "customCheck": "",
+                                "ignoreSelf": true,
+                                "height": false,
+                                "hidden": false,
+                                "displayTemp": true,
+                                "hostile": false,
+                                "onlyOnce": false,
+                                "wallsBlock": "true"
+                            }
+                        }
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Ultimate Predator"
+                    item.addActivity(activity => {
+                        activity.name = "Involuntary Transformation Save"
+                        activity.saveDc = 15
+                        activity.saveAbility = ["wis"]
+                        activity.addEffect(effect => {
+                            effect.name = "Ultimate Predator"
+                            effect.changes = [
+                                {
+                                    key: "macro.itemMacro",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                                    value: "lycanthrope triggerBloodiedHybridTransform"
+                                }
+                            ]
+                        })
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 4 with Savage Instincts`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.Dhdr9DZHA9qjXhYo",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.sdbu5ta4xyeaFaNU",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.9bwCUcoYrRhHL9Mh",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.nnZFTTr8OfkHoj8A",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.nnZFTTr8OfkHoj8A"
+                ]
+
+                actorDto.addItem(item => {
+                    item.itemName = "Savage Instincts"
+                    item.addActivity(activity => {
+                        activity.name = "Hit on Bloodied Creature"
+                        activity.activationType = "special"
+                        activity.range.units = "spec"
+                        activity.target.affects.type = "creature"
+                        activity.target.affects.count = 1
+                        activity.addDamagePart(damagePart => {
+                            damagePart.roll = "1d8"
+                            damagePart.damageTypes = ["slashing"]
+                        })
+                        activity.critical.allow = true
+                    })
+                })
+                validate(actorDto, {assert})
+            }
         }
     ],
     itemBehaviorTests: []
