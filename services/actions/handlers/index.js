@@ -9,6 +9,7 @@ import { createDialogAction } from "./dialog.js"
 import { createActorFlagAction } from "./actorFlags.js"
 import { createExhaustionAction } from "./actorExhaustion.js"
 import { createActorHitDieAction } from "./actorHitDie.js"
+import { createRollModifierAction } from "./rollModifier.js"
 
 export function createActionHandlers({
     trackers,
@@ -76,6 +77,10 @@ export function createActionHandlers({
         MACRO: createMacroAction({
             tracker: trackers.macros,
             directMacroInvoker,
+            logger
+        }),
+        ROLL_MODIFIER: createRollModifierAction({
+            tracker: trackers.mutations,
             logger
         }),
         DIALOG: createDialogAction({

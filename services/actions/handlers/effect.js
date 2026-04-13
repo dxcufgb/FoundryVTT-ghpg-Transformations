@@ -24,11 +24,19 @@ export function createEffectAction({
             action,
             context
         })
-        const { mode, name, active, source } = action.data ?? {}
+        const { mode, name, active, source, uuid } = action.data ?? {}
 
-        if (!mode || !name) {
-            logger.warn("EFFECT action missing mode or name", action)
-            return
+        if (!mode) {
+            logger.warn("EFFECT action missing mode", action)
+            return false
+        }
+
+        if (!isValidEffectActionData({
+            mode,
+            name,
+            uuid
+        }, action)) {
+            return false
         }
 
         return tracker.track(
@@ -58,6 +66,13 @@ export function createEffectAction({
                             context
                         })
                         break
+                    case "instantiate":
+                        return instantiateEffect({
+                            actor,
+                            uuid,
+                            source,
+                            context
+                        })
                     case "remove":
                         await removeEffect({
                             actor,
@@ -73,6 +88,29 @@ export function createEffectAction({
                 }
             })()
         )
+    }
+
+    function isValidEffectActionData({
+        mode,
+        name,
+        uuid
+    }, action)
+    {
+        if (mode === "instantiate") {
+            if (!uuid) {
+                logger.warn("EFFECT instantiate action missing uuid", action)
+                return false
+            }
+
+            return true
+        }
+
+        if (!name) {
+            logger.warn("EFFECT action missing name", action)
+            return false
+        }
+
+        return true
     }
 
     async function applyEffect({
@@ -127,6 +165,35 @@ export function createEffectAction({
                 await activeEffectRepository.removeByIds(actor, ids)
             })()
         )
+    }
+
+    async function instantiateEffect({
+        actor,
+        uuid,
+        source,
+        context
+    })
+    {
+        logger.debug("createEffectAction.instantiateEffect", {
+            actor,
+            uuid,
+            source,
+            context
+        })
+
+        if (!actor || !uuid) {
+            logger.warn("Instantiate effect missing actor or uuid")
+            return false
+        }
+
+        const createdEffect = await activeEffectRepository.createFromUuid({
+            actor,
+            uuid,
+            source: source ?? "instantiated",
+            context
+        })
+
+        return createdEffect != null
     }
 
     async function createCustomEffect({

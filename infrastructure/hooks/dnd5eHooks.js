@@ -1,3 +1,6 @@
+import { conditionsMet } from "../../domain/actions/conditionSchema.js"
+import { applyRollModifierAction } from "../../services/actions/handlers/rollModifier.js"
+
 function getPrimaryRoll(rolls)
 {
     if (Array.isArray(rolls)) return rolls[0] ?? null
@@ -29,6 +32,20 @@ function resolveActorFromSubject(subject)
         subject?.parent ??
         subject ??
         null
+    )
+}
+
+function isAttackRollConfig(candidate)
+{
+    return Boolean(
+        candidate &&
+        typeof candidate === "object" &&
+        (
+            "subject" in candidate ||
+            "rolls" in candidate ||
+            "hookNames" in candidate ||
+            "attackMode" in candidate
+        )
     )
 }
 
@@ -94,6 +111,138 @@ async function clearSavedItemReference(actor)
     if (typeof actor.setFlag === "function") {
         await actor.setFlag("transformations", "saveItemUuid", null)
     }
+}
+
+function resolvePreRollDamageInvocation(configOrArgs = {}, dialog = null, message = null)
+{
+    const workflow = configOrArgs?.workflow ?? null
+    const subject =
+              configOrArgs?.subject ??
+              workflow?.activity ??
+              configOrArgs?.activity ??
+              null
+    const activity = workflow?.activity ?? subject ?? null
+    const item =
+              workflow?.item ??
+              activity?.item ??
+              configOrArgs?.item ??
+              subject?.item ??
+              null
+    const actor =
+              workflow?.actor ??
+              resolveActorFromSubject(
+                  subject ??
+                  item ??
+                  configOrArgs?.actor ??
+                  null
+              )
+
+    return {
+        actor,
+        item,
+        activity,
+        rolls: Array.isArray(configOrArgs?.rolls) ? configOrArgs.rolls : [],
+        workflow: workflow ?? buildSyntheticPreRollDamageWorkflow({
+            actor,
+            item,
+            activity
+        }),
+        config: configOrArgs?.subject ? configOrArgs : null,
+        dialog,
+        message
+    }
+}
+
+function buildSyntheticPreRollDamageWorkflow({
+    actor,
+    item,
+    activity
+} = {})
+{
+    if (!actor && !item && !activity) return null
+
+    return {
+        actor,
+        item,
+        activity
+    }
+}
+
+function buildPreRollDamageTriggerContext({
+    activity,
+    item,
+    rolls,
+    workflow,
+    config = null,
+    dialog = null,
+    message = null
+} = {})
+{
+    return {
+        damage: {
+            current: {
+                activity,
+                item: normalizeTriggerItem(item),
+                itemDocument: item,
+                rolls,
+                workflow,
+                config,
+                dialog,
+                message
+            }
+        }
+    }
+}
+
+function getTransformationStage(actor)
+{
+    const rawStage =
+              actor?.flags?.transformations?.stage ??
+              actor?.getFlag?.("transformations", "stage") ??
+              0
+    const numericStage = Number(rawStage ?? 0)
+
+    return Number.isFinite(numericStage)
+        ? Math.max(numericStage, 0)
+        : 0
+}
+
+function applySynchronousPreRollDamageActions({
+    actor,
+    transformation,
+    context,
+    logger
+} = {})
+{
+    const actionGroups =
+              transformation?.TransformationTriggers?.preRollDamage?.actionGroups ??
+              []
+
+    if (!actor || !actionGroups.length) {
+        return false
+    }
+
+    const evaluationContext = {
+        ...context,
+        trigger: "preRollDamage",
+        stage: getTransformationStage(actor)
+    }
+
+    let modified = false
+
+    for (const actionGroup of actionGroups) {
+        if (!conditionsMet(actor, actionGroup?.when, evaluationContext, logger)) {
+            continue
+        }
+
+        for (const action of actionGroup?.actions ?? []) {
+            if (action?.type !== "ROLL_MODIFIER") continue
+
+            modified = applyRollModifierAction(context, action) || modified
+        }
+    }
+
+    return modified
 }
 
 export function registerDnd5eHooks({
@@ -171,7 +320,6 @@ export function registerDnd5eHooks({
         context = null
     })
     {
-        logger.debug(`${hookName} called`, rolls ?? roll, data ?? context)
         debouncedTracker.pulse(pulseName)
 
         if (!actor || !roll) return
@@ -194,7 +342,6 @@ export function registerDnd5eHooks({
         const actor = resolveActorFromSubject(context?.subject)
         const roll = getPrimaryRoll(rolls)
 
-        logger.debug(`${hookName} called`, rolls, context)
         debouncedTracker.pulse("dnd5e.rollSkill")
 
         if (!actor || !roll) return
@@ -266,6 +413,7 @@ export function registerDnd5eHooks({
 
     Hooks.on("dnd5e.preRollInitiative", (actor, roll) =>
     {
+        logger.debug("dnd5e.preRollInitiative called", actor, roll)
         handleGenericD20Roll({
             hookName: "dnd5e.preRollInitiative",
             actor,
@@ -355,6 +503,7 @@ export function registerDnd5eHooks({
 
     Hooks.on("dnd5e.rollAbilityCheck", (rolls, context) =>
     {
+        logger.debug("dnd5e.rollAbilityCheck called", rolls, context)
         handleGenericD20Roll({
             hookName: "dnd5e.rollAbilityCheck",
             actor: resolveActorFromSubject(context?.subject),
@@ -365,16 +514,19 @@ export function registerDnd5eHooks({
 
     Hooks.on("dnd5e.rollSkill", (rolls, context) =>
     {
+        logger.debug("dnd5e.rollSkill called", rolls, context)
         handleSkillRoll("dnd5e.rollSkill", rolls, context)
     })
 
     Hooks.on("dnd5e.rollSkillV2", (rolls, context) =>
     {
+        logger.debug("dnd5e.rollSkillV2 called", rolls, context)
         handleSkillRoll("dnd5e.rollSkillV2", rolls, context)
     })
 
     Hooks.on("dnd5e.rollToolCheck", (rolls, data) =>
     {
+        logger.debug("dnd5e.rollToolCheck called", rolls, data)
         handleGenericD20Roll({
             hookName: "dnd5e.rollToolCheck",
             actor: resolveActorFromSubject(data?.subject),
@@ -383,8 +535,55 @@ export function registerDnd5eHooks({
         })
     })
 
+    Hooks.on("dnd5e.preRollAttack", (itemOrRollConfig, rollConfigOrDialog, message) =>
+    {
+        logger.debug(
+            "dnd5e.preRollAttack called",
+            itemOrRollConfig,
+            rollConfigOrDialog,
+            message
+        )
+        debouncedTracker.pulse("dnd5e.preRollAttack")
+
+        ;(async () =>
+        {
+            const rollConfig = isAttackRollConfig(itemOrRollConfig)
+                ? itemOrRollConfig
+                : rollConfigOrDialog
+            const dialog = isAttackRollConfig(itemOrRollConfig)
+                ? rollConfigOrDialog
+                : null
+            const item = isAttackRollConfig(itemOrRollConfig)
+                ? rollConfig?.subject?.item ?? null
+                : itemOrRollConfig
+            const actor = resolveActorFromSubject(
+                rollConfig?.subject ??
+                item ??
+                null
+            )
+
+            if (!actor) return
+
+            const transformation = transformationRegistry.getEntryForActor(actor)
+
+            if (!transformation?.TransformationClass?.onPreRollAttack) return
+
+            await transformation.TransformationClass.onPreRollAttack({
+                item,
+                rollConfig,
+                dialog,
+                message,
+                actor,
+                actorRepository,
+                itemRepository,
+                logger
+            })
+        })()
+    })
+
     Hooks.on("dnd5e.rollAttack", (rolls, data) =>
     {
+        logger.debug("dnd5e.rollAttack called", rolls, data)
         handleGenericD20Roll({
             hookName: "dnd5e.rollAttack",
             actor: resolveActorFromSubject(data?.subject),
@@ -395,6 +594,7 @@ export function registerDnd5eHooks({
 
     Hooks.on("dnd5e.rollConcentration", (rolls, data) =>
     {
+        logger.debug("dnd5e.rollConcentration called", rolls, data)
         handleGenericD20Roll({
             hookName: "dnd5e.rollConcentration",
             actor: resolveActorFromSubject(data?.subject),
@@ -405,6 +605,7 @@ export function registerDnd5eHooks({
 
     Hooks.on("dnd5e.rollDeathSave", (rolls, data) =>
     {
+        logger.debug("dnd5e.rollDeathSave called", rolls, data)
         handleGenericD20Roll({
             hookName: "dnd5e.rollDeathSave",
             actor: resolveActorFromSubject(data?.subject),
@@ -420,28 +621,54 @@ export function registerDnd5eHooks({
 
     })
 
-    Hooks.on("dnd5e.preRollDamageV2", args =>
+    Hooks.on("dnd5e.preRollDamageV2", (configOrArgs, dialog, message) =>
     {
-        const workflow = args.workflow
-        const rolls = args.rolls
-        const item = workflow.item
-        const actor = workflow.actor
-        const activity = workflow.activity
+        logger.debug("dnd5e.preRollDamageV2 called", configOrArgs, dialog, message)
+        debouncedTracker.pulse("dnd5e.preRollDamageV2")
+        const {
+                  actor,
+                  item,
+                  activity,
+                  rolls,
+                  workflow,
+                  config
+              } = resolvePreRollDamageInvocation(configOrArgs, dialog, message)
         const activityFlag = activity?.flags?.transformations?.hookLogic?.preDamageRoll
         const itemFlag = item?.flags?.transformations?.hookLogic?.preDamageRoll
         if (!actor) return
 
         const transformation = transformationRegistry.getEntryForActor(actor)
+        const triggerContext = buildPreRollDamageTriggerContext({
+            activity,
+            item,
+            rolls,
+            workflow,
+            config,
+            dialog,
+            message
+        })
 
+        applySynchronousPreRollDamageActions({
+            actor,
+            transformation,
+            context: triggerContext,
+            logger
+        })
+
+        ;(async () =>
+    {
         if (itemFlag) {
-            const func = transformation.TransformationClass[itemFlag]
-            func(workflow, rolls)
+            const func = transformation?.TransformationClass?.[itemFlag]
+            await func?.(workflow, rolls)
         } else if (activityFlag) {
-            const func = transformation.TransformationClass[activityFlag]
-            func(workflow, rolls)
-        } else {
-
+            const func = transformation?.TransformationClass?.[activityFlag]
+            await func?.(workflow, rolls)
         }
+
+        await triggerRuntime.run("preRollDamage", actor, {
+            ...triggerContext
+        })
+    })()
     })
 
     Hooks.on("renderChatMessageHTML", (message, html) =>
@@ -472,7 +699,7 @@ export function registerDnd5eHooks({
     })
 
     Hooks.on("dnd5e.postUseActivity", async (activity, usage, changes) => {
-
+        logger.debug("dnd5e.postUseActivity called", activity, usage, changes)
         const actor = usage.workflow.actor
         if (!actor) return
 

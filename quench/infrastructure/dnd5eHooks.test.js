@@ -1,4 +1,5 @@
 import { registerDnd5eHooks } from "../../infrastructure/hooks/dnd5eHooks.js"
+import { Lycanthrope } from "../../domain/transformation/subclasses/lycanthrope/Lycanthrope.js"
 
 function createLogger()
 {
@@ -46,7 +47,7 @@ async function flushAsyncWork()
     await Promise.resolve()
 }
 
-function createHookHarness()
+function createHookHarness({ transformationOverrides = {} } = {})
 {
     const originalHooks = globalThis.Hooks
     const callbacks = new Map()
@@ -71,7 +72,8 @@ function createHookHarness()
             {
                 calls.onRoll.push({actor, roll})
             }
-        }
+        },
+        ...transformationOverrides
     }
 
     registerDnd5eHooks({
@@ -298,6 +300,225 @@ quench.registerBatch(
                         uuid: "Actor.actor-1.Item.item-1",
                         sourceUuid
                     })
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("includes activity and item data when dispatching pre-roll damage trigger context", async function()
+            {
+                const actor = createActor()
+                const harness = createHookHarness()
+                const sourceUuid =
+                          "Compendium.transformations.gh-transformations.Item.5NEzTu8Y5PGmmCOO"
+                const activity = {
+                    damage: {
+                        parts: [
+                            {
+                                types: new Set(["slashing"])
+                            }
+                        ]
+                    }
+                }
+                const item = {
+                    id: "item-2",
+                    name: "Memori Lichdom",
+                    uuid: "Actor.actor-1.Item.item-2",
+                    flags: {
+                        transformations: {
+                            sourceUuid
+                        }
+                    }
+                }
+                const rolls = [{ options: { types: [] } }]
+                const workflow = {
+                    actor,
+                    item,
+                    activity
+                }
+
+                try {
+                    const callback = harness.callbacks.get("dnd5e.preRollDamageV2")
+                    expect(callback).to.be.a("function")
+
+                    callback({
+                        workflow,
+                        rolls
+                    })
+
+                    await flushAsyncWork()
+
+                    const preRollDamageCall =
+                              harness.calls.triggerRuntime.find(call =>
+                                  call.name === "preRollDamage"
+                              )
+
+                    expect(preRollDamageCall).to.exist
+                    expect(preRollDamageCall.data?.damage?.current?.item).to.deep.equal({
+                        id: "item-2",
+                        name: "Memori Lichdom",
+                        uuid: "Actor.actor-1.Item.item-2",
+                        sourceUuid
+                    })
+                    expect(preRollDamageCall.data?.damage?.current?.activity).to.equal(activity)
+                    expect(preRollDamageCall.data?.damage?.current?.workflow).to.equal(workflow)
+                    expect(preRollDamageCall.data?.damage?.current?.rolls).to.equal(rolls)
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("delegates pre-roll attack handling to the transformation class", async function()
+            {
+                const actor = createActor()
+                const harness = createHookHarness({
+                    transformationOverrides: {
+                        TransformationClass: Lycanthrope
+                    }
+                })
+                const originalTargets = game.user.targets
+                const rollConfig = {
+                    subject: {
+                        actor,
+                        item: {actor}
+                    },
+                    disadvantage: true
+                }
+
+                game.user.targets = new Set([
+                    {
+                        actor: {
+                            flags: {
+                                transformations: {
+                                    lycanthrope: {
+                                        huntersMark: 1
+                                    }
+                                }
+                            },
+                            getFlag(scope, key)
+                            {
+                                if (
+                                    scope === "transformations" &&
+                                    key === "lycanthrope.huntersMark"
+                                ) {
+                                    return 1
+                                }
+
+                                return null
+                            }
+                        }
+                    }
+                ])
+
+                try {
+                    const callback = harness.callbacks.get("dnd5e.preRollAttack")
+                    expect(callback).to.be.a("function")
+
+                    callback({actor}, rollConfig)
+
+                    await flushAsyncWork()
+
+                    expect(rollConfig.advantage).to.equal(true)
+                    expect(rollConfig.disadvantage).to.equal(false)
+                } finally {
+                    game.user.targets = originalTargets
+                    harness.restore()
+                }
+            })
+
+            it("applies synchronous pre-roll damage modifiers to the pending damage config", async function()
+            {
+                const actor = createActor()
+                actor.flags = {
+                    transformations: {
+                        stage: 1
+                    }
+                }
+                actor.items = [
+                    {
+                        flags: {
+                            transformations: {
+                                sourceUuid:
+                                    "Compendium.transformations.gh-transformations.Item.5NEzTu8Y5PGmmCOO"
+                            }
+                        }
+                    }
+                ]
+
+                const harness = createHookHarness({
+                    transformationOverrides: {
+                        TransformationTriggers: {
+                            preRollDamage: {
+                                actionGroups: [
+                                    {
+                                        when: {
+                                            items: {
+                                                has: [
+                                                    "Compendium.transformations.gh-transformations.Item.5NEzTu8Y5PGmmCOO"
+                                                ]
+                                            },
+                                            custom: {
+                                                damage: {
+                                                    current: {
+                                                        itemDocument: {
+                                                            type: ["weapon"]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        actions: [
+                                            {
+                                                type: "ROLL_MODIFIER",
+                                                data: {
+                                                    mode: "addDamageType",
+                                                    damageType: "force"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                })
+
+                const item = {
+                    type: "weapon",
+                    actor
+                }
+                const activity = {
+                    actor,
+                    item,
+                    damage: {
+                        parts: [
+                            {
+                                types: new Set(["bludgeoning"])
+                            }
+                        ]
+                    }
+                }
+                const rolls = [
+                    {
+                        options: {
+                            types: ["bludgeoning"]
+                        }
+                    }
+                ]
+
+                try {
+                    const callback = harness.callbacks.get("dnd5e.preRollDamageV2")
+                    expect(callback).to.be.a("function")
+
+                    callback({
+                        subject: activity,
+                        rolls
+                    }, {}, {})
+
+                    expect(rolls[0].options.types).to.include("force")
+                    expect(
+                        Array.from(activity.damage.parts[0].types)
+                    ).to.include("force")
                 } finally {
                     harness.restore()
                 }

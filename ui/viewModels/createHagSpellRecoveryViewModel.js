@@ -1,4 +1,5 @@
 import { SpellSlotRecoveryViewModelHelper } from "./SpellSlotRecoveryViewModelHelper.js"
+import { createTransformationsSpellSlotRecoveryViewModel } from "./createTransformationsSpellSlotRecoveryViewModel.js"
 
 export function createHagSpellRecoveryViewModel({
     actor,
@@ -9,125 +10,50 @@ export function createHagSpellRecoveryViewModel({
         actor
     })
 
-    const availableHitDice = getAvailableHitDice(actor)
-    const characterLevel = getCharacterLevel(actor)
+    const availableHitDice = SpellSlotRecoveryViewModelHelper.getAvailableHitDice(actor)
+    const characterLevel = SpellSlotRecoveryViewModelHelper.getCharacterLevel(actor)
     const maxRecoverableLevel =
         characterLevel > 0
             ? Math.ceil(characterLevel / 3)
             : 0
 
-    const spellSlotEntries = getRecoverableSpellSlotEntries(actor, {
-        availableHitDice,
-        maxRecoverableLevel
+    return createTransformationsSpellSlotRecoveryViewModel({
+        actor,
+        title: "Hag Spell Recovery",
+        description:
+            "Recover one expended spell slot by spending Hit Point Dice equal to the slot's level. " +
+            "You can recover a spell slot of a level no higher than one third of your character level, rounded up.",
+        confirmLabel: "Restore",
+        emptyMessage: "No eligible expended spell slots can be recovered.",
+        selectionMode: "single",
+        maxRecoverableLevel,
+        maxRecoverableCost: availableHitDice,
+        summaryStats: [
+            {
+                label: "Hit Dice Available",
+                value: availableHitDice
+            },
+            {
+                label: "Character Level",
+                value: characterLevel
+            },
+            {
+                label: "Max Slot Level",
+                value: maxRecoverableLevel
+            }
+        ],
+        selectionSummary: {
+            label: "Selected Cost",
+            initialValue: 0
+        },
+        classPrefix: "hag-spell-recovery",
+        dialogClassName: "hag-spell-recovery-dialog",
+        inputName: "hag-spell-recovery-choice",
+        extraContext: {
+            availableHitDice,
+            characterLevel,
+            maxRecoverableLevel
+        },
+        logger
     })
-    const groups = Array.from(groupSpellSlotsByLevel(spellSlotEntries).values())
-
-    return {
-        availableHitDice,
-        characterLevel,
-        maxRecoverableLevel,
-        groups,
-        hasRecoverableSlots: groups.length > 0
-    }
-}
-
-function getRecoverableSpellSlotEntries(actor, {
-    availableHitDice,
-    maxRecoverableLevel
-})
-{
-    if (availableHitDice <= 0 || maxRecoverableLevel <= 0) {
-        return []
-    }
-
-    const spells = actor?.system?.spells ?? {}
-    const spellSlotEntries = []
-    const highestRecoverableLevel = Math.min(
-        9,
-        maxRecoverableLevel,
-        availableHitDice
-    )
-
-    for (let level = 1; level <= highestRecoverableLevel; level += 1) {
-        SpellSlotRecoveryViewModelHelper.appendRecoverableSpellEntriesForLevel({
-            spellSlotEntries,
-            spells,
-            level
-        })
-    }
-
-    const pactSlot = spells?.pact
-    const pactLevel = Math.max(Number(pactSlot?.level ?? 0), 0)
-    const pactCapacity = SpellSlotRecoveryViewModelHelper.getSpellSlotCapacity(pactSlot)
-    const pactCurrentValue = Math.max(Number(pactSlot?.value ?? 0), 0)
-    const pactMissing = Math.max(pactCapacity - pactCurrentValue, 0)
-
-    if (
-        pactLevel > 0 &&
-        pactLevel <= highestRecoverableLevel
-    ) {
-        for (let index = 0; index < pactMissing; index += 1) {
-            spellSlotEntries.push({
-                id: `pact-${index + 1}`,
-                slotKey: "pact",
-                level: pactLevel,
-                cost: pactLevel,
-                slotType: "pact",
-                label: `Pact slot ${index + 1}`,
-                groupLabel: `Pact Slots (Level ${pactLevel})`
-            })
-        }
-    }
-
-    return spellSlotEntries
-}
-
-function groupSpellSlotsByLevel(spellSlotEntries)
-{
-    return spellSlotEntries.reduce((groups, entry) =>
-    {
-        const groupKey = String(entry.level)
-
-        if (!groups.has(groupKey)) {
-            groups.set(groupKey, {
-                key: groupKey,
-                label: entry.groupLabel ?? `Level ${entry.level}`,
-                level: entry.level,
-                options: []
-            })
-        }
-
-        groups.get(groupKey).options.push({
-            id: entry.id,
-            slotKey: entry.slotKey,
-            level: entry.level,
-            cost: entry.cost,
-            slotType: entry.slotType,
-            label: entry.label
-        })
-
-        return groups
-    }, new Map())
-}
-
-function getAvailableHitDice(actor)
-{
-    const classItems = actor?.items?.filter(item => item.type === "class") ?? []
-
-    return classItems.reduce((total, item) =>
-        total + Math.max(Number(item.system?.hd?.value ?? 0), 0),
-    0)
-}
-
-function getCharacterLevel(actor)
-{
-    const classItems = actor?.items?.filter(item => item.type === "class") ?? []
-    const classLevelTotal = classItems.reduce((total, item) =>
-        total + Math.max(Number(item.system?.levels ?? 0), 0),
-    0)
-
-    if (classLevelTotal > 0) return classLevelTotal
-
-    const detailsLevel = Number(actor?.system?.details?.level ?? 0)
-    return Number.isFinite(detailsLevel) ? Math.max(detailsLevel, 0) : 0
 }

@@ -57,7 +57,7 @@ export function registerGMOnlyActorHooks({
                 } catch (err) {
                     logger.error(
                         "Error handling bloodied trigger",
-                        { actor, err }
+                        {actor, err}
                     )
                 }
                 break
@@ -90,7 +90,7 @@ export function registerGMOnlyActorHooks({
                 } catch (err) {
                     logger.error(
                         "Error handling unconscious trigger",
-                        { actor, err }
+                        {actor, err}
                     )
                 }
                 break
@@ -110,12 +110,12 @@ export function registerGMOnlyActorHooks({
 
         const fiendFlags = actor.flags?.transformations?.fiend ?? {}
         const giftEntry =
-            Object.entries(fiendFlags).find(([, entry]) =>
-                entry?.effectId === effect.id
-            ) ??
-            Object.entries(fiendFlags).find(([giftId]) =>
-                giftId === effect.getFlag("transformations", "giftOfDamnationId")
-            )
+                  Object.entries(fiendFlags).find(([, entry]) =>
+                      entry?.effectId === effect.id
+                  ) ??
+                  Object.entries(fiendFlags).find(([giftId]) =>
+                      giftId === effect.getFlag("transformations", "giftOfDamnationId")
+                  )
 
         if (!giftEntry) return
 
@@ -151,5 +151,57 @@ export function registerGMOnlyActorHooks({
             false
         )
 
+    })
+
+    async function dispatchTransformationItemHook(hookName, item, changed, options, userId)
+    {
+        logger.debug(hookName, item, changed, options, userId)
+        const actor = actorRepository.resolveActor(item?.parent)
+        if (!actor) return
+
+        const transformation = await transformationQueryService.getForActor(actor)
+        const TransformationClass = transformation?.constructor
+
+        if (typeof TransformationClass?.[hookName] !== "function") return
+
+        try {
+            await TransformationClass[hookName]({
+                item,
+                changed,
+                options,
+                userId,
+                actor,
+                logger
+            })
+        } catch (err) {
+            logger.error(`Error handling ${hookName} transformation hook`, {
+                actor,
+                item,
+                changed,
+                err
+            })
+        }
+    }
+
+    Hooks.on("preUpdateItem", async (item, changed, options, userId) =>
+    {
+        await dispatchTransformationItemHook(
+            "preUpdateItem",
+            item,
+            changed,
+            options,
+            userId
+        )
+    })
+
+    Hooks.on("updateItem", async (item, changed, options, userId) =>
+    {
+        await dispatchTransformationItemHook(
+            "updateItem",
+            item,
+            changed,
+            options,
+            userId
+        )
     })
 }

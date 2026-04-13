@@ -1,7 +1,7 @@
 import { createFiendUnbridledPowerSpellSlotRecoveryController }
     from "../../ui/controllers/fiendUnbridledPowerSpellSlotRecoveryController.js"
-import { FiendUnbridledPowerSpellSlotRecoveryDialog }
-    from "../../ui/dialogs/fiendUnbridledPowerSpellSlotRecoveryDialog.js"
+import { TransformationsSpellSlotRecoveryDialog }
+    from "../../ui/dialogs/transformationsSpellSlotRecoveryDialog.js"
 import { createFiendUnbridledPowerSpellSlotRecoveryViewModel }
     from "../../ui/viewModels/createFiendUnbridledPowerSpellSlotRecoveryViewModel.js"
 import { wait } from "../helpers/wait.js"
@@ -46,19 +46,24 @@ function createActorWithSpellSlots(spells = {})
 function getGroups(dialog)
 {
     return Array.from(
-        dialog.element.querySelectorAll(
-            ".fiend-unbridled-power-spell-slot-recovery__group"
-        )
+        dialog.element.querySelectorAll("[data-slot-group]")
     )
 }
 
 function getCheckboxes(group)
 {
-    return Array.from(group.querySelectorAll("[data-slot-checkbox]"))
+    return Array.from(group.querySelectorAll("[data-slot-option]"))
+}
+
+function findGroupByLevel(dialog, level)
+{
+    return getGroups(dialog).find(group =>
+        getCheckboxes(group)[0]?.dataset?.slotLevel === String(level)
+    ) ?? null
 }
 
 quench.registerBatch(
-    "transformations.Dialogs.fiendUnbridledPowerSpellSlotRecoveryDialog",
+    "transformations.Dialogs.transformationsSpellSlotRecoveryDialog.fiend",
     ({describe, it, expect}) =>
     {
         const existingActorIds = game.actors.map(actor => actor.id)
@@ -195,11 +200,11 @@ quench.registerBatch(
             })
         })
 
-        describe("FiendUnbridledPowerSpellSlotRecoveryDialog", function()
+        describe("TransformationsSpellSlotRecoveryDialog (Fiend)", function()
         {
             it("renders slot groups and enforces contiguous checkbox selection within a row", async function()
             {
-                const dialog = new FiendUnbridledPowerSpellSlotRecoveryDialog({
+                const dialog = new TransformationsSpellSlotRecoveryDialog({
                     viewModel:
                         createFiendUnbridledPowerSpellSlotRecoveryViewModel({
                             actor: createActorWithSpellSlots({
@@ -224,16 +229,8 @@ quench.registerBatch(
                 await dialog.render(true)
 
                 const groups = getGroups(dialog)
-                const level1Group = groups.find(group =>
-                    group.querySelector(
-                        ".fiend-unbridled-power-spell-slot-recovery__level"
-                    )?.textContent?.trim() === "1"
-                )
-                const level2Group = groups.find(group =>
-                    group.querySelector(
-                        ".fiend-unbridled-power-spell-slot-recovery__level"
-                    )?.textContent?.trim() === "2"
-                )
+                const level1Group = findGroupByLevel(dialog, 1)
+                const level2Group = findGroupByLevel(dialog, 2)
 
                 expect(groups.length).to.equal(2)
                 expect(level1Group).to.exist
@@ -241,7 +238,8 @@ quench.registerBatch(
 
                 const level1Checkboxes = getCheckboxes(level1Group)
                 const level2Checkboxes = getCheckboxes(level2Group)
-                const remaining = dialog.element.querySelector("[data-remaining]")
+                const remaining =
+                    dialog.element.querySelector("[data-selection-summary]")
 
                 expect(level1Checkboxes.length).to.equal(3)
                 expect(level2Checkboxes.length).to.equal(2)
@@ -275,7 +273,7 @@ quench.registerBatch(
             {
                 let confirmedValue = null
 
-                const dialog = new FiendUnbridledPowerSpellSlotRecoveryDialog({
+                const dialog = new TransformationsSpellSlotRecoveryDialog({
                     viewModel:
                         createFiendUnbridledPowerSpellSlotRecoveryViewModel({
                             actor: createActorWithSpellSlots({
@@ -299,12 +297,7 @@ quench.registerBatch(
 
                 await dialog.render(true)
 
-                const groups = getGroups(dialog)
-                const level1Group = groups.find(group =>
-                    group.querySelector(
-                        ".fiend-unbridled-power-spell-slot-recovery__level"
-                    )?.textContent?.trim() === "1"
-                )
+                const level1Group = findGroupByLevel(dialog, 1)
                 const checkboxes = getCheckboxes(level1Group)
                 const confirmButton =
                     dialog.element.querySelector("[data-action='confirm']")
@@ -343,7 +336,7 @@ quench.registerBatch(
             {
                 let cancelled = false
 
-                const dialog = new FiendUnbridledPowerSpellSlotRecoveryDialog({
+                const dialog = new TransformationsSpellSlotRecoveryDialog({
                     viewModel:
                         createFiendUnbridledPowerSpellSlotRecoveryViewModel({
                             actor: createActorWithSpellSlots({

@@ -1769,7 +1769,7 @@ export const feyTestDef = {
         },
 
         {
-            name: "Weakend Constitution bloodied triggers constitution saving throw, sucess means no exhaustion levels",
+            name: "Weakend Constitution bloodied triggers constitution saving throw, fail means one exhaustion level",
 
             requiredPath: [
                 {
@@ -1815,7 +1815,9 @@ export const feyTestDef = {
                     actor,
                     asyncTrackers: runtime.dependencies.utils.asyncTrackers
                 })
-                await waiters.waitForNextFrame()
+                await waiters.waitForCondition(() =>
+                    actor.system.attributes.exhaustion === 1
+                )
             },
 
             assertions: async ({actor, assert, validators}) =>

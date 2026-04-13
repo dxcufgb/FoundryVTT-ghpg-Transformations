@@ -3,6 +3,7 @@ import { BaseDTOValidator } from "./BaseDTOValidator.js"
 import { ConsumptionDTOValidator } from "./ConsumptionDTOValidator.js"
 import { DamagePartDTOValidator } from "./DamagePartDTOValidator.js"
 import { EffectDTOValidator } from "./EffectDTOValidator.js"
+import { SummonDTOValidator } from "./SummonDTOValidator.js"
 
 // @ts-check
 export class ActivityDTOValidator extends BaseDTOValidator
@@ -31,7 +32,10 @@ export class ActivityDTOValidator extends BaseDTOValidator
         saveAbility: resolve(ctx => Array.from(ctx.activity.save?.ability ?? [])).equalsArray(),
         checkAbility: resolve(ctx => Array.from(ctx.activity.check?.ability ?? [])).equalsArray(),
         checkAssociated: resolve(ctx => Array.from(ctx.activity.check?.associated ?? [])).equalsArray(),
-        isConcentration: path("activity.duration.concentration").equals()
+        isConcentration: path("activity.duration.concentration").equals(),
+        transformationChoices: resolve(ctx =>
+            Array.from(ctx.activity.availableProfiles ?? []).map(profile => profile.uuid)
+        ).equalsArray()
     }
 
     /**
@@ -49,6 +53,7 @@ export class ActivityDTOValidator extends BaseDTOValidator
         this.validateDamageParts(activity, dto.damageParts)
         // this.validateConsumption(activity, dto.consumption)
         this.validateEffects(activity, dto.effects)
+        this.validateSummons(activity, dto.summons)
 
         return true
     }
@@ -114,6 +119,29 @@ export class ActivityDTOValidator extends BaseDTOValidator
                 path: `${this.path}.effects[${index}]`,
                 strict: this.strict
             }).validate(effectContext, effectDTO)
+        })
+    }
+
+    validateSummons(activity, summons)
+    {
+        if (!summons?.length) return
+
+        const activityProfiles = activity.profiles ?? []
+
+        summons.forEach((summonDTO, index) =>
+        {
+            const summon = activityProfiles[index]
+
+            this.assert.isOk(
+                summon,
+                `[${this.path}.summons[${index}]] Summon profile not found`
+            )
+
+            new SummonDTOValidator({
+                assert: this.assert,
+                path: `${this.path}.summons[${index}]`,
+                strict: this.strict
+            }).validate(summon, summonDTO)
         })
     }
 }

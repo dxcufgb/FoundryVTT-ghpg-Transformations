@@ -1,4 +1,4 @@
-import { SpellSlotRecoveryViewModelHelper } from "./SpellSlotRecoveryViewModelHelper.js"
+import { createTransformationsSpellSlotRecoveryViewModel } from "./createTransformationsSpellSlotRecoveryViewModel.js"
 
 export function createFiendUnbridledPowerSpellSlotRecoveryViewModel({
     actor,
@@ -11,74 +11,34 @@ export function createFiendUnbridledPowerSpellSlotRecoveryViewModel({
         amount
     })
 
-    const spellSlotEntries = getRecoverableSpellSlotEntries(actor)
-    const groups = Array.from(groupSpellSlotsByLevel(spellSlotEntries).values())
+    const normalizedAmount = Math.max(Number(amount ?? 0), 0)
 
-    return {
-        amount,
-        groups,
-        hasRecoverableSlots: groups.length > 0
-    }
-}
-
-function getRecoverableSpellSlotEntries(actor)
-{
-    const spells = actor?.system?.spells ?? {}
-    const spellSlotEntries = []
-
-    for (let level = 1; level <= 9; level += 1) {
-        SpellSlotRecoveryViewModelHelper.appendRecoverableSpellEntriesForLevel({
-            spellSlotEntries,
-            spells,
-            level
-        })
-    }
-
-    const pactSlot = spells?.pact
-    const pactLevel = Math.max(Number(pactSlot?.level ?? 0), 0)
-    const pactCapacity = SpellSlotRecoveryViewModelHelper.getSpellSlotCapacity(pactSlot)
-    const pactCurrentValue = Math.max(Number(pactSlot?.value ?? 0), 0)
-    const pactMissing = Math.max(pactCapacity - pactCurrentValue, 0)
-
-    for (let index = 0; index < pactMissing; index += 1) {
-        spellSlotEntries.push({
-            id: `pact-${index + 1}`,
-            slotKey: "pact",
-            level: pactLevel,
-            cost: pactLevel,
-            slotType: "pact",
-            label: `Pact slot ${index + 1}`,
-            groupLabel: `Pact Slots (Level ${pactLevel})`
-        })
-    }
-
-    return spellSlotEntries
-}
-
-function groupSpellSlotsByLevel(spellSlotEntries)
-{
-    return spellSlotEntries.reduce((groups, entry) =>
-    {
-        const groupKey = String(entry.level)
-
-        if (!groups.has(groupKey)) {
-            groups.set(groupKey, {
-                key: groupKey,
-                label: `Level ${entry.level}`,
-                level: entry.level,
-                options: []
-            })
-        }
-
-        groups.get(groupKey).options.push({
-            id: entry.id,
-            slotKey: entry.slotKey,
-            level: entry.level,
-            cost: entry.cost,
-            slotType: entry.slotType,
-            label: entry.label
-        })
-
-        return groups
-    }, new Map())
+    return createTransformationsSpellSlotRecoveryViewModel({
+        actor,
+        title: "Recover Spell Slots",
+        description:
+            "Select expended spell slots to restore. The total level of the slots you pick cannot exceed your available recovery pool.",
+        confirmLabel: "Restore",
+        emptyMessage: "No spent spell slots can be recovered.",
+        selectionMode: "multiple",
+        maxRecoverableLevel: 9,
+        maxRecoverableCost: normalizedAmount,
+        useEntryGroupLabel: false,
+        summaryStats: [
+            {
+                label: "Recovery Pool",
+                value: normalizedAmount
+            }
+        ],
+        selectionSummary: {
+            label: "Remaining",
+            initialValue: normalizedAmount
+        },
+        classPrefix: "fiend-unbridled-power-spell-slot-recovery",
+        dialogClassName: "fiend-unbridled-power-spell-slot-recovery-dialog",
+        extraContext: {
+            amount: normalizedAmount
+        },
+        logger
+    })
 }

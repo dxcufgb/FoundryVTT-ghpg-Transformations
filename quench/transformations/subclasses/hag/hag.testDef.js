@@ -508,7 +508,7 @@ export const HagTestDef = {
                     item.addActivity(activity => {
                         activity.name = "Fear of Purity"
                         activity.addConsumption(consumption => {
-                            consumption.number = 1
+                            consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
                                 target.type = "activity"
                                 target.value = 1
@@ -637,7 +637,7 @@ export const HagTestDef = {
                     item.addActivity(activity => {
                         activity.name = "Challenge Mental Influence"
                         activity.addConsumption(consumption => {
-                            consumption.number = 1
+                            consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
                                 target.type = "activity"
                                 target.value = 1
@@ -736,7 +736,7 @@ export const HagTestDef = {
                         activity.name = "Frightening Gaze"
                         activity.activationType = "bonus"
                         activity.addConsumption(consumption => {
-                            consumption.number = 1
+                            consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
                                 target.type = "activity"
                                 target.value = 1
@@ -846,7 +846,7 @@ export const HagTestDef = {
                         activity.name = "Bloody Gaze"
                         activity.activationType = "action"
                         activity.addConsumption(consumption => {
-                            consumption.number = 1
+                            consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
                                 target.type = "activity"
                                 target.value = 1
@@ -1372,11 +1372,14 @@ export const HagTestDef = {
 
             await: async ({runtime, waiters, staticVars, actor}) =>
             {
+                const dialogSelector =
+                    ".transformations-spell-slot-recovery-dialog, .hag-spell-recovery"
+
                 await waiters.waitForCondition(() =>
-                    document.querySelector(".hag-spell-recovery") != null
+                    document.querySelector(dialogSelector) != null
                 )
 
-                const dialog = document.querySelector(".hag-spell-recovery")
+                const dialog = document.querySelector(dialogSelector)
 
                 if (!dialog) {
                     throw new Error("Hag Spell Recovery dialog did not open")
@@ -1423,7 +1426,7 @@ export const HagTestDef = {
                 await waiters.waitForNextFrame()
 
                 await waiters.waitForCondition(() =>
-                    document.querySelector(".hag-spell-recovery") == null
+                    document.querySelector(dialogSelector) == null
                 )
                 await waiters.waitForDomainStability({
                     actor,
@@ -1446,7 +1449,9 @@ export const HagTestDef = {
                     actor.items.get(staticVars.classItemId)?.system?.hd?.value
                 ).to.equal(staticVars.initialHitDiceValue - 2)
                 expect(
-                    document.querySelector(".hag-spell-recovery") != null
+                    document.querySelector(
+                        ".transformations-spell-slot-recovery-dialog, .hag-spell-recovery"
+                    ) != null
                 ).to.equal(false)
             }
         },

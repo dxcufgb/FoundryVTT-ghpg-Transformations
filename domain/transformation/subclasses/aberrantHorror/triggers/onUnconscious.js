@@ -16,18 +16,24 @@ export const onUnconscious = {
         {
             name: "hideous-appearance-save",
             when: {
-                stage: { min: 2 }
+                stage: {min: 2}
             },
             actions: [
                 {
                     type: "SAVE",
                     when: {
-                        effects: { name: "Hiding Hideous Appearance" }
+                        effects: {name: "Hiding Hideous Appearance"}
                     },
                     data: {
                         ability: "con",
                         dc: "@transformationSaveDC",
-                        key: "hideous-appearance-con-save"
+                        key: "hideous-appearance-con-save",
+                        title: "Hideous Appearance",
+                        flavor: {
+                            itemUuid: "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
+                            subtitle: "Transformation Feature",
+                            body: "When you become bloodied you need to roll a DC @transformationSaveDC constitution saving throw. If you fail this save, your Horrific Appearance is revealed."
+                        }
                     }
                 },
                 {

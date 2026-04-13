@@ -11,11 +11,10 @@ import { createFiendGiftOfDamnationViewModel } from "../viewModels/createFiendGi
 import { createFiendGiftOfDamnationController } from "../controllers/fiendGiftOfDamnationController.js"
 import { FiendGiftOfDamnationDialog } from "./fiendGiftOfDamnationDialog.js"
 import { createFiendUnbridledPowerSpellSlotRecoveryViewModel } from "../viewModels/createFiendUnbridledPowerSpellSlotRecoveryViewModel.js"
-import { createFiendUnbridledPowerSpellSlotRecoveryController } from "../controllers/fiendUnbridledPowerSpellSlotRecoveryController.js"
-import { FiendUnbridledPowerSpellSlotRecoveryDialog } from "./fiendUnbridledPowerSpellSlotRecoveryDialog.js"
 import { createHagSpellRecoveryViewModel } from "../viewModels/createHagSpellRecoveryViewModel.js"
-import { createHagSpellRecoveryController } from "../controllers/hagSpellRecoveryController.js"
-import { HagSpellRecoveryDialog } from "./hagSpellRecoveryDialog.js"
+import { createTransformationsSpellSlotRecoveryViewModel } from "../viewModels/createTransformationsSpellSlotRecoveryViewModel.js"
+import { createTransformationsSpellSlotRecoveryController } from "../controllers/transformationsSpellSlotRecoveryController.js"
+import { TransformationsSpellSlotRecoveryDialog } from "./transformationsSpellSlotRecoveryDialog.js"
 
 export function createDialogFactory({
     applyFiendGiftOfDamnation,
@@ -302,7 +301,7 @@ export function createDialogFactory({
             return false
         }
 
-        closeExistingDialog(FiendUnbridledPowerSpellSlotRecoveryDialog)
+        closeExistingDialog(TransformationsSpellSlotRecoveryDialog)
 
         return new Promise(resolve =>
         {
@@ -314,12 +313,84 @@ export function createDialogFactory({
                       })
 
             const controller =
-                      createFiendUnbridledPowerSpellSlotRecoveryController({
+                      createTransformationsSpellSlotRecoveryController({
                           resolve,
                           logger
                       })
 
-            const dialog = new FiendUnbridledPowerSpellSlotRecoveryDialog({
+            const dialog = new TransformationsSpellSlotRecoveryDialog({
+                viewModel,
+                controller,
+                logger
+            })
+
+            dialog.render(true)
+        })
+    }
+
+    async function openTransformationsSpellSlotRecovery({
+        actor,
+        title = "Recover Spell Slots",
+        description = null,
+        confirmLabel = "Restore",
+        cancelLabel = "Cancel",
+        emptyMessage = "No spent spell slots can be recovered.",
+        selectionMode = "single",
+        maxRecoverableLevel = 9,
+        maxRecoverableCost = Number.POSITIVE_INFINITY,
+        useEntryGroupLabel = true,
+        summaryStats = [],
+        selectionSummary = null,
+        classPrefix = "transformations-spell-slot-recovery",
+        dialogClassName = "transformations-spell-slot-recovery-dialog",
+        inputName = "transformations-spell-slot-recovery-choice",
+        extraContext = {}
+    })
+    {
+        logger.debug("openTransformationsSpellSlotRecovery", {
+            actor,
+            title,
+            selectionMode,
+            maxRecoverableLevel,
+            maxRecoverableCost
+        })
+
+        if (!actor) {
+            return false
+        }
+
+        closeExistingDialog(TransformationsSpellSlotRecoveryDialog)
+
+        return new Promise(resolve =>
+        {
+            const viewModel =
+                      createTransformationsSpellSlotRecoveryViewModel({
+                          actor,
+                          title,
+                          description,
+                          confirmLabel,
+                          cancelLabel,
+                          emptyMessage,
+                          selectionMode,
+                          maxRecoverableLevel,
+                          maxRecoverableCost,
+                          useEntryGroupLabel,
+                          summaryStats,
+                          selectionSummary,
+                          classPrefix,
+                          dialogClassName,
+                          inputName,
+                          extraContext,
+                          logger
+                      })
+
+            const controller =
+                      createTransformationsSpellSlotRecoveryController({
+                          resolve,
+                          logger
+                      })
+
+            const dialog = new TransformationsSpellSlotRecoveryDialog({
                 viewModel,
                 controller,
                 logger
@@ -341,7 +412,7 @@ export function createDialogFactory({
             return false
         }
 
-        closeExistingDialog(HagSpellRecoveryDialog)
+        closeExistingDialog(TransformationsSpellSlotRecoveryDialog)
 
         return new Promise(resolve =>
         {
@@ -352,12 +423,12 @@ export function createDialogFactory({
                       })
 
             const controller =
-                      createHagSpellRecoveryController({
+                      createTransformationsSpellSlotRecoveryController({
                           resolve,
                           logger
                       })
 
-            const dialog = new HagSpellRecoveryDialog({
+            const dialog = new TransformationsSpellSlotRecoveryDialog({
                 viewModel,
                 controller,
                 logger
@@ -375,6 +446,7 @@ export function createDialogFactory({
         openFeyExhaustionRecovery,
         openFiendGiftOfDamnation,
         openFiendUnbridledPowerSpellSlotRecovery,
+        openTransformationsSpellSlotRecovery,
         openHagSpellRecovery
     })
 
