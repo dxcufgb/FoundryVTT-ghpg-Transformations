@@ -4,6 +4,7 @@ import { FiendTests } from "./fiend/fiend.js";
 import { HagTests } from "./hag/hag.js";
 import { LichTests } from "./lich/lich.js";
 import { LycanthropeTests } from "./lycanthrope/lycanthrope.js";
+import { OozeTests } from "./ooze/ooze.js";
 
 export const TransformationSubclassTestRegistry = [
     AberrantHorrorTests,
@@ -11,5 +12,6 @@ export const TransformationSubclassTestRegistry = [
     FiendTests,
     HagTests,
     LichTests,
-    LycanthropeTests
+    LycanthropeTests,
+    OozeTests
 ]
