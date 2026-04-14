@@ -1,5 +1,6 @@
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js";
 import { validate } from "../../../helpers/DTOValidators/validate.js";
+import { ABILITY, ROLL_TYPE } from "../../../../config/constants.js";
 
 const viscousDurabilityChoices = Object.freeze([
     {
@@ -402,6 +403,251 @@ export const oozeTestDef = {
                         effect.name = "Melted Appearance"
                         effect.statuses = ["blinded"]
                         effect.changes.count = 0
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 3 with Corrosive Membrane`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.WYCAz3AuTqko3Z8Q",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.Zf3zqHvOkKTpO0Mb",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.4wBzd27wLWGJEhrc",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.4wBzd27wLWGJEhrc",
+                    "Compendium.transformations.gh-transformations.Item.0Mdkmo9YMceCgXqp"
+                ]
+                actorDto.stats.vulnerabilities = ["radiant"]
+                actorDto.rollModes.disadvantage.push(
+                    {
+                        identifier: ABILITY.DEXTERITY,
+                        type: ROLL_TYPE.ABILITY_CHECK
+                    },
+                    {
+                        identifier: ABILITY.DEXTERITY,
+                        type: ROLL_TYPE.SAVING_THROW
+                    }
+                )
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = ["Compendium.transformations.gh-transformations.Item.4wBzd27wLWGJEhrc"]
+                    item.itemName = "Corrosive Membrane"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "ooze"
+                    item.numberOfActivities = 1
+                    item.numberOfEffects = 1
+                    item.addActivity(activity => {
+                        activity.name = "Acid Damage"
+                        activity.activationType = "special"
+                        activity.duration.units = "inst"
+                        activity.duration.concentration = false
+                        activity.range.units = "spec"
+                        activity.target.affects.type = "creature"
+                        activity.target.affects.count = "1"
+                        activity.addDamagePart(damagePart => {
+                            damagePart.roll = "1d6"
+                            damagePart.bonus = "@flags.transformations.stage"
+                            damagePart.damageTypes = ["acid"]
+                            damagePart.scalingNumber = 1
+                        })
+                    })
+                    item.addEffect(effect => {
+                        effect.name = "Corrosive Membrane"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "macro.createItem",
+                                value: "Compendium.transformations.gh-transformations.Item.g8zsZxpHFQ2W3RNg",
+                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM
+                            }
+                        ]
+                        effect.flags.match.push({
+                            path: "dae",
+                            expected: {
+                                disableCondition: "@flags.tarnsformations.ooze.oozeForm != 1"
+                            }
+                        })
+                    })
+                })
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = ["Compendium.transformations.gh-transformations.Item.0Mdkmo9YMceCgXqp"]
+                    item.itemName = "Physical Deterioration"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "ooze"
+                    item.numberOfEffects = 1
+                    item.addEffect(effect => {
+                        effect.name = "Physical Deterioration"
+                        effect.changes.count = 3
+                        effect.changes = [
+                            {
+                                key: "system.traits.dv.value",
+                                value: "radiant",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD
+                            },
+                            {
+                                key: "system.abilities.dex.check.roll.mode",
+                                value: "-1",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD
+                            },
+                            {
+                                key: "system.abilities.dex.save.roll.mode",
+                                value: "-1",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD
+                            }
+                        ]
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 3 with Engulf`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.WYCAz3AuTqko3Z8Q",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.Zf3zqHvOkKTpO0Mb",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.w6Hkdr61lzK706NY",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.w6Hkdr61lzK706NY",
+                    "Compendium.transformations.gh-transformations.Item.0Mdkmo9YMceCgXqp"
+                ]
+                actorDto.stats.vulnerabilities = ["radiant"]
+                actorDto.rollModes.disadvantage.push(
+                    {
+                        identifier: ABILITY.DEXTERITY,
+                        type: ROLL_TYPE.ABILITY_CHECK
+                    },
+                    {
+                        identifier: ABILITY.DEXTERITY,
+                        type: ROLL_TYPE.SAVING_THROW
+                    }
+                )
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = ["Compendium.transformations.gh-transformations.Item.w6Hkdr61lzK706NY"]
+                    item.itemName = "Engulf"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "ooze"
+                    item.numberOfActivities = 2
+                    item.numberOfEffects = 1
+                    item.addActivity(activity => {
+                        activity.name = "Engulf"
+                        activity.activationType = "action"
+                        activity.saveAbility = ["str"]
+                        activity.duration.units = "inst"
+                        activity.duration.concentration = false
+                        activity.range.units = "ft"
+                        activity.range.value = "5"
+                        activity.target.affects.type = "creature"
+                        activity.target.affects.count = "1"
+                        activity.addEffect(effect => {
+                            effect.name = "Engulfed"
+                            effect.statuses = ["coverTotal", "suffocation"]
+                            effect.changes.count = 0
+                        })
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Engulfed Damage"
+                        activity.activationType = "special"
+                        activity.duration.units = "inst"
+                        activity.duration.concentration = false
+                        activity.range.units = "spec"
+                        activity.target.affects.type = "creature"
+                        activity.target.affects.count = "1"
+                        activity.addDamagePart(damagePart => {
+                            damagePart.roll = "4d6"
+                            damagePart.damageTypes = ["acid"]
+                            damagePart.scalingNumber = 1
+                        })
+                    })
+                    item.addEffect(effect => {
+                        effect.name = "Engulfed"
+                        effect.statuses = ["coverTotal", "suffocation"]
+                        effect.changes.count = 0
+                    })
+                })
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = ["Compendium.transformations.gh-transformations.Item.0Mdkmo9YMceCgXqp"]
+                    item.itemName = "Physical Deterioration"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "ooze"
+                    item.numberOfEffects = 1
+                    item.addEffect(effect => {
+                        effect.name = "Physical Deterioration"
+                        effect.changes.count = 3
+                        effect.changes = [
+                            {
+                                key: "system.traits.dv.value",
+                                value: "radiant",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD
+                            },
+                            {
+                                key: "system.abilities.dex.check.roll.mode",
+                                value: "-1",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD
+                            },
+                            {
+                                key: "system.abilities.dex.save.roll.mode",
+                                value: "-1",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD
+                            }
+                        ]
                     })
                 })
                 validate(actorDto, {assert})
