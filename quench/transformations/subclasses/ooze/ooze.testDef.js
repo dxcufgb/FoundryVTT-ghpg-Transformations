@@ -1,6 +1,30 @@
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js";
 import { validate } from "../../../helpers/DTOValidators/validate.js";
 
+const viscousDurabilityChoices = Object.freeze([
+    {
+        icon: "modules/transformations/icons/damageTypes/Cold.png",
+        id: "cold",
+        label: "Cold",
+        raw: "dr:cold",
+        value: "cold"
+    },
+    {
+        icon: "modules/transformations/icons/damageTypes/Fire.png",
+        id: "fire",
+        label: "Fire",
+        raw: "dr:fire",
+        value: "fire"
+    },
+    {
+        icon: "modules/transformations/icons/damageTypes/Lightning.png",
+        id: "lightning",
+        label: "Lightning",
+        raw: "dr:lightning",
+        value: "lightning"
+    }
+])
+
 export const oozeTestDef = {
     id: "ooze",
     name: "Ooze",
@@ -172,7 +196,6 @@ export const oozeTestDef = {
             ],
             finalAssertions: async ({actor, assert}) =>
             {
-                const actorProf = actor.system.attributes.prof
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.stats.movementSpeed = {
                     walk: 25
@@ -202,6 +225,183 @@ export const oozeTestDef = {
                                 enableCondition: "@flags.transformations.ooze.oozeForm == 1"
                             }
                         }
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 2 with Elastic Limbs`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.WYCAz3AuTqko3Z8Q",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.Zf3zqHvOkKTpO0Mb",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.Zf3zqHvOkKTpO0Mb",
+                    "Compendium.transformations.gh-transformations.Item.6Y1K0QKDjMZPyX8s"
+                ]
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = ["Compendium.transformations.gh-transformations.Item.Zf3zqHvOkKTpO0Mb"]
+                    item.itemName = "Elastic Limbs"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "ooze"
+                    item.numberOfEffects = 1
+                    item.addEffect(effect => {
+                        effect.name = "Elastic Limbs"
+                        effect.changes.count = 2
+                        effect.changes = [
+                            {
+                                key: "system.attributes.movement.climb",
+                                value: "@attributes.movement.walk",
+                                mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE
+                            },
+                            {
+                                key: "flags.midi-qol.range.mwak",
+                                value: "5",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD
+                            }
+                        ]
+                    })
+                })
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = ["Compendium.transformations.gh-transformations.Item.6Y1K0QKDjMZPyX8s"]
+                    item.itemName = "Melted Appearance"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "ooze"
+                    item.numberOfEffects = 1
+                    item.addEffect(effect => {
+                        effect.name = "Melted Appearance"
+                        effect.statuses = ["blinded"]
+                        effect.changes.count = 0
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: (loopVars) => `stage 2 with Viscous Durability (${loopVars.label})`,
+            loop: () => viscousDurabilityChoices,
+            setup: async ({loopVars}) =>
+            {
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Viscous Durability",
+                        choice: loopVars
+                    }
+                ]
+            },
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.WYCAz3AuTqko3Z8Q",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.vJ6yLWVYkFTVcBxl",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                }
+            ],
+            finalAwait: async ({runtime, actor, waiters, loopVars}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await waiters.waitForCondition(() =>
+                    Array.from(actor.system?.traits?.dr?.value ?? []).includes(loopVars.value) &&
+                    Array.from(actor.system?.traits?.di?.value ?? []).includes("acid")
+                )
+            },
+            finalAssertions: async ({actor, assert, loopVars}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.vJ6yLWVYkFTVcBxl",
+                    "Compendium.transformations.gh-transformations.Item.6Y1K0QKDjMZPyX8s"
+                ]
+                actorDto.stats.resistances = [loopVars.value]
+                actorDto.stats.immunities = ["acid"]
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = ["Compendium.transformations.gh-transformations.Item.vJ6yLWVYkFTVcBxl"]
+                    item.itemName = "Viscous Durability"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "ooze"
+                    item.numberOfEffects = 1
+                    item.addAdvancement(advancement =>
+                    {
+                        advancement.addConfiguration(configuration =>
+                        {
+                            configuration.choices = [
+                                {
+                                    count: 1,
+                                    pool: [
+                                        "dr:cold",
+                                        "dr:fire",
+                                        "dr:lightning"
+                                    ]
+                                }
+                            ]
+                        })
+                    })
+                    item.addEffect(effect => {
+                        effect.name = "Viscous Durability"
+                        effect.changes.count = 2
+                        effect.changes = [
+                            {
+                                key: "system.traits.ci.value",
+                                value: "frightened",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD
+                            },
+                            {
+                                key: "system.traits.di.value",
+                                value: "acid",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD
+                            }
+                        ]
+                    })
+                })
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = ["Compendium.transformations.gh-transformations.Item.6Y1K0QKDjMZPyX8s"]
+                    item.itemName = "Melted Appearance"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "ooze"
+                    item.numberOfEffects = 1
+                    item.addEffect(effect => {
+                        effect.name = "Melted Appearance"
+                        effect.statuses = ["blinded"]
+                        effect.changes.count = 0
                     })
                 })
                 validate(actorDto, {assert})
