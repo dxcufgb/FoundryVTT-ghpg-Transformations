@@ -620,34 +620,236 @@ export const oozeTestDef = {
                         effect.changes.count = 0
                     })
                 })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 4 with Legion of Slime`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.WYCAz3AuTqko3Z8Q",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.Zf3zqHvOkKTpO0Mb",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.4wBzd27wLWGJEhrc",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.fHsLyQFcA6EEKhtg",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.fHsLyQFcA6EEKhtg",
+                    "Compendium.transformations.gh-transformations.Item.xGebwKPQnKbGbhkj"
+                ]
                 actorDto.addItem(item =>
                 {
-                    item.expectedItemUuids = ["Compendium.transformations.gh-transformations.Item.0Mdkmo9YMceCgXqp"]
-                    item.itemName = "Physical Deterioration"
+                    item.expectedItemUuids = ["Compendium.transformations.gh-transformations.Item.fHsLyQFcA6EEKhtg"]
+                    item.itemName = "Legion of Slime"
                     item.type = "feat"
                     item.systemType = "transformation"
                     item.systemSubType = "ooze"
+                    item.numberOfActivities = 2
+                    item.numberOfEffects = 0
+                    item.addActivity(activity => {
+                        activity.name = "Split"
+                        activity.activationType = "reaction"
+                        activity.duration.units = "inst"
+                        activity.duration.concentration = false
+                        activity.range.units = "self"
+                        activity.target.affects.type = "self"
+                        activity.usesLeft = 1
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Merge"
+                        activity.activationType = "action"
+                        activity.duration.units = "inst"
+                        activity.duration.concentration = false
+                        activity.range.units = "self"
+                        activity.target.affects.type = "self"
+                    })
+                })
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = ["Compendium.transformations.gh-transformations.Item.xGebwKPQnKbGbhkj"]
+                    item.itemName = "Slippery Ego"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "ooze"
+                    item.numberOfActivities = 1
                     item.numberOfEffects = 1
+                    item.addActivity(activity => {
+                        activity.name = "Regain Sense of Self"
+                        activity.activationType = "special"
+                        activity.saveAbility = ["wis"]
+                        activity.saveDc = 18
+                        activity.duration.units = "inst"
+                        activity.duration.concentration = false
+                        activity.range.units = "self"
+                    })
                     item.addEffect(effect => {
-                        effect.name = "Physical Deterioration"
-                        effect.changes.count = 3
+                        effect.name = "Slippery Ego"
+                        effect.changes.count = 0
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: `stage 4 with Mimic Object`,
+            steps: [
+                {
+                    stage: 1,
+                    choose: "Compendium.transformations.gh-transformations.Item.WYCAz3AuTqko3Z8Q",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.Zf3zqHvOkKTpO0Mb",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: "Compendium.transformations.gh-transformations.Item.4wBzd27wLWGJEhrc",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: "Compendium.transformations.gh-transformations.Item.TZ1uye2noWJA7gf0",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                }
+            ],
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    "Compendium.transformations.gh-transformations.Item.TZ1uye2noWJA7gf0",
+                    "Compendium.transformations.gh-transformations.Item.xGebwKPQnKbGbhkj"
+                ]
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = ["Compendium.transformations.gh-transformations.Item.TZ1uye2noWJA7gf0"]
+                    item.itemName = "Mimic Object"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "ooze"
+                    item.numberOfActivities = 3
+                    item.numberOfEffects = 2
+                    item.addActivity(activity => {
+                        activity.name = "Transform into object"
+                        activity.activationType = "action"
+                        activity.duration.units = "inst"
+                        activity.duration.concentration = false
+                        activity.range.units = "self"
+                        activity.addEffect(effect => {
+                            effect.name = "Mimic Object"
+                            effect.changes.count = 1
+                            effect.changes = [
+                                {
+                                    key: "flags.transformations.ooze.mimicObject",
+                                    value: "1",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.ADD
+                                }
+                            ]
+                        })
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Grapple"
+                        activity.activationType = "reaction"
+                        activity.duration.units = "inst"
+                        activity.duration.concentration = false
+                        activity.range.units = "touch"
+                        activity.target.affects.type = "creature"
+                        activity.target.affects.count = "1"
+                        activity.addEffect(effect => {
+                            effect.name = "Grapple"
+                            effect.statuses = ["grappled"]
+                            effect.changes.count = 0
+                        })
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Grapple Save"
+                        activity.activationType = "special"
+                        activity.saveAbility = ["con"]
+                        activity.saveDc = 12
+                        activity.duration.units = "inst"
+                        activity.duration.concentration = false
+                        activity.range.units = "self"
+                    })
+                    item.addEffect(effect => {
+                        effect.name = "Mimic Object"
+                        effect.changes.count = 1
                         effect.changes = [
                             {
-                                key: "system.traits.dv.value",
-                                value: "radiant",
-                                mode: CONST.ACTIVE_EFFECT_MODES.ADD
-                            },
-                            {
-                                key: "system.abilities.dex.check.roll.mode",
-                                value: "-1",
-                                mode: CONST.ACTIVE_EFFECT_MODES.ADD
-                            },
-                            {
-                                key: "system.abilities.dex.save.roll.mode",
-                                value: "-1",
+                                key: "flags.transformations.ooze.mimicObject",
+                                value: "1",
                                 mode: CONST.ACTIVE_EFFECT_MODES.ADD
                             }
                         ]
+                    })
+                    item.addEffect(effect => {
+                        effect.name = "Grapple"
+                        effect.statuses = ["grappled"]
+                        effect.changes.count = 0
+                    })
+                })
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = ["Compendium.transformations.gh-transformations.Item.xGebwKPQnKbGbhkj"]
+                    item.itemName = "Slippery Ego"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "ooze"
+                    item.numberOfActivities = 1
+                    item.numberOfEffects = 1
+                    item.addActivity(activity => {
+                        activity.name = "Regain Sense of Self"
+                        activity.activationType = "special"
+                        activity.saveAbility = ["wis"]
+                        activity.saveDc = 18
+                        activity.duration.units = "inst"
+                        activity.duration.concentration = false
+                        activity.range.units = "self"
+                    })
+                    item.addEffect(effect => {
+                        effect.name = "Slippery Ego"
+                        effect.changes.count = 0
                     })
                 })
                 validate(actorDto, {assert})
