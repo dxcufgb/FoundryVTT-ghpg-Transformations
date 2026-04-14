@@ -1,4 +1,4 @@
-import { resolve, path } from "../rules/RuleBuilder.js"
+import { path, resolve } from "../rules/RuleBuilder.js"
 import { BaseDTOValidator } from "./BaseDTOValidator.js"
 
 // @ts-check
@@ -7,7 +7,13 @@ export class AdvancementConfigurationDTOValidator extends BaseDTOValidator
     static rules = {
         items: resolve(ctx =>
             (ctx.configuration?.items ?? []).map(item => item?.uuid ?? item)
-        ).equalsArray()
+        ).equalsArray(),
+        choices: resolve(ctx =>
+            (ctx.configuration?.choices ?? []).map(choice => ({
+                count: choice?.count,
+                pool: Array.from(choice?.pool ?? [])
+            }))
+        ).deepEquals()
     }
 
     /**
@@ -19,7 +25,7 @@ export class AdvancementConfigurationDTOValidator extends BaseDTOValidator
         if (!configuration)
             throw new Error(`[${this.path}] Missing advancement configuration`)
 
-        super.validate(this.buildValidationDTO(dto), { configuration })
+        super.validate(this.buildValidationDTO(dto), {configuration})
 
         return true
     }
@@ -47,7 +53,7 @@ export class AdvancementConfigurationSpellDTOValidator extends BaseDTOValidator
             throw new Error(`[${this.path}] Missing advancement configuration spell`)
         }
 
-        super.validate(this.buildValidationDTO(dto), { spell })
+        super.validate(this.buildValidationDTO(dto), {spell})
 
         return true
     }
@@ -76,7 +82,7 @@ export class AdvancementConfigurationSpellUsesDTOValidator extends BaseDTOValida
             throw new Error(`[${this.path}] Missing advancement configuration spell uses`)
         }
 
-        super.validate(this.buildValidationDTO(dto), { uses })
+        super.validate(this.buildValidationDTO(dto), {uses})
 
         return true
     }

@@ -4,12 +4,10 @@ export const stage1 = {
     grants: {
         items: [
             {
-                name: "Ooze Stage 1 Base Feature",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.iLqzf9SpukItqJLJ"
             },
             {
-                name: "Ooze Stage 1 Amorphous Form",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.oObOQpMmbXAVK9wA"
             }
         ],
         actor: {
@@ -19,12 +17,10 @@ export const stage1 = {
     choices: {
         items: [
             {
-                name: "Ooze Stage 1 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.WYCAz3AuTqko3Z8Q"
             },
             {
-                name: "Ooze Stage 1 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.tnQ6DL0epyIXWwkJ"
             }
         ]
     }

@@ -1,10 +1,18 @@
-export const onBloodied = {
-    name: "bloodied",
+export const onSavingThrow = {
+    name: "savingThrow",
+
     actionGroups: [
         {
-            name: "apply slippery ego effect on bloodied at stage 4",
+            name: "apply slippery ego effect on natural 1 save at stage 4",
             when: {
-                stage: [4]
+                stage: [4],
+                custom: {
+                    saves: {
+                        current: {
+                            naturalRoll: 1
+                        }
+                    }
+                }
             },
             actions: [
                 {

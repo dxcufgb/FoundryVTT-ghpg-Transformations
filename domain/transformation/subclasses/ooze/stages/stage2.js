@@ -4,20 +4,17 @@ export const stage2 = {
     grants: {
         items: [
             {
-                name: "Ooze Stage 2 Base Feature",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.6Y1K0QKDjMZPyX8s"
             }
         ]
     },
     choices: {
         items: [
             {
-                name: "Ooze Stage 2 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.Zf3zqHvOkKTpO0Mb"
             },
             {
-                name: "Ooze Stage 2 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.vJ6yLWVYkFTVcBxl"
             }
         ]
     }
