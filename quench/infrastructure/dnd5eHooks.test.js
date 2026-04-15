@@ -1,5 +1,6 @@
 import { registerDnd5eHooks } from "../../infrastructure/hooks/dnd5eHooks.js"
 import { Lycanthrope } from "../../domain/transformation/subclasses/lycanthrope/Lycanthrope.js"
+import { Primordial } from "../../domain/transformation/subclasses/primordial/Primordial.js"
 
 function createLogger()
 {
@@ -363,6 +364,327 @@ quench.registerBatch(
                     expect(preRollDamageCall.data?.damage?.current?.activity).to.equal(activity)
                     expect(preRollDamageCall.data?.damage?.current?.workflow).to.equal(workflow)
                     expect(preRollDamageCall.data?.damage?.current?.rolls).to.equal(rolls)
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("dispatches activityUse trigger context from postUseActivity", async function()
+            {
+                const actor = createActor()
+                const harness = createHookHarness()
+                const item = {
+                    id: "item-3",
+                    name: "Elemental Surge",
+                    uuid: "Actor.actor-1.Item.item-3",
+                    type: "feat",
+                    system: {
+                        type: {
+                            value: "transformation",
+                            subtype: "primordial"
+                        }
+                    },
+                    flags: {
+                        transformations: {
+                            sourceUuid:
+                                "Compendium.transformations.gh-transformations.Item.pf2FTD9AFlTvmeDU"
+                        }
+                    }
+                }
+                const activity = {
+                    id: "activity-1",
+                    name: "Lightning Strike",
+                    type: "attack"
+                }
+                const usage = {
+                    workflow: {
+                        actor,
+                        item
+                    }
+                }
+                const changes = {
+                    message: {
+                        id: "message-1"
+                    }
+                }
+
+                try {
+                    const callback = harness.callbacks.get("dnd5e.postUseActivity")
+                    expect(callback).to.be.a("function")
+
+                    await callback(activity, usage, changes)
+
+                    const activityUseCall =
+                              harness.calls.triggerRuntime.find(call =>
+                                  call.name === "activityUse"
+                              )
+
+                    expect(activityUseCall).to.exist
+                    expect(activityUseCall.actor).to.equal(actor)
+                    expect(activityUseCall.data?.activities?.current?.activity).to.deep.equal({
+                        id: "activity-1",
+                        name: "Lightning Strike",
+                        type: "attack"
+                    })
+                    expect(activityUseCall.data?.activities?.current?.item).to.deep.equal({
+                        id: "item-3",
+                        name: "Elemental Surge",
+                        uuid: "Actor.actor-1.Item.item-3",
+                        sourceUuid:
+                            "Compendium.transformations.gh-transformations.Item.pf2FTD9AFlTvmeDU",
+                        type: "feat",
+                        systemType: "transformation",
+                        systemSubType: "primordial"
+                    })
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("delegates preUseActivity to the transformation class and applies Roiling Elements stage DC for actor activities", async function()
+            {
+                const actor = {
+                    id: "actor-2",
+                    flags: {
+                        transformations: {
+                            stage: 3
+                        }
+                    },
+                    getFlag(scope, key)
+                    {
+                        if (scope === "transformations" && key === "stage") {
+                            return 3
+                        }
+
+                        return null
+                    }
+                }
+                const harness = createHookHarness({
+                    transformationOverrides: {
+                        TransformationClass: Primordial
+                    }
+                })
+                let persistedUpdate = null
+                const item = {
+                    id: "item-5",
+                    name: "Roiling Elements",
+                    uuid: "Actor.actor-2.Item.item-5",
+                    system: {
+                        activities: {
+                            get(id)
+                            {
+                                return id === "CeVayhK6VQsMSFY8"
+                                    ? activity
+                                    : null
+                            }
+                        }
+                    },
+                    flags: {
+                        transformations: {
+                            sourceUuid:
+                                "Compendium.transformations.gh-transformations.Item.4QeF6uxf922byGo2"
+                        }
+                    },
+                    updateSource(update)
+                    {
+                        persistedUpdate = update
+                    }
+                }
+                const activity = {
+                    id: "CeVayhK6VQsMSFY8",
+                    uuid:
+                        "Actor.actor-2.Item.item-5.Activity.CeVayhK6VQsMSFY8",
+                    actor,
+                    item,
+                    save: {
+                        dc: {
+                            calculation: "",
+                            formula: ""
+                        }
+                    },
+                    system: {
+                        save: {
+                            dc: {
+                                calculation: "",
+                                formula: ""
+                            }
+                        }
+                    }
+                }
+                const usageConfig = {}
+                const dialogConfig = {
+                    dc: {
+                        value: 0
+                    }
+                }
+                const messageConfig = {}
+
+                try {
+                    const callback = harness.callbacks.get("dnd5e.preUseActivity")
+                    expect(callback).to.be.a("function")
+
+                    callback(activity, usageConfig, dialogConfig, messageConfig)
+
+                    await flushAsyncWork()
+
+                    expect(activity.save.dc.formula).to.equal("16")
+                    expect(activity.save.dc.value).to.equal(16)
+                    expect(activity.system.save.dc.formula).to.equal("16")
+                    expect(activity.system.save.dc.value).to.equal(16)
+                    expect(activity.labels.save).to.equal("DC 16")
+                    expect(dialogConfig.dc.value).to.equal(16)
+                    expect(messageConfig.dc.value).to.equal(16)
+                    expect(persistedUpdate).to.deep.equal({
+                        "system.activities.CeVayhK6VQsMSFY8.save.dc.calculation": "",
+                        "system.activities.CeVayhK6VQsMSFY8.save.dc.formula": "16"
+                    })
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("delegates preActivityUse to the transformation class and applies Roiling Elements stage DC", async function()
+            {
+                const actor = {
+                    id: "actor-3",
+                    flags: {
+                        transformations: {
+                            stage: 4
+                        }
+                    },
+                    getFlag(scope, key)
+                    {
+                        if (scope === "transformations" && key === "stage") {
+                            return 4
+                        }
+
+                        return null
+                    }
+                }
+                const harness = createHookHarness({
+                    transformationOverrides: {
+                        TransformationClass: Primordial
+                    }
+                })
+                let persistedUpdate = null
+                const item = {
+                    id: "item-6",
+                    name: "Roiling Elements",
+                    uuid: "Actor.actor-3.Item.item-6",
+                    system: {
+                        activities: {
+                            get(id)
+                            {
+                                return id === "CeVayhK6VQsMSFY8"
+                                    ? activity
+                                    : null
+                            }
+                        }
+                    },
+                    flags: {
+                        transformations: {
+                            sourceUuid:
+                                "Compendium.transformations.gh-transformations.Item.4QeF6uxf922byGo2"
+                        }
+                    },
+                    updateSource(update)
+                    {
+                        persistedUpdate = update
+                    }
+                }
+                const activity = {
+                    _id: "CeVayhK6VQsMSFY8",
+                    uuid:
+                        "Actor.actor-3.Item.item-6.Activity.CeVayhK6VQsMSFY8",
+                    actor,
+                    item,
+                    save: {
+                        dc: {
+                            calculation: "",
+                            formula: "",
+                            value: 0
+                        }
+                    },
+                    system: {
+                        save: {
+                            dc: {
+                                calculation: "",
+                                formula: "",
+                                value: 0
+                            }
+                        }
+                    }
+                }
+                const dialogConfig = {}
+                const messageConfig = {}
+
+                try {
+                    const callback = harness.callbacks.get("dnd5e.preActivityUse")
+                    expect(callback).to.be.a("function")
+
+                    callback(activity, {}, dialogConfig, messageConfig)
+
+                    await flushAsyncWork()
+
+                    expect(activity.save.dc.formula).to.equal("20")
+                    expect(activity.save.dc.value).to.equal(20)
+                    expect(activity.labels.save).to.equal("DC 20")
+                    expect(messageConfig.dc.value).to.equal(20)
+                    expect(persistedUpdate).to.deep.equal({
+                        "system.activities.CeVayhK6VQsMSFY8.save.dc.calculation": "",
+                        "system.activities.CeVayhK6VQsMSFY8.save.dc.formula": "20"
+                    })
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("skips activityUse trigger dispatch for the Roiling Elements self-save activity", async function()
+            {
+                const actor = createActor()
+                const harness = createHookHarness({
+                    transformationOverrides: {
+                        TransformationClass: Primordial
+                    }
+                })
+                const item = {
+                    id: "item-4",
+                    name: "Roiling Elements",
+                    uuid: "Actor.actor-1.Item.item-4",
+                    flags: {
+                        transformations: {
+                            sourceUuid:
+                                "Compendium.transformations.gh-transformations.Item.4QeF6uxf922byGo2"
+                        }
+                    }
+                }
+                const usage = {
+                    workflow: {
+                        actor,
+                        item
+                    }
+                }
+
+                try {
+                    const callback = harness.callbacks.get("dnd5e.postUseActivity")
+                    expect(callback).to.be.a("function")
+
+                    await callback(
+                        {
+                            id: "CeVayhK6VQsMSFY8",
+                            uuid: "Actor.actor-1.Item.item-4.Activity.CeVayhK6VQsMSFY8",
+                            name: "",
+                            type: "save"
+                        },
+                        usage,
+                        {message: {id: "message-4"}}
+                    )
+
+                    expect(
+                        harness.calls.triggerRuntime.some(call =>
+                            call.name === "activityUse"
+                        )
+                    ).to.equal(false)
                 } finally {
                     harness.restore()
                 }

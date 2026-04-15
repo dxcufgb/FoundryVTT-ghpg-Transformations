@@ -4,20 +4,17 @@ export const stage2 = {
     grants: {
         items: [
             {
-                name: "Primordial Stage 2 Base Feature",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.4QeF6uxf922byGo2"
             }
         ]
     },
     choices: {
         items: [
             {
-                name: "Primordial Stage 2 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.qfQZKVnq3wkuTBh6"
             },
             {
-                name: "Primordial Stage 2 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.pf2FTD9AFlTvmeDU"
             }
         ]
     }

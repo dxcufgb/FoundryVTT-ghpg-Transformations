@@ -4,28 +4,17 @@ export const stage1 = {
     grants: {
         items: [
             {
-                name: "Primordial Stage 1 Base Feature",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.RflKgCdUDzmk0VVK"
             },
             {
-                name: "Primordial Stage 1 Elemental Core",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.sdlQQx2dFDGz90JS"
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.tweEfP6HNJMhAbME"
             }
         ],
         actor: {
-            creatureSubType: "primordial"
+            creatureSubType: "elemental"
         }
-    },
-    choices: {
-        items: [
-            {
-                name: "Primordial Stage 1 Choice A",
-                uuid: ""
-            },
-            {
-                name: "Primordial Stage 1 Choice B",
-                uuid: ""
-            }
-        ]
     }
 }

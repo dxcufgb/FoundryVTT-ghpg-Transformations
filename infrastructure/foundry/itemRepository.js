@@ -524,9 +524,9 @@ export function createItemRepository({
                 }
             }
             if (isItemPoolChoiceConfiguration(advancementConfiguration)) {
-                const totalChoices =
-                          resolveItemPoolChoiceCount(advancementConfiguration)
+                const totalChoices = resolveItemPoolChoiceCount(advancementConfiguration)
                 let remainingChoices = await buildAdvancementItemChoices(
+                    actor,
                     advancementConfiguration.pool
                 )
                 let selectedChoices = 0
@@ -537,11 +537,13 @@ export function createItemRepository({
                     )
                 {
                     const selectedChoice =
-                              await advancementChoiceHandler.chooseItemPool({
-                                  actor,
-                                  itemChoices: remainingChoices,
-                                  sourceItem: parentItem
-                              })
+                        remainingChoices.length === 1
+                            ? remainingChoices[0]
+                            : await advancementChoiceHandler.chooseItemPool({
+                                actor,
+                                itemChoices: remainingChoices,
+                                sourceItem: parentItem
+                            })
 
                     if (!selectedChoice) {
                         logger.warn(
@@ -616,17 +618,26 @@ export function createItemRepository({
         return firstChoice?.count ?? 1
     }
 
-    async function buildAdvancementItemChoices(pool = [])
+    async function buildAdvancementItemChoices(actor, pool = [])
     {
         const choices = []
 
         for (const entry of pool) {
-            const uuid =
-                      typeof entry === "string"
-                          ? entry
-                          : entry?.uuid
+            const uuid = typeof entry === "string" ? entry : entry?.uuid
 
             if (!uuid) continue
+
+            const alreadyOwned = actor?.items?.some(item =>
+                item?.flags?.transformations?.sourceUuid === uuid
+            )
+
+            if (alreadyOwned) {
+                logger.debug(
+                    "Advancement item choice skipped: item already exists on actor",
+                    uuid
+                )
+                continue
+            }
 
             const sourceItem = await fromUuid(uuid)
             if (!sourceItem) {

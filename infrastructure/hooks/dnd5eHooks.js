@@ -194,6 +194,33 @@ function buildPreRollDamageTriggerContext({
     }
 }
 
+function buildActivityUseTriggerContext(activity, usage)
+{
+    const item =
+              usage?.workflow?.item ??
+              activity?.parent?.parent ??
+              activity?.parent ??
+              null
+
+    return {
+        activities: {
+            current: {
+                activity: {
+                    id: activity?.id ?? activity?._id ?? null,
+                    name: activity?.name ?? "",
+                    type: activity?.type ?? ""
+                },
+                item: {
+                    ...normalizeTriggerItem(item),
+                    type: item?.type ?? "",
+                    systemType: item?.system?.type?.value ?? "",
+                    systemSubType: item?.system?.type?.subtype ?? ""
+                }
+            }
+        }
+    }
+}
+
 function getTransformationStage(actor)
 {
     const rawStage =
@@ -614,11 +641,67 @@ export function registerDnd5eHooks({
         })
     })
 
-    Hooks.on("dnd5e.preUseActivity", (activity, config, options) =>
+    function handlePreUseActivity(
+        hookName,
+        activity,
+        usageConfig,
+        dialogConfig,
+        messageConfig
+    )
     {
-        logger.debug("dnd5e.preUseActivity called", activity, config, options)
-        debouncedTracker.pulse("dnd5e.preUseActivity")
+        logger.debug(`${hookName} called`, activity, usageConfig, dialogConfig, messageConfig)
+        debouncedTracker.pulse(hookName)
 
+        const actor = resolveActorFromSubject(
+            activity ??
+            usageConfig?.subject ??
+            usageConfig?.workflow?.actor ??
+            null
+        )
+        if (!actor) return
+
+        const transformation = transformationRegistry.getEntryForActor(actor)
+
+        if (!transformation?.TransformationClass?.onPreUseActivity) return
+
+        const result = transformation.TransformationClass.onPreUseActivity({
+            activity,
+            usageConfig,
+            dialogConfig,
+            messageConfig,
+            actor,
+            actorRepository,
+            itemRepository,
+            logger
+        })
+
+        if (typeof result?.catch === "function") {
+            result.catch(error =>
+                logger.warn?.("dnd5e.preUseActivity failed", error)
+            )
+        }
+    }
+
+    Hooks.on("dnd5e.preUseActivity", (activity, usageConfig, dialogConfig, messageConfig) =>
+    {
+        handlePreUseActivity(
+            "dnd5e.preUseActivity",
+            activity,
+            usageConfig,
+            dialogConfig,
+            messageConfig
+        )
+    })
+
+    Hooks.on("dnd5e.preActivityUse", (activity, usageConfig, dialogConfig, messageConfig) =>
+    {
+        handlePreUseActivity(
+            "dnd5e.preActivityUse",
+            activity,
+            usageConfig,
+            dialogConfig,
+            messageConfig
+        )
     })
 
     Hooks.on("dnd5e.preRollDamageV2", (configOrArgs, dialog, message) =>
@@ -705,16 +788,26 @@ export function registerDnd5eHooks({
 
         const transformation = transformationRegistry.getEntryForActor(actor)
 
-        if (!transformation?.TransformationClass?.onActivityUse) return
+        if (transformation?.TransformationClass?.onActivityUse) {
+            await transformation.TransformationClass.onActivityUse(
+                activity,
+                usage,
+                changes.message,
+                actorRepository,
+                ChatMessagePartInjector,
+                itemRepository,
+                dialogFactory
+            )
+        }
 
-        await transformation.TransformationClass.onActivityUse(
-            activity,
-            usage,
-            changes.message,
-            actorRepository,
-            ChatMessagePartInjector,
-            itemRepository,
-            dialogFactory
+        if (usage?.flags?.transformations?.skipActivityUseTrigger === true) {
+            return
+        }
+
+        await triggerRuntime.run(
+            "activityUse",
+            actor,
+            buildActivityUseTriggerContext(activity, usage)
         )
 
     })

@@ -75,6 +75,9 @@ function createHarness()
     const originalHooks = globalThis.Hooks
     const originalFoundry = globalThis.foundry
     const callbacks = new Map()
+    const calls = {
+        triggerRuntime: []
+    }
 
     globalThis.Hooks = {
         on(name, callback)
@@ -101,7 +104,12 @@ function createHarness()
                 return parent ?? null
             }
         },
-        triggerRuntime: {},
+        triggerRuntime: {
+            async run(name, actor, data)
+            {
+                calls.triggerRuntime.push({name, actor, data})
+            }
+        },
         transformationQueryService: {
             async getForActor()
             {
@@ -111,6 +119,8 @@ function createHarness()
         constants: {
             CONDITION: {
                 BLOODIED: "bloodied",
+                CHARMED: "charmed",
+                FRIGHTENED: "frightened",
                 UNCONSCIOUS: "unconscious"
             }
         },
@@ -122,6 +132,7 @@ function createHarness()
     })
 
     return {
+        calls,
         callbacks,
         restore()
         {
@@ -232,6 +243,39 @@ quench.registerBatch(
                     )
 
                     expect(actor.flags.transformations.lich.soulVesselCharged).to.equal(true)
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("dispatches conditionApplied when charmed is applied", async function()
+            {
+                const actor = createActor()
+                const harness = createHarness()
+                const target = actor
+                const context = {
+                    effect: {
+                        name: "Charmed"
+                    }
+                }
+
+                try {
+                    const callback = harness.callbacks.get("applyActiveEffect")
+                    expect(callback).to.be.a("function")
+
+                    await callback(target, context)
+
+                    expect(harness.calls.triggerRuntime).to.deep.include({
+                        name: "conditionApplied",
+                        actor,
+                        data: {
+                            conditions: {
+                                current: {
+                                    name: "charmed"
+                                }
+                            }
+                        }
+                    })
                 } finally {
                     harness.restore()
                 }

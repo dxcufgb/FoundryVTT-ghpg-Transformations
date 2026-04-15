@@ -113,6 +113,24 @@ export class Transformation
         )
     }
 
+    static async onPreUseActivity({
+        activity,
+        config,
+        options = {},
+        actor,
+        logger
+    } = {})
+    {
+        this.logger?.debug?.(
+            "Transformation.onPreUseActivity",
+            activity,
+            config,
+            options,
+            actor,
+            logger
+        )
+    }
+
     static async onActivityUse(activity, usage, message) {
         this.logger?.debug?.("Transformation.onActivityUse", activity, usage, message)
     }
