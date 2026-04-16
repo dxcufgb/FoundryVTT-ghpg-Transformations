@@ -1,13 +1,24 @@
 import { Transformation } from "../../Transformation.js"
-import {
-    ROILING_ELEMENTS_SAVE_DC_BY_STAGE,
-    ROILING_ELEMENTS_UUID
-} from "./triggers/roilingElementsTriggerCommon.js"
+import { ROILING_ELEMENTS_SAVE_DC_BY_STAGE, ROILING_ELEMENTS_UUID } from "./triggers/roilingElementsTriggerCommon.js"
 
 const ROILING_ELEMENTS_ACTIVITY_ID = "CeVayhK6VQsMSFY8"
 const ROILING_ELEMENTS_ACTIVITY_UUID =
           `${ROILING_ELEMENTS_UUID}.Activity.${ROILING_ELEMENTS_ACTIVITY_ID}`
 const ROILING_ELEMENTS_ITEM_NAME = "Roiling Elements"
+const ELEMENTAL_IMBALANCE_UUID =
+          "Compendium.transformations.gh-transformations.Item.3QhO2SkFHqms1sIl"
+const ELEMENTAL_IMBALANCE_ITEM_NAME = "Elemental Imbalance"
+const ELEMENTAL_IMBALANCE_ACTIVITY_ID = "rP37puN5BAktmRxS"
+const ELEMENTAL_IMBALANCE_ACTIVITY_UUID =
+          `${ELEMENTAL_IMBALANCE_UUID}.Activity.${ELEMENTAL_IMBALANCE_ACTIVITY_ID}`
+const ELEMENTAL_IMBALANCE_ACTIVITY_NAME = "Add Vulnerability"
+const ELEMENTAL_IMBALANCE_DAMAGE_TYPES = new Set([
+    "acid",
+    "cold",
+    "fire",
+    "lightning",
+    "thunder"
+])
 
 /**
  * Domain subclass scaffold.
@@ -42,7 +53,8 @@ export class Primordial extends Transformation
         if (
             !isRoilingElementsSaveActivity({activity, item}) ||
             !Number.isFinite(saveDc)
-        ) {
+        )
+        {
             return
         }
 
@@ -59,7 +71,7 @@ export class Primordial extends Transformation
 
     static async onActivityUse(activity, usage)
     {
-        if (!isRoilingElementsSaveActivity({activity, usage})) {
+        if (!shouldSkipPrimordialActivityUseTrigger({activity, usage})) {
             return
         }
 
@@ -178,7 +190,8 @@ function persistRoilingElementsSaveDc({
     if (typeof item.updateSource === "function") {
         try {
             item.updateSource(update)
-        } catch {}
+        } catch {
+        }
     }
 
     const refreshedActivity = item?.system?.activities?.get?.(activityId) ?? null

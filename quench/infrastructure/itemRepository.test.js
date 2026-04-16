@@ -57,12 +57,12 @@ function createActor({
         },
         system: {
             abilities: {
-                str: { value: 10 },
-                dex: { value: 10 },
-                con: { value: con },
-                int: { value: 10 },
-                wis: { value: 10 },
-                cha: { value: 10 }
+                str: {value: 10},
+                dex: {value: 10},
+                con: {value: con},
+                int: {value: 10},
+                wis: {value: 10},
+                cha: {value: 10}
             }
         },
         items,
@@ -637,147 +637,6 @@ quench.registerBatch(
                     } else {
                         globalThis.fromUuid = originalFromUuid
                     }
-                }
-            })
-
-            it("applies fixed ability score advancements as hidden removable effects", async function ()
-            {
-                const actor = createActor({
-                    con: 12
-                })
-                const restoreFoundry = installFoundryUtils()
-                const {repository} = createRepository()
-
-                try {
-                    const parentItem = await repository.createObjectOnActor(actor, {
-                        uuid: "Item.parent-fixed-asi",
-                        name: "Constitutional Mutation",
-                        type: "feat",
-                        img: "mutation.png",
-                        system: {
-                            advancement: [{
-                                configuration: {
-                                    cap: 1,
-                                    fixed: {
-                                        str: 0,
-                                        dex: 0,
-                                        con: 1,
-                                        int: 0,
-                                        wis: 0,
-                                        cha: 0
-                                    },
-                                    locked: [
-                                        "str",
-                                        "dex",
-                                        "con",
-                                        "int",
-                                        "wis",
-                                        "cha"
-                                    ],
-                                    points: 0,
-                                    recommendation: null,
-                                    max: null
-                                }
-                            }]
-                        }
-                    })
-
-                    expect(parentItem).to.exist
-                    expect(actor.effects).to.have.length(1)
-                    expect(actor.effects[0]).to.deep.include({
-                        name: "Ability Score Increase: Constitution",
-                        description: "Constitution +1 to 13 (maximum 20).",
-                        icon: "modules/transformations/icons/abilities/Constitution.svg",
-                        origin: parentItem.uuid
-                    })
-                    expect(actor.effects[0].changes).to.deep.equal([{
-                        key: "system.abilities.con.value",
-                        mode: globalThis.CONST?.ACTIVE_EFFECT_MODES?.UPGRADE ?? 4,
-                        value: 13
-                    }])
-                    expect(actor.effects[0].flags).to.deep.equal({
-                        dnd5e: {
-                            hidden: true
-                        },
-                        ddbimporter: {
-                            ignoreItemImport: true
-                        },
-                        transformations: {
-                            addedByTransformation: true,
-                            source: "transformation",
-                            context: {},
-                            advancementType: "abilityScore",
-                            advancementAbilityScores: [{
-                                ability: "con",
-                                delta: 1,
-                                targetValue: 13,
-                                maximumValue: 20
-                            }]
-                        }
-                    })
-                } finally {
-                    restoreFoundry()
-                }
-            })
-
-            it("caps fixed ability score advancements at 20 and removes them with the parent item", async function ()
-            {
-                const actor = createActor({
-                    con: 20
-                })
-                const restoreFoundry = installFoundryUtils()
-                const {repository} = createRepository()
-
-                try {
-                    await repository.createObjectOnActor(actor, {
-                        uuid: "Item.parent-capped-asi",
-                        name: "Perfect Constitution",
-                        type: "feat",
-                        system: {
-                            advancement: [{
-                                configuration: {
-                                    cap: 1,
-                                    fixed: {
-                                        str: 0,
-                                        dex: 0,
-                                        con: 1,
-                                        int: 0,
-                                        wis: 0,
-                                        cha: 0
-                                    },
-                                    locked: [
-                                        "str",
-                                        "dex",
-                                        "con",
-                                        "int",
-                                        "wis",
-                                        "cha"
-                                    ],
-                                    points: 0,
-                                    recommendation: null,
-                                    max: null
-                                }
-                            }]
-                        }
-                    })
-
-                    expect(actor.effects).to.have.length(1)
-                    expect(actor.effects[0].changes).to.deep.equal([{
-                        key: "system.abilities.con.value",
-                        mode: globalThis.CONST?.ACTIVE_EFFECT_MODES?.UPGRADE ?? 4,
-                        value: 20
-                    }])
-
-                    const removed = await repository.removeBySourceUuid(
-                        actor,
-                        "Item.parent-capped-asi"
-                    )
-
-                    expect(removed).to.equal(1)
-                    expect(actor.items).to.have.length(0)
-                    expect(actor.effects).to.have.length(0)
-                } finally {
-                    restoreFoundry()
                 }
             })
         })

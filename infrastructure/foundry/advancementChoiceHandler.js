@@ -626,18 +626,27 @@ export function createAdvancementChoiceHandler({
         selectedChoice
     })
     {
+        const grantType = resolveDamageResistanceGrantType({
+            actor,
+            sourceItem,
+            damageType: selectedChoice.value
+        })
+        const grantsImmunity = grantType === "immunity"
+
         return {
             actor,
-            name: `Damage Resistance: ${selectedChoice.label}`,
+            name: `${grantsImmunity ? "Damage Immunity" : "Damage Resistance"}: ${selectedChoice.label}`,
             label: selectedChoice.label,
             description:
-                `Gain resistance to ${selectedChoice.label.toLowerCase()} damage.`,
+                `Gain ${grantsImmunity ? "immunity" : "resistance"} to ${selectedChoice.label.toLowerCase()} damage.`,
             source: "transformation",
             icon: selectedChoice.icon,
             origin: sourceItem?.uuid ?? actor?.uuid ?? "",
             resistanceIdentifier: selectedChoice.value,
             changes: [{
-                key: "system.traits.dr.value",
+                key: grantsImmunity
+                    ? "system.traits.di.value"
+                    : "system.traits.dr.value",
                 mode: globalThis.CONST?.ACTIVE_EFFECT_MODES?.ADD ?? 2,
                 value: selectedChoice.value
             }],
@@ -651,6 +660,46 @@ export function createAdvancementChoiceHandler({
                 }
             }
         }
+    }
+
+    function resolveDamageResistanceGrantType({
+        actor,
+        sourceItem,
+        damageType
+    } = {})
+    {
+        const advancementOverride =
+                  sourceItem?.flags?.transformations?.advancementOverride
+        const hasUpgradeOverride =
+                  advancementOverride === "upgrade" ||
+                  advancementOverride?.upgrade === true
+
+        if (!hasUpgradeOverride) {
+            return "resistance"
+        }
+
+        return actorHasTraitValue(actor?.system?.traits?.dr?.value, damageType)
+            ? "immunity"
+            : "resistance"
+    }
+
+    function actorHasTraitValue(traitValues, expectedValue)
+    {
+        if (!traitValues || !expectedValue) return false
+
+        if (traitValues instanceof Set) {
+            return traitValues.has(expectedValue)
+        }
+
+        if (Array.isArray(traitValues)) {
+            return traitValues.includes(expectedValue)
+        }
+
+        if (typeof traitValues.has === "function") {
+            return traitValues.has(expectedValue)
+        }
+
+        return false
     }
 
     function buildSkillChoiceEffectData({

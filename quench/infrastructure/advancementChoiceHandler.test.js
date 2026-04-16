@@ -11,7 +11,11 @@ function createLogger()
     }
 }
 
-function createActor(skillValues = {}, saveProficiencies = {})
+function createActor(
+    skillValues = {},
+    saveProficiencies = {},
+    traitValues = {}
+)
 {
     return {
         id: "actor-1",
@@ -30,6 +34,14 @@ function createActor(skillValues = {}, saveProficiencies = {})
                 arc: {value: skillValues.arc ?? 0},
                 ath: {value: skillValues.ath ?? 0},
                 sur: {value: skillValues.sur ?? 0}
+            },
+            traits: {
+                dr: {
+                    value: new Set(traitValues.resistances ?? [])
+                },
+                di: {
+                    value: new Set(traitValues.immunities ?? [])
+                }
             }
         }
     }
@@ -508,6 +520,59 @@ quench.registerBatch(
                         source: "transformation"
                     }
                 ])
+            })
+
+            it("upgrades a damage resistance choice to immunity when the source item requests upgrade and the actor already resists the chosen type", async function ()
+            {
+                const actor = createActor({}, {}, {
+                    resistances: ["acid"]
+                })
+                const sourceItem = {
+                    uuid: "Compendium.transformations.gh-transformations.Item.parent",
+                    flags: {
+                        transformations: {
+                            advancementOverride: "upgrade"
+                        }
+                    }
+                }
+                const {calls, handler} = createHandler({
+                    dialogResult: "acid"
+                })
+
+                const result = await handler.choose({
+                    actor,
+                    sourceItem,
+                    advancementChoices: ["dr:acid"]
+                })
+
+                expect(result).to.equal(true)
+                expect(calls.createdEffects).to.have.length(1)
+                expect(calls.createdEffects[0]).to.deep.equal({
+                    actor,
+                    name: "Damage Immunity: Acid",
+                    label: "Acid",
+                    description: "Gain immunity to acid damage.",
+                    source: "transformation",
+                    icon: "modules/transformations/icons/damageTypes/Acid.png",
+                    origin: "Compendium.transformations.gh-transformations.Item.parent",
+                    resistanceIdentifier: "acid",
+                    changes: [
+                        {
+                            key: "system.traits.di.value",
+                            mode: ADD_MODE,
+                            value: "acid"
+                        }
+                    ],
+                    flags: {
+                        dnd5e: {
+                            hidden: true
+                        },
+                        transformations: {
+                            advancementChoice: "dr:acid",
+                            advancementChoiceType: "damageResistance"
+                        }
+                    }
+                })
             })
 
             it("opens the transformation choice dialog for item pool choices", async function ()

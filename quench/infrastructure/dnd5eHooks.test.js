@@ -48,7 +48,7 @@ async function flushAsyncWork()
     await Promise.resolve()
 }
 
-function createHookHarness({ transformationOverrides = {} } = {})
+function createHookHarness({transformationOverrides = {}} = {})
 {
     const originalHooks = globalThis.Hooks
     const callbacks = new Map()
@@ -125,11 +125,11 @@ function createHookHarness({ transformationOverrides = {} } = {})
 
 quench.registerBatch(
     "transformations.infrastructure.dnd5eHooks",
-    ({ describe, it, expect }) =>
+    ({describe, it, expect}) =>
     {
-        describe("registerDnd5eHooks", function()
+        describe("registerDnd5eHooks", function ()
         {
-            it("captures all supported d20 roll results for transformation onRoll hooks", async function()
+            it("captures all supported d20 roll results for transformation onRoll hooks", async function ()
             {
                 const actor = createActor()
                 const harness = createHookHarness()
@@ -203,12 +203,12 @@ quench.registerBatch(
                     await flushAsyncWork()
 
                     const actualOnRollCalls =
-                        harness.calls.onRoll.map(({actor: rolledActor, roll}) => ({
-                            actorId: rolledActor.id,
-                            hookName: roll.hookName,
-                            natural: roll.natural,
-                            total: roll.total
-                        }))
+                              harness.calls.onRoll.map(({actor: rolledActor, roll}) => ({
+                                  actorId: rolledActor.id,
+                                  hookName: roll.hookName,
+                                  natural: roll.natural,
+                                  total: roll.total
+                              }))
 
                     const expectedOnRollCalls = [
                         {actorId: "actor-1", hookName: "dnd5e.rollAbilityCheck", natural: 2, total: 7},
@@ -228,7 +228,7 @@ quench.registerBatch(
                 }
             })
 
-            it("does not double-process the same skill roll across rollSkill hook aliases", async function()
+            it("does not double-process the same skill roll across rollSkill hook aliases", async function ()
             {
                 const actor = createActor()
                 const harness = createHookHarness()
@@ -241,8 +241,8 @@ quench.registerBatch(
                         skill: "ins"
                     }
 
-                    harness.callbacks.get("dnd5e.rollSkill")( [roll], context)
-                    harness.callbacks.get("dnd5e.rollSkillV2")( [roll], context)
+                    harness.callbacks.get("dnd5e.rollSkill")([roll], context)
+                    harness.callbacks.get("dnd5e.rollSkillV2")([roll], context)
 
                     await flushAsyncWork()
 
@@ -255,7 +255,7 @@ quench.registerBatch(
                 }
             })
 
-            it("includes originating item data when dispatching saving throw trigger context", async function()
+            it("includes originating item data when dispatching saving throw trigger context", async function ()
             {
                 const actor = createActor()
                 const harness = createHookHarness()
@@ -306,7 +306,7 @@ quench.registerBatch(
                 }
             })
 
-            it("includes activity and item data when dispatching pre-roll damage trigger context", async function()
+            it("includes activity and item data when dispatching pre-roll damage trigger context", async function ()
             {
                 const actor = createActor()
                 const harness = createHookHarness()
@@ -331,7 +331,7 @@ quench.registerBatch(
                         }
                     }
                 }
-                const rolls = [{ options: { types: [] } }]
+                const rolls = [{options: {types: []}}]
                 const workflow = {
                     actor,
                     item,
@@ -369,7 +369,7 @@ quench.registerBatch(
                 }
             })
 
-            it("dispatches activityUse trigger context from postUseActivity", async function()
+            it("dispatches activityUse trigger context from postUseActivity", async function ()
             {
                 const actor = createActor()
                 const harness = createHookHarness()
@@ -441,205 +441,211 @@ quench.registerBatch(
                 }
             })
 
-            it("delegates preUseActivity to the transformation class and applies Roiling Elements stage DC for actor activities", async function()
-            {
-                const actor = {
-                    id: "actor-2",
-                    flags: {
-                        transformations: {
-                            stage: 3
-                        }
-                    },
-                    getFlag(scope, key)
-                    {
-                        if (scope === "transformations" && key === "stage") {
-                            return 3
-                        }
-
-                        return null
-                    }
-                }
-                const harness = createHookHarness({
-                    transformationOverrides: {
-                        TransformationClass: Primordial
-                    }
-                })
-                let persistedUpdate = null
-                const item = {
-                    id: "item-5",
-                    name: "Roiling Elements",
-                    uuid: "Actor.actor-2.Item.item-5",
-                    system: {
-                        activities: {
-                            get(id)
-                            {
-                                return id === "CeVayhK6VQsMSFY8"
-                                    ? activity
-                                    : null
+            it(
+                "delegates preUseActivity to the transformation class and applies Roiling Elements stage DC for actor activities",
+                async function ()
+                {
+                    const actor = {
+                        id: "actor-2",
+                        flags: {
+                            transformations: {
+                                stage: 3
                             }
+                        },
+                        getFlag(scope, key)
+                        {
+                            if (scope === "transformations" && key === "stage") {
+                                return 3
+                            }
+
+                            return null
                         }
-                    },
-                    flags: {
-                        transformations: {
-                            sourceUuid:
-                                "Compendium.transformations.gh-transformations.Item.4QeF6uxf922byGo2"
-                        }
-                    },
-                    updateSource(update)
-                    {
-                        persistedUpdate = update
                     }
-                }
-                const activity = {
-                    id: "CeVayhK6VQsMSFY8",
-                    uuid:
-                        "Actor.actor-2.Item.item-5.Activity.CeVayhK6VQsMSFY8",
-                    actor,
-                    item,
-                    save: {
-                        dc: {
-                            calculation: "",
-                            formula: ""
+                    const harness = createHookHarness({
+                        transformationOverrides: {
+                            TransformationClass: Primordial
                         }
-                    },
-                    system: {
+                    })
+                    let persistedUpdate = null
+                    const item = {
+                        id: "item-5",
+                        name: "Roiling Elements",
+                        uuid: "Actor.actor-2.Item.item-5",
+                        system: {
+                            activities: {
+                                get(id)
+                                {
+                                    return id === "CeVayhK6VQsMSFY8"
+                                        ? activity
+                                        : null
+                                }
+                            }
+                        },
+                        flags: {
+                            transformations: {
+                                sourceUuid:
+                                    "Compendium.transformations.gh-transformations.Item.4QeF6uxf922byGo2"
+                            }
+                        },
+                        updateSource(update)
+                        {
+                            persistedUpdate = update
+                        }
+                    }
+                    const activity = {
+                        id: "CeVayhK6VQsMSFY8",
+                        uuid:
+                            "Actor.actor-2.Item.item-5.Activity.CeVayhK6VQsMSFY8",
+                        actor,
+                        item,
                         save: {
                             dc: {
                                 calculation: "",
                                 formula: ""
                             }
-                        }
-                    }
-                }
-                const usageConfig = {}
-                const dialogConfig = {
-                    dc: {
-                        value: 0
-                    }
-                }
-                const messageConfig = {}
-
-                try {
-                    const callback = harness.callbacks.get("dnd5e.preUseActivity")
-                    expect(callback).to.be.a("function")
-
-                    callback(activity, usageConfig, dialogConfig, messageConfig)
-
-                    await flushAsyncWork()
-
-                    expect(activity.save.dc.formula).to.equal("16")
-                    expect(activity.save.dc.value).to.equal(16)
-                    expect(activity.system.save.dc.formula).to.equal("16")
-                    expect(activity.system.save.dc.value).to.equal(16)
-                    expect(activity.labels.save).to.equal("DC 16")
-                    expect(dialogConfig.dc.value).to.equal(16)
-                    expect(messageConfig.dc.value).to.equal(16)
-                    expect(persistedUpdate).to.deep.equal({
-                        "system.activities.CeVayhK6VQsMSFY8.save.dc.calculation": "",
-                        "system.activities.CeVayhK6VQsMSFY8.save.dc.formula": "16"
-                    })
-                } finally {
-                    harness.restore()
-                }
-            })
-
-            it("delegates preActivityUse to the transformation class and applies Roiling Elements stage DC", async function()
-            {
-                const actor = {
-                    id: "actor-3",
-                    flags: {
-                        transformations: {
-                            stage: 4
-                        }
-                    },
-                    getFlag(scope, key)
-                    {
-                        if (scope === "transformations" && key === "stage") {
-                            return 4
-                        }
-
-                        return null
-                    }
-                }
-                const harness = createHookHarness({
-                    transformationOverrides: {
-                        TransformationClass: Primordial
-                    }
-                })
-                let persistedUpdate = null
-                const item = {
-                    id: "item-6",
-                    name: "Roiling Elements",
-                    uuid: "Actor.actor-3.Item.item-6",
-                    system: {
-                        activities: {
-                            get(id)
-                            {
-                                return id === "CeVayhK6VQsMSFY8"
-                                    ? activity
-                                    : null
+                        },
+                        system: {
+                            save: {
+                                dc: {
+                                    calculation: "",
+                                    formula: ""
+                                }
                             }
                         }
-                    },
-                    flags: {
-                        transformations: {
-                            sourceUuid:
-                                "Compendium.transformations.gh-transformations.Item.4QeF6uxf922byGo2"
-                        }
-                    },
-                    updateSource(update)
-                    {
-                        persistedUpdate = update
                     }
-                }
-                const activity = {
-                    _id: "CeVayhK6VQsMSFY8",
-                    uuid:
-                        "Actor.actor-3.Item.item-6.Activity.CeVayhK6VQsMSFY8",
-                    actor,
-                    item,
-                    save: {
+                    const usageConfig = {}
+                    const dialogConfig = {
                         dc: {
-                            calculation: "",
-                            formula: "",
                             value: 0
                         }
-                    },
-                    system: {
+                    }
+                    const messageConfig = {}
+
+                    try {
+                        const callback = harness.callbacks.get("dnd5e.preUseActivity")
+                        expect(callback).to.be.a("function")
+
+                        callback(activity, usageConfig, dialogConfig, messageConfig)
+
+                        await flushAsyncWork()
+
+                        expect(activity.save.dc.formula).to.equal("16")
+                        expect(activity.save.dc.value).to.equal(16)
+                        expect(activity.system.save.dc.formula).to.equal("16")
+                        expect(activity.system.save.dc.value).to.equal(16)
+                        expect(activity.labels.save.trim()).to.equal("DC 16")
+                        expect(dialogConfig.dc.value).to.equal(16)
+                        expect(messageConfig.dc.value).to.equal(16)
+                        expect(persistedUpdate).to.deep.equal({
+                            "system.activities.CeVayhK6VQsMSFY8.save.dc.calculation": "",
+                            "system.activities.CeVayhK6VQsMSFY8.save.dc.formula": "16"
+                        })
+                    } finally {
+                        harness.restore()
+                    }
+                }
+            )
+
+            it(
+                "delegates preActivityUse to the transformation class and applies Roiling Elements stage DC",
+                async function ()
+                {
+                    const actor = {
+                        id: "actor-3",
+                        flags: {
+                            transformations: {
+                                stage: 4
+                            }
+                        },
+                        getFlag(scope, key)
+                        {
+                            if (scope === "transformations" && key === "stage") {
+                                return 4
+                            }
+
+                            return null
+                        }
+                    }
+                    const harness = createHookHarness({
+                        transformationOverrides: {
+                            TransformationClass: Primordial
+                        }
+                    })
+                    let persistedUpdate = null
+                    const item = {
+                        id: "item-6",
+                        name: "Roiling Elements",
+                        uuid: "Actor.actor-3.Item.item-6",
+                        system: {
+                            activities: {
+                                get(id)
+                                {
+                                    return id === "CeVayhK6VQsMSFY8"
+                                        ? activity
+                                        : null
+                                }
+                            }
+                        },
+                        flags: {
+                            transformations: {
+                                sourceUuid:
+                                    "Compendium.transformations.gh-transformations.Item.4QeF6uxf922byGo2"
+                            }
+                        },
+                        updateSource(update)
+                        {
+                            persistedUpdate = update
+                        }
+                    }
+                    const activity = {
+                        _id: "CeVayhK6VQsMSFY8",
+                        uuid:
+                            "Actor.actor-3.Item.item-6.Activity.CeVayhK6VQsMSFY8",
+                        actor,
+                        item,
                         save: {
                             dc: {
                                 calculation: "",
                                 formula: "",
                                 value: 0
                             }
+                        },
+                        system: {
+                            save: {
+                                dc: {
+                                    calculation: "",
+                                    formula: "",
+                                    value: 0
+                                }
+                            }
                         }
                     }
+                    const dialogConfig = {}
+                    const messageConfig = {}
+
+                    try {
+                        const callback = harness.callbacks.get("dnd5e.preActivityUse")
+                        expect(callback).to.be.a("function")
+
+                        callback(activity, {}, dialogConfig, messageConfig)
+
+                        await flushAsyncWork()
+
+                        expect(activity.save.dc.formula).to.equal("20")
+                        expect(activity.save.dc.value).to.equal(20)
+                        expect(activity.labels.save.trim()).to.equal("DC 20")
+                        expect(messageConfig.dc.value).to.equal(20)
+                        expect(persistedUpdate).to.deep.equal({
+                            "system.activities.CeVayhK6VQsMSFY8.save.dc.calculation": "",
+                            "system.activities.CeVayhK6VQsMSFY8.save.dc.formula": "20"
+                        })
+                    } finally {
+                        harness.restore()
+                    }
                 }
-                const dialogConfig = {}
-                const messageConfig = {}
+            )
 
-                try {
-                    const callback = harness.callbacks.get("dnd5e.preActivityUse")
-                    expect(callback).to.be.a("function")
-
-                    callback(activity, {}, dialogConfig, messageConfig)
-
-                    await flushAsyncWork()
-
-                    expect(activity.save.dc.formula).to.equal("20")
-                    expect(activity.save.dc.value).to.equal(20)
-                    expect(activity.labels.save).to.equal("DC 20")
-                    expect(messageConfig.dc.value).to.equal(20)
-                    expect(persistedUpdate).to.deep.equal({
-                        "system.activities.CeVayhK6VQsMSFY8.save.dc.calculation": "",
-                        "system.activities.CeVayhK6VQsMSFY8.save.dc.formula": "20"
-                    })
-                } finally {
-                    harness.restore()
-                }
-            })
-
-            it("skips activityUse trigger dispatch for the Roiling Elements self-save activity", async function()
+            it("skips activityUse trigger dispatch for the Roiling Elements self-save activity", async function ()
             {
                 const actor = createActor()
                 const harness = createHookHarness({
@@ -690,7 +696,7 @@ quench.registerBatch(
                 }
             })
 
-            it("delegates pre-roll attack handling to the transformation class", async function()
+            it("delegates pre-roll attack handling to the transformation class", async function ()
             {
                 const actor = createActor()
                 const harness = createHookHarness({
@@ -722,7 +728,8 @@ quench.registerBatch(
                                 if (
                                     scope === "transformations" &&
                                     key === "lycanthrope.huntersMark"
-                                ) {
+                                )
+                                {
                                     return 1
                                 }
 
@@ -748,7 +755,7 @@ quench.registerBatch(
                 }
             })
 
-            it("applies synchronous pre-roll damage modifiers to the pending damage config", async function()
+            it("applies synchronous pre-roll damage modifiers to the pending damage config", async function ()
             {
                 const actor = createActor()
                 actor.flags = {
