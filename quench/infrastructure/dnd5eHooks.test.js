@@ -852,6 +852,51 @@ quench.registerBatch(
                     harness.restore()
                 }
             })
+
+            it("delegates pre-calculate damage handling to the transformation class", async function ()
+            {
+                const actor = createActor()
+                let receivedArgs = null
+                const harness = createHookHarness({
+                    transformationOverrides: {
+                        TransformationClass: {
+                            onPreRollHitDie() {},
+                            async onPreRollSavingThrow() {},
+                            async onRoll() {},
+                            async onPreCalculateDamage(args)
+                            {
+                                receivedArgs = args
+                            }
+                        }
+                    }
+                })
+                const damageDetails = [
+                    {
+                        type: "fire",
+                        value: 12
+                    }
+                ]
+                const details = {
+                    source: "test"
+                }
+
+                try {
+                    const callback = harness.callbacks.get("dnd5e.preCalculateDamage")
+                    expect(callback).to.be.a("function")
+
+                    callback(actor, damageDetails, details)
+
+                    await flushAsyncWork()
+
+                    expect(receivedArgs).to.exist
+                    expect(receivedArgs.actor).to.equal(actor)
+                    expect(receivedArgs.target).to.equal(actor)
+                    expect(receivedArgs.damageDetails).to.equal(damageDetails)
+                    expect(receivedArgs.details).to.equal(details)
+                } finally {
+                    harness.restore()
+                }
+            })
         })
     }
 )

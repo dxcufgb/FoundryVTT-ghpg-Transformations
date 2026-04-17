@@ -135,6 +135,34 @@ export class Transformation
         this.logger?.debug?.("Transformation.onActivityUse", activity, usage, message)
     }
 
+    static async onPreCalculateDamage({
+        actor,
+        target,
+        damageDetails,
+        details,
+        actorRepository,
+        itemRepository,
+        activeEffectRepository,
+        ChatMessagePartInjector,
+        RollService,
+        logger
+    } = {})
+    {
+        this.logger?.debug?.(
+            "Transformation.onPreCalculateDamage",
+            actor,
+            target,
+            damageDetails,
+            details,
+            actorRepository,
+            itemRepository,
+            activeEffectRepository,
+            ChatMessagePartInjector,
+            RollService,
+            logger
+        )
+    }
+
     static async preUpdateItem({
         item,
         changed,

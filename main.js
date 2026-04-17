@@ -319,8 +319,8 @@ Hooks.once("ready", async () =>
         await pack.configure({locked: false})
     }
 
-    // CONFIG.debug.hooks = true
-    // CONFIG.debug.documents = true
+    CONFIG.debug.hooks = true
+    CONFIG.debug.documents = true
     // CONFIG.debug.rollParsing = true
 
 })

@@ -40,6 +40,7 @@ export function registerActorHooks({
         if (!pillHtml) return
         const fragment = document.createRange().createContextualFragment(pillHtml)
         const container = getPillsContainer(app, logger)
+        if (!container) return
         if (container) container.append(fragment)
 
         const pillElement = container.querySelector('.pills-lg > .transformation')
