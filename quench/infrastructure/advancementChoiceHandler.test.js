@@ -575,6 +575,78 @@ quench.registerBatch(
                 })
             })
 
+            it("resolves raw test-environment damage resistance selections before applying them", async function ()
+            {
+                const actor = createActor()
+                const {calls, handler} = createHandler()
+                const originalEnvironment =
+                    globalThis.___TransformationTestEnvironment___
+
+                globalThis.___TransformationTestEnvironment___ = {
+                    choosenAdvancement: [
+                        {
+                            name: "Primeval Body",
+                            choice: "dr:fire"
+                        }
+                    ]
+                }
+
+                try {
+                    const result = await handler.choose({
+                        actor,
+                        sourceItem: {
+                            name: "Primeval Body",
+                            uuid:
+                                "Compendium.transformations.gh-transformations.Item.gQZ0xl368qBi0zzP"
+                        },
+                        advancementChoices: [
+                            "dr:bludgeoning",
+                            "dr:cold",
+                            "dr:fire",
+                            "dr:lightning"
+                        ]
+                    })
+
+                    expect(result).to.equal(true)
+                    expect(calls.dialog).to.have.length(0)
+                    expect(calls.createdEffects).to.have.length(1)
+                    expect(calls.createdEffects[0]).to.deep.equal({
+                        actor,
+                        name: "Damage Resistance: Fire",
+                        label: "Fire",
+                        description: "Gain resistance to fire damage.",
+                        source: "transformation",
+                        icon: "modules/transformations/icons/damageTypes/Fire.png",
+                        origin:
+                            "Compendium.transformations.gh-transformations.Item.gQZ0xl368qBi0zzP",
+                        resistanceIdentifier: "fire",
+                        changes: [
+                            {
+                                key: "system.traits.dr.value",
+                                mode: ADD_MODE,
+                                value: "fire"
+                            }
+                        ],
+                        flags: {
+                            dnd5e: {
+                                hidden: true
+                            },
+                            transformations: {
+                                advancementChoice: "dr:fire",
+                                advancementChoiceType: "damageResistance"
+                            }
+                        }
+                    })
+                } finally {
+                    if (originalEnvironment === undefined) {
+                        delete globalThis.___TransformationTestEnvironment___
+                    } else {
+                        globalThis.___TransformationTestEnvironment___ =
+                            originalEnvironment
+                    }
+                }
+            })
+
             it("opens the transformation choice dialog for item pool choices", async function ()
             {
                 const actor = createActor()

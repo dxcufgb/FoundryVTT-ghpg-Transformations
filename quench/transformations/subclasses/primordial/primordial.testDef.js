@@ -3,22 +3,33 @@ import { validate } from "../../../helpers/DTOValidators/validate.js"
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js"
 
 const PLANAR_BINDING_UUID =
-    "Compendium.transformations.gh-transformations.Item.RflKgCdUDzmk0VVK"
+          "Compendium.transformations.gh-transformations.Item.RflKgCdUDzmk0VVK"
 const PRIMORDIAL_FORM_UUID =
-    "Compendium.transformations.gh-transformations.Item.sdlQQx2dFDGz90JS"
+          "Compendium.transformations.gh-transformations.Item.sdlQQx2dFDGz90JS"
 const ELEMENTAL_AFFINITY_UUID =
-    "Compendium.transformations.gh-transformations.Item.tweEfP6HNJMhAbME"
+          "Compendium.transformations.gh-transformations.Item.tweEfP6HNJMhAbME"
 const ELEMENTAL_AFFINITY_CHOICE_UUID =
-    "Compendium.transformations.gh-transformations.Item.8QOm4EyMBD4jjNwS"
+          "Compendium.transformations.gh-transformations.Item.8QOm4EyMBD4jjNwS"
 const SECOND_ELEMENTAL_AFFINITY_CHOICE_UUID =
-    "Compendium.transformations.gh-transformations.Item.grBkv7vIBfOVvnUg"
+          "Compendium.transformations.gh-transformations.Item.grBkv7vIBfOVvnUg"
 const ROILING_ELEMENTS_UUID =
-    "Compendium.transformations.gh-transformations.Item.4QeF6uxf922byGo2"
+          "Compendium.transformations.gh-transformations.Item.4QeF6uxf922byGo2"
 const ELEMENTAL_FORM_REVEALED_EFFECT_NAME = "Elemental Form Revealed"
 const DUAL_NATURE_UUID =
-    "Compendium.transformations.gh-transformations.Item.qfQZKVnq3wkuTBh6"
+          "Compendium.transformations.gh-transformations.Item.qfQZKVnq3wkuTBh6"
 const ELEMENTAL_SURGE_UUID =
-    "Compendium.transformations.gh-transformations.Item.pf2FTD9AFlTvmeDU"
+          "Compendium.transformations.gh-transformations.Item.pf2FTD9AFlTvmeDU"
+const AURA_OF_AWAKENING_UUID =
+          "Compendium.transformations.gh-transformations.Item.Cb8Zq6I3jiCBWtbZ"
+const THIRD_ELEMENTAL_AFFINITY_CHOICE_UUID =
+          "Compendium.transformations.gh-transformations.Item.sZ9Qi5uuN1UPmjd6"
+const MASTER_OF_MANY_UUID =
+          "Compendium.transformations.gh-transformations.Item.uhNsp8cIvd8dsvlg"
+const PRIMEVAL_BODY_UUID =
+          "Compendium.transformations.gh-transformations.Item.gQZ0xl368qBi0zzP"
+const ELEMENTAL_IMBALANCE_UUID =
+          "Compendium.transformations.gh-transformations.Item.3QhO2SkFHqms1sIl"
+const PRIMEVAL_BODY_FIRE_CHOICE = "dr:fire"
 const placeholderChoices = Object.freeze([
     {name: "Primordial Stage 1 Choice A", uuid: ""},
     {name: "Primordial Stage 1 Choice B", uuid: ""},
@@ -868,6 +879,525 @@ export const primordialTestDef = {
                     {
                         activity.name = "Aquatic Rejuvenation"
                         activity.activationType = "action"
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "stage 3 with Aura of Awakening",
+            setup: async ({actor, staticVars}) =>
+            {
+                staticVars.initialCon = actor.system.abilities.con.value
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Elemental Affinity",
+                        choice: ELEMENTAL_AFFINITY_CHOICE_UUID
+                    }
+                ]
+            },
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            1
+                        )
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: ELEMENTAL_SURGE_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            2
+                        )
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: AURA_OF_AWAKENING_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            3
+                        )
+                    }
+                }
+            ],
+            finalAwait: async ({runtime, actor, waiters, staticVars}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await waiters.waitForCondition(() =>
+                {
+                    const raceItem = actor.items.find(item => item.type === "race")
+
+                    return actor.system.abilities.con.value ===
+                        Math.min(staticVars.initialCon + 1, 20) &&
+                        raceItem?.system?.type?.subtype === "Elemental" &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            ROILING_ELEMENTS_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            ELEMENTAL_SURGE_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            AURA_OF_AWAKENING_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            ELEMENTAL_IMBALANCE_UUID
+                        )
+                })
+            },
+            finalAssertions: async ({actor, assert, staticVars}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    PLANAR_BINDING_UUID,
+                    PRIMORDIAL_FORM_UUID,
+                    ELEMENTAL_AFFINITY_UUID,
+                    ELEMENTAL_AFFINITY_CHOICE_UUID,
+                    ROILING_ELEMENTS_UUID,
+                    ELEMENTAL_SURGE_UUID,
+                    AURA_OF_AWAKENING_UUID,
+                    ELEMENTAL_IMBALANCE_UUID
+                ]
+                actorDto.abilities.con.value =
+                    Math.min(staticVars.initialCon + 1, 20)
+                actorDto.rollModes.disadvantage.push({
+                    identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
+                })
+                actorDto.addItem(item =>
+                {
+                    item.type = "race"
+                    item.systemType = "humanoid"
+                    item.systemSubType = "Elemental"
+                })
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = [AURA_OF_AWAKENING_UUID]
+                    item.itemName = "Aura of Awakening"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "primordial"
+                    item.numberOfActivities = 1
+                    item.numberOfEffects = 4
+                    item.addActivity(activity =>
+                    {
+                        activity.name = "Select Aura"
+                        activity.activationType = "longRest"
+                    })
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Aura of Awakening: Light as Air"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "system.abilities.dex.bonuses.save",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: "@abilities.con.mod",
+                                priority: 20
+                            }
+                        ]
+                    })
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Aura of Awakening: Forged in Fire"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "macro.createItem",
+                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                                value:
+                                    "Compendium.transformations.gh-transformations.Item.X1vRLHXV6Tt0fJGd",
+                                priority: 20
+                            }
+                        ]
+                    })
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Aura of Awakening: Heart of Stone"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "macro.createItem",
+                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                                value:
+                                    "Compendium.transformations.gh-transformations.Item.esO6UI1o9ZRlMn2W",
+                                priority: 20
+                            }
+                        ]
+                    })
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Aura of Awakening: Fluid Movement"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "macro.createItem",
+                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                                value:
+                                    "Compendium.transformations.gh-transformations.Item.oO4xDxofU22kFmfw",
+                                priority: 20
+                            }
+                        ]
+                    })
+                })
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = [ELEMENTAL_IMBALANCE_UUID]
+                    item.itemName = "Elemental Imbalance"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "primordial"
+                    item.numberOfActivities = 1
+                    item.numberOfEffects = 0
+                    item.addActivity(activity =>
+                    {
+                        activity.saveAbility = ["con"]
+                        activity.saveDc = 15
+                        activity.range.value = 5
+                        activity.range.units = "ft"
+                        activity.target.prompt = false
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "stage 3 with Primeval Body",
+            setup: async ({actor, staticVars}) =>
+            {
+                staticVars.initialCon = actor.system.abilities.con.value
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Elemental Affinity",
+                        choice: ELEMENTAL_AFFINITY_CHOICE_UUID
+                    },
+                    {
+                        name: "Primeval Body",
+                        choice: PRIMEVAL_BODY_FIRE_CHOICE
+                    }
+                ]
+            },
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            1
+                        )
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: ELEMENTAL_SURGE_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            2
+                        )
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: PRIMEVAL_BODY_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            3
+                        )
+                    }
+                }
+            ],
+            finalAwait: async ({runtime, actor, waiters, staticVars}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await waiters.waitForCondition(() =>
+                {
+                    const raceItem = actor.items.find(item => item.type === "race")
+
+                    return actor.system.abilities.con.value ===
+                        Math.min(staticVars.initialCon + 1, 20) &&
+                        raceItem?.system?.type?.subtype === "Elemental" &&
+                        Array.from(actor.system?.traits?.dr?.value ?? []).includes("fire") &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            ROILING_ELEMENTS_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            ELEMENTAL_SURGE_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            PRIMEVAL_BODY_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            ELEMENTAL_IMBALANCE_UUID
+                        )
+                })
+            },
+            finalAssertions: async ({actor, assert, staticVars}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    PLANAR_BINDING_UUID,
+                    PRIMORDIAL_FORM_UUID,
+                    ELEMENTAL_AFFINITY_UUID,
+                    ELEMENTAL_AFFINITY_CHOICE_UUID,
+                    ROILING_ELEMENTS_UUID,
+                    ELEMENTAL_SURGE_UUID,
+                    PRIMEVAL_BODY_UUID,
+                    ELEMENTAL_IMBALANCE_UUID
+                ]
+                actorDto.abilities.con.value =
+                    Math.min(staticVars.initialCon + 1, 20)
+                actorDto.stats.resistances = ["fire", "lightning"]
+                actorDto.rollModes.disadvantage.push({
+                    identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
+                })
+                actorDto.addItem(item =>
+                {
+                    item.type = "race"
+                    item.systemType = "humanoid"
+                    item.systemSubType = "Elemental"
+                })
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = [PRIMEVAL_BODY_UUID]
+                    item.itemName = "Primeval Body"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "primordial"
+                    item.numberOfActivities = 0
+                    item.numberOfEffects = 0
+                    item.addAdvancement(advancement =>
+                    {
+                        advancement.addConfiguration(configuration =>
+                        {
+                            configuration.choices = [
+                                {
+                                    count: 1,
+                                    pool: [
+                                        "dr:bludgeoning",
+                                        "dr:cold",
+                                        "dr:fire",
+                                        "dr:lightning"
+                                    ]
+                                }
+                            ]
+                        })
+                    })
+                })
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = [ELEMENTAL_IMBALANCE_UUID]
+                    item.itemName = "Elemental Imbalance"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "primordial"
+                    item.numberOfActivities = 1
+                    item.numberOfEffects = 0
+                    item.addActivity(activity =>
+                    {
+                        activity.saveAbility = ["con"]
+                        activity.saveDc = 15
+                        activity.range.value = 5
+                        activity.range.units = "ft"
+                        activity.target.prompt = false
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "stage 3 with Master of Many",
+            setup: async ({actor, staticVars}) =>
+            {
+                staticVars.initialCon = actor.system.abilities.con.value
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Elemental Affinity",
+                        choice: ELEMENTAL_AFFINITY_CHOICE_UUID
+                    },
+                    {
+                        name: "Dual Nature",
+                        choice: SECOND_ELEMENTAL_AFFINITY_CHOICE_UUID
+                    },
+                    {
+                        name: "Master of Many",
+                        choice: THIRD_ELEMENTAL_AFFINITY_CHOICE_UUID
+                    }
+                ]
+            },
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            1
+                        )
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: DUAL_NATURE_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            2
+                        )
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: MASTER_OF_MANY_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            3
+                        )
+                    }
+                }
+            ],
+            finalAwait: async ({runtime, actor, waiters, staticVars}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await waiters.waitForCondition(() =>
+                {
+                    const raceItem = actor.items.find(item => item.type === "race")
+
+                    return actor.system.abilities.con.value ===
+                        Math.min(staticVars.initialCon + 1, 20) &&
+                        raceItem?.system?.type?.subtype === "Elemental" &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            ROILING_ELEMENTS_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            DUAL_NATURE_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            SECOND_ELEMENTAL_AFFINITY_CHOICE_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            MASTER_OF_MANY_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            THIRD_ELEMENTAL_AFFINITY_CHOICE_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            ELEMENTAL_IMBALANCE_UUID
+                        )
+                })
+            },
+            finalAssertions: async ({actor, assert, staticVars}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    PLANAR_BINDING_UUID,
+                    PRIMORDIAL_FORM_UUID,
+                    ELEMENTAL_AFFINITY_UUID,
+                    ELEMENTAL_AFFINITY_CHOICE_UUID,
+                    ROILING_ELEMENTS_UUID,
+                    DUAL_NATURE_UUID,
+                    SECOND_ELEMENTAL_AFFINITY_CHOICE_UUID,
+                    MASTER_OF_MANY_UUID,
+                    THIRD_ELEMENTAL_AFFINITY_CHOICE_UUID,
+                    ELEMENTAL_IMBALANCE_UUID
+                ]
+                actorDto.abilities.con.value =
+                    Math.min(staticVars.initialCon + 1, 20)
+                actorDto.rollModes.disadvantage.push({
+                    identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
+                })
+                actorDto.addItem(item =>
+                {
+                    item.type = "race"
+                    item.systemType = "humanoid"
+                    item.systemSubType = "Elemental"
+                })
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = [MASTER_OF_MANY_UUID]
+                    item.itemName = "Master of Many"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "primordial"
+                    item.numberOfActivities = 0
+                    item.numberOfEffects = 0
+                    item.addAdvancement(advancement =>
+                    {
+                        advancement.addConfiguration(() => {})
+                    })
+                })
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = [ELEMENTAL_IMBALANCE_UUID]
+                    item.itemName = "Elemental Imbalance"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "primordial"
+                    item.numberOfActivities = 1
+                    item.numberOfEffects = 0
+                    item.addActivity(activity =>
+                    {
+                        activity.saveAbility = ["con"]
+                        activity.saveDc = 15
+                        activity.range.value = 5
+                        activity.range.units = "ft"
+                        activity.target.prompt = false
                     })
                 })
                 validate(actorDto, {assert})

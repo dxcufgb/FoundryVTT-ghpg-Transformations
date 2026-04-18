@@ -118,9 +118,26 @@ export function createAdvancementChoiceHandler({
             return false
         }
 
-        const selectedChoices = Array.isArray(selectedChoice)
-            ? selectedChoice
-            : [selectedChoice]
+        const selectedChoices = normalizeSelectedChoices(
+            Array.isArray(selectedChoice)
+                ? selectedChoice
+                : [selectedChoice],
+            resolvedChoices
+        )
+
+        if (!selectedChoices?.length) {
+            logger.warn(
+                "Advancement choice selection could not be resolved",
+                {
+                    sourceItem,
+                    selectedChoice,
+                    resolvedChoices: resolvedChoices.map(choice =>
+                        choice?.raw ?? choice?.value ?? choice?.id ?? null
+                    )
+                }
+            )
+            return false
+        }
 
         if (!apply) {
             const selections = []
@@ -539,6 +556,46 @@ export function createAdvancementChoiceHandler({
         return choice?.uuid ?? choice?.id ?? null
     }
 
+    function normalizeSelectedChoices(selectedChoices = [], availableChoices = [])
+    {
+        return selectedChoices
+            .map(choice => normalizeSelectedChoice(choice, availableChoices))
+            .filter(Boolean)
+    }
+
+    function normalizeSelectedChoice(choice, availableChoices = [])
+    {
+        if (!choice)
+            return null
+
+        if (typeof choice === "object") {
+            const normalizedIdentifier =
+                choice.id ??
+                choice.value ??
+                choice.raw ??
+                null
+
+            if (!normalizedIdentifier)
+                return null
+
+            return availableChoices.find(availableChoice =>
+                availableChoice?.id === normalizedIdentifier ||
+                availableChoice?.value === normalizedIdentifier ||
+                availableChoice?.raw === normalizedIdentifier
+            ) ?? null
+        }
+
+        if (typeof choice === "string") {
+            return availableChoices.find(availableChoice =>
+                availableChoice?.id === choice ||
+                availableChoice?.value === choice ||
+                availableChoice?.raw === choice
+            ) ?? null
+        }
+
+        return null
+    }
+
     async function applyDamageResistanceChoice({
         actor,
         sourceItem,
@@ -556,6 +613,8 @@ export function createAdvancementChoiceHandler({
             sourceItem,
             selectedChoice
         })
+
+        if (!effectData) return false
 
         const effect = await activeEffectRepository.create(effectData)
 
@@ -623,6 +682,8 @@ export function createAdvancementChoiceHandler({
             selectedChoice
         })
 
+        if (!effectData) return false
+
         const effect = await activeEffectRepository.create(effectData)
 
         return effect != null
@@ -634,6 +695,18 @@ export function createAdvancementChoiceHandler({
         selectedChoice
     })
     {
+        if (!selectedChoice?.label || !selectedChoice?.value || !selectedChoice?.raw) {
+            logger.warn(
+                "Damage resistance advancement selection is missing required metadata",
+                {
+                    actor,
+                    sourceItem,
+                    selectedChoice
+                }
+            )
+            return null
+        }
+
         const grantType = resolveDamageResistanceGrantType({
             actor,
             sourceItem,
@@ -761,6 +834,18 @@ export function createAdvancementChoiceHandler({
         selectedChoice
     })
     {
+        if (!selectedChoice?.label || !selectedChoice?.value || !selectedChoice?.raw) {
+            logger.warn(
+                "Saving throw advancement selection is missing required metadata",
+                {
+                    actor,
+                    sourceItem,
+                    selectedChoice
+                }
+            )
+            return null
+        }
+
         return {
             actor,
             name: `Saving Throw Proficiency: ${selectedChoice.label}`,
