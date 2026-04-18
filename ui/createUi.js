@@ -44,6 +44,7 @@ export function createUi({
 
     const dialogs = createDialogFactory({
         applyFiendGiftOfDamnation,
+        socketGateway: infrastructure.socketGateway,
         viewModels: {
             createTransformationConfigViewModel,
             createTransformationStageChoiceViewModel,

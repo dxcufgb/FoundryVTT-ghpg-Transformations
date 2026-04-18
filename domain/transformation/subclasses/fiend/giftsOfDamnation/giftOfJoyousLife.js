@@ -1,4 +1,11 @@
 import { applyGiftOfDamnation } from "./applyGiftOfDamnation.js"
+import {
+    buildPresentedRollData,
+    buildSyntheticActivityButton,
+    injectGiftOfDamnationCard,
+    replaceGiftOfDamnationCard,
+    renderGiftOfDamnationCard
+} from "./GiftOfDamnationMidiCard.js"
 
 export class GiftOfJoyousLife
 {
@@ -25,27 +32,32 @@ export class GiftOfJoyousLife
             }
             const hitDie = message.flags?.transformations?.hitDie
             const roll = await RollService.simpleRoll(hitDie)
+            const presentedRoll = await buildPresentedRollData(roll, {
+                formula: hitDie
+            })
 
             await actorRepository.consumeHitDie(actor, 1)
 
             await message.update({
-                rolls: [...(message.rolls ?? []), roll]
+                "flags.transformations.state": roll.total >= 2
+                    ? "rolled-success"
+                    : "rolled-failure",
+                "flags.transformations.presentedRoll": presentedRoll
             })
 
-            const success = roll.total >= 2
-            const state = success ? "rolled-success" : "rolled-failure"
+            void ChatMessagePartInjector
 
-            await ChatMessagePartInjector.replace({
+            await replaceGiftOfDamnationCard({
+                GiftClass: GiftOfJoyousLife,
                 message,
-                selector: ".gift-of-damnation-card",
-                template: "modules/transformations/scripts/templates/chatMessages/gifts-of-damnation-chat-card.hbs",
-                templateData: {
-                    giftId: GiftOfJoyousLife.id,
-                    state: state,
-                    roll: roll.total,
-                    tooltip: await roll.getTooltip(),
-                    hitDie: hitDie
-                }
+                content: await GiftOfJoyousLife.renderCard({
+                    actor,
+                    message,
+                    state: roll.total >= 2
+                        ? "rolled-success"
+                        : "rolled-failure",
+                    roll
+                })
             })
         },
 
@@ -109,46 +121,128 @@ export class GiftOfJoyousLife
                 "flags.transformations": {
                     gift: this.id,
                     state: "initial",
-                    hitDie
+                    hitDie,
+                    presentedRoll: null
                 }
             })
 
-            await ChatMessagePartInjector.inject({
+            void ChatMessagePartInjector
+
+            await injectGiftOfDamnationCard({
                 message,
-                template: "modules/transformations/scripts/templates/chatMessages/gifts-of-damnation-chat-card.hbs",
-                templateData: {
-                    giftId: this.id,
-                    state: "initial",
-                    roll: null,
-                    tooltip: null,
-                    hitDie
-                },
-                selector: ".midi-buttons, .midi-dnd5e-buttons",
-                position: "afterbegin"
+                content: await this.renderCard({
+                    actor,
+                    message,
+                    state: "initial"
+                })
             })
         }
     }
 
     static async complete(message, ChatMessagePartInjector) {
+        void ChatMessagePartInjector
 
-        const roll = message.rolls?.at(-1)
-
-        const hitDie = message.flags?.transformations?.hitDie
-
-        await ChatMessagePartInjector.replaceCard({
+        await replaceGiftOfDamnationCard({
+            GiftClass: this,
             message,
-            template: "modules/transformations/scripts/templates/chatMessages/gifts-of-damnation-chat-card.hbs",
-            templateData: {
-                giftId: this.id,
-                state: "complete",
-                roll: roll?.total,
-                tooltip: roll ? await roll.getTooltip() : null,
-                hitDie
-            }
+            content: await this.renderCard({
+                actor: message?.speaker?.actor
+                    ? game.actors.get(message.speaker.actor)
+                    : null,
+                message,
+                state: "complete"
+            })
         })
 
         await message.update({
             "flags.transformations.state": "complete"
         })
+    }
+
+    static async renderCard({
+        actor,
+        message,
+        state,
+        roll = null
+    } = {})
+    {
+        const hitDie = message?.flags?.transformations?.hitDie ?? "d6"
+        const presentedRoll = message?.flags?.transformations?.presentedRoll ?? null
+        const rollTotal = roll?.total ?? presentedRoll?.total ?? null
+
+        return renderGiftOfDamnationCard({
+            actor,
+            message,
+            GiftClass: this,
+            state,
+            subtitle: `Hit Die: ${hitDie}`,
+            supplements: this.buildSupplements({
+                state,
+                rollTotal
+            }),
+            buttons: this.buildButtons({
+                state,
+                rollTotal
+            }),
+            roll
+        })
+    }
+
+    static buildButtons({
+        state,
+        rollTotal
+    } = {})
+    {
+        if (state === "initial") {
+            return [
+                buildSyntheticActivityButton({
+                    action: "rollHitDie",
+                    label: "Roll Hit Die"
+                })
+            ]
+        }
+
+        if (state === "rolled-success") {
+            return [
+                buildSyntheticActivityButton({
+                    action: "applyHealing",
+                    label: "Apply Healing",
+                    dataset: {
+                        healing: rollTotal ?? 0
+                    }
+                })
+            ]
+        }
+
+        if (state === "rolled-failure") {
+            return [
+                buildSyntheticActivityButton({
+                    action: "applyDamage",
+                    label: "Apply Damage"
+                })
+            ]
+        }
+
+        return []
+    }
+
+    static buildSupplements({
+        state,
+        rollTotal
+    } = {})
+    {
+        if (state === "rolled-success") {
+            return [`Healing available: <strong>${rollTotal ?? 0}</strong>.`]
+        }
+
+        if (state === "rolled-failure") {
+            return ["The die came up 1. You regain no hit points and take 1 force damage instead."]
+        }
+
+        if (state === "complete") {
+            return ["Gift resolved."]
+        }
+
+        return ["Roll one Hit Die to determine the outcome."]
     }
 }

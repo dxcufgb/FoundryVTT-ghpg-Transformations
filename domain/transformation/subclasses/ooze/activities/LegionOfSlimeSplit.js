@@ -1,9 +1,17 @@
-const TEMPLATE_PATH =
-          "modules/transformations/scripts/templates/chatMessages/ooze-legion-of-slime-split-chat-card.hbs"
+import {
+    buildSyntheticActivityButton,
+    injectSyntheticMidiActivityCard,
+    renderSyntheticMidiActivityCard,
+    replaceSyntheticMidiActivityCard,
+    resolveHtmlRoot,
+    resolveSyntheticCardItem
+} from "../../../../../ui/chatCards/SyntheticMidiActivityCard.js"
 
 const CARD_SELECTOR =
           "[data-transformations-card][data-ooze-activity='legionOfSlimeSplit']"
 
+const CARD_TITLE = "Legion of Slime"
+const CARD_ICON = "icons/creatures/slimes/slime-face-melting.webp"
 const SIZE_ORDER = ["tiny", "sm", "med", "lg", "huge", "grg"]
 const DUPLICATE_NAME_SUFFIX = " (Split Duplicate)"
 const SPLIT_TOKEN_DIMENSION = 0.5
@@ -52,6 +60,8 @@ export class LegionOfSlimeSplit
                 await setLegionOfSlimeDuplicateFlag(actor, null)
                 await setLegionOfSlimeSplitState(actor, null)
                 await this.renderState({
+                    actor,
+                    item,
                     message,
                     ChatMessagePartInjector,
                     state: "error",
@@ -72,6 +82,8 @@ export class LegionOfSlimeSplit
             })
 
             await this.renderState({
+                actor,
+                item,
                 message,
                 ChatMessagePartInjector,
                 state: "ready",
@@ -89,6 +101,8 @@ export class LegionOfSlimeSplit
             console.error("Transformations | LegionOfSlimeSplit.activityUse failed", error)
 
             await this.renderState({
+                actor,
+                item,
                 message,
                 ChatMessagePartInjector,
                 state: "error",
@@ -136,6 +150,7 @@ export class LegionOfSlimeSplit
             })
 
             const didPlaceDuplicate = await this.placeDuplicate({
+                actor,
                 message,
                 ChatMessagePartInjector
             })
@@ -147,6 +162,7 @@ export class LegionOfSlimeSplit
     }
 
     static async placeDuplicate({
+        actor = null,
         message,
         ChatMessagePartInjector
     })
@@ -171,6 +187,8 @@ export class LegionOfSlimeSplit
         if (!placedToken) return false
 
         await this.renderState({
+            actor,
+            item: null,
             message,
             ChatMessagePartInjector,
             state: "placed",
@@ -183,6 +201,8 @@ export class LegionOfSlimeSplit
     }
 
     static async renderState({
+        actor = null,
+        item = null,
         message,
         ChatMessagePartInjector,
         state,
@@ -199,29 +219,157 @@ export class LegionOfSlimeSplit
             "flags.transformations.resultMessage": resultMessage
         })
 
-        const templateData = buildTemplateData({
+        const cardContent = await this.renderCard({
+            actor,
+            item,
+            message,
             state,
             duplicateActorName,
             resultMessage
         })
 
+        void ChatMessagePartInjector
+
         if (message.content?.includes?.("data-ooze-activity='legionOfSlimeSplit'") ||
             message.content?.includes?.("data-ooze-activity=\"legionOfSlimeSplit\"")) {
-            await ChatMessagePartInjector.replaceCard({
+            await replaceSyntheticMidiActivityCard({
                 message,
-                template: TEMPLATE_PATH,
-                templateData
+                content: cardContent,
+                selector: CARD_SELECTOR
             })
             return
         }
 
-        await ChatMessagePartInjector.inject({
+        await injectSyntheticMidiActivityCard({
             message,
-            template: TEMPLATE_PATH,
-            templateData,
+            content: cardContent,
             selector: ".midi-buttons, .midi-dnd5e-buttons",
             position: "afterbegin"
         })
+    }
+
+    static async renderCard({
+        actor,
+        item,
+        message,
+        state,
+        duplicateActorName,
+        resultMessage
+    } = {})
+    {
+        const itemDocument = await resolveSyntheticCardItem({
+            actor,
+            message,
+            fallbackName: CARD_TITLE,
+            fallbackImg: item?.img ?? CARD_ICON,
+            fallbackUuid: item?.uuid ?? this.itemSourceUuid
+        })
+
+        return renderSyntheticMidiActivityCard({
+            actor,
+            item: itemDocument,
+            title: CARD_TITLE,
+            descriptionHtml: this.buildDescriptionHtml({
+                state,
+                duplicateActorName,
+                resultMessage
+            }),
+            subtitle: this.buildSubtitle({
+                state,
+                duplicateActorName
+            }),
+            supplements: this.buildSupplements({
+                state,
+                duplicateActorName,
+                resultMessage
+            }),
+            buttons: this.buildButtons({state}),
+            dataset: {
+                oozeActivity: this.id,
+                state
+            },
+            cardClass: "ooze-legion-of-slime-split-card"
+        })
+    }
+
+    static buildButtons({
+        state
+    } = {})
+    {
+        if (state !== "ready") return []
+
+        return [
+            buildSyntheticActivityButton({
+                action: "placeDuplicate",
+                label: "Place Duplicate"
+            })
+        ]
+    }
+
+    static buildDescriptionHtml({
+        state,
+        duplicateActorName,
+        resultMessage
+    } = {})
+    {
+        if (resultMessage) {
+            return `<p>${resultMessage}</p>`
+        }
+
+        return `<p>${this.getDescription({state, duplicateActorName})}</p>`
+    }
+
+    static buildSubtitle({
+        state,
+        duplicateActorName
+    } = {})
+    {
+        const label = STATE_LABELS[state] ?? "Split"
+        if (duplicateActorName) {
+            return `${label}: ${duplicateActorName}`
+        }
+
+        return label
+    }
+
+    static buildSupplements({
+        state,
+        duplicateActorName,
+        resultMessage
+    } = {})
+    {
+        if (resultMessage) {
+            return [resultMessage]
+        }
+
+        const description = this.getDescription({state, duplicateActorName})
+        return description ? [description] : []
+    }
+
+    static getDescription({
+        state,
+        duplicateActorName
+    } = {})
+    {
+        if (state === "ready") {
+            return duplicateActorName
+                ? `Create and place the split duplicate for ${duplicateActorName}.`
+                : "Create and place the split duplicate."
+        }
+
+        if (state === "placed") {
+            return duplicateActorName
+                ? `${duplicateActorName} has been placed.`
+                : "The split duplicate has been placed."
+        }
+
+        if (state === "error") {
+            return "Legion of Slime: Split failed."
+        }
+
+        return duplicateActorName
+            ? `Preparing the split duplicate for ${duplicateActorName}.`
+            : "Preparing the split duplicate."
     }
 }
 
@@ -283,24 +431,6 @@ export class LegionOfSlimeMerge
                 "flags.transformations.resultMessage": "The duplicate merges back into the original ooze."
             }).catch(() => {})
         }
-    }
-}
-
-function buildTemplateData({
-    state,
-    duplicateActorName,
-    resultMessage
-})
-{
-    return {
-        activityId: LegionOfSlimeSplit.id,
-        state,
-        duplicateActorName,
-        description: duplicateActorName
-            ? `Create and place the split duplicate for ${duplicateActorName}.`
-            : "Create and place the split duplicate.",
-        resultMessage,
-        canPlace: state === "ready"
     }
 }
 
@@ -857,10 +987,8 @@ function getFiniteNumber(value, fallback)
     return Number.isFinite(parsedValue) ? parsedValue : fallback
 }
 
-function resolveHtmlRoot(html)
-{
-    if (!html) return null
-    if (typeof html.querySelector === "function") return html
-    if (typeof html[0]?.querySelector === "function") return html[0]
-    return null
-}
+const STATE_LABELS = Object.freeze({
+    ready: "Ready",
+    placed: "Placed",
+    error: "Error"
+})

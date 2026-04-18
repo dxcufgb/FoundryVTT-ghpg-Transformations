@@ -39,9 +39,17 @@ export function createLocalTransformationMutationAdapter({
         )
     }
 
-    async function initializeTransformation({actorId, definition})
+    async function initializeTransformation({
+        actorId,
+        definition,
+        triggeringUserId = null
+    })
     {
-        logger.debug("createLocalTransformationMutationAdapter.initializeTransformation", {actorId, definition})
+        logger.debug("createLocalTransformationMutationAdapter.initializeTransformation", {
+            actorId,
+            definition,
+            triggeringUserId
+        })
         const actor = actorRepository.getById(actorId)
         if (!actor)
             return
@@ -50,14 +58,30 @@ export function createLocalTransformationMutationAdapter({
         return tracker.track(
             (async () =>
             {
-                await applyStage(actor, definition, initialStage)
+                await applyStage(
+                    actor,
+                    definition,
+                    initialStage,
+                    null,
+                    triggeringUserId
+                )
             })()
         )
     }
 
-    async function advanceStage({actorId, stage, choice = null})
+    async function advanceStage({
+        actorId,
+        stage,
+        choice = null,
+        triggeringUserId = null
+    })
     {
-        logger.debug("createLocalTransformationMutationAdapter.advanceStage", {actorId, stage, choice})
+        logger.debug("createLocalTransformationMutationAdapter.advanceStage", {
+            actorId,
+            stage,
+            choice,
+            triggeringUserId
+        })
         const actor = actorRepository.getById(actorId)
         if (!actor)
             return
@@ -70,7 +94,13 @@ export function createLocalTransformationMutationAdapter({
                 if (!definition)
                     return
 
-                await applyStage(actor, definition, stage, choice)
+                await applyStage(
+                    actor,
+                    definition,
+                    stage,
+                    choice,
+                    triggeringUserId
+                )
                 logger.debug(`settings finishedStage flag to ${stage}`)
                 await actor.setFlag("transformations", "finishedStage", stage)
             })()
@@ -121,9 +151,21 @@ export function createLocalTransformationMutationAdapter({
         applyTriggerActions
     })
 
-    async function applyStage(actor, definition, stage, choice)
+    async function applyStage(
+        actor,
+        definition,
+        stage,
+        choice,
+        triggeringUserId = null
+    )
     {
-        logger.debug("createLocalTransformationMutationAdapter.applyStage", {actor, definition, stage, choice})
+        logger.debug("createLocalTransformationMutationAdapter.applyStage", {
+            actor,
+            definition,
+            stage,
+            choice,
+            triggeringUserId
+        })
         if (stage != 0) {
             const grants = stageGrantResolver.resolve({
                 actor,
@@ -150,14 +192,18 @@ export function createLocalTransformationMutationAdapter({
                         if (globalThis?.__TRANSFORMATIONS_TEST__ !== true && sourceItem.uuid != choice?.uuid) {
                             await game.transformations
                             .getDialogFactory()
-                            .showItemInfoDialog({item: sourceItem})
+                            .showItemInfoDialog({
+                                item: sourceItem,
+                                triggeringUserId
+                            })
                         }
 
                         await itemRepository.addTransformationItem({
                             actor,
                             sourceItem,
                             replacesUuid: itemGrant.replacesUuid,
-                            postCreateScript: itemGrant.postCreateScript
+                            postCreateScript: itemGrant.postCreateScript,
+                            triggeringUserId
                         })
                     }
 

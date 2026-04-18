@@ -1,7 +1,16 @@
 import { getHighestAvailableHitDieDenomination } from "../../fiend/giftsOfDamnation/getHighestAvailableHitDieDenomination.js"
+import {
+    buildSyntheticActivityButton,
+    injectSyntheticMidiActivityCard,
+    renderSyntheticMidiActivityCard,
+    replaceSyntheticMidiActivityCard,
+    resolveHtmlRoot,
+    resolveSyntheticCardItem
+} from "../../../../../ui/chatCards/SyntheticMidiActivityCard.js"
 
-const TEMPLATE_PATH =
-    "modules/transformations/scripts/templates/chatMessages/lich-memori-lichdom-necrotic-damage-chat-card.hbs"
+const CARD_TITLE = "Memori Lichdom"
+const DAMAGE_TYPE = "Necrotic"
+const CARD_ICON = "icons/magic/death/skull-horned-worn-fire-blue.webp"
 
 export class MemoriLichdomNecroticDamage
 {
@@ -30,22 +39,19 @@ export class MemoriLichdomNecroticDamage
             "flags.transformations.state": "initial",
             "flags.transformations.hitDie": hitDie,
             "flags.transformations.rollFormula": rollFormula,
-            "flags.transformations.damageType": "Necrotic",
+            "flags.transformations.damageType": DAMAGE_TYPE,
             "flags.transformations.presentedRoll": null
         })
 
-        await ChatMessagePartInjector.inject({
+        void ChatMessagePartInjector
+
+        await injectSyntheticMidiActivityCard({
             message,
-            template: TEMPLATE_PATH,
-            templateData: {
-                activityId: this.id,
-                state: "initial",
-                damageType: "Necrotic",
-                hitDie,
-                roll: null,
-                rollFormula,
-                tooltip: null
-            },
+            content: await this.renderCard({
+                actor,
+                message,
+                state: "initial"
+            }),
             selector: ".midi-buttons, .midi-dnd5e-buttons",
             position: "afterbegin"
         })
@@ -124,42 +130,123 @@ export class MemoriLichdomNecroticDamage
         if (!roll.options.types.includes("necrotic")) {
             roll.options.types.push("necrotic")
         }
-        const tooltip = await roll.getTooltip()
-        const messageRolls = [...(message.rolls ?? []), roll]
 
         await actorRepository.consumeHitDie(actor, 1)
 
         await message.update({
-            rolls: messageRolls,
             "flags.transformations.state": "rolled",
             "flags.transformations.presentedRoll": {
-                total: roll.total,
-                tooltip
+                total: roll.total
             }
         })
 
-        await ChatMessagePartInjector.replaceCard({
+        void ChatMessagePartInjector
+
+        await replaceSyntheticMidiActivityCard({
             message,
-            template: TEMPLATE_PATH,
-            templateData: {
-                activityId: this.id,
+            content: await this.renderCard({
+                actor,
+                message,
                 state: "rolled",
-                damageType: "Necrotic",
-                hitDie,
-                roll: roll.total,
-                rollFormula,
-                tooltip
-            }
+                roll
+            }),
+            selector: CARD_SELECTOR
         })
     }
-}
 
-function resolveHtmlRoot(html)
-{
-    if (!html) return null
-    if (typeof html.querySelector === "function") return html
-    if (typeof html[0]?.querySelector === "function") return html[0]
-    return null
+    static async renderCard({
+        actor,
+        message,
+        state,
+        roll = null
+    } = {})
+    {
+        const hitDie = message?.flags?.transformations?.hitDie ?? null
+        const rollFormula =
+                  message?.flags?.transformations?.rollFormula ??
+                  (hitDie ? `1${hitDie}[necrotic]` : "1d6[necrotic]")
+        const item = await resolveSyntheticCardItem({
+            actor,
+            message,
+            fallbackName: CARD_TITLE,
+            fallbackImg: CARD_ICON
+        })
+
+        return renderSyntheticMidiActivityCard({
+            actor,
+            item,
+            title: CARD_TITLE,
+            descriptionHtml: this.buildDescriptionHtml({rollFormula}),
+            subtitle: this.buildSubtitle({
+                state,
+                rollFormula,
+                roll
+            }),
+            supplements: this.buildSupplements({
+                state,
+                roll,
+                rollFormula
+            }),
+            buttons: this.buildButtons({state}),
+            roll,
+            dataset: {
+                lichActivity: this.id,
+                state
+            },
+            cardClass: "lich-memori-lichdom-necrotic-damage-card"
+        })
+    }
+
+    static buildButtons({
+        state
+    } = {})
+    {
+        if (state !== "initial") return []
+
+        return [
+            buildSyntheticActivityButton({
+                action: "rollDamage",
+                label: "Roll Damage"
+            })
+        ]
+    }
+
+    static buildDescriptionHtml({
+        rollFormula
+    } = {})
+    {
+        return `<p>Roll ${rollFormula} to deal ${DAMAGE_TYPE} damage.</p>`
+    }
+
+    static buildSubtitle({
+        state,
+        rollFormula,
+        roll
+    } = {})
+    {
+        if (state === "rolled" && roll) {
+            return `${DAMAGE_TYPE}: ${roll.total}`
+        }
+
+        return `${DAMAGE_TYPE} Damage Roll: ${rollFormula}`
+    }
+
+    static buildSupplements({
+        state,
+        roll,
+        rollFormula
+    } = {})
+    {
+        if (state === "rolled" && roll) {
+            return [
+                `${DAMAGE_TYPE} damage rolled: <strong>${roll.total}</strong>.`
+            ]
+        }
+
+        return [
+            `Spend one Hit Die and roll <strong>${rollFormula}</strong>.`
+        ]
+    }
 }
 
 const CARD_SELECTOR =

@@ -1,5 +1,14 @@
-const TEMPLATE_PATH =
-    "modules/transformations/scripts/templates/chatMessages/hag-grant-water-breathing-chat-card.hbs"
+import {
+    buildSyntheticActivityButton,
+    injectSyntheticMidiActivityCard,
+    renderSyntheticMidiActivityCard,
+    replaceSyntheticMidiActivityCard,
+    resolveHtmlRoot,
+    resolveSyntheticCardItem
+} from "../../../../../ui/chatCards/SyntheticMidiActivityCard.js"
+
+const CARD_TITLE = "Grant Water Breathing"
+const CARD_ICON = "icons/magic/water/bubbles-air-water-blue.webp"
 
 export class GrantWaterBreathing
 {
@@ -23,17 +32,15 @@ export class GrantWaterBreathing
             "flags.transformations.presentedRoll": null
         })
 
-        await ChatMessagePartInjector.inject({
+        void ChatMessagePartInjector
+
+        await injectSyntheticMidiActivityCard({
             message,
-            template: TEMPLATE_PATH,
-            templateData: {
-                activityId: this.id,
-                state: "initial",
-                hitDie,
-                roll: null,
-                tooltip: null,
-                rollFormula: `1${hitDie}`
-            },
+            content: await this.renderCard({
+                actor,
+                message,
+                state: "initial"
+            }),
             selector: ".midi-buttons, .midi-dnd5e-buttons",
             position: "afterbegin"
         })
@@ -100,31 +107,27 @@ export class GrantWaterBreathing
         if (availableHitDice <= 0) return
 
         const roll = await RollService.simpleRoll(hitDie)
-        const tooltip = await roll.getTooltip()
-        const messageRolls = [...(message.rolls ?? []), roll]
 
         await actorRepository.consumeHitDie(actor, 1)
 
         await message.update({
-            rolls: messageRolls,
             "flags.transformations.state": "rolled",
             "flags.transformations.presentedRoll": {
-                total: roll.total,
-                tooltip
+                total: roll.total
             }
         })
 
-        await ChatMessagePartInjector.replaceCard({
+        void ChatMessagePartInjector
+
+        await replaceSyntheticMidiActivityCard({
             message,
-            template: TEMPLATE_PATH,
-            templateData: {
-                activityId: this.id,
+            content: await this.renderCard({
+                actor,
+                message,
                 state: "rolled",
-                hitDie,
-                roll: roll.total,
-                tooltip,
-                rollFormula: message.flags?.transformations?.rollFormula ?? `1${hitDie}`
-            }
+                roll
+            }),
+            selector: CARD_SELECTOR
         })
     }
 
@@ -146,14 +149,100 @@ export class GrantWaterBreathing
 
         return sortedHitDice[0] ?? null
     }
-}
 
-function resolveHtmlRoot(html)
-{
-    if (!html) return null
-    if (typeof html.querySelector === "function") return html
-    if (typeof html[0]?.querySelector === "function") return html[0]
-    return null
+    static async renderCard({
+        actor,
+        message,
+        state,
+        roll = null
+    } = {})
+    {
+        const hitDie = message?.flags?.transformations?.hitDie ?? null
+        const rollFormula =
+                  message?.flags?.transformations?.rollFormula ??
+                  (hitDie ? `1${hitDie}` : "1d6")
+        const item = await resolveSyntheticCardItem({
+            actor,
+            message,
+            fallbackName: CARD_TITLE,
+            fallbackImg: CARD_ICON
+        })
+
+        return renderSyntheticMidiActivityCard({
+            actor,
+            item,
+            title: CARD_TITLE,
+            descriptionHtml: this.buildDescriptionHtml({rollFormula}),
+            subtitle: this.buildSubtitle({
+                state,
+                rollFormula,
+                roll
+            }),
+            supplements: this.buildSupplements({
+                state,
+                roll,
+                rollFormula
+            }),
+            buttons: this.buildButtons({state}),
+            roll,
+            dataset: {
+                hagActivity: this.id,
+                state
+            },
+            cardClass: "hag-grant-water-breathing-card"
+        })
+    }
+
+    static buildButtons({
+        state
+    } = {})
+    {
+        if (state !== "initial") return []
+
+        return [
+            buildSyntheticActivityButton({
+                action: "rollDuration",
+                label: "Roll Duration"
+            })
+        ]
+    }
+
+    static buildDescriptionHtml({
+        rollFormula
+    } = {})
+    {
+        return `<p>Roll ${rollFormula} to determine the duration in minutes.</p>`
+    }
+
+    static buildSubtitle({
+        state,
+        rollFormula,
+        roll
+    } = {})
+    {
+        if (state === "rolled" && roll) {
+            return `Duration: ${roll.total} minute${roll.total === 1 ? "" : "s"}`
+        }
+
+        return `Duration Roll: ${rollFormula}`
+    }
+
+    static buildSupplements({
+        state,
+        roll,
+        rollFormula
+    } = {})
+    {
+        if (state === "rolled" && roll) {
+            return [
+                `Duration determined: <strong>${roll.total}</strong> minute${roll.total === 1 ? "" : "s"}.`
+            ]
+        }
+
+        return [
+            `Spend one Hit Die and roll <strong>${rollFormula}</strong>.`
+        ]
+    }
 }
 
 const CARD_SELECTOR =

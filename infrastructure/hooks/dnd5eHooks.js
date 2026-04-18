@@ -35,6 +35,51 @@ function resolveActorFromSubject(subject)
     )
 }
 
+function resolveTriggeringUserId(...values)
+{
+    for (const value of values) {
+        const resolved = walkUserId(value)
+        if (resolved) return resolved
+    }
+
+    return null
+}
+
+function walkUserId(value)
+{
+    if (!value) return null
+
+    if (typeof value === "string") {
+        return value.length > 0
+            ? value
+            : null
+    }
+
+    if (typeof value !== "object") return null
+
+    const directCandidates = [
+        value.userId,
+        value.user?.id,
+        value.author?.id,
+        value.event?.userId,
+        value.options?.userId,
+        value.chatMessage?.user?.id,
+        value.chatMessage?.author?.id,
+        value.card?.user?.id,
+        value.card?.author?.id,
+        value.message?.user?.id,
+        value.message?.author?.id
+    ]
+
+    for (const candidate of directCandidates) {
+        if (typeof candidate === "string" && candidate.length > 0) {
+            return candidate
+        }
+    }
+
+    return null
+}
+
 function isAttackRollConfig(candidate)
 {
     return Boolean(
@@ -411,20 +456,25 @@ export function registerDnd5eHooks({
         })()
     })
 
-    Hooks.on("dnd5e.restCompleted", (actor, result) =>
+    Hooks.on("dnd5e.restCompleted", (actor, result, config) =>
     {
-        logger.debug("dnd5e.restCompleted called", actor, result)
+        logger.debug("dnd5e.restCompleted called", actor, result, config)
         debouncedTracker.pulse("dnd5e.restCompleted")
         tracker.track((async () =>
         {
             const isLong = result.longRest === true
             const isShort = result.shortRest === true || result.type === "short"
+            const triggeringUserId = resolveTriggeringUserId(config, result)
 
             onceService.resetFlagsOnRest(actor, {isLong, isShort})
             if (isShort) {
-                await triggerRuntime.run("shortRest", actor)
+                await triggerRuntime.run("shortRest", actor, {
+                    triggeringUserId
+                })
             } else if (isLong) {
-                await triggerRuntime.run("longRest", actor)
+                await triggerRuntime.run("longRest", actor, {
+                    triggeringUserId
+                })
             }
         })())
     })
@@ -787,6 +837,17 @@ export function registerDnd5eHooks({
         logger.debug("dnd5e.postUseActivity called", activity, usage, changes)
         const actor = usage.workflow.actor
         if (!actor) return
+        const triggeringUserId = resolveTriggeringUserId(
+            changes?.message,
+            usage?.message,
+            usage?.workflow,
+            usage,
+            changes
+        )
+
+        if (triggeringUserId && triggeringUserId !== game.user?.id) {
+            return
+        }
 
         const transformation = transformationRegistry.getEntryForActor(actor)
 
@@ -798,7 +859,8 @@ export function registerDnd5eHooks({
                 actorRepository,
                 ChatMessagePartInjector,
                 itemRepository,
-                dialogFactory
+                dialogFactory,
+                triggeringUserId
             )
         }
 

@@ -341,6 +341,7 @@ Hooks.once("socketlib.ready", () =>
         socketGateway: Registry.infrastructure.socketGateway,
         transformationMutationGateway: () => Registry.services.transformationMutationGateway,
         createGMTransformationHandlers,
+        getDialogFactory: () => UiAccessor.dialogs,
         logger: Registry.logger
     })
 

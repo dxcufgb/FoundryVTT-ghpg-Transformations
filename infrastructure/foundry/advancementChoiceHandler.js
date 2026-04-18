@@ -32,7 +32,8 @@ export function createAdvancementChoiceHandler({
         sourceItem = null,
         title = "Choose advancement",
         description = "",
-        apply = true
+        apply = true,
+        triggeringUserId = null
     })
     {
         logger.debug("advancementChoiceHandler.choose", {
@@ -106,7 +107,8 @@ export function createAdvancementChoiceHandler({
                     description,
                 title:
                     choicePresentation?.title ??
-                    title
+                    title,
+                triggeringUserId
             })
         } else {
             selectedChoice = globalThis.___TransformationTestEnvironment___.choosenAdvancement.find(a => a.name == sourceItem.name).choice
@@ -162,7 +164,8 @@ export function createAdvancementChoiceHandler({
         actor,
         itemChoices = [],
         numberOfChoices = 1,
-        sourceItem = null
+        sourceItem = null,
+        triggeringUserId = null
     })
     {
         logger.debug("advancementChoiceHandler.chooseItemPool", {
@@ -208,7 +211,8 @@ export function createAdvancementChoiceHandler({
                 actor,
                 dialogFactory,
                 choices: itemChoices,
-                sourceItem
+                sourceItem,
+                triggeringUserId
             })
 
         if (!selectedUuid) {
@@ -458,7 +462,8 @@ export function createAdvancementChoiceHandler({
         choices,
         choiceCount = 1,
         title,
-        description
+        description,
+        triggeringUserId = null
     })
     {
         logger.debug("advancementChoiceHandler.promptForChoice", {
@@ -474,7 +479,8 @@ export function createAdvancementChoiceHandler({
             choices,
             choiceCount,
             description,
-            title
+            title,
+            triggeringUserId
         })
 
         if (!selectedIds) {
@@ -506,7 +512,8 @@ export function createAdvancementChoiceHandler({
         actor,
         dialogFactory,
         choices,
-        sourceItem
+        sourceItem,
+        triggeringUserId = null
     })
     {
         logger.debug("advancementChoiceHandler.promptForItemPoolChoice", {
@@ -519,7 +526,8 @@ export function createAdvancementChoiceHandler({
             actor,
             choices,
             stage:
-                `advancement-${sourceItem?.id ?? sourceItem?.uuid ?? sourceItem?.name ?? actor?.id ?? "item"}`
+                `advancement-${sourceItem?.id ?? sourceItem?.uuid ?? sourceItem?.name ?? actor?.id ?? "item"}`,
+            triggeringUserId
         })
     }
 

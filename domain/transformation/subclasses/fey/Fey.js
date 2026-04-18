@@ -111,7 +111,8 @@ export class Fey extends Transformation
         const chosen = await dialogFactory.openFeyExhaustionRecovery({
             stage,
             exhaustion,
-            hitDiceAvailable
+            hitDiceAvailable,
+            triggeringUserId: game.user?.id ?? null
         })
 
         if (!chosen) return

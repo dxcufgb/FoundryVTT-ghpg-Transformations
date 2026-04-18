@@ -70,6 +70,7 @@ export function registerActorHooks({
         logger.debug("updateActor", actor, diff, options, userId)
         debouncedTracker.pulse("updateActor")
         if (!diff?.flags?.transformations) return
+        if (userId && userId !== game.user?.id) return
 
         transformationService.onActorFlagsUpdated({
             actor,

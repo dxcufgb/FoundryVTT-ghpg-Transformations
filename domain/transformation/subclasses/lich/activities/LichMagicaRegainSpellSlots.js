@@ -1,5 +1,14 @@
-const TEMPLATE_PATH =
-          "modules/transformations/scripts/templates/chatMessages/lich-lich-magica-regain-spell-slots-chat-card.hbs"
+import {
+    buildSyntheticActivityButton,
+    injectSyntheticMidiActivityCard,
+    renderSyntheticMidiActivityCard,
+    replaceSyntheticMidiActivityCard,
+    resolveHtmlRoot,
+    resolveSyntheticCardItem
+} from "../../../../../ui/chatCards/SyntheticMidiActivityCard.js"
+
+const CARD_TITLE = "Lich Magica"
+const CARD_ICON = "icons/magic/control/debuff-energy-hold-teal-blue.webp"
 
 const CARD_SELECTOR =
           "[data-transformations-card][data-lich-activity='lichMagicaRegainSpellSlots']"
@@ -26,15 +35,15 @@ export class LichMagicaRegainSpellSlots
             "flags.transformations.resultMessage": null
         })
 
-        await ChatMessagePartInjector.inject({
+        void ChatMessagePartInjector
+
+        await injectSyntheticMidiActivityCard({
             message,
-            template: TEMPLATE_PATH,
-            templateData: {
-                activityId: this.id,
-                state: "initial",
-                description: this.getDescription(transformationStage),
-                resultMessage: null
-            },
+            content: await this.renderCard({
+                actor,
+                message,
+                state: "initial"
+            }),
             selector: ".midi-buttons, .midi-dnd5e-buttons",
             position: "afterbegin"
         })
@@ -107,7 +116,8 @@ export class LichMagicaRegainSpellSlots
                       selectionMode: "single",
                       maxRecoverableLevel: transformationStage,
                       maxRecoverableCost: Number.POSITIVE_INFINITY,
-                      useEntryGroupLabel: true
+                      useEntryGroupLabel: true,
+                      triggeringUserId: game.user?.id ?? null
                   })
 
         const restored = await restoreSpellSlot(actor, selectedSpellSlot)
@@ -136,32 +146,113 @@ export class LichMagicaRegainSpellSlots
             "flags.transformations.resultMessage": resultMessage
         })
 
-        await ChatMessagePartInjector.replaceCard({
+        void ChatMessagePartInjector
+
+        await replaceSyntheticMidiActivityCard({
             message,
-            template: TEMPLATE_PATH,
-            templateData: {
-                activityId: this.id,
-                state: "complete",
-                description: this.getDescription(transformationStage),
-                resultMessage
-            }
+            content: await this.renderCard({
+                actor: message?.speaker?.actor
+                    ? game.actors.get(message.speaker.actor)
+                    : null,
+                message,
+                state: "complete"
+            }),
+            selector: CARD_SELECTOR
         })
     }
 
     static getDescription(transformationStage)
     {
-        return (
-            ""
-        )
-    }
-}
+        const stage = Number(transformationStage ?? 0)
+        if (stage <= 0) {
+            return "Recover one expended spell slot. Your current Transformation Stage determines the highest level that can be restored."
+        }
 
-function resolveHtmlRoot(html)
-{
-    if (!html) return null
-    if (typeof html.querySelector === "function") return html
-    if (typeof html[0]?.querySelector === "function") return html[0]
-    return null
+        return `Recover one expended spell slot of level ${stage} or lower.`
+    }
+
+    static async renderCard({
+        actor,
+        message,
+        state
+    } = {})
+    {
+        const transformationStage =
+                  message?.flags?.transformations?.transformationStage ??
+                  getTransformationStage(actor)
+        const resultMessage =
+                  message?.flags?.transformations?.resultMessage ??
+                  null
+        const description = this.getDescription(transformationStage)
+        const item = await resolveSyntheticCardItem({
+            actor,
+            message,
+            fallbackName: CARD_TITLE,
+            fallbackImg: CARD_ICON
+        })
+
+        return renderSyntheticMidiActivityCard({
+            actor,
+            item,
+            title: CARD_TITLE,
+            descriptionHtml: this.buildDescriptionHtml({
+                state,
+                description,
+                resultMessage
+            }),
+            subtitle: `Transformation Stage ${transformationStage}`,
+            supplements: this.buildSupplements({
+                state,
+                resultMessage
+            }),
+            buttons: this.buildButtons({state}),
+            dataset: {
+                lichActivity: this.id,
+                state
+            },
+            cardClass: "lich-lich-magica-regain-spell-slots-card",
+            hideItemDetails: !description && !resultMessage
+        })
+    }
+
+    static buildButtons({
+        state
+    } = {})
+    {
+        if (state !== "initial") return []
+
+        return [
+            buildSyntheticActivityButton({
+                action: "recoverSpellSlot",
+                label: "Recover Spell Slot"
+            })
+        ]
+    }
+
+    static buildDescriptionHtml({
+        state,
+        description,
+        resultMessage
+    } = {})
+    {
+        if (state === "complete" && resultMessage) {
+            return `<p>${resultMessage}</p>`
+        }
+
+        return `<p>${description}</p>`
+    }
+
+    static buildSupplements({
+        state,
+        resultMessage
+    } = {})
+    {
+        if (state === "complete" && resultMessage) {
+            return [resultMessage]
+        }
+
+        return []
+    }
 }
 
 function getTransformationStage(actor)
