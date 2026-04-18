@@ -1,4 +1,6 @@
 import { ATTRIBUTE } from "../../../../config/constants.js"
+import { ElementalImbalance } from "../../../../domain/transformation/subclasses/primordial/Feats/ElementalImbalance.js"
+import { RollService } from "../../../../services/rolls/RollService.js"
 import { validate } from "../../../helpers/DTOValidators/validate.js"
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js"
 
@@ -23,13 +25,83 @@ const AURA_OF_AWAKENING_UUID =
           "Compendium.transformations.gh-transformations.Item.Cb8Zq6I3jiCBWtbZ"
 const THIRD_ELEMENTAL_AFFINITY_CHOICE_UUID =
           "Compendium.transformations.gh-transformations.Item.sZ9Qi5uuN1UPmjd6"
+const FOURTH_ELEMENTAL_AFFINITY_CHOICE_UUID =
+          "Compendium.transformations.gh-transformations.Item.0RZMJNggMln9FDI7"
 const MASTER_OF_MANY_UUID =
           "Compendium.transformations.gh-transformations.Item.uhNsp8cIvd8dsvlg"
 const PRIMEVAL_BODY_UUID =
           "Compendium.transformations.gh-transformations.Item.gQZ0xl368qBi0zzP"
 const ELEMENTAL_IMBALANCE_UUID =
           "Compendium.transformations.gh-transformations.Item.3QhO2SkFHqms1sIl"
-const PRIMEVAL_BODY_FIRE_CHOICE = "dr:fire"
+const elementalImbalanceBehaviorDamageTypes = Object.freeze([
+    "acid",
+    "cold",
+    "fire",
+    "lightning",
+    "thunder"
+])
+const elementalImbalanceBehaviorCases = Object.freeze(
+    elementalImbalanceBehaviorDamageTypes.flatMap(damageType => [
+        {
+            damageType,
+            rollTotal: 1,
+            expectVulnerability: true
+        },
+        {
+            damageType,
+            rollTotal: 4,
+            expectVulnerability: false
+        }
+    ])
+)
+const elementalAffinityChoices = Object.freeze([
+    {
+        label: "choice 1",
+        uuid: ELEMENTAL_AFFINITY_CHOICE_UUID
+    },
+    {
+        label: "choice 2",
+        uuid: SECOND_ELEMENTAL_AFFINITY_CHOICE_UUID
+    },
+    {
+        label: "choice 3",
+        uuid: THIRD_ELEMENTAL_AFFINITY_CHOICE_UUID
+    },
+    {
+        label: "choice 4",
+        uuid: FOURTH_ELEMENTAL_AFFINITY_CHOICE_UUID
+    }
+])
+const primevalBodyChoices = Object.freeze([
+    {
+        label: "bludgeoning",
+        choice: "dr:bludgeoning",
+        damageType: "bludgeoning"
+    },
+    {
+        label: "cold",
+        choice: "dr:cold",
+        damageType: "cold"
+    },
+    {
+        label: "fire",
+        choice: "dr:fire",
+        damageType: "fire"
+    },
+    {
+        label: "lightning",
+        choice: "dr:lightning",
+        damageType: "lightning"
+    }
+])
+const primevalBodyLoopCases = Object.freeze(
+    elementalAffinityChoices.flatMap(affinityChoice =>
+        primevalBodyChoices.map(primevalBodyChoice => ({
+            affinityChoice,
+            primevalBodyChoice
+        }))
+    )
+)
 const placeholderChoices = Object.freeze([
     {name: "Primordial Stage 1 Choice A", uuid: ""},
     {name: "Primordial Stage 1 Choice B", uuid: ""},
@@ -98,6 +170,168 @@ function assertElementalFormRevealedState({
     }
 
     validate(actorDto, {assert})
+}
+
+function getActorTraitValues(traitValues)
+{
+    return Array.from(traitValues ?? [])
+}
+
+function buildPrimevalBodyExpectedTraits({
+    affinityDamageType,
+    primevalDamageType
+} = {})
+{
+    if (!affinityDamageType || !primevalDamageType) {
+        return {
+            resistances: [],
+            immunities: []
+        }
+    }
+
+    if (affinityDamageType === primevalDamageType) {
+        return {
+            resistances: [affinityDamageType],
+            immunities: [primevalDamageType]
+        }
+    }
+
+    return {
+        resistances: [affinityDamageType, primevalDamageType],
+        immunities: []
+    }
+}
+
+function buildElementalImbalanceRequiredPath()
+{
+    return [
+        {stage: 1},
+        {
+            stage: 2,
+            choose: ELEMENTAL_SURGE_UUID
+        },
+        {
+            stage: 3,
+            choose: AURA_OF_AWAKENING_UUID
+        }
+    ]
+}
+
+function getCurrentMessage(message)
+{
+    return game.messages?.get(message?.id) ?? message ?? null
+}
+
+function findLatestElementalImbalanceMessage()
+{
+    return [...(game.messages?.contents ?? [])].reverse().find(message =>
+        message?.flags?.transformations?.primordialActivity ===
+        ElementalImbalance.id
+    ) ?? null
+}
+
+function getElementalImbalanceEffectName(damageType)
+{
+    return ElementalImbalance.buildVulnerabilityEffectName(
+        ElementalImbalance.getDamageTypeLabel(damageType)
+    )
+}
+
+async function bindElementalImbalanceCard({
+    actor,
+    runtime,
+    message
+})
+{
+    const currentMessage = getCurrentMessage(message)
+    const html = document.createElement("div")
+    html.innerHTML = currentMessage?.content ?? ""
+
+    const transformation =
+              runtime.services.transformationRegistry.getEntryForActor(actor)
+
+    await transformation.TransformationClass.onRenderChatMessage({
+        message: currentMessage,
+        html,
+        actor,
+        activeEffectRepository: runtime.infrastructure.activeEffectRepository,
+        ChatMessagePartInjector: runtime.ui.ChatMessagePartInjector,
+        RollService
+    })
+
+    return html
+}
+
+async function clickElementalImbalanceCardButton({
+    actor,
+    runtime,
+    message,
+    waiters,
+    selector
+})
+{
+    const html = await bindElementalImbalanceCard({
+        actor,
+        runtime,
+        message
+    })
+    const button = html.querySelector(selector)
+
+    if (!button) {
+        throw new Error(
+            `Elemental Imbalance chat card button not found for selector ${selector}`
+        )
+    }
+
+    button.click()
+    await waiters.waitForNextFrame()
+}
+
+async function prepareElementalImbalanceChatCard({
+    actor,
+    runtime,
+    helpers,
+    waiters,
+    staticVars,
+    damageType,
+    damageAmount = 12
+})
+{
+    const transformation =
+              runtime.services.transformationRegistry.getEntryForActor(actor)
+
+    staticVars.initialMessageIds = new Set(
+        game.messages.contents.map(message => message.id)
+    )
+    staticVars.damageAmount = damageAmount
+
+    await transformation.TransformationClass.onPreCalculateDamage({
+        actor,
+        damage: {
+            amount: damageAmount
+        },
+        details: {
+            type: damageType
+        }
+    })
+
+    await waiters.waitForCondition(() =>
+    {
+        const message = findLatestElementalImbalanceMessage()
+
+        return Boolean(
+            message &&
+            !staticVars.initialMessageIds.has(message.id)
+        )
+    })
+
+    staticVars.message = findLatestElementalImbalanceMessage()
+    staticVars.chatCardHelper = helpers.createChatCardTestHelper({
+        message: staticVars.message
+    })
+    await staticVars.chatCardHelper.waitForCard({
+        preferLive: false
+    })
 }
 
 const roilingElementsTriggerCases = [
@@ -422,6 +656,234 @@ const roilingElementsSavingThrowCases = [
         })
     }
 }))
+
+const elementalImbalanceBehaviorTests = [
+    {
+        name: ({damageType, rollTotal}) =>
+            `Elemental Imbalance reacts to ${damageType} damage with a ${rollTotal} on the volatile reaction roll`,
+        loop: () => elementalImbalanceBehaviorCases,
+        uuid: ELEMENTAL_IMBALANCE_UUID,
+        setup: async () =>
+        {
+            await ChatMessage.deleteDocuments(
+                game.messages.contents.map(message => message.id)
+            )
+            setupPrimordialElementalAffinityAdvancement()
+        },
+        requiredPath: buildElementalImbalanceRequiredPath(),
+        steps: [
+            async ({actor, runtime, helpers, waiters, loopVars, staticVars}) =>
+            {
+                await prepareElementalImbalanceChatCard({
+                    actor,
+                    runtime,
+                    helpers,
+                    waiters,
+                    staticVars,
+                    damageType: loopVars.damageType
+                })
+            }
+        ],
+        assertions: async ({
+            actor,
+            runtime,
+            helpers,
+            waiters,
+            expect,
+            assert,
+            loopVars,
+            staticVars
+        }) =>
+        {
+            const {
+                      chatCardHelper
+                  } = staticVars
+            const damageTypeLabel =
+                      ElementalImbalance.getDamageTypeLabel(loopVars.damageType)
+            const effectName = getElementalImbalanceEffectName(loopVars.damageType)
+            const rollHelper = helpers.createDeterministicRollHelper()
+
+            try {
+                const initialMessage = chatCardHelper.getMessage()
+
+                expect(initialMessage).to.exist
+                expect(initialMessage.flags?.transformations?.state).to.equal("initial")
+                expect(initialMessage.flags?.transformations?.damageType).to.equal(
+                    loopVars.damageType
+                )
+                expect(initialMessage.flags?.transformations?.originalDamage).to.equal(
+                    staticVars.damageAmount
+                )
+                expect(initialMessage.content).to.contain(damageTypeLabel)
+                expect(initialMessage.content).to.contain("Triggering damage:")
+
+                const initialRoot = await bindElementalImbalanceCard({
+                    actor,
+                    runtime,
+                    message: initialMessage
+                })
+                const rollButton =
+                          initialRoot.querySelector("[data-primordial-action='roll']")
+
+                expect(rollButton).to.exist
+                expect(rollButton.textContent).to.contain("Roll")
+
+                rollHelper.queueRoll({
+                    formula: ElementalImbalance.rollFormula,
+                    total: loopVars.rollTotal
+                })
+
+                await clickElementalImbalanceCardButton({
+                    actor,
+                    runtime,
+                    message: initialMessage,
+                    waiters,
+                    selector: "[data-primordial-action='roll']"
+                })
+
+                await waiters.waitForCondition(() =>
+                    rollHelper.getCalls().some(call =>
+                        call.type === "roll" &&
+                        call.formula === ElementalImbalance.rollFormula
+                    )
+                )
+
+                const expectedState = loopVars.expectVulnerability
+                    ? "rolled-triggered"
+                    : "rolled-safe"
+
+                await waiters.waitForCondition(() =>
+                    chatCardHelper.getMessage()?.flags?.transformations?.state ===
+                    expectedState
+                )
+
+                const presentedRolls =
+                          await chatCardHelper.waitForPresentedRolls({
+                              count: 1,
+                              preferLive: false
+                          })
+
+                expect(presentedRolls[0]?.formula).to.equal(
+                    ElementalImbalance.rollFormula
+                )
+                expect(presentedRolls[0]?.total).to.equal(loopVars.rollTotal)
+                expect(
+                    chatCardHelper.hasButton({
+                        text: "Roll"
+                    })
+                ).to.equal(false)
+
+                if (loopVars.expectVulnerability) {
+                    await waiters.waitForCondition(() =>
+                        actor.effects.some(effect => effect.name === effectName)
+                    )
+                    await waiters.waitForCondition(() =>
+                        getActorTraitValues(actor.system.traits?.dv?.value).includes(
+                            loopVars.damageType
+                        )
+                    )
+                    expect(
+                        chatCardHelper.getMessage()?.flags?.transformations?.vulnerabilityApplied
+                    ).to.equal(true)
+
+                    const saveCalls = []
+                    const originalResolveSaveTargets =
+                              ElementalImbalance.resolveSaveTargets
+                    const originalRollSavingThrow = actor.rollSavingThrow
+
+                    ElementalImbalance.resolveSaveTargets = () => [{
+                        actor,
+                        document: null
+                    }]
+                    actor.rollSavingThrow = async function rollSavingThrow(
+                        config,
+                        options,
+                        messageOptions
+                    )
+                    {
+                        saveCalls.push({
+                            config,
+                            options,
+                            messageOptions
+                        })
+
+                        return {
+                            total: 12
+                        }
+                    }
+
+                    try {
+                        const rolledRoot = await bindElementalImbalanceCard({
+                            actor,
+                            runtime,
+                            message: chatCardHelper.getMessage()
+                        })
+                        const saveButton =
+                                  rolledRoot.querySelector(
+                                      "[data-primordial-action='roll-save']"
+                                  )
+
+                        expect(saveButton).to.exist
+                        expect(saveButton.dataset.action).to.equal("rollSave")
+                        expect(saveButton.dataset.ability).to.equal(
+                            ElementalImbalance.saveAbility
+                        )
+                        expect(saveButton.dataset.dc).to.equal(
+                            String(ElementalImbalance.saveDc)
+                        )
+                        expect(saveButton.dataset.visibility).to.equal("all")
+                        expect(saveButton.textContent).to.contain("DC 15")
+
+                        await clickElementalImbalanceCardButton({
+                            actor,
+                            runtime,
+                            message: chatCardHelper.getMessage(),
+                            waiters,
+                            selector: "[data-primordial-action='roll-save']"
+                        })
+
+                        await waiters.waitForCondition(() =>
+                            saveCalls.length === 1
+                        )
+
+                        expect(saveCalls[0]?.config?.ability).to.equal(
+                            ElementalImbalance.saveAbility
+                        )
+                        expect(saveCalls[0]?.config?.target).to.equal(
+                            ElementalImbalance.saveDc
+                        )
+                    } finally {
+                        ElementalImbalance.resolveSaveTargets =
+                            originalResolveSaveTargets
+                        actor.rollSavingThrow = originalRollSavingThrow
+                    }
+
+                    const actorDto = new ActorValidationDTO(actor)
+                    actorDto.stats.vulnerabilities = [loopVars.damageType]
+                    actorDto.effects.has.push(effectName)
+                    validate(actorDto, {assert})
+                } else {
+                    expect(
+                        chatCardHelper.hasButton({
+                            selector: "[data-primordial-action='roll-save']"
+                        })
+                    ).to.equal(false)
+                    expect(
+                        chatCardHelper.getMessage()?.flags?.transformations?.vulnerabilityApplied
+                    ).to.equal(false)
+
+                    const actorDto = new ActorValidationDTO(actor)
+                    actorDto.stats.vulnerabilities = []
+                    actorDto.effects.notHas.push(effectName)
+                    validate(actorDto, {assert})
+                }
+            } finally {
+                rollHelper.restore()
+            }
+        }
+    }
+]
+
 export const primordialTestDef = {
     id: "primordial",
     name: "Primordial",
@@ -1083,25 +1545,27 @@ export const primordialTestDef = {
             }
         },
         {
-            name: "stage 3 with Primeval Body",
-            setup: async ({actor, staticVars}) =>
+            name: (loopVars) =>
+                `stage 3 with Primeval Body (${loopVars.affinityChoice.label}, ${loopVars.primevalBodyChoice.label})`,
+            loop: () => primevalBodyLoopCases,
+            setup: async ({actor, staticVars, loopVars}) =>
             {
                 staticVars.initialCon = actor.system.abilities.con.value
                 globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
                     {
                         name: "Elemental Affinity",
-                        choice: ELEMENTAL_AFFINITY_CHOICE_UUID
+                        choice: loopVars.affinityChoice.uuid
                     },
                     {
                         name: "Primeval Body",
-                        choice: PRIMEVAL_BODY_FIRE_CHOICE
+                        choice: loopVars.primevalBodyChoice.choice
                     }
                 ]
             },
             steps: [
                 {
                     stage: 1,
-                    await: async ({runtime, actor, waiters}) =>
+                    await: async ({runtime, actor, waiters, staticVars}) =>
                     {
                         await waiters.waitForStageFinished(
                             runtime,
@@ -1109,6 +1573,16 @@ export const primordialTestDef = {
                             waiters.waitForCondition,
                             1
                         )
+                        await waiters.waitForDomainStability({
+                            actor,
+                            asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                        })
+                        await waiters.waitForCondition(() =>
+                            getActorTraitValues(actor.system?.traits?.dr?.value).length > 0
+                        )
+
+                        staticVars.affinityDamageType =
+                            getActorTraitValues(actor.system?.traits?.dr?.value)[0] ?? null
                     }
                 },
                 {
@@ -1138,8 +1612,13 @@ export const primordialTestDef = {
                     }
                 }
             ],
-            finalAwait: async ({runtime, actor, waiters, staticVars}) =>
+            finalAwait: async ({runtime, actor, waiters, staticVars, loopVars}) =>
             {
+                const expectedTraits = buildPrimevalBodyExpectedTraits({
+                    affinityDamageType: staticVars.affinityDamageType,
+                    primevalDamageType: loopVars.primevalBodyChoice.damageType
+                })
+
                 await waiters.waitForDomainStability({
                     actor,
                     asyncTrackers: runtime.dependencies.utils.asyncTrackers
@@ -1147,11 +1626,20 @@ export const primordialTestDef = {
                 await waiters.waitForCondition(() =>
                 {
                     const raceItem = actor.items.find(item => item.type === "race")
+                    const resistances = getActorTraitValues(actor.system?.traits?.dr?.value)
+                    const immunities = getActorTraitValues(actor.system?.traits?.di?.value)
 
                     return actor.system.abilities.con.value ===
                         Math.min(staticVars.initialCon + 1, 20) &&
                         raceItem?.system?.type?.subtype === "Elemental" &&
-                        Array.from(actor.system?.traits?.dr?.value ?? []).includes("fire") &&
+                        expectedTraits.resistances.every(type =>
+                            resistances.includes(type)
+                        ) &&
+                        resistances.length === expectedTraits.resistances.length &&
+                        expectedTraits.immunities.every(type =>
+                            immunities.includes(type)
+                        ) &&
+                        immunities.length === expectedTraits.immunities.length &&
                         actor.items.some(item =>
                             item.flags?.transformations?.sourceUuid ===
                             ROILING_ELEMENTS_UUID
@@ -1170,14 +1658,18 @@ export const primordialTestDef = {
                         )
                 })
             },
-            finalAssertions: async ({actor, assert, staticVars}) =>
+            finalAssertions: async ({actor, assert, staticVars, loopVars}) =>
             {
+                const expectedTraits = buildPrimevalBodyExpectedTraits({
+                    affinityDamageType: staticVars.affinityDamageType,
+                    primevalDamageType: loopVars.primevalBodyChoice.damageType
+                })
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
                     PLANAR_BINDING_UUID,
                     PRIMORDIAL_FORM_UUID,
                     ELEMENTAL_AFFINITY_UUID,
-                    ELEMENTAL_AFFINITY_CHOICE_UUID,
+                    loopVars.affinityChoice.uuid,
                     ROILING_ELEMENTS_UUID,
                     ELEMENTAL_SURGE_UUID,
                     PRIMEVAL_BODY_UUID,
@@ -1185,7 +1677,8 @@ export const primordialTestDef = {
                 ]
                 actorDto.abilities.con.value =
                     Math.min(staticVars.initialCon + 1, 20)
-                actorDto.stats.resistances = ["fire", "lightning"]
+                actorDto.stats.resistances = expectedTraits.resistances
+                actorDto.stats.immunities = expectedTraits.immunities
                 actorDto.rollModes.disadvantage.push({
                     identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
                 })
@@ -1409,6 +1902,7 @@ export const primordialTestDef = {
         ...roilingElementsConditionCases,
         ...roilingElementsActivityUseCases,
         ...roilingElementsNonTriggerCases,
-        ...roilingElementsSavingThrowCases
+        ...roilingElementsSavingThrowCases,
+        ...elementalImbalanceBehaviorTests
     ]
 }
