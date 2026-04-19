@@ -1,6 +1,7 @@
 import { ChatMessagePartInjector } from "../../ui/chatCards/ChatMessagePartInjector.js"
 
-const TEST_TEMPLATE = "test://transformations-card"
+const TEST_TEMPLATE =
+          "modules/transformations/scripts/templates/tests/chat-message-part-injector-test.hbs"
 
 function createMessage(content)
 {
@@ -15,108 +16,79 @@ function createMessage(content)
     }
 }
 
-function installTemplateRenderer()
+function parseContent(content)
 {
-    globalThis.foundry ??= {}
-    globalThis.foundry.applications ??= {}
-    globalThis.foundry.applications.handlebars ??= {}
-
-    const handlebars = globalThis.foundry.applications.handlebars
-    const originalRenderTemplate = handlebars.renderTemplate
-
-    handlebars.renderTemplate = async (_template, templateData = {}) =>
-        renderTestCard(templateData)
-
-    return () =>
-    {
-        if (originalRenderTemplate) {
-            handlebars.renderTemplate = originalRenderTemplate
-            return
-        }
-
-        delete handlebars.renderTemplate
-    }
-}
-
-function renderTestCard({
-    state = "",
-    label = ""
-} = {})
-{
-    return `
-        <section data-transformations-card="true" class="test-card" data-state="${state}">
-            <div class="card-buttons">
-                <button type="button">${label}</button>
-            </div>
-        </section>
-    `.trim()
+    const wrapper = document.createElement("div")
+    wrapper.innerHTML = String(content ?? "")
+    return wrapper
 }
 
 quench.registerBatch(
     "transformations.chatMessages.ChatMessagePartInjector",
-    ({ describe, it, expect }) =>
+    ({describe, it, expect}) =>
     {
-        describe("ChatMessagePartInjector", function()
+        describe("ChatMessagePartInjector", function ()
         {
-            it("injects rendered html next to the matched selector", async function()
+            it("injects rendered html next to the matched selector", async function ()
             {
-                const restoreRenderer = installTemplateRenderer()
                 const message = createMessage(
                     `<div class="midi-dnd5e-buttons"></div>`
                 )
 
-                try {
-                    await ChatMessagePartInjector.inject({
-                        message,
-                        template: TEST_TEMPLATE,
-                        templateData: {
-                            state: "initial",
-                            label: "Roll Hit Die"
-                        }
-                    })
+                await ChatMessagePartInjector.inject({
+                    message,
+                    template: TEST_TEMPLATE,
+                    selector: ".midi-dnd5e-buttons",
+                    templateData: {
+                        state: "initial",
+                        label: "Roll Hit Die"
+                    }
+                })
 
-                    expect(message.updates.length).to.equal(1)
-                    expect(message.content).to.contain(`class="midi-dnd5e-buttons"`)
-                    expect(message.content).to.contain(`data-transformations-card`)
-                    expect(message.content).to.contain(`Roll Hit Die`)
-                    expect(
-                        message.content.indexOf(`class="midi-dnd5e-buttons"`)
-                    ).to.be.lessThan(
-                        message.content.indexOf(`data-transformations-card`)
-                    )
-                } finally {
-                    restoreRenderer()
-                }
+                const parsed = parseContent(message.content)
+                const buttonsRoot = parsed.querySelector(".midi-dnd5e-buttons")
+                const injectedCard =
+                          buttonsRoot?.nextElementSibling?.matches?.("[data-transformations-card]")
+                              ? buttonsRoot.nextElementSibling
+                              : parsed.querySelector("[data-transformations-card]")
+
+                expect(message.updates.length).to.equal(1)
+                expect(buttonsRoot).to.exist
+                expect(injectedCard).to.exist
+                expect(injectedCard?.dataset?.state).to.equal("initial")
+                expect(
+                    injectedCard?.querySelector("button")?.textContent?.trim()
+                ).to.equal("Roll Hit Die")
             })
 
-            it("replaces the matched selector with rendered html", async function()
+            it("replaces the matched selector with rendered html", async function ()
             {
-                const restoreRenderer = installTemplateRenderer()
                 const message = createMessage(
                     `<div><span class="old-part">Old</span></div>`
                 )
 
-                try {
-                    await ChatMessagePartInjector.replace({
-                        message,
-                        selector: ".old-part",
-                        template: TEST_TEMPLATE,
-                        templateData: {
-                            state: "initial",
-                            label: "Roll"
-                        }
-                    })
+                await ChatMessagePartInjector.replace({
+                    message,
+                    selector: ".old-part",
+                    template: TEST_TEMPLATE,
+                    templateData: {
+                        state: "initial",
+                        label: "Roll"
+                    }
+                })
 
-                    expect(message.updates.length).to.equal(1)
-                    expect(message.content).to.not.contain(`class="old-part"`)
-                    expect(message.content).to.contain(`data-transformations-card`)
-                    expect(message.content).to.contain(`Roll`)
-                } finally {
-                    restoreRenderer()
-                }
+                const parsed = parseContent(message.content)
+                const replacedCard = parsed.querySelector("[data-transformations-card]")
+
+                expect(message.updates.length).to.equal(1)
+                expect(parsed.querySelector(".old-part")).to.equal(null)
+                expect(replacedCard).to.exist
+                expect(
+                    replacedCard?.querySelector("button")?.textContent?.trim()
+                ).to.equal("Roll")
             })
 
-            it("removes the matched selector from message content", async function()
+            it("removes the matched selector from message content", async function ()
             {
                 const message = createMessage(
                     `<div><div class="remove-me">Gone</div><div class="keep-me">Stay</div></div>`
@@ -132,30 +104,30 @@ quench.registerBatch(
                 expect(message.content).to.contain(`class="keep-me"`)
             })
 
-            it("replaces the transformations card when replaceCard is used", async function()
+            it("replaces the transformations card when replaceCard is used", async function ()
             {
-                const restoreRenderer = installTemplateRenderer()
                 const message = createMessage(
                     `<div><section data-transformations-card class="old-card">Old</section></div>`
                 )
 
-                try {
-                    await ChatMessagePartInjector.replaceCard({
-                        message,
-                        template: TEST_TEMPLATE,
-                        templateData: {
-                            state: "rolled-success",
-                            label: "Apply Healing"
-                        }
-                    })
+                await ChatMessagePartInjector.replaceCard({
+                    message,
+                    template: TEST_TEMPLATE,
+                    templateData: {
+                        state: "rolled-success",
+                        label: "Apply Healing"
+                    }
+                })
 
-                    expect(message.updates.length).to.equal(1)
-                    expect(message.content).to.not.contain(`class="old-card"`)
-                    expect(message.content).to.contain(`data-transformations-card`)
-                    expect(message.content).to.contain(`Apply Healing`)
-                } finally {
-                    restoreRenderer()
-                }
+                const parsed = parseContent(message.content)
+                const replacedCard = parsed.querySelector("[data-transformations-card]")
+
+                expect(message.updates.length).to.equal(1)
+                expect(parsed.querySelector(".old-card")).to.equal(null)
+                expect(replacedCard).to.exist
+                expect(
+                    replacedCard?.querySelector("button")?.textContent?.trim()
+                ).to.equal("Apply Healing")
             })
         })
     }

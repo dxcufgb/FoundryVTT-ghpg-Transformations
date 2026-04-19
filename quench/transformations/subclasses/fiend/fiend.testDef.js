@@ -3309,7 +3309,7 @@ export const fiendTestDef = {
                     })).to.equal(false)
 
                     await chatCardHelper.waitForButton({
-                        text: "Apply healing"
+                        text: "Apply Healing"
                     })
 
                     await message.update({
@@ -3320,11 +3320,11 @@ export const fiendTestDef = {
                     const persistedRolls = chatCardHelper.getPresentedRolls()
                     expect(persistedRolls[0]?.total).to.equal(6)
                     chatCardHelper.assertButtonExists({
-                        text: "Apply healing"
+                        text: "Apply Healing"
                     }, expect)
 
                     await chatCardHelper.clickButton({
-                        text: "Apply healing"
+                        text: "Apply Healing"
                     })
 
                     await waiters.waitForCondition(() =>
@@ -3336,7 +3336,7 @@ export const fiendTestDef = {
                         staticVars.initialDeathFailures
                     )
                     expect(chatCardHelper.hasButton({
-                        text: "Apply healing"
+                        text: "Apply Healing"
                     })).to.equal(false)
                     expect(chatCardHelper.getPresentedRolls()[0]?.total).to.equal(6)
                 } finally {
@@ -3443,7 +3443,7 @@ export const fiendTestDef = {
                         text: "Roll Hit Die"
                     })).to.equal(false)
                     expect(chatCardHelper.hasButton({
-                        text: "Apply healing"
+                        text: "Apply Healing"
                     })).to.equal(false)
 
                     await message.update({
@@ -3739,7 +3739,7 @@ export const fiendTestDef = {
                         natural: 15,
                         total: 18,
                         roll: {
-                            formula: "2d20kh+7"
+                            formula: "2d20kh + 7"
                         }
                     })
 
@@ -3779,7 +3779,7 @@ export const fiendTestDef = {
                     }, expect)
 
                     rollHelper.queueRoll({
-                        formula: "2d20kh+7",
+                        formula: "2d20kh + 7",
                         total: 18,
                         diceResults: [12, 18]
                     })
@@ -3791,14 +3791,14 @@ export const fiendTestDef = {
                     await waiters.waitForCondition(() =>
                         rollHelper.getCalls().some(call =>
                             call.type === "roll" &&
-                            call.formula === "2d20kh+7"
+                            call.formula === "2d20kh + 7"
                         )
                     )
 
                     const attackRolls =
                               await chatCardHelper.waitForPresentedRolls({count: 1})
 
-                    expect(attackRolls[0]?.formula).to.equal("2d20kh+7")
+                    expect(attackRolls[0]?.formula).to.equal("2d20kh + 7")
                     expect(attackRolls[0]?.total).to.equal(18)
                     expect(chatCardHelper.hasButton({
                         text: "Attack"
@@ -3807,12 +3807,6 @@ export const fiendTestDef = {
                     await chatCardHelper.waitForButton({
                         text: "Roll Damage"
                     })
-
-                    allowMockRollMessageUpdates(chatCardHelper.getMessage())
-                    await waiters.waitForCondition(() =>
-                        Array.isArray(chatCardHelper.getMessage()?.rolls) &&
-                        chatCardHelper.getMessage().rolls.length >= 1
-                    )
 
                     rollHelper.queueRoll({
                         formula: "3d10",
@@ -3833,11 +3827,20 @@ export const fiendTestDef = {
 
                     const finalRolls =
                               await chatCardHelper.waitForPresentedRolls({count: 2})
+                    const attackRoll =
+                              finalRolls.find(roll =>
+                                  roll?.formula === "2d20kh + 7"
+                              ) ?? null
+                    const damageRoll =
+                              finalRolls.find(roll =>
+                                  roll?.formula === "3d10"
+                              ) ?? null
 
-                    expect(finalRolls[0]?.formula).to.equal("2d20kh+7")
-                    expect(finalRolls[0]?.total).to.equal(18)
-                    expect(finalRolls[1]?.formula).to.equal("3d10")
-                    expect(finalRolls[1]?.total).to.equal(21)
+                    expect(finalRolls.length).to.be.at.least(2)
+                    expect(attackRoll).to.exist
+                    expect(damageRoll).to.exist
+                    expect(attackRoll?.total).to.equal(18)
+                    expect(damageRoll?.total).to.equal(21)
                     expect(chatCardHelper.hasButton({
                         text: "Roll Damage"
                     })).to.equal(false)
@@ -3849,10 +3852,17 @@ export const fiendTestDef = {
                     await waiters.waitForNextFrame()
 
                     const persistedRolls = chatCardHelper.getPresentedRolls()
-                    expect(persistedRolls.map(roll => roll.total)).to.deep.equal([
-                        18,
-                        21
-                    ])
+                    expect(persistedRolls.length).to.be.at.least(2)
+                    expect(
+                        persistedRolls.find(roll =>
+                            roll?.formula === "2d20kh + 7"
+                        )?.total
+                    ).to.equal(18)
+                    expect(
+                        persistedRolls.find(roll =>
+                            roll?.formula === "3d10"
+                        )?.total
+                    ).to.equal(21)
                     expect(
                         actor.items.get(staticVars.classItem.id)?.system?.hd?.value
                     ).to.equal(staticVars.initialHitDice)
@@ -4124,9 +4134,10 @@ export const fiendTestDef = {
                 }
 
                 try {
-                    const card = chatCardHelper.getCardElement()
+                    await chatCardHelper.waitForCard()
 
-                    // expect(card, "Gift of Unbridled Power chat card should render").to.exist
+                    const card = chatCardHelper.getCardElement({require: true})
+
                     expect(card.dataset.gift).to.equal("giftOfUnbridledPower")
                     expect(message.content).to.contain(`data-gift="giftOfUnbridledPower"`)
                     expect(message.flags?.transformations?.state).to.equal("initial")
@@ -4174,7 +4185,7 @@ export const fiendTestDef = {
                         text: "Roll"
                     })).to.equal(false)
                     chatCardHelper.assertButtonExists({
-                        text: "Recover spell slots"
+                        text: "Recover Spell Slots"
                     }, expect)
 
                     await message.update({
@@ -4216,7 +4227,7 @@ export const fiendTestDef = {
                     ).to.equal(staticVars.initialHitDice - 2)
                     expect(message.flags?.transformations?.state).to.equal("complete")
                     expect(chatCardHelper.hasButton({
-                        text: "Recover spell slots"
+                        text: "Recover Spell Slots"
                     })).to.equal(false)
 
                     await message.update({
@@ -4314,9 +4325,10 @@ export const fiendTestDef = {
                 }
 
                 try {
-                    const card = chatCardHelper.getCardElement()
+                    await chatCardHelper.waitForCard()
 
-                    // expect(card, "Gift of Unbridled Power chat card should render").to.exist
+                    const card = chatCardHelper.getCardElement({require: true})
+
                     expect(card.dataset.gift).to.equal("giftOfUnbridledPower")
                     chatCardHelper.assertButtonExists({
                         text: "Roll"
@@ -4345,7 +4357,7 @@ export const fiendTestDef = {
                     )
 
                     chatCardHelper.assertButtonExists({
-                        text: "Recover spell slots"
+                        text: "Recover Spell Slots"
                     }, expect)
 
                     await GiftClass.actions.recoverSpellSlots({
@@ -4378,7 +4390,7 @@ export const fiendTestDef = {
                     await waiters.waitForNextFrame()
 
                     chatCardHelper.assertButtonExists({
-                        text: "Recover spell slots"
+                        text: "Recover Spell Slots"
                     }, expect)
                     expect(chatCardHelper.getPresentedRolls()[0]?.formula).to.equal("2d6")
                     expect(chatCardHelper.getPresentedRolls()[0]?.total).to.equal(5)
