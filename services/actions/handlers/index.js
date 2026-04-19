@@ -9,6 +9,7 @@ import { createDialogAction } from "./dialog.js"
 import { createActorFlagAction } from "./actorFlags.js"
 import { createExhaustionAction } from "./actorExhaustion.js"
 import { createActorHitDieAction } from "./actorHitDie.js"
+import { createItemActivityAction } from "./itemActivity.js"
 import { createRollModifierAction } from "./rollModifier.js"
 
 export function createActionHandlers({
@@ -71,6 +72,11 @@ export function createActionHandlers({
         }),
         ITEM: createItemAction({
             tracker: trackers.mutations,
+            itemRepository,
+            logger
+        }),
+        ITEM_ACTIVITY: createItemActivityAction({
+            tracker: trackers.ui,
             itemRepository,
             logger
         }),

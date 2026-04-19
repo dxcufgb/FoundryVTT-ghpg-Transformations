@@ -30,21 +30,33 @@ export class Primordial extends Transformation
         })
     }
 
-    static async onActivityUse(activity, usage)
+    static async onActivityUse(
+        activity,
+        usage,
+        message
+    )
     {
+
         if (!shouldSkipPrimordialActivityUseTrigger({activity, usage})) {
-            return
+            return {
+                skipActivityUseTrigger: false
+            }
         }
 
         usage.flags ??= {}
         usage.flags.transformations ??= {}
         usage.flags.transformations.skipActivityUseTrigger = true
+
+        return {
+            skipActivityUseTrigger: true
+        }
     }
 
     static async onRenderChatMessage({
         message,
         html,
         actor,
+        actorRepository,
         activeEffectRepository,
         ChatMessagePartInjector,
         RollService,
@@ -61,6 +73,7 @@ export class Primordial extends Transformation
                 RollService,
                 logger
             })
+
         }
     }
 
@@ -87,5 +100,6 @@ function shouldSkipPrimordialActivityUseTrigger({
     usage
 } = {})
 {
-    return RoilingElements.isSaveActivity({activity, usage})
+    return RoilingElements.isSaveActivity({activity, usage}) ||
+        RoilingElements.isExcludedActivityUseTrigger({activity, usage})
 }

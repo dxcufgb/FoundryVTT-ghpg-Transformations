@@ -7,6 +7,21 @@ const ROILING_ELEMENTS_ACTIVITY_ID = "CeVayhK6VQsMSFY8"
 const ROILING_ELEMENTS_ACTIVITY_UUID =
           `${ROILING_ELEMENTS_UUID}.Activity.${ROILING_ELEMENTS_ACTIVITY_ID}`
 const ROILING_ELEMENTS_ITEM_NAME = "Roiling Elements"
+const EXCLUDED_ACTIVITY_USE_TRIGGERS = Object.freeze([
+    {
+        itemUuid:
+            "Compendium.transformations.gh-transformations.Item.U1W6fCAmzOKBRmD5",
+        activityId: "xtFaAokFhstQEHWy"
+    },
+    {
+        itemUuid:
+            "Compendium.transformations.gh-transformations.Item.ZNeHpSQXylLEUtN0",
+        activityId: "bpcaabfmchqSE8HB"
+    }
+].map(entry => ({
+    ...entry,
+    activityUuid: `${entry.itemUuid}.Activity.${entry.activityId}`
+})))
 
 export class RoilingElements
 {
@@ -66,45 +81,209 @@ export class RoilingElements
         item = this.resolveActivityItem(activity, usage)
     } = {})
     {
-        const itemSourceUuid = this.resolveSourceUuid(item)
-        const activitySourceUuid = this.resolveSourceUuid(activity)
-        const activityId = this.resolveActivityId(activity)
-        const itemName = item?.name ?? ""
+        const itemSourceUuids = this.resolveSourceUuids(item)
+        const activitySourceUuids = this.resolveActivitySourceUuids({
+            activity,
+            usage
+        })
+        const activityIds = this.resolveActivityIds({
+            activity,
+            usage
+        })
+        const itemNames = this.resolveItemNames({
+            activity,
+            usage,
+            item
+        })
 
         return (
-            (itemSourceUuid === ROILING_ELEMENTS_UUID || itemName === ROILING_ELEMENTS_ITEM_NAME) &&
             (
-                activityId === ROILING_ELEMENTS_ACTIVITY_ID ||
-                activitySourceUuid === ROILING_ELEMENTS_ACTIVITY_UUID
+                itemSourceUuids.has(ROILING_ELEMENTS_UUID) ||
+                itemNames.has(ROILING_ELEMENTS_ITEM_NAME)
+            ) &&
+            (
+                activityIds.has(ROILING_ELEMENTS_ACTIVITY_ID) ||
+                activitySourceUuids.has(ROILING_ELEMENTS_ACTIVITY_UUID)
+            )
+        )
+    }
+
+    static isExcludedActivityUseTrigger({
+        activity,
+        usage = null,
+        item = this.resolveActivityItem(activity, usage)
+    } = {})
+    {
+        const itemSourceUuids = this.resolveSourceUuids(item)
+        const activitySourceUuids = this.resolveActivitySourceUuids({
+            activity,
+            usage
+        })
+        const activityIds = this.resolveActivityIds({
+            activity,
+            usage
+        })
+
+        return EXCLUDED_ACTIVITY_USE_TRIGGERS.some(entry =>
+            activitySourceUuids.has(entry.activityUuid) ||
+            (
+                itemSourceUuids.has(entry.itemUuid) &&
+                activityIds.has(entry.activityId)
             )
         )
     }
 
     static resolveActivityItem(activity, usage = null)
     {
-        return (
-            usage?.workflow?.item ??
-            activity?.item ??
-            activity?.parent?.parent ??
-            activity?.parent ??
-            null
-        )
+        return this.resolveActivityItems({
+            activity,
+            usage
+        })[0] ?? null
     }
 
     static resolveSourceUuid(document)
     {
-        return (
-            document?.flags?.transformations?.sourceUuid ??
-            document?.flags?.core?.sourceId ??
-            document?._stats?.compendiumSource ??
-            document?.uuid ??
-            null
-        )
+        return this.resolveSourceUuids(document).values().next().value ?? null
+    }
+
+    static resolveSourceUuids(document)
+    {
+        const sourceUuids = new Set()
+        for (const candidate of [
+            document?.flags?.transformations?.sourceUuid,
+            document?.flags?.core?.sourceId,
+            document?._stats?.compendiumSource,
+            document?.uuid
+        ]) {
+            if (typeof candidate !== "string" || candidate.length === 0) {
+                continue
+            }
+
+            sourceUuids.add(candidate)
+        }
+
+        return sourceUuids
+    }
+
+    static resolveActivitySourceUuids({
+        activity,
+        usage
+    } = {})
+    {
+        const sourceUuids = new Set()
+
+        for (const candidate of this.resolveActivityDocuments({
+            activity,
+            usage
+        })) {
+            for (const sourceUuid of this.resolveSourceUuids(candidate)) {
+                sourceUuids.add(sourceUuid)
+            }
+        }
+
+        return sourceUuids
     }
 
     static resolveActivityId(activity)
     {
-        return activity?.id ?? activity?._id ?? null
+        return this.resolveActivityIds({activity}).values().next().value ?? null
+    }
+
+    static resolveActivityIds({
+        activity,
+        usage = null
+    } = {})
+    {
+        const activityIds = new Set()
+
+        for (const candidate of this.resolveActivityDocuments({
+            activity,
+            usage
+        })) {
+            for (const activityId of [
+                candidate?.id,
+                candidate?._id
+            ]) {
+                if (typeof activityId !== "string" || activityId.length === 0) {
+                    continue
+                }
+
+                activityIds.add(activityId)
+            }
+        }
+
+        return activityIds
+    }
+
+    static resolveActivityDocuments({
+        activity,
+        usage = null
+    } = {})
+    {
+        return compactUnique([
+            activity,
+            usage?.activity,
+            usage?.workflow?.activity,
+            activity?.activity
+        ])
+    }
+
+    static resolveActivityItems({
+        activity,
+        usage = null
+    } = {})
+    {
+        const activityDocuments = this.resolveActivityDocuments({
+            activity,
+            usage
+        })
+
+        return compactUnique([
+            usage?.workflow?.item,
+            usage?.item,
+            usage?.workflow?.activity?.item,
+            usage?.workflow?.activity?.parent?.parent,
+            usage?.workflow?.activity?.parent,
+            activity?.item,
+            activity?.parent?.parent,
+            activity?.parent,
+            ...activityDocuments.flatMap(candidate => [
+                candidate?.item,
+                candidate?.parent?.parent,
+                candidate?.parent
+            ])
+        ])
+    }
+
+    static resolveItemNames({
+        activity,
+        usage = null,
+        item = null
+    } = {})
+    {
+        const itemNames = new Set()
+        const activityDocuments = this.resolveActivityDocuments({
+            activity,
+            usage
+        })
+
+        for (const candidate of compactUnique([
+            item,
+            ...this.resolveActivityItems({
+                activity,
+                usage
+            }),
+            ...activityDocuments
+        ])) {
+            const itemName = candidate?.name
+            if (typeof itemName !== "string" || itemName.length === 0) {
+                continue
+            }
+
+            itemNames.add(itemName)
+        }
+
+        return itemNames
     }
 
     static assignSaveDc(target, saveDc)
@@ -208,4 +387,9 @@ export class RoilingElements
 
         return null
     }
+}
+
+function compactUnique(values)
+{
+    return [...new Set(values.filter(Boolean))]
 }

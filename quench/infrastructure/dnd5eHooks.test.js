@@ -696,6 +696,184 @@ quench.registerBatch(
                 }
             })
 
+            it("skips activityUse trigger dispatch for excluded primordial activities", async function ()
+            {
+                const scenarios = [
+                    {
+                        name: "sourceUuid on workflow item",
+                        itemSourceUuid:
+                            "Compendium.transformations.gh-transformations.Item.U1W6fCAmzOKBRmD5",
+                        activityId: "xtFaAokFhstQEHWy",
+                        buildUsage(actor, item)
+                        {
+                            return {
+                                workflow: {
+                                    actor,
+                                    item
+                                }
+                            }
+                        },
+                        buildActivity(item, activityId)
+                        {
+                            return {
+                                id: activityId,
+                                uuid:
+                                    `Actor.actor-1.Item.item-excluded.Activity.${activityId}`,
+                                name: "",
+                                type: "save",
+                                parent: {
+                                    parent: item
+                                }
+                            }
+                        }
+                    },
+                    {
+                        name: "sourceUuid on workflow activity parent item",
+                        itemSourceUuid:
+                            "Compendium.transformations.gh-transformations.Item.ZNeHpSQXylLEUtN0",
+                        activityId: "bpcaabfmchqSE8HB",
+                        buildUsage(actor, item, activity)
+                        {
+                            return {
+                                workflow: {
+                                    actor,
+                                    activity: {
+                                        ...activity,
+                                        parent: {
+                                            parent: item
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        buildActivity(_item, activityId)
+                        {
+                            return {
+                                id: activityId,
+                                uuid:
+                                    `Actor.actor-1.Item.item-excluded.Activity.${activityId}`,
+                                name: "",
+                                type: "save"
+                            }
+                        }
+                    },
+                    {
+                        name: "compendium activity uuid without item sourceUuid",
+                        itemSourceUuid: null,
+                        activityId: "bpcaabfmchqSE8HB",
+                        buildUsage(actor)
+                        {
+                            return {
+                                workflow: {
+                                    actor
+                                }
+                            }
+                        },
+                        buildActivity(_item, activityId)
+                        {
+                            return {
+                                id: activityId,
+                                uuid:
+                                    `Actor.actor-1.Item.item-excluded.Activity.${activityId}`,
+                                name: "",
+                                type: "save",
+                                _stats: {
+                                    compendiumSource:
+                                        "Compendium.transformations.gh-transformations.Item.ZNeHpSQXylLEUtN0.Activity.bpcaabfmchqSE8HB"
+                                }
+                            }
+                        }
+                    }
+                ]
+
+                for (const scenario of scenarios) {
+                    const actor = createActor()
+                    const harness = createHookHarness({
+                        transformationOverrides: {
+                            TransformationClass: Primordial
+                        }
+                    })
+                    const item = {
+                        id: "item-excluded",
+                        name: "Excluded Primordial Activity",
+                        uuid: "Actor.actor-1.Item.item-excluded",
+                        flags: {
+                            transformations: {
+                                sourceUuid: scenario.itemSourceUuid
+                            }
+                        }
+                    }
+                    const activity = scenario.buildActivity(item, scenario.activityId)
+                    const usage = scenario.buildUsage(actor, item, activity)
+
+                    try {
+                        const callback = harness.callbacks.get("dnd5e.postUseActivity")
+                        expect(callback).to.be.a("function")
+
+                        await callback(activity, usage, {message: {id: "message-excluded"}})
+
+                        expect(
+                            harness.calls.triggerRuntime.some(call =>
+                                call.name === "activityUse"
+                            )
+                        , scenario.name).to.equal(false)
+                    } finally {
+                        harness.restore()
+                    }
+                }
+            })
+
+            it("skips activityUse trigger dispatch when the transformation class returns an explicit skip result", async function ()
+            {
+                const actor = createActor()
+                const harness = createHookHarness({
+                    transformationOverrides: {
+                        TransformationClass: {
+                            async onActivityUse()
+                            {
+                                return {
+                                    skipActivityUseTrigger: true
+                                }
+                            }
+                        }
+                    }
+                })
+                const usage = {
+                    workflow: {
+                        actor,
+                        item: {
+                            id: "item-plain",
+                            name: "Plain Activity Item",
+                            uuid: "Actor.actor-1.Item.item-plain"
+                        }
+                    }
+                }
+
+                try {
+                    const callback = harness.callbacks.get("dnd5e.postUseActivity")
+                    expect(callback).to.be.a("function")
+
+                    await callback(
+                        {
+                            id: "activity-plain",
+                            uuid: "Actor.actor-1.Item.item-plain.Activity.activity-plain",
+                            name: "Plain Activity",
+                            type: "utility"
+                        },
+                        usage,
+                        {message: {id: "message-plain"}}
+                    )
+
+                    expect(
+                        harness.calls.triggerRuntime.some(call =>
+                            call.name === "activityUse"
+                        )
+                    ).to.equal(false)
+                } finally {
+                    harness.restore()
+                }
+            })
+
             it("delegates pre-roll attack handling to the transformation class", async function ()
             {
                 const actor = createActor()
@@ -853,10 +1031,96 @@ quench.registerBatch(
                 }
             })
 
-            it("delegates pre-calculate damage handling to the transformation class", async function ()
+            it("stores the midi damage type on the resolved actor during pre-calculate damage", async function ()
             {
-                const actor = createActor()
+                let persistedUpdate = null
+                const actor = {
+                    id: "actor-1",
+                    flags: {
+                        transformations: {
+                            damageTypePerMidiId: {
+                                existing: "cold"
+                            }
+                        }
+                    },
+                    getFlag(scope, key)
+                    {
+                        return this.flags?.[scope]?.[key] ?? null
+                    },
+                    async setFlag(scope, key, value)
+                    {
+                        persistedUpdate = {
+                            scope,
+                            key,
+                            value
+                        }
+                        this.flags[scope][key] = value
+                        return undefined
+                    }
+                }
+                const harness = createHookHarness()
+                const damageDetails = [
+                    {
+                        type: "fire",
+                        value: 12
+                    }
+                ]
+                const details = {
+                    midi: {
+                        sourceActorUuid: "midi-source-1"
+                    }
+                }
+
+                try {
+                    const callback = harness.callbacks.get("dnd5e.preCalculateDamage")
+                    expect(callback).to.be.a("function")
+
+                    callback({actor}, damageDetails, details)
+
+                    await flushAsyncWork()
+
+                    expect(persistedUpdate).to.deep.equal({
+                        scope: "transformations",
+                        key: "damageTypePerMidiId",
+                        value: {
+                            existing: "cold",
+                            "midi-source-1": "fire"
+                        }
+                    })
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("delegates apply-damage handling to the transformation class and clears the midi damage type entry", async function ()
+            {
                 let receivedArgs = null
+                const persistedUpdates = []
+                const actor = {
+                    id: "actor-1",
+                    flags: {
+                        transformations: {
+                            damageTypePerMidiId: {
+                                "midi-source-1": "fire",
+                                existing: "cold"
+                            }
+                        }
+                    },
+                    getFlag(scope, key)
+                    {
+                        return this.flags?.[scope]?.[key] ?? null
+                    },
+                    async setFlag(scope, key, value)
+                    {
+                        persistedUpdates.push({
+                            scope,
+                            key,
+                            value
+                        })
+                        this.flags[scope][key] = value
+                        return this
+                    }
+                }
                 const harness = createHookHarness({
                     transformationOverrides: {
                         TransformationClass: {
@@ -870,29 +1134,37 @@ quench.registerBatch(
                         }
                     }
                 })
-                const damageDetails = [
-                    {
-                        type: "fire",
-                        value: 12
-                    }
-                ]
+                const target = {actor}
+                const damage = {
+                    amount: 12
+                }
                 const details = {
+                    midi: {
+                        sourceActorUuid: "midi-source-1"
+                    },
                     source: "test"
                 }
 
                 try {
-                    const callback = harness.callbacks.get("dnd5e.preCalculateDamage")
+                    const callback = harness.callbacks.get("dnd5e.applyDamage")
                     expect(callback).to.be.a("function")
 
-                    callback(actor, damageDetails, details)
+                    callback(target, damage, details)
 
                     await flushAsyncWork()
 
                     expect(receivedArgs).to.exist
                     expect(receivedArgs.actor).to.equal(actor)
-                    expect(receivedArgs.target).to.equal(actor)
-                    expect(receivedArgs.damageDetails).to.equal(damageDetails)
+                    expect(receivedArgs.target).to.equal(target)
+                    expect(receivedArgs.damage).to.equal(damage)
                     expect(receivedArgs.details).to.equal(details)
+                    expect(persistedUpdates.at(-1)).to.deep.equal({
+                        scope: "transformations",
+                        key: "damageTypePerMidiId",
+                        value: {
+                            existing: "cold"
+                        }
+                    })
                 } finally {
                     harness.restore()
                 }

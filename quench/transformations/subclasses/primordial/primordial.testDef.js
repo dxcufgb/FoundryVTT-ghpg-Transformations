@@ -33,6 +33,12 @@ const PRIMEVAL_BODY_UUID =
           "Compendium.transformations.gh-transformations.Item.gQZ0xl368qBi0zzP"
 const ELEMENTAL_IMBALANCE_UUID =
           "Compendium.transformations.gh-transformations.Item.3QhO2SkFHqms1sIl"
+const PRIMORDIAL_CHAOS_UUID =
+          "Compendium.transformations.gh-transformations.Item.lYYCNPIBVXMQ5fAg"
+const PRIMORDIAL_AURA_UUID =
+          "Compendium.transformations.gh-transformations.Item.00vXc5RNzuZPXQui"
+const ELEMENTAL_MASTERY_UUID =
+          "Compendium.transformations.gh-transformations.Item.yDWkfqMrAMyFkVrO"
 const elementalImbalanceBehaviorDamageTypes = Object.freeze([
     "acid",
     "cold",
@@ -112,6 +118,240 @@ const placeholderChoices = Object.freeze([
     {name: "Primordial Stage 4 Choice A", uuid: ""},
     {name: "Primordial Stage 4 Choice B", uuid: ""}
 ])
+
+function normalizeText(value)
+{
+    return String(value ?? "")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
+function getUiWindows()
+{
+    const windows = ui?.windows
+    if (!windows) return []
+
+    if (typeof windows.values === "function") {
+        return Array.from(windows.values())
+    }
+
+    return Object.values(windows).filter(Boolean)
+}
+
+function getApplicationRoot(application)
+{
+    if (
+        application?.nodeType === Node.ELEMENT_NODE ||
+        application instanceof ShadowRoot
+    ) {
+        return application
+    }
+
+    return (
+        application?.element?.[0] ??
+        application?.element ??
+        application?.window?.content?.[0] ??
+        application?.window?.content ??
+        application?.window?.element?.[0] ??
+        application?.window?.element ??
+        null
+    )
+}
+
+function queryAllIncludingShadowRoots(root, selector)
+{
+    const visitedRoots = new Set()
+    const matchedElements = new Set()
+
+    function visit(currentRoot)
+    {
+        if (!currentRoot || visitedRoots.has(currentRoot)) return
+        if (typeof currentRoot.querySelectorAll !== "function") return
+
+        visitedRoots.add(currentRoot)
+
+        for (const element of currentRoot.querySelectorAll(selector)) {
+            matchedElements.add(element)
+        }
+
+        for (const element of currentRoot.querySelectorAll("*")) {
+            if (element?.shadowRoot) {
+                visit(element.shadowRoot)
+            }
+        }
+    }
+
+    visit(root)
+
+    if (root === document) {
+        for (const application of getUiWindows()) {
+            const applicationRoot = getApplicationRoot(application)
+            visit(applicationRoot)
+            visit(applicationRoot?.shadowRoot)
+        }
+    }
+
+    return Array.from(matchedElements)
+}
+
+function findActionElement(root, {
+    action = null,
+    type = null,
+    text = null
+} = {})
+{
+    const candidates = queryAllIncludingShadowRoots(
+        root,
+        "button, a, [data-action], [data-type]"
+    )
+
+    if (action != null) {
+        const actionMatch = candidates.find(element =>
+            element.dataset?.action === action
+        )
+
+        if (actionMatch) {
+            return actionMatch
+        }
+    }
+
+    if (type != null) {
+        const typeMatch = candidates.find(element =>
+            element.dataset?.type === type
+        )
+
+        if (typeMatch) {
+            return typeMatch
+        }
+    }
+
+    if (text != null) {
+        const expectedText = normalizeText(text)
+
+        return candidates.find(element =>
+            normalizeText(element.textContent) === expectedText
+        ) ?? null
+    }
+
+    return null
+}
+
+function findDamageRollDialog()
+{
+    const expectedTitle =
+              game.i18n?.localize?.("DND5E.DamageRoll") ??
+              "Damage Roll"
+    const applicationMatch = getUiWindows().find(application =>
+    {
+        if (!application) return false
+
+        if (application.constructor?.name === "DamageRollConfigurationDialog") {
+            return true
+        }
+
+        if (application.rollType === CONFIG.Dice.DamageRoll) {
+            return true
+        }
+
+        return false
+    }) ?? null
+
+    if (applicationMatch) {
+        return applicationMatch
+    }
+
+    return queryAllIncludingShadowRoots(
+        document,
+        "dialog.application.roll-configuration, .application.roll-configuration"
+    ).find(element =>
+        normalizeText(
+            element.querySelector(".window-title")?.textContent
+        ) === expectedTitle
+    ) ?? null
+}
+
+function getDamageTypeOptionsFromDialog(application)
+{
+    const applicationRoot = getApplicationRoot(application)
+    const selectOptions = queryAllIncludingShadowRoots(
+        applicationRoot,
+        "select[name$='.damageType'] option"
+    ).map(option =>
+        normalizeText(option.value || option.textContent).toLowerCase()
+    )
+    .filter(Boolean)
+
+    if (selectOptions.length) {
+        return Array.from(new Set(selectOptions))
+    }
+
+    const types = (application?.rolls ?? [])
+    .flatMap(roll => Array.from(roll?.options?.types ?? []))
+    .filter(Boolean)
+
+    return Array.from(new Set(types))
+}
+
+async function closeApplication(application)
+{
+    if (
+        application?.nodeType === Node.ELEMENT_NODE ||
+        application instanceof ShadowRoot
+    ) {
+        if (typeof application.close === "function") {
+            application.close()
+        }
+
+        application.remove?.()
+        return
+    }
+
+    if (typeof application?.close === "function") {
+        await application.close({force: true})
+        return
+    }
+
+    const applicationElement = getApplicationRoot(application)
+
+    if (typeof applicationElement?.close === "function") {
+        applicationElement.close()
+    }
+
+    applicationElement?.remove?.()
+}
+
+function installDamageRollDialogRenderSpy(staticVars)
+{
+    const DamageRollDialogClass = CONFIG.Dice?.DamageRoll?.DefaultConfigurationDialog
+    const originalRender = DamageRollDialogClass?.prototype?.render
+
+    staticVars.damageRollDialogClass = DamageRollDialogClass ?? null
+    staticVars.originalDamageRollDialogRender = originalRender ?? null
+    staticVars.damageRollDialogRendered = false
+    staticVars.damageRollDialogApp = null
+
+    if (!DamageRollDialogClass || typeof originalRender !== "function") {
+        return
+    }
+
+    DamageRollDialogClass.prototype.render = function (...args)
+    {
+        staticVars.damageRollDialogRendered = true
+        staticVars.damageRollDialogApp = this
+        return originalRender.apply(this, args)
+    }
+}
+
+function restoreDamageRollDialogRenderSpy(staticVars)
+{
+    if (
+        staticVars?.damageRollDialogClass?.prototype &&
+        typeof staticVars.originalDamageRollDialogRender === "function"
+    ) {
+        staticVars.damageRollDialogClass.prototype.render =
+            staticVars.originalDamageRollDialogRender
+    }
+}
 
 function setupPrimordialElementalAffinityAdvancement()
 {
@@ -217,6 +457,14 @@ function buildElementalImbalanceRequiredPath()
     ]
 }
 
+function buildPrimordialChaosRequiredPath()
+{
+    return [
+        ...buildElementalImbalanceRequiredPath(),
+        {stage: 4}
+    ]
+}
+
 function getCurrentMessage(message)
 {
     return game.messages?.get(message?.id) ?? message ?? null
@@ -228,6 +476,67 @@ function findLatestElementalImbalanceMessage()
         message?.flags?.transformations?.primordialActivity ===
         ElementalImbalance.id
     ) ?? null
+}
+
+function resolvePrimordialChaosItem(actor)
+{
+    return actor?.items?.find(item =>
+        item?.flags?.transformations?.sourceUuid === PRIMORDIAL_CHAOS_UUID
+    ) ?? null
+}
+
+function resolvePrimordialChaosActivity(item)
+{
+    return item?.system?.activities?.get?.("atkAWEqTesrELCv8") ??
+        item?.system?.activities?.find?.(activity =>
+            activity?.id === "atkAWEqTesrELCv8" ||
+            activity?._id === "atkAWEqTesrELCv8"
+        ) ??
+        Object.values(item?.system?.activities ?? {}).find(activity =>
+            activity?.id === "atkAWEqTesrELCv8" ||
+            activity?._id === "atkAWEqTesrELCv8"
+        ) ??
+        null
+}
+
+function findLatestPrimordialChaosMessage({
+    actor,
+    chaosItem = null,
+    chaosActivity = null,
+    initialMessageIds = null
+} = {})
+{
+    const messages = [...(game.messages?.contents ?? [])]
+    const candidates = initialMessageIds
+        ? messages.filter(message => !initialMessageIds.has(message.id))
+        : messages
+
+    return [...candidates].reverse().find(message =>
+    {
+        if (
+            chaosActivity?.uuid &&
+            message?.flags?.dnd5e?.activity?.uuid === chaosActivity.uuid
+        ) {
+            return true
+        }
+
+        if (
+            chaosItem?.uuid &&
+            message?.flags?.dnd5e?.item?.uuid === chaosItem.uuid
+        ) {
+            return true
+        }
+
+        if (
+            actor?.id &&
+            message?.speaker?.actor === actor.id &&
+            String(message?.content ?? "").includes("Primordial Chaos")
+        ) {
+            return true
+        }
+
+        return false
+    }) ?? null
 }
 
 function getElementalImbalanceEffectName(damageType)
@@ -332,6 +641,57 @@ async function prepareElementalImbalanceChatCard({
     await staticVars.chatCardHelper.waitForCard({
         preferLive: false
     })
+}
+
+async function preparePrimordialChaosMessage({
+    actor,
+    runtime,
+    waiters,
+    staticVars,
+    naturalRoll = 1,
+    total = 1,
+    success = false,
+    isSpell = true
+})
+{
+    staticVars.chaosItem = resolvePrimordialChaosItem(actor)
+    staticVars.chaosActivity = resolvePrimordialChaosActivity(staticVars.chaosItem)
+    staticVars.initialMessageIds = new Set(
+        game.messages.contents.map(message => message.id)
+    )
+
+    await runtime.services.triggerRuntime.run("savingThrow", actor, {
+        saves: {
+            current: {
+                ability: "con",
+                isSpell,
+                naturalRoll,
+                total,
+                success
+            }
+        }
+    })
+
+    await waiters.waitForCondition(() =>
+    {
+        const message = findLatestPrimordialChaosMessage({
+            actor,
+            chaosItem: staticVars.chaosItem,
+            chaosActivity: staticVars.chaosActivity,
+            initialMessageIds: staticVars.initialMessageIds
+        })
+
+        return Boolean(message)
+    })
+
+    staticVars.message = findLatestPrimordialChaosMessage({
+        actor,
+        chaosItem: staticVars.chaosItem,
+        chaosActivity: staticVars.chaosActivity,
+        initialMessageIds: staticVars.initialMessageIds
+    })
+    staticVars.messageSelector =
+        `.chat-message[data-message-id="${staticVars.message?.id}"]`
 }
 
 const roilingElementsTriggerCases = [
@@ -879,6 +1239,188 @@ const elementalImbalanceBehaviorTests = [
                 }
             } finally {
                 rollHelper.restore()
+            }
+        }
+    }
+]
+
+const primordialChaosBehaviorTests = [
+    {
+        name: "Primordial Chaos triggers on a natural 1 saving throw with a regular chat message and damage roll dialog",
+        uuid: PRIMORDIAL_CHAOS_UUID,
+        setup: async ({staticVars}) =>
+        {
+            await ChatMessage.deleteDocuments(
+                game.messages.contents.map(message => message.id)
+            )
+            setupPrimordialElementalAffinityAdvancement()
+            installDamageRollDialogRenderSpy(staticVars)
+
+            staticVars.originalDice3d = game.dice3d
+            game.dice3d = {
+                isEnabled()
+                {
+                    return false
+                },
+                async showForRoll() {}
+            }
+
+            const existingDamageRollDialog = findDamageRollDialog()
+            if (existingDamageRollDialog) {
+                await closeApplication(existingDamageRollDialog)
+            }
+        },
+        requiredPath: buildPrimordialChaosRequiredPath(),
+        steps: [
+            async ({actor, runtime, waiters, staticVars}) =>
+            {
+                await preparePrimordialChaosMessage({
+                    actor,
+                    runtime,
+                    waiters,
+                    staticVars
+                })
+            }
+        ],
+        assertions: async ({
+            waiters,
+            expect,
+            staticVars
+        }) =>
+        {
+            try {
+                const initialMessage = staticVars.message
+
+                expect(initialMessage).to.exist
+                expect(initialMessage.flags?.transformations).to.equal(undefined)
+                expect(initialMessage.flags?.dnd5e?.item?.uuid).to.equal(
+                    staticVars.chaosItem?.uuid
+                )
+                expect(initialMessage.flags?.dnd5e?.activity?.uuid).to.equal(
+                    staticVars.chaosActivity?.uuid
+                )
+                expect(String(initialMessage.content ?? "")).to.not.equal("")
+                expect(initialMessage.content).to.contain("Primordial Chaos")
+                expect(initialMessage.content).to.not.contain(
+                    "data-transformations-card"
+                )
+
+                await waiters.waitForCondition(() =>
+                    queryAllIncludingShadowRoots(
+                        document,
+                        staticVars.messageSelector
+                    ).length > 0
+                )
+
+                const messageRoot = queryAllIncludingShadowRoots(
+                    document,
+                    staticVars.messageSelector
+                )[0] ?? null
+                expect(messageRoot).to.exist
+
+                await waiters.waitForCondition(() =>
+                    staticVars.damageRollDialogRendered ||
+                    findDamageRollDialog() != null ||
+                    staticVars.damageRollDialogApp != null,
+                {
+                    errorMessage:
+                        "Primordial Chaos did not open a damage roll configuration dialog"
+                })
+
+                let damageRollDialog =
+                    findDamageRollDialog() ??
+                    staticVars.damageRollDialogApp ??
+                    null
+
+                staticVars.damageRollDialog = damageRollDialog
+
+                expect(damageRollDialog).to.exist
+
+                const damageTypeOptions =
+                          getDamageTypeOptionsFromDialog(damageRollDialog)
+
+                if (damageTypeOptions.length) {
+                    expect(damageTypeOptions).to.include("force")
+                }
+
+                await closeApplication(damageRollDialog)
+                await waiters.waitForNextFrame()
+            } finally {
+                restoreDamageRollDialogRenderSpy(staticVars)
+                game.dice3d = staticVars.originalDice3d
+            }
+        }
+    },
+    {
+        name: "Primordial Chaos does not trigger on a non-natural-1 saving throw",
+        uuid: PRIMORDIAL_CHAOS_UUID,
+        setup: async ({staticVars}) =>
+        {
+            await ChatMessage.deleteDocuments(
+                game.messages.contents.map(message => message.id)
+            )
+            setupPrimordialElementalAffinityAdvancement()
+            installDamageRollDialogRenderSpy(staticVars)
+
+            staticVars.originalDice3d = game.dice3d
+            game.dice3d = {
+                isEnabled()
+                {
+                    return false
+                },
+                async showForRoll() {}
+            }
+
+            const existingDamageRollDialog = findDamageRollDialog()
+            if (existingDamageRollDialog) {
+                await closeApplication(existingDamageRollDialog)
+            }
+        },
+        requiredPath: buildPrimordialChaosRequiredPath(),
+        steps: [
+            async ({actor, runtime, waiters, staticVars}) =>
+            {
+                staticVars.chaosItem = resolvePrimordialChaosItem(actor)
+                staticVars.chaosActivity = resolvePrimordialChaosActivity(
+                    staticVars.chaosItem
+                )
+                staticVars.initialMessageIds = new Set(
+                    game.messages.contents.map(message => message.id)
+                )
+
+                await runtime.services.triggerRuntime.run("savingThrow", actor, {
+                    saves: {
+                        current: {
+                            ability: "con",
+                            isSpell: true,
+                            naturalRoll: 2,
+                            total: 7,
+                            success: false
+                        }
+                    }
+                })
+
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await waiters.waitForNextFrame()
+            }
+        ],
+        assertions: async ({actor, expect, staticVars}) =>
+        {
+            try {
+                expect(findLatestPrimordialChaosMessage({
+                    actor,
+                    chaosItem: staticVars.chaosItem,
+                    chaosActivity: staticVars.chaosActivity,
+                    initialMessageIds: staticVars.initialMessageIds
+                })).to.equal(null)
+                expect(staticVars.damageRollDialogRendered).to.equal(false)
+                expect(findDamageRollDialog()).to.equal(null)
+            } finally {
+                restoreDamageRollDialogRenderSpy(staticVars)
+                game.dice3d = staticVars.originalDice3d
             }
         }
     }
@@ -1895,6 +2437,511 @@ export const primordialTestDef = {
                 })
                 validate(actorDto, {assert})
             }
+        },
+        {
+            name: "stage 4 with Primordial Aura and Primordial Chaos",
+            setup: async ({actor, staticVars}) =>
+            {
+                staticVars.initialCon = actor.system.abilities.con.value
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Elemental Affinity",
+                        choice: ELEMENTAL_AFFINITY_CHOICE_UUID
+                    }
+                ]
+            },
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            1
+                        )
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: ELEMENTAL_SURGE_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            2
+                        )
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: AURA_OF_AWAKENING_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            3
+                        )
+                    }
+                },
+                {
+                    stage: 4,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            4
+                        )
+                    }
+                }
+            ],
+            finalAwait: async ({runtime, actor, waiters, staticVars}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await waiters.waitForCondition(() =>
+                {
+                    const raceItem = actor.items.find(item => item.type === "race")
+
+                    return actor.system.abilities.con.value ===
+                        Math.min(staticVars.initialCon + 1, 20) &&
+                        raceItem?.system?.type?.subtype === "Elemental" &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            ROILING_ELEMENTS_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            ELEMENTAL_SURGE_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            AURA_OF_AWAKENING_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            ELEMENTAL_IMBALANCE_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            PRIMORDIAL_CHAOS_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            PRIMORDIAL_AURA_UUID
+                        )
+                })
+            },
+            finalAssertions: async ({actor, assert, staticVars}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    PLANAR_BINDING_UUID,
+                    PRIMORDIAL_FORM_UUID,
+                    ELEMENTAL_AFFINITY_UUID,
+                    ELEMENTAL_AFFINITY_CHOICE_UUID,
+                    ROILING_ELEMENTS_UUID,
+                    ELEMENTAL_SURGE_UUID,
+                    AURA_OF_AWAKENING_UUID,
+                    ELEMENTAL_IMBALANCE_UUID,
+                    PRIMORDIAL_CHAOS_UUID,
+                    PRIMORDIAL_AURA_UUID
+                ]
+                actorDto.abilities.con.value =
+                    Math.min(staticVars.initialCon + 1, 20)
+                actorDto.rollModes.disadvantage.push({
+                    identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
+                })
+                actorDto.addItem(item =>
+                {
+                    item.type = "race"
+                    item.systemType = "humanoid"
+                    item.systemSubType = "Elemental"
+                })
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = [PRIMORDIAL_AURA_UUID]
+                    item.itemName = "Primordial Aura"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "primordial"
+                    item.numberOfActivities = 1
+                    item.numberOfEffects = 4
+                    item.addActivity(activity =>
+                    {
+                        activity.name = "Grant damage resistance"
+                        activity.activationType = "bonus"
+                        activity.range.value = 15
+                        activity.range.units = "ft"
+                        activity.target.affects.type = "creature"
+                        activity.target.prompt = true
+                    })
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Primordial Aura: Bludgeoning"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "macro.itemMacro",
+                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                                value: "bludgeoning",
+                                priority: 20
+                            }
+                        ]
+                    })
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Primordial Aura: Cold"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "macro.itemMacro",
+                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                                value: "cold",
+                                priority: 20
+                            }
+                        ]
+                    })
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Primordial Aura: Fire"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "macro.itemMacro",
+                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                                value: "fire",
+                                priority: 20
+                            }
+                        ]
+                    })
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Primordial Aura: Lightning"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "macro.itemMacro",
+                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                                value: "lightning",
+                                priority: 20
+                            }
+                        ]
+                    })
+                })
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = [PRIMORDIAL_CHAOS_UUID]
+                    item.itemName = "Primordial Chaos"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "primordial"
+                    item.numberOfActivities = 1
+                    item.numberOfEffects = 0
+                    item.addActivity(activity =>
+                    {
+                        activity.activationType = "special"
+                        activity.range.units = "self"
+                        activity.target.affects.type = "self"
+                        activity.target.prompt = false
+                        activity.addDamagePart(damagePart =>
+                        {
+                            damagePart.roll = "8d6"
+                            damagePart.bonus = ""
+                            damagePart.numberOfTypes = 1
+                            damagePart.damageTypes = ["force"]
+                        })
+                    })
+                })
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "stage 4 with Elemental Mastery",
+            setup: async ({actor, staticVars}) =>
+            {
+                staticVars.initialCon = actor.system.abilities.con.value
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Elemental Affinity",
+                        choice: ELEMENTAL_AFFINITY_CHOICE_UUID
+                    },
+                    {
+                        name: "Dual Nature",
+                        choice: SECOND_ELEMENTAL_AFFINITY_CHOICE_UUID
+                    },
+                    {
+                        name: "Master of Many",
+                        choice: THIRD_ELEMENTAL_AFFINITY_CHOICE_UUID
+                    },
+                    {
+                        name: "Elemental Mastery",
+                        choice: FOURTH_ELEMENTAL_AFFINITY_CHOICE_UUID
+                    }
+                ]
+            },
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            1
+                        )
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: DUAL_NATURE_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            2
+                        )
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: MASTER_OF_MANY_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            3
+                        )
+                    }
+                },
+                {
+                    stage: 4,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            4
+                        )
+                    }
+                }
+            ],
+            finalAwait: async ({runtime, actor, waiters, staticVars}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await waiters.waitForCondition(() =>
+                {
+                    const raceItem = actor.items.find(item => item.type === "race")
+
+                    return actor.system.abilities.con.value ===
+                        Math.min(staticVars.initialCon + 1, 20) &&
+                        raceItem?.system?.type?.subtype === "Elemental" &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            ROILING_ELEMENTS_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            DUAL_NATURE_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            SECOND_ELEMENTAL_AFFINITY_CHOICE_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            MASTER_OF_MANY_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            THIRD_ELEMENTAL_AFFINITY_CHOICE_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            ELEMENTAL_IMBALANCE_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            PRIMORDIAL_CHAOS_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            ELEMENTAL_MASTERY_UUID
+                        ) &&
+                        actor.items.some(item =>
+                            item.flags?.transformations?.sourceUuid ===
+                            FOURTH_ELEMENTAL_AFFINITY_CHOICE_UUID
+                        )
+                })
+            },
+            finalAssertions: async ({actor, assert, staticVars}) =>
+            {
+                const actorConMod = actor.system.abilities.con.mod
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    PLANAR_BINDING_UUID,
+                    PRIMORDIAL_FORM_UUID,
+                    ELEMENTAL_AFFINITY_UUID,
+                    ELEMENTAL_AFFINITY_CHOICE_UUID,
+                    ROILING_ELEMENTS_UUID,
+                    DUAL_NATURE_UUID,
+                    SECOND_ELEMENTAL_AFFINITY_CHOICE_UUID,
+                    MASTER_OF_MANY_UUID,
+                    THIRD_ELEMENTAL_AFFINITY_CHOICE_UUID,
+                    ELEMENTAL_IMBALANCE_UUID,
+                    PRIMORDIAL_CHAOS_UUID,
+                    ELEMENTAL_MASTERY_UUID,
+                    FOURTH_ELEMENTAL_AFFINITY_CHOICE_UUID
+                ]
+                actorDto.abilities.con.value =
+                    Math.min(staticVars.initialCon + 1, 20)
+                actorDto.rollModes.disadvantage.push({
+                    identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
+                })
+                actorDto.addItem(item =>
+                {
+                    item.type = "race"
+                    item.systemType = "humanoid"
+                    item.systemSubType = "Elemental"
+                })
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = [ELEMENTAL_MASTERY_UUID]
+                    item.itemName = "Elemental Mastery"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "primordial"
+                    item.numberOfActivities = 1
+                    item.numberOfEffects = 4
+                    item.uses.max = actorConMod
+                    item.uses.addRecovery(recovery =>
+                    {
+                        recovery.period = "lr"
+                        recovery.type = "recoverAll"
+                    })
+                    item.addAdvancement(advancement =>
+                    {
+                        advancement.addConfiguration(() => {})
+                    })
+                    item.addActivity(activity =>
+                    {
+                        activity.name = "Damage"
+                        activity.activationType = "reaction"
+                        activity.saveAbility = ["dex"]
+                        activity.range.units = "self"
+                        activity.target.affects.type = "creature"
+                        activity.target.affects.count = "1"
+                        activity.target.prompt = false
+                        activity.addDamagePart(damagePart =>
+                        {
+                            damagePart.roll = "6d6"
+                            damagePart.bonus = ""
+                            damagePart.numberOfTypes = 4
+                            damagePart.damageTypes = [
+                                "bludgeoning",
+                                "cold",
+                                "fire",
+                                "lightning"
+                            ]
+                        })
+                    })
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Elemental Mastery: Air"
+                        effect.changes.count = 2
+                        effect.changes = [
+                            {
+                                key: "flags.midi-qol.advantage.attack.rwak",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: "1",
+                                priority: 20
+                            },
+                            {
+                                key: "flags.midi-qol.advantage.attack.rsak",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: "1",
+                                priority: 20
+                            }
+                        ]
+                    })
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Elemental Mastery: Earth"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "macro.createItem",
+                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                                value:
+                                    "Compendium.transformations.gh-transformations.Item.U1W6fCAmzOKBRmD5",
+                                priority: 20
+                            }
+                        ]
+                    })
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Elemental Mastery: Fire"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "macro.createItem",
+                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                                value:
+                                    "Compendium.transformations.gh-transformations.Item.ZNeHpSQXylLEUtN0",
+                                priority: 20
+                            }
+                        ]
+                    })
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Elemental Mastery: Water"
+                        effect.changes.count = 0
+                    })
+                })
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = [PRIMORDIAL_CHAOS_UUID]
+                    item.itemName = "Primordial Chaos"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "primordial"
+                    item.numberOfActivities = 1
+                    item.numberOfEffects = 0
+                    item.addActivity(activity =>
+                    {
+                        activity.activationType = "special"
+                        activity.range.units = "self"
+                        activity.target.affects.type = "self"
+                        activity.target.prompt = false
+                        activity.addDamagePart(damagePart =>
+                        {
+                            damagePart.roll = "8d6"
+                            damagePart.bonus = ""
+                            damagePart.numberOfTypes = 1
+                            damagePart.damageTypes = ["force"]
+                        })
+                    })
+                })
+                validate(actorDto, {assert})
+            }
         }
     ],
     itemBehaviorTests: [
@@ -1903,6 +2950,7 @@ export const primordialTestDef = {
         ...roilingElementsActivityUseCases,
         ...roilingElementsNonTriggerCases,
         ...roilingElementsSavingThrowCases,
-        ...elementalImbalanceBehaviorTests
+        ...elementalImbalanceBehaviorTests,
+        ...primordialChaosBehaviorTests
     ]
 }

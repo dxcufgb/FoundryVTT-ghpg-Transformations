@@ -176,13 +176,29 @@ export function createTransformationService({
                             actor,
                             definition,
                             stage,
-                            requestChoice: ({ actor, choices }) =>
-                                dialogFactory.openStageChoiceDialog({
+                            requestChoice: async ({
+                                actor,
+                                choices,
+                                autoSelect = false
+                            }) =>
+                            {
+                                if (autoSelect && choices?.length === 1) {
+                                    await showAutoSelectedChoiceInfoDialog({
+                                        dialogFactory,
+                                        choice: choices[0],
+                                        triggeringUserId
+                                    })
+
+                                    return choices[0]?.uuid
+                                }
+
+                                return dialogFactory.openStageChoiceDialog({
                                     actor,
                                     choices,
                                     stage,
                                     triggeringUserId
                                 })
+                            }
                         })
                     }
                     if (choice === undefined) {
@@ -213,6 +229,39 @@ export function createTransformationService({
                 })
             })()
         )
+    }
+
+    async function showAutoSelectedChoiceInfoDialog({
+        dialogFactory,
+        choice,
+        triggeringUserId = null
+    } = {})
+    {
+        if (!shouldShowAutoSelectedChoiceInfoDialog()) {
+            return
+        }
+
+        if (!dialogFactory?.showItemInfoDialog) {
+            return
+        }
+
+        const item = choice?.sourceItem ??
+            (choice?.uuid ? await fromUuid(choice.uuid) : null)
+
+        if (!item) {
+            return
+        }
+
+        await dialogFactory.showItemInfoDialog({
+            item,
+            triggeringUserId
+        })
+    }
+
+    function shouldShowAutoSelectedChoiceInfoDialog()
+    {
+        return globalThis.__TRANSFORMATIONS_TEST__ !== true ||
+            globalThis.__TRANSFORMATIONS_SHOW_AUTOSELECT_ITEM_INFO__ === true
     }
 
     async function onTrigger(actor, triggerName, context)

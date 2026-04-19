@@ -2,6 +2,7 @@ import { onActivityUse } from "./onActivityUse.js"
 import { onBloodied } from "./onBloodied.js"
 import { onConditionApplied } from "./onConditionApplied.js"
 import { onLongRest } from "./onLongRest.js"
+import { onSavingThrow } from "./onSavingThrow.js"
 import { onUnconscious } from "./onUnconscious.js"
 
 export const primordialTriggers = {
@@ -9,5 +10,6 @@ export const primordialTriggers = {
     [onBloodied.name]: onBloodied,
     [onConditionApplied.name]: onConditionApplied,
     [onLongRest.name]: onLongRest,
+    [onSavingThrow.name]: onSavingThrow,
     [onUnconscious.name]: onUnconscious
 }
