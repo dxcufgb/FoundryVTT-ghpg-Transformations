@@ -86,7 +86,7 @@ export function registerItemActivityActionTests({ describe, it, expect })
             expect(result).to.equal(true)
             expect(calls).to.have.length(1)
             expect(calls[0].fn).to.equal("item.use")
-            expect(calls[0].config.actor).to.equal(actor)
+            expect(calls[0].config).to.equal(undefined)
         })
 
         it("uses a specific embedded activity resolved by compendium activity uuid", async function()
@@ -137,7 +137,7 @@ export function registerItemActivityActionTests({ describe, it, expect })
             expect(result).to.equal(true)
             expect(calls).to.have.length(1)
             expect(calls[0].fn).to.equal("activity.use")
-            expect(calls[0].config.actor).to.equal(actor)
+            expect(calls[0].config).to.equal(undefined)
         })
 
         it("falls back to the only activity when the item has no direct use method", async function()
@@ -182,7 +182,7 @@ export function registerItemActivityActionTests({ describe, it, expect })
             expect(result).to.equal(true)
             expect(calls).to.have.length(1)
             expect(calls[0].fn).to.equal("single-activity.use")
-            expect(calls[0].config.actor).to.equal(actor)
+            expect(calls[0].config).to.equal(undefined)
         })
 
         it("returns false when an explicit activity selector does not resolve a callable activity", async function()
@@ -225,53 +225,27 @@ export function registerItemActivityActionTests({ describe, it, expect })
             expect(calls).to.have.length(0)
         })
 
-        it("passes usage, dialog, and message configs through to item use", async function()
+        it("uses an item resolved by embedded item id", async function()
         {
             const item = {
                 id: "item-5",
                 uuid: "Actor.actor-1.Item.item-5",
-                flags: {
-                    transformations: {
-                        sourceUuid: "Compendium.transformations.test.Item.item-5"
-                    }
-                },
-                async use(...args)
+                async use(config)
                 {
                     calls.push({
                         fn: "item.use",
-                        args
+                        config
                     })
                 }
             }
 
-            fakeRepo.__itemsByUuid.set(
-                "Compendium.transformations.test.Item.item-5",
-                item
-            )
+            fakeRepo.__itemsById.set("item-5", item)
 
             const result = await handler({
                 actor,
                 action: {
                     data: {
-                        itemUuid: "Compendium.transformations.test.Item.item-5",
-                        usageConfig: {
-                            consume: false,
-                            flags: {
-                                transformations: {
-                                    triggerNaturalRoll: 1
-                                }
-                            }
-                        },
-                        dialogConfig: {
-                            configure: false
-                        },
-                        messageConfig: {
-                            flags: {
-                                transformations: {
-                                    testMessageFlag: true
-                                }
-                            }
-                        }
+                        itemId: "item-5"
                     }
                 }
             })
@@ -279,25 +253,101 @@ export function registerItemActivityActionTests({ describe, it, expect })
             expect(result).to.equal(true)
             expect(calls).to.have.length(1)
             expect(calls[0].fn).to.equal("item.use")
-            expect(calls[0].args[0]).to.deep.equal({
-                consume: false,
+            expect(calls[0].config).to.equal(undefined)
+        })
+
+        it("uses an activity resolved by activity id via the activities collection get method", async function()
+        {
+            const activity = {
+                id: "activity-5",
+                async use(config)
+                {
+                    calls.push({
+                        fn: "activity.use",
+                        config
+                    })
+                }
+            }
+            const item = {
+                id: "item-6",
+                uuid: "Actor.actor-1.Item.item-6",
                 flags: {
                     transformations: {
-                        triggerNaturalRoll: 1
+                        sourceUuid: "Compendium.transformations.test.Item.item-6"
                     }
                 },
-                actor
-            })
-            expect(calls[0].args[1]).to.deep.equal({
-                configure: false
-            })
-            expect(calls[0].args[2]).to.deep.equal({
-                flags: {
-                    transformations: {
-                        testMessageFlag: true
+                system: {
+                    activities: {
+                        contents: [activity],
+                        get(activityId)
+                        {
+                            return activityId === "activity-5" ? activity : null
+                        }
+                    }
+                }
+            }
+
+            fakeRepo.__itemsByUuid.set(
+                "Compendium.transformations.test.Item.item-6",
+                item
+            )
+
+            const result = await handler({
+                actor,
+                action: {
+                    data: {
+                        itemUuid: "Compendium.transformations.test.Item.item-6",
+                        activityId: "activity-5"
                     }
                 }
             })
+
+            expect(result).to.equal(true)
+            expect(calls).to.have.length(1)
+            expect(calls[0].fn).to.equal("activity.use")
+            expect(calls[0].config).to.equal(undefined)
+        })
+
+        it("returns false when there is no callable item use and no unambiguous fallback activity", async function()
+        {
+            const item = {
+                id: "item-7",
+                uuid: "Actor.actor-1.Item.item-7",
+                flags: {
+                    transformations: {
+                        sourceUuid: "Compendium.transformations.test.Item.item-7"
+                    }
+                },
+                system: {
+                    activities: [
+                        {
+                            id: "activity-7a",
+                            async use() {}
+                        },
+                        {
+                            id: "activity-7b",
+                            async use() {}
+                        }
+                    ]
+                }
+            }
+
+            fakeRepo.__itemsByUuid.set(
+                "Compendium.transformations.test.Item.item-7",
+                item
+            )
+
+            const result = await handler({
+                actor,
+                action: {
+                    data: {
+                        itemUuid: "Compendium.transformations.test.Item.item-7"
+                    }
+                }
+            })
+
+            expect(result).to.equal(false)
+            expect(calls).to.have.length(0)
         })
     })
 }
