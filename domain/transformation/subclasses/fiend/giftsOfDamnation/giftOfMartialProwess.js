@@ -1,5 +1,12 @@
 import { applyGiftOfDamnation } from "./applyGiftOfDamnation.js"
 import { getHighestAvailableHitDieDenomination } from "./getHighestAvailableHitDieDenomination.js"
+import {
+    buildPresentedRollData,
+    buildSyntheticActivityButton,
+    injectGiftOfDamnationCard,
+    replaceGiftOfDamnationCard,
+    renderGiftOfDamnationCard
+} from "./GiftOfDamnationMidiCard.js"
 
 export class GiftOfMartialProwess
 {
@@ -26,29 +33,31 @@ export class GiftOfMartialProwess
                       message.flags?.transformations?.attackFormula ??
                       "1d20"
             const roll = await RollService.simpleRoll(attackFormula)
-            const messageRolls = [...(message.rolls ?? []), roll]
-            const displayRolls = await GiftClass.getDisplayRolls({
-                message,
-                rolls: messageRolls,
-                attackFormula
-            })
+            const presentedRolls = {
+                ...(message.flags?.transformations?.presentedRolls ?? {}),
+                attack: await buildPresentedRollData(roll, {
+                    formula: attackFormula,
+                    slot: "attack"
+                })
+            }
 
             await message.update({
-                rolls: messageRolls,
                 "flags.transformations.state": "attack-rolled",
                 "flags.transformations.attackFormula": attackFormula,
-                "flags.transformations.presentedRolls": displayRolls
+                "flags.transformations.presentedRolls": presentedRolls
             })
 
-            await ChatMessagePartInjector.replaceCard({
+            void ChatMessagePartInjector
+
+            await replaceGiftOfDamnationCard({
+                GiftClass,
                 message,
-                template:
-                    "modules/transformations/scripts/templates/chatMessages/gifts-of-damnation-chat-card.hbs",
-                templateData: {
-                    giftId: GiftClass.id,
+                content: await GiftClass.renderCard({
+                    actor,
+                    message,
                     state: "attack-rolled",
-                    rolls: displayRolls
-                }
+                    presentedRolls
+                })
             })
         },
 
@@ -66,30 +75,32 @@ export class GiftOfMartialProwess
                       GiftClass.getActorHitDie(actor, actorRepository)
             const rollFormula = `3${hitDie}`
             const roll = await RollService.simpleRoll(rollFormula)
-            const messageRolls = [...(message.rolls ?? []), roll]
-            const displayRolls = await GiftClass.getDisplayRolls({
-                message,
-                rolls: messageRolls,
-                hitDie
-            })
+            const presentedRolls = {
+                ...(message.flags?.transformations?.presentedRolls ?? {}),
+                damage: await buildPresentedRollData(roll, {
+                    formula: rollFormula,
+                    slot: "damage"
+                })
+            }
 
             await message.update({
-                rolls: messageRolls,
                 "flags.transformations.state": "complete",
                 "flags.transformations.hitDie": hitDie,
                 "flags.transformations.damageRollFormula": rollFormula,
-                "flags.transformations.presentedRolls": displayRolls
+                "flags.transformations.presentedRolls": presentedRolls
             })
 
-            await ChatMessagePartInjector.replaceCard({
+            void ChatMessagePartInjector
+
+            await replaceGiftOfDamnationCard({
+                GiftClass,
                 message,
-                template:
-                    "modules/transformations/scripts/templates/chatMessages/gifts-of-damnation-chat-card.hbs",
-                templateData: {
-                    giftId: GiftClass.id,
+                content: await GiftClass.renderCard({
+                    actor,
+                    message,
                     state: "complete",
-                    rolls: displayRolls
-                }
+                    presentedRolls
+                })
             })
         }
     }
@@ -125,20 +136,19 @@ export class GiftOfMartialProwess
                 state: "initial",
                 hitDie,
                 attackFormula,
-                baseRollCount: message.rolls?.length ?? 0
+                presentedRolls: null
             }
         })
 
-        await ChatMessagePartInjector.inject({
+        void ChatMessagePartInjector
+
+        await injectGiftOfDamnationCard({
             message,
-            template:
-                "modules/transformations/scripts/templates/chatMessages/gifts-of-damnation-chat-card.hbs",
-            templateData: {
-                giftId: this.id,
+            content: await this.renderCard({
+                actor,
+                message,
                 state: "initial"
-            },
-            selector: ".midi-buttons, .midi-dnd5e-buttons",
-            position: "afterbegin"
+            })
         })
     }
 
@@ -176,61 +186,81 @@ export class GiftOfMartialProwess
         return getHighestAvailableHitDieDenomination(actor, actorRepository) ?? "d6"
     }
 
-    static getGiftRolls({message, rolls})
+    static async renderCard({
+        actor,
+        message,
+        state,
+        presentedRolls = null
+    } = {})
     {
-        const baseRollCount =
-                  message.flags?.transformations?.baseRollCount ?? 0
+        const attackFormula = message?.flags?.transformations?.attackFormula ?? "1d20"
+        const hitDie = message?.flags?.transformations?.hitDie ?? "d6"
+        const resolvedPresentedRolls =
+                  presentedRolls ??
+                  message?.flags?.transformations?.presentedRolls ??
+                  null
 
-        return (rolls ?? message.rolls ?? []).slice(baseRollCount)
+        return renderGiftOfDamnationCard({
+            actor,
+            message,
+            GiftClass: this,
+            state,
+            subtitle: `Reroll Attack: ${attackFormula} | Hit Dice Cost: 3${hitDie}`,
+            supplements: this.buildSupplements({
+                state,
+                attackTotal: resolvedPresentedRolls?.attack?.total ?? null,
+                damageTotal: resolvedPresentedRolls?.damage?.total ?? null
+            }),
+            buttons: this.buildButtons({state}),
+            presentedRolls: resolvedPresentedRolls
+        })
     }
 
-    static async getDisplayRolls({
-        message,
-        rolls,
-        hitDie,
-        attackFormula: selectedAttackFormula
-    })
+    static buildButtons({
+        state
+    } = {})
     {
-        const giftRolls = this.getGiftRolls({
-            message,
-            rolls
-        })
-
-        if (giftRolls.length === 0) {
-            return message.flags?.transformations?.presentedRolls ?? null
+        if (state === "initial") {
+            return [
+                buildSyntheticActivityButton({
+                    action: "attack",
+                    label: "Attack"
+                })
+            ]
         }
 
-        const attackFormula =
-                  selectedAttackFormula ??
-                  message.flags?.transformations?.attackFormula ??
-                  this.resolveAttackFormula(giftRolls[0]) ??
-                  "1d20"
-        const resolvedHitDie =
-                  hitDie ??
-                  message.flags?.transformations?.hitDie ??
-                  "d6"
-        const damageRollFormula =
-                  message.flags?.transformations?.damageRollFormula ??
-                  `3${resolvedHitDie}`
-        const displayRolls = []
-        const [attackRoll, damageRoll] = giftRolls
-
-        if (attackRoll) {
-            displayRolls.push({
-                total: attackRoll.total,
-                tooltip: await attackRoll.getTooltip(),
-                formula: attackFormula
-            })
+        if (state === "attack-rolled") {
+            return [
+                buildSyntheticActivityButton({
+                    action: "rollDamage",
+                    label: "Roll Damage"
+                })
+            ]
         }
 
-        if (damageRoll) {
-            displayRolls.push({
-                total: damageRoll.total,
-                tooltip: await damageRoll.getTooltip(),
-                formula: damageRollFormula
-            })
+        return []
+    }
+
+    static buildSupplements({
+        state,
+        attackTotal,
+        damageTotal
+    } = {})
+    {
+        if (state === "attack-rolled") {
+            return [
+                `Attack reroll total: <strong>${attackTotal ?? 0}</strong>.`,
+                "If the reroll hits, add the next roll as Force damage. If it misses, take the next roll as Psychic damage."
+            ]
         }
 
-        return displayRolls
+        if (state === "complete") {
+            return [
+                `Hit Dice roll total: <strong>${damageTotal ?? 0}</strong>.`,
+                "Apply the rolled total as Force damage on a hit, or Psychic damage to yourself on a miss."
+            ]
+        }
+
+        return ["Reroll the triggering attack. After the reroll, spend 3 Hit Dice to determine the outcome."]
     }
 }

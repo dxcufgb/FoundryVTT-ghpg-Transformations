@@ -1,4 +1,11 @@
 import { applyGiftOfDamnation } from "./applyGiftOfDamnation.js"
+import {
+    buildPresentedRollData,
+    buildSyntheticActivityButton,
+    injectGiftOfDamnationCard,
+    replaceGiftOfDamnationCard,
+    renderGiftOfDamnationCard
+} from "./GiftOfDamnationMidiCard.js"
 
 export class GiftOfUnsurpassedFortune
 {
@@ -25,45 +32,69 @@ export class GiftOfUnsurpassedFortune
 
     static actions = {
 
-        async roll({message, GiftClass, RollService, ChatMessagePartInjector}) {
+        async roll({
+            actor,
+            message,
+            GiftClass,
+            RollService,
+            ChatMessagePartInjector
+        })
+        {
             const roll = await RollService.simpleRoll("1d20")
             const success = roll.total >= 6
-            const messageRolls = [...(message.rolls ?? []), roll]
+            const presentedRolls = {
+                ...(message.flags?.transformations?.presentedRolls ?? {}),
+                attack: await buildPresentedRollData(roll, {
+                    formula: "1d20",
+                    slot: "attack"
+                })
+            }
 
             await message.update({
-                rolls: messageRolls,
                 "flags.transformations.rollFormula": "1d20",
                 "flags.transformations.damageType": null,
+                "flags.transformations.presentedRolls": presentedRolls,
                 "flags.transformations.state":
                     success ? "complete" : "rolled-failure"
             })
 
             if (success) {
                 await GiftClass.restoreItemUse(message)
-                await GiftClass.complete(message, ChatMessagePartInjector, messageRolls)
+                await GiftClass.complete(message, ChatMessagePartInjector, {
+                    actor,
+                    presentedRolls
+                })
                 return
             }
 
-            await ChatMessagePartInjector.replaceCard({
+            void ChatMessagePartInjector
+
+            await replaceGiftOfDamnationCard({
+                GiftClass,
                 message,
-                template:
-                    "modules/transformations/scripts/templates/chatMessages/gifts-of-damnation-chat-card.hbs",
-                templateData: {
-                    giftId: GiftClass.id,
+                content: await GiftClass.renderCard({
+                    actor,
+                    message,
                     state: "rolled-failure",
-                    rolls: await GiftClass.getDisplayRolls({message, rolls: messageRolls})
-                }
+                    presentedRolls
+                })
             })
         },
 
-        async rollDamage({actor, message, GiftClass, RollService, ChatMessagePartInjector}) {
+        async rollDamage({
+            actor,
+            message,
+            GiftClass,
+            RollService,
+            ChatMessagePartInjector
+        })
+        {
             const stage =
                       message.flags?.transformations?.stage ??
                       actor.flags?.transformations?.stage ??
                       1
             const rollFormula = `${stage}d6`
             const roll = await RollService.simpleRoll(`${rollFormula}[psychic]`)
-            const messageRolls = [...(message.rolls ?? []), roll]
             roll.options ??= {}
             roll.options.type = "damage"
             roll.options.flavor = "Psychic"
@@ -71,36 +102,52 @@ export class GiftOfUnsurpassedFortune
             if (!roll.options.types.includes("psychic")) {
                 roll.options.types.push("psychic")
             }
+            const presentedRolls = {
+                ...(message.flags?.transformations?.presentedRolls ?? {}),
+                damage: await buildPresentedRollData(roll, {
+                    formula: rollFormula,
+                    damageType: "Psychic",
+                    slot: "damage"
+                })
+            }
             
             await message.update({
-                rolls: messageRolls,
                 "flags.transformations.state": "damage-rolled",
                 "flags.transformations.rollFormula": rollFormula,
-                "flags.transformations.damageType": "Psychic"
+                "flags.transformations.damageType": "Psychic",
+                "flags.transformations.presentedRolls": presentedRolls
             })
 
-            await ChatMessagePartInjector.replaceCard({
+            void stage
+            void ChatMessagePartInjector
+
+            await replaceGiftOfDamnationCard({
+                GiftClass,
                 message,
-                template:
-                    "modules/transformations/scripts/templates/chatMessages/gifts-of-damnation-chat-card.hbs",
-                templateData: {
-                    giftId: GiftClass.id,
+                content: await GiftClass.renderCard({
+                    actor,
+                    message,
                     state: "damage-rolled",
-                    rolls: await GiftClass.getDisplayRolls({message, rolls: messageRolls, stage})
-                }
+                    presentedRolls
+                })
             })
         },
 
         async applyDamage({actor, message, GiftClass, ChatMessagePartInjector}) {
-            const damageRoll = message.rolls?.at(-1)
-            const damage = Number(damageRoll?.total ?? 0)
+            const damage =
+                      Number(
+                          message.flags?.transformations?.presentedRolls?.damage?.total ??
+                          0
+                      )
             const hp = actor.system.attributes.hp
 
             await actor.update({
                 "system.attributes.hp.value": Math.max(hp.value - damage, 0)
             })
 
-            await GiftClass.complete(message, ChatMessagePartInjector)
+            await GiftClass.complete(message, ChatMessagePartInjector, {
+                actor
+            })
         }
     }
 
@@ -112,84 +159,60 @@ export class GiftOfUnsurpassedFortune
                 gift: this.id,
                 state: "initial",
                 stage,
-                baseRollCount: message.rolls?.length ?? 0,
                 rollFormula: "1d20",
-                damageType: null
+                damageType: null,
+                presentedRolls: null
             }
         })
 
-        await ChatMessagePartInjector.inject({
+        void ChatMessagePartInjector
+
+        await injectGiftOfDamnationCard({
             message,
-            template:
-                "modules/transformations/scripts/templates/chatMessages/gifts-of-damnation-chat-card.hbs",
-            templateData: {
-                giftId: this.id,
-                state: "initial",
-                roll: null,
-                tooltip: null,
-                rollFormula: "1d20",
-                damageType: null
-            },
-            selector: ".midi-buttons, .midi-dnd5e-buttons",
-            position: "afterbegin"
+            content: await this.renderCard({
+                actor,
+                message,
+                state: "initial"
+            })
         })
     }
 
-    static getGiftRolls({message, rolls}) {
-        const baseRollCount =
-                  message.flags?.transformations?.baseRollCount ?? 0
+    static async complete(
+        message,
+        ChatMessagePartInjector,
+        {
+            actor = null,
+            presentedRolls = null
+        } = {}
+    )
+    {
+        void ChatMessagePartInjector
 
-        return (rolls ?? message.rolls ?? []).slice(baseRollCount)
-    }
-
-    static async getDisplayRolls({message, rolls, stage}) {
-        const giftRolls = this.getGiftRolls({message, rolls})
-        if (giftRolls.length === 0) return null
-
-        const displayRolls = []
-        const resolvedStage =
-                  stage ??
-                  message.flags?.transformations?.stage ??
-                  1
-        const [checkRoll, damageRoll] = giftRolls
-
-        if (checkRoll) {
-            displayRolls.push({
-                total: checkRoll.total,
-                tooltip: await checkRoll.getTooltip(),
-                formula: "1d20",
-                damageType: null
-            })
-        }
-
-        if (damageRoll) {
-            displayRolls.push({
-                total: damageRoll.total,
-                tooltip: await damageRoll.getTooltip(),
-                formula: `${resolvedStage}d6`,
-                damageType: "Psychic"
-            })
-        }
-
-        return displayRolls
-    }
-
-    static async complete(message, ChatMessagePartInjector, rolls) {
-
-        await ChatMessagePartInjector.replaceCard({
-            message,
-            template:
-                "modules/transformations/scripts/templates/chatMessages/gifts-of-damnation-chat-card.hbs",
-            templateData: {
-                giftId: this.id,
-                state: "complete",
-                rolls: await this.getDisplayRolls({message, rolls})
-            }
-        })
-
-        await message.update({
+        const resolvedActor =
+                  actor ??
+                  (message?.speaker?.actor
+                      ? game.actors.get(message.speaker.actor)
+                      : null)
+        const updates = {
             "flags.transformations.state": "complete"
+        }
+
+        if (presentedRolls) {
+            updates["flags.transformations.presentedRolls"] = presentedRolls
+        }
+
+        await replaceGiftOfDamnationCard({
+            GiftClass: this,
+            message,
+            content: await this.renderCard({
+                actor: resolvedActor,
+                message,
+                state: "complete",
+                presentedRolls
+            })
         })
+
+        await message.update(updates)
     }
 
     static async restoreItemUse(message) {
@@ -213,5 +236,107 @@ export class GiftOfUnsurpassedFortune
                     : currentValue + 1,
             "system.uses.spent": Math.max(currentSpent - 1, 0)
         })
+    }
+
+    static async renderCard({
+        actor,
+        message,
+        state,
+        presentedRolls = null
+    } = {})
+    {
+        const stage = message?.flags?.transformations?.stage ?? 1
+        const resolvedPresentedRolls =
+                  presentedRolls ??
+                  message?.flags?.transformations?.presentedRolls ??
+                  null
+
+        return renderGiftOfDamnationCard({
+            actor,
+            message,
+            GiftClass: this,
+            state,
+            subtitle: `Check: 1d20 | Psychic Damage: ${stage}d6`,
+            supplements: this.buildSupplements({
+                state,
+                stage,
+                checkTotal: resolvedPresentedRolls?.attack?.total ?? null,
+                damageTotal: resolvedPresentedRolls?.damage?.total ?? null
+            }),
+            buttons: this.buildButtons({state}),
+            presentedRolls: resolvedPresentedRolls
+        })
+    }
+
+    static buildButtons({
+        state
+    } = {})
+    {
+        if (state === "initial") {
+            return [
+                buildSyntheticActivityButton({
+                    action: "roll",
+                    label: "Roll"
+                })
+            ]
+        }
+
+        if (state === "rolled-failure") {
+            return [
+                buildSyntheticActivityButton({
+                    action: "rollDamage",
+                    label: "Roll Damage"
+                })
+            ]
+        }
+
+        if (state === "damage-rolled") {
+            return [
+                buildSyntheticActivityButton({
+                    action: "applyDamage",
+                    label: "Apply Damage"
+                })
+            ]
+        }
+
+        return []
+    }
+
+    static buildSupplements({
+        state,
+        stage,
+        checkTotal,
+        damageTotal
+    } = {})
+    {
+        if (state === "rolled-failure") {
+            return [
+                `Check result: <strong>${checkTotal ?? 0}</strong>.`,
+                `The roll failed. Roll <strong>${stage}d6</strong> Psychic damage.`
+            ]
+        }
+
+        if (state === "damage-rolled") {
+            return [
+                `Check result: <strong>${checkTotal ?? 0}</strong>.`,
+                `Psychic damage to apply: <strong>${damageTotal ?? 0}</strong>.`
+            ]
+        }
+
+        if (state === "complete" && Number(checkTotal ?? 0) >= 6) {
+            return [
+                `Check result: <strong>${checkTotal ?? 0}</strong>.`,
+                "The triggering attack or saving throw fails, and you regain your Reaction."
+            ]
+        }
+
+        if (state === "complete" && damageTotal != null) {
+            return [
+                `Check result: <strong>${checkTotal ?? 0}</strong>.`,
+                `Psychic damage resolved: <strong>${damageTotal ?? 0}</strong>.`
+            ]
+        }
+
+        return ["Roll 1d20. On a 6 or higher, the triggering attack or save fails and you keep your Reaction."]
     }
 }

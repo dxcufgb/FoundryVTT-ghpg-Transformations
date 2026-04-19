@@ -69,7 +69,8 @@ export function createItemRepository({
         isPrerequisite,
         postCreateScript = null,
         parentItem = "",
-        createOptions = {}
+        createOptions = {},
+        triggeringUserId = null
     })
     {
         logger.debug("createItemRepository.addTransformationItem", {
@@ -79,7 +80,8 @@ export function createItemRepository({
             isPrerequisite,
             postCreateScript,
             parentItem,
-            createOptions
+            createOptions,
+            triggeringUserId
         })
         if (!actor || !sourceItem) return null
 
@@ -116,7 +118,10 @@ export function createItemRepository({
                     actor,
                     sourceItem,
                     parentItem,
-                    createOptions
+                    {
+                        ...createOptions,
+                        triggeringUserId
+                    }
                 )
 
                 if (created && postCreateScript) {
@@ -478,7 +483,12 @@ export function createItemRepository({
         clearTransformationFlags
     })
 
-    async function applyAdvancements(actor, advancements, parentItem)
+    async function applyAdvancements(
+        actor,
+        advancements,
+        parentItem,
+        triggeringUserId = null
+    )
     {
         logger.debug("itemRepository.applyAdvancements", {
             actor,
@@ -524,9 +534,9 @@ export function createItemRepository({
                 }
             }
             if (isItemPoolChoiceConfiguration(advancementConfiguration)) {
-                const totalChoices =
-                          resolveItemPoolChoiceCount(advancementConfiguration)
+                const totalChoices = resolveItemPoolChoiceCount(advancementConfiguration)
                 let remainingChoices = await buildAdvancementItemChoices(
+                    actor,
                     advancementConfiguration.pool
                 )
                 let selectedChoices = 0
@@ -537,11 +547,14 @@ export function createItemRepository({
                     )
                 {
                     const selectedChoice =
-                              await advancementChoiceHandler.chooseItemPool({
-                                  actor,
-                                  itemChoices: remainingChoices,
-                                  sourceItem: parentItem
-                              })
+                        remainingChoices.length === 1
+                            ? remainingChoices[0]
+                            : await advancementChoiceHandler.chooseItemPool({
+                                actor,
+                                itemChoices: remainingChoices,
+                                sourceItem: parentItem,
+                                triggeringUserId
+                            })
 
                     if (!selectedChoice) {
                         logger.warn(
@@ -582,7 +595,8 @@ export function createItemRepository({
                         actor,
                         advancementChoices: choicePool,
                         numberOfChoices: choices?.count ?? 1,
-                        sourceItem: parentItem
+                        sourceItem: parentItem,
+                        triggeringUserId
                     })
 
                     if (!choiceApplied) {
@@ -616,17 +630,26 @@ export function createItemRepository({
         return firstChoice?.count ?? 1
     }
 
-    async function buildAdvancementItemChoices(pool = [])
+    async function buildAdvancementItemChoices(actor, pool = [])
     {
         const choices = []
 
         for (const entry of pool) {
-            const uuid =
-                      typeof entry === "string"
-                          ? entry
-                          : entry?.uuid
+            const uuid = typeof entry === "string" ? entry : entry?.uuid
 
             if (!uuid) continue
+
+            const alreadyOwned = actor?.items?.some(item =>
+                item?.flags?.transformations?.sourceUuid === uuid
+            )
+
+            if (alreadyOwned) {
+                logger.debug(
+                    "Advancement item choice skipped: item already exists on actor",
+                    uuid
+                )
+                continue
+            }
 
             const sourceItem = await fromUuid(uuid)
             if (!sourceItem) {
@@ -781,6 +804,7 @@ export function createItemRepository({
                           applyAdvancements: shouldApplyAdvancements = true,
                           overrides                                  = {},
                           levels                                     = 1,
+                          triggeringUserId                           = null,
                           ...propertyOverrides
                       } = options ?? {}
 
@@ -840,7 +864,12 @@ export function createItemRepository({
                     data.system.advancement.length > 0
                 )
                 {
-                    await applyAdvancements(actor, data.system.advancement, created)
+                    await applyAdvancements(
+                        actor,
+                        data.system.advancement,
+                        created,
+                        triggeringUserId
+                    )
                 }
 
                 return created ?? null

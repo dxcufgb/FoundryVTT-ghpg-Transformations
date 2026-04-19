@@ -32,7 +32,8 @@ export function createAdvancementChoiceHandler({
         sourceItem = null,
         title = "Choose advancement",
         description = "",
-        apply = true
+        apply = true,
+        triggeringUserId = null
     })
     {
         logger.debug("advancementChoiceHandler.choose", {
@@ -106,7 +107,8 @@ export function createAdvancementChoiceHandler({
                     description,
                 title:
                     choicePresentation?.title ??
-                    title
+                    title,
+                triggeringUserId
             })
         } else {
             selectedChoice = globalThis.___TransformationTestEnvironment___.choosenAdvancement.find(a => a.name == sourceItem.name).choice
@@ -116,9 +118,26 @@ export function createAdvancementChoiceHandler({
             return false
         }
 
-        const selectedChoices = Array.isArray(selectedChoice)
-            ? selectedChoice
-            : [selectedChoice]
+        const selectedChoices = normalizeSelectedChoices(
+            Array.isArray(selectedChoice)
+                ? selectedChoice
+                : [selectedChoice],
+            resolvedChoices
+        )
+
+        if (!selectedChoices?.length) {
+            logger.warn(
+                "Advancement choice selection could not be resolved",
+                {
+                    sourceItem,
+                    selectedChoice,
+                    resolvedChoices: resolvedChoices.map(choice =>
+                        choice?.raw ?? choice?.value ?? choice?.id ?? null
+                    )
+                }
+            )
+            return false
+        }
 
         if (!apply) {
             const selections = []
@@ -162,7 +181,8 @@ export function createAdvancementChoiceHandler({
         actor,
         itemChoices = [],
         numberOfChoices = 1,
-        sourceItem = null
+        sourceItem = null,
+        triggeringUserId = null
     })
     {
         logger.debug("advancementChoiceHandler.chooseItemPool", {
@@ -208,7 +228,8 @@ export function createAdvancementChoiceHandler({
                 actor,
                 dialogFactory,
                 choices: itemChoices,
-                sourceItem
+                sourceItem,
+                triggeringUserId
             })
 
         if (!selectedUuid) {
@@ -458,7 +479,8 @@ export function createAdvancementChoiceHandler({
         choices,
         choiceCount = 1,
         title,
-        description
+        description,
+        triggeringUserId = null
     })
     {
         logger.debug("advancementChoiceHandler.promptForChoice", {
@@ -474,7 +496,8 @@ export function createAdvancementChoiceHandler({
             choices,
             choiceCount,
             description,
-            title
+            title,
+            triggeringUserId
         })
 
         if (!selectedIds) {
@@ -506,7 +529,8 @@ export function createAdvancementChoiceHandler({
         actor,
         dialogFactory,
         choices,
-        sourceItem
+        sourceItem,
+        triggeringUserId = null
     })
     {
         logger.debug("advancementChoiceHandler.promptForItemPoolChoice", {
@@ -519,7 +543,8 @@ export function createAdvancementChoiceHandler({
             actor,
             choices,
             stage:
-                `advancement-${sourceItem?.id ?? sourceItem?.uuid ?? sourceItem?.name ?? actor?.id ?? "item"}`
+                `advancement-${sourceItem?.id ?? sourceItem?.uuid ?? sourceItem?.name ?? actor?.id ?? "item"}`,
+            triggeringUserId
         })
     }
 
@@ -529,6 +554,46 @@ export function createAdvancementChoiceHandler({
             return choice
 
         return choice?.uuid ?? choice?.id ?? null
+    }
+
+    function normalizeSelectedChoices(selectedChoices = [], availableChoices = [])
+    {
+        return selectedChoices
+            .map(choice => normalizeSelectedChoice(choice, availableChoices))
+            .filter(Boolean)
+    }
+
+    function normalizeSelectedChoice(choice, availableChoices = [])
+    {
+        if (!choice)
+            return null
+
+        if (typeof choice === "object") {
+            const normalizedIdentifier =
+                choice.id ??
+                choice.value ??
+                choice.raw ??
+                null
+
+            if (!normalizedIdentifier)
+                return null
+
+            return availableChoices.find(availableChoice =>
+                availableChoice?.id === normalizedIdentifier ||
+                availableChoice?.value === normalizedIdentifier ||
+                availableChoice?.raw === normalizedIdentifier
+            ) ?? null
+        }
+
+        if (typeof choice === "string") {
+            return availableChoices.find(availableChoice =>
+                availableChoice?.id === choice ||
+                availableChoice?.value === choice ||
+                availableChoice?.raw === choice
+            ) ?? null
+        }
+
+        return null
     }
 
     async function applyDamageResistanceChoice({
@@ -548,6 +613,8 @@ export function createAdvancementChoiceHandler({
             sourceItem,
             selectedChoice
         })
+
+        if (!effectData) return false
 
         const effect = await activeEffectRepository.create(effectData)
 
@@ -615,6 +682,8 @@ export function createAdvancementChoiceHandler({
             selectedChoice
         })
 
+        if (!effectData) return false
+
         const effect = await activeEffectRepository.create(effectData)
 
         return effect != null
@@ -626,18 +695,39 @@ export function createAdvancementChoiceHandler({
         selectedChoice
     })
     {
+        if (!selectedChoice?.label || !selectedChoice?.value || !selectedChoice?.raw) {
+            logger.warn(
+                "Damage resistance advancement selection is missing required metadata",
+                {
+                    actor,
+                    sourceItem,
+                    selectedChoice
+                }
+            )
+            return null
+        }
+
+        const grantType = resolveDamageResistanceGrantType({
+            actor,
+            sourceItem,
+            damageType: selectedChoice.value
+        })
+        const grantsImmunity = grantType === "immunity"
+
         return {
             actor,
-            name: `Damage Resistance: ${selectedChoice.label}`,
+            name: `${grantsImmunity ? "Damage Immunity" : "Damage Resistance"}: ${selectedChoice.label}`,
             label: selectedChoice.label,
             description:
-                `Gain resistance to ${selectedChoice.label.toLowerCase()} damage.`,
+                `Gain ${grantsImmunity ? "immunity" : "resistance"} to ${selectedChoice.label.toLowerCase()} damage.`,
             source: "transformation",
             icon: selectedChoice.icon,
             origin: sourceItem?.uuid ?? actor?.uuid ?? "",
             resistanceIdentifier: selectedChoice.value,
             changes: [{
-                key: "system.traits.dr.value",
+                key: grantsImmunity
+                    ? "system.traits.di.value"
+                    : "system.traits.dr.value",
                 mode: globalThis.CONST?.ACTIVE_EFFECT_MODES?.ADD ?? 2,
                 value: selectedChoice.value
             }],
@@ -651,6 +741,46 @@ export function createAdvancementChoiceHandler({
                 }
             }
         }
+    }
+
+    function resolveDamageResistanceGrantType({
+        actor,
+        sourceItem,
+        damageType
+    } = {})
+    {
+        const advancementOverride =
+                  sourceItem?.flags?.transformations?.advancementOverride
+        const hasUpgradeOverride =
+                  advancementOverride === "upgrade" ||
+                  advancementOverride?.upgrade === true
+
+        if (!hasUpgradeOverride) {
+            return "resistance"
+        }
+
+        return actorHasTraitValue(actor?.system?.traits?.dr?.value, damageType)
+            ? "immunity"
+            : "resistance"
+    }
+
+    function actorHasTraitValue(traitValues, expectedValue)
+    {
+        if (!traitValues || !expectedValue) return false
+
+        if (traitValues instanceof Set) {
+            return traitValues.has(expectedValue)
+        }
+
+        if (Array.isArray(traitValues)) {
+            return traitValues.includes(expectedValue)
+        }
+
+        if (typeof traitValues.has === "function") {
+            return traitValues.has(expectedValue)
+        }
+
+        return false
     }
 
     function buildSkillChoiceEffectData({
@@ -704,6 +834,18 @@ export function createAdvancementChoiceHandler({
         selectedChoice
     })
     {
+        if (!selectedChoice?.label || !selectedChoice?.value || !selectedChoice?.raw) {
+            logger.warn(
+                "Saving throw advancement selection is missing required metadata",
+                {
+                    actor,
+                    sourceItem,
+                    selectedChoice
+                }
+            )
+            return null
+        }
+
         return {
             actor,
             name: `Saving Throw Proficiency: ${selectedChoice.label}`,

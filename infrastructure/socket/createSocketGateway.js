@@ -66,6 +66,19 @@ export function createSocketGateway({
         return socket.executeAsGM(type, payload)
     }
 
+    function executeAsUser(type, userId, payload)
+    {
+        logger.debug("createSocketGateway.executeAsUser", {
+            type,
+            userId,
+            payload
+        })
+        if (!socket) {
+            throw new Error("Socket not ready")
+        }
+        return socket.executeAsUser(type, userId, payload)
+    }
+
     function register(event, handler)
     {
         logger.debug("createSocketGateway.register", { event, handler })
@@ -90,6 +103,7 @@ export function createSocketGateway({
         setSocket,
         canMutateLocally,
         executeAsGM,
+        executeAsUser,
         isGMOnline,
         register,
         isReady,

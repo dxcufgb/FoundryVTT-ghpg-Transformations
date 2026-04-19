@@ -1,7 +1,6 @@
 import { ChatMessagePartInjector } from "../../ui/chatCards/ChatMessagePartInjector.js"
 
-const GIFT_CARD_TEMPLATE =
-    "modules/transformations/scripts/templates/chatMessages/gifts-of-damnation-chat-card.hbs"
+const TEST_TEMPLATE = "test://transformations-card"
 
 function createMessage(content)
 {
@@ -16,6 +15,43 @@ function createMessage(content)
     }
 }
 
+function installTemplateRenderer()
+{
+    globalThis.foundry ??= {}
+    globalThis.foundry.applications ??= {}
+    globalThis.foundry.applications.handlebars ??= {}
+
+    const handlebars = globalThis.foundry.applications.handlebars
+    const originalRenderTemplate = handlebars.renderTemplate
+
+    handlebars.renderTemplate = async (_template, templateData = {}) =>
+        renderTestCard(templateData)
+
+    return () =>
+    {
+        if (originalRenderTemplate) {
+            handlebars.renderTemplate = originalRenderTemplate
+            return
+        }
+
+        delete handlebars.renderTemplate
+    }
+}
+
+function renderTestCard({
+    state = "",
+    label = ""
+} = {})
+{
+    return `
+        <section data-transformations-card="true" class="test-card" data-state="${state}">
+            <div class="card-buttons">
+                <button type="button">${label}</button>
+            </div>
+        </section>
+    `.trim()
+}
+
 quench.registerBatch(
     "transformations.chatMessages.ChatMessagePartInjector",
     ({ describe, it, expect }) =>
@@ -24,50 +60,60 @@ quench.registerBatch(
         {
             it("injects rendered html next to the matched selector", async function()
             {
+                const restoreRenderer = installTemplateRenderer()
                 const message = createMessage(
                     `<div class="midi-dnd5e-buttons"></div>`
                 )
 
-                await ChatMessagePartInjector.inject({
-                    message,
-                    template: GIFT_CARD_TEMPLATE,
-                    templateData: {
-                        giftId: "giftOfJoyousLife",
-                        state: "initial"
-                    }
-                })
+                try {
+                    await ChatMessagePartInjector.inject({
+                        message,
+                        template: TEST_TEMPLATE,
+                        templateData: {
+                            state: "initial",
+                            label: "Roll Hit Die"
+                        }
+                    })
 
-                expect(message.updates.length).to.equal(1)
-                expect(message.content).to.contain(`class="midi-dnd5e-buttons"`)
-                expect(message.content).to.contain(`data-transformations-card`)
-                expect(message.content).to.contain(`Roll Hit Die`)
-                expect(
-                    message.content.indexOf(`class="midi-dnd5e-buttons"`)
-                ).to.be.lessThan(
-                    message.content.indexOf(`data-transformations-card`)
-                )
+                    expect(message.updates.length).to.equal(1)
+                    expect(message.content).to.contain(`class="midi-dnd5e-buttons"`)
+                    expect(message.content).to.contain(`data-transformations-card`)
+                    expect(message.content).to.contain(`Roll Hit Die`)
+                    expect(
+                        message.content.indexOf(`class="midi-dnd5e-buttons"`)
+                    ).to.be.lessThan(
+                        message.content.indexOf(`data-transformations-card`)
+                    )
+                } finally {
+                    restoreRenderer()
+                }
             })
 
             it("replaces the matched selector with rendered html", async function()
             {
+                const restoreRenderer = installTemplateRenderer()
                 const message = createMessage(
                     `<div><span class="old-part">Old</span></div>`
                 )
 
-                await ChatMessagePartInjector.replace({
-                    message,
-                    selector: ".old-part",
-                    template: GIFT_CARD_TEMPLATE,
-                    templateData: {
-                        giftId: "giftOfUnsurpassedFortune",
-                        state: "initial"
-                    }
-                })
+                try {
+                    await ChatMessagePartInjector.replace({
+                        message,
+                        selector: ".old-part",
+                        template: TEST_TEMPLATE,
+                        templateData: {
+                            state: "initial",
+                            label: "Roll"
+                        }
+                    })
 
-                expect(message.updates.length).to.equal(1)
-                expect(message.content).to.not.contain(`class="old-part"`)
-                expect(message.content).to.contain(`data-transformations-card`)
-                expect(message.content).to.contain(`Roll`)
+                    expect(message.updates.length).to.equal(1)
+                    expect(message.content).to.not.contain(`class="old-part"`)
+                    expect(message.content).to.contain(`data-transformations-card`)
+                    expect(message.content).to.contain(`Roll`)
+                } finally {
+                    restoreRenderer()
+                }
             })
 
             it("removes the matched selector from message content", async function()
@@ -88,25 +134,28 @@ quench.registerBatch(
 
             it("replaces the transformations card when replaceCard is used", async function()
             {
+                const restoreRenderer = installTemplateRenderer()
                 const message = createMessage(
                     `<div><section data-transformations-card class="old-card">Old</section></div>`
                 )
 
-                await ChatMessagePartInjector.replaceCard({
-                    message,
-                    template: GIFT_CARD_TEMPLATE,
-                    templateData: {
-                        giftId: "giftOfJoyousLife",
-                        state: "rolled-success",
-                        roll: 7,
-                        hitDie: "d8"
-                    }
-                })
+                try {
+                    await ChatMessagePartInjector.replaceCard({
+                        message,
+                        template: TEST_TEMPLATE,
+                        templateData: {
+                            state: "rolled-success",
+                            label: "Apply Healing"
+                        }
+                    })
 
-                expect(message.updates.length).to.equal(1)
-                expect(message.content).to.not.contain(`class="old-card"`)
-                expect(message.content).to.contain(`data-transformations-card`)
-                expect(message.content).to.contain(`Apply Healing`)
+                    expect(message.updates.length).to.equal(1)
+                    expect(message.content).to.not.contain(`class="old-card"`)
+                    expect(message.content).to.contain(`data-transformations-card`)
+                    expect(message.content).to.contain(`Apply Healing`)
+                } finally {
+                    restoreRenderer()
+                }
             })
         })
     }

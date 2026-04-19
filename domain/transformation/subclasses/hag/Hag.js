@@ -72,7 +72,8 @@ export class Hag extends Transformation
         actorRepository,
         ChatMessagePartInjector,
         itemRepository,
-        dialogFactory
+        dialogFactory,
+        triggeringUserId = null
     )
     {
         const activityName = activity.name
@@ -92,7 +93,8 @@ export class Hag extends Transformation
                 await hagSpellRecovery({
                     actor: usage?.workflow?.actor,
                     actorRepository,
-                    dialogFactory
+                    dialogFactory,
+                    triggeringUserId
                 })
                 break
             case "Grant Water Breathing":

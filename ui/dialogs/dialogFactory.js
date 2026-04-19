@@ -16,8 +16,11 @@ import { createTransformationsSpellSlotRecoveryViewModel } from "../viewModels/c
 import { createTransformationsSpellSlotRecoveryController } from "../controllers/transformationsSpellSlotRecoveryController.js"
 import { TransformationsSpellSlotRecoveryDialog } from "./transformationsSpellSlotRecoveryDialog.js"
 
+const ROUTE_LOCALLY = Symbol("ROUTE_LOCALLY")
+
 export function createDialogFactory({
     applyFiendGiftOfDamnation,
+    socketGateway,
     controllers,
     viewModels,
     transformationService,
@@ -29,6 +32,7 @@ export function createDialogFactory({
 {
     logger.debug("createDialogFactory", {
         applyFiendGiftOfDamnation,
+        socketGateway,
         controllers,
         viewModels,
         transformationService,
@@ -37,20 +41,35 @@ export function createDialogFactory({
         tracker
     })
 
-    function openTransformationConfig({
+    async function openTransformationConfig({
         actor,
-        transformations
+        transformations,
+        triggeringUserId = null,
+        skipUserRouting = false
     })
     {
         logger.debug("createDialogFactory.openTransformationConfig", {
             actor,
-            transformations
+            transformations,
+            triggeringUserId,
+            skipUserRouting
         })
         if (!actor) {
-            logger.warn(
-                "openTransformationConfig called without actor"
-            )
+            logger.warn("openTransformationConfig called without actor")
             return false
+        }
+
+        const routingResult = await routeDialogOpen({
+            methodName: "openTransformationConfig",
+            data: {
+                actor,
+                transformations,
+                triggeringUserId,
+                skipUserRouting
+            }
+        })
+        if (routingResult !== ROUTE_LOCALLY) {
+            return routingResult
         }
 
         closeExistingDialog(TransformationConfigDialog)
@@ -80,28 +99,46 @@ export function createDialogFactory({
         })
 
         dialog.render(true)
+        return dialog
     }
 
     async function openStageChoiceDialog({
         actor,
         choices,
-        stage
+        stage,
+        triggeringUserId = null,
+        skipUserRouting = false
     })
     {
         logger.debug("createDialogFactory.openStageChoiceDialog", {
             actor,
             choices,
-            stage
+            stage,
+            triggeringUserId,
+            skipUserRouting
         })
         if (!actor || !choices?.length) {
             return false
+        }
+
+        const routingResult = await routeDialogOpen({
+            methodName: "openStageChoiceDialog",
+            data: {
+                actor,
+                choices,
+                stage,
+                triggeringUserId,
+                skipUserRouting
+            }
+        })
+        if (routingResult !== ROUTE_LOCALLY) {
+            return routingResult
         }
 
         closeExistingDialog(TransformationChoiceDialog)
 
         return new Promise(async resolve =>
         {
-
             const viewModel = viewModels.createTransformationStageChoiceViewModel({
                 choices,
                 selectedId: null
@@ -132,18 +169,38 @@ export function createDialogFactory({
         choices,
         choiceCount = 1,
         description,
-        title
+        title,
+        triggeringUserId = null,
+        skipUserRouting = false
     })
     {
         logger.debug("openTransformationGeneralChoiceDialog", {
             actor,
             choices,
             choiceCount,
-            description
+            description,
+            triggeringUserId,
+            skipUserRouting
         })
 
         if (!actor || !choices?.length) {
             return false
+        }
+
+        const routingResult = await routeDialogOpen({
+            methodName: "openTransformationGeneralChoiceDialog",
+            data: {
+                actor,
+                choices,
+                choiceCount,
+                description,
+                title,
+                triggeringUserId,
+                skipUserRouting
+            }
+        })
+        if (routingResult !== ROUTE_LOCALLY) {
+            return routingResult
         }
 
         closeExistingDialog(TransformationGeneralChoiceDialog)
@@ -179,14 +236,32 @@ export function createDialogFactory({
         })
     }
 
-    async function showItemInfoDialog({item})
+    async function showItemInfoDialog({
+        item,
+        triggeringUserId = null,
+        skipUserRouting = false
+    })
     {
         logger.debug("openDamageTypeChoiceDialog", {
-            item
+            item,
+            triggeringUserId,
+            skipUserRouting
         })
 
         if (!item) {
             return false
+        }
+
+        const routingResult = await routeDialogOpen({
+            methodName: "showItemInfoDialog",
+            data: {
+                item,
+                triggeringUserId,
+                skipUserRouting
+            }
+        })
+        if (routingResult !== ROUTE_LOCALLY) {
+            return routingResult
         }
 
         closeExistingDialog(ItemInfoDialog)
@@ -210,37 +285,52 @@ export function createDialogFactory({
     async function openFeyExhaustionRecovery({
         stage,
         exhaustion,
-        hitDiceAvailable
+        hitDiceAvailable,
+        triggeringUserId = null,
+        skipUserRouting = false
     })
     {
         logger.debug("openFeyExhaustionRecovery", {
             stage,
             exhaustion,
-            hitDiceAvailable
+            hitDiceAvailable,
+            triggeringUserId,
+            skipUserRouting
         })
+
+        const routingResult = await routeDialogOpen({
+            methodName: "openFeyExhaustionRecovery",
+            data: {
+                stage,
+                exhaustion,
+                hitDiceAvailable,
+                triggeringUserId,
+                skipUserRouting
+            }
+        })
+        if (routingResult !== ROUTE_LOCALLY) {
+            return routingResult
+        }
+
         return new Promise(resolve =>
         {
+            const viewModel = createFeyExhaustionRecoveryViewModel({
+                stage,
+                exhaustion,
+                hitDiceAvailable,
+                logger
+            })
 
-            const viewModel =
-                      createFeyExhaustionRecoveryViewModel({
-                          stage,
-                          exhaustion,
-                          hitDiceAvailable,
-                          logger
-                      })
+            const controller = createFeyExhaustionRecoveryController({
+                resolve,
+                logger
+            })
 
-            const controller =
-                      createFeyExhaustionRecoveryController({
-                          resolve,
-                          logger
-                      })
-
-            const dialog =
-                      new FeyExhaustionRecoveryDialog({
-                          viewModel,
-                          controller,
-                          logger
-                      })
+            const dialog = new FeyExhaustionRecoveryDialog({
+                viewModel,
+                controller,
+                logger
+            })
 
             dialog.render(true)
         })
@@ -248,34 +338,49 @@ export function createDialogFactory({
 
     async function openFiendGiftOfDamnation({
         actor,
-        stage
+        stage,
+        triggeringUserId = null,
+        skipUserRouting = false
     })
     {
         logger.debug("openFiendGiftOfDamnation", {
             actor,
-            stage
+            stage,
+            triggeringUserId,
+            skipUserRouting
         })
 
         if (!actor) return false
+
+        const routingResult = await routeDialogOpen({
+            methodName: "openFiendGiftOfDamnation",
+            data: {
+                actor,
+                stage,
+                triggeringUserId,
+                skipUserRouting
+            }
+        })
+        if (routingResult !== ROUTE_LOCALLY) {
+            return routingResult
+        }
 
         closeExistingDialog(FiendGiftOfDamnationDialog)
 
         return new Promise(resolve =>
         {
-            const viewModel =
-                      createFiendGiftOfDamnationViewModel({
-                          actor,
-                          stage,
-                          logger
-                      })
+            const viewModel = createFiendGiftOfDamnationViewModel({
+                actor,
+                stage,
+                logger
+            })
 
-            const controller =
-                      createFiendGiftOfDamnationController({
-                          actor,
-                          applyFiendGiftOfDamnation,
-                          resolve,
-                          logger
-                      })
+            const controller = createFiendGiftOfDamnationController({
+                actor,
+                applyFiendGiftOfDamnation,
+                resolve,
+                logger
+            })
 
             const dialog = new FiendGiftOfDamnationDialog({
                 viewModel,
@@ -289,34 +394,49 @@ export function createDialogFactory({
 
     async function openFiendUnbridledPowerSpellSlotRecovery({
         actor,
-        amount
+        amount,
+        triggeringUserId = null,
+        skipUserRouting = false
     })
     {
         logger.debug("openFiendUnbridledPowerSpellSlotRecovery", {
             actor,
-            amount
+            amount,
+            triggeringUserId,
+            skipUserRouting
         })
 
         if (!actor || !Number.isFinite(Number(amount)) || Number(amount) <= 0) {
             return false
         }
 
+        const routingResult = await routeDialogOpen({
+            methodName: "openFiendUnbridledPowerSpellSlotRecovery",
+            data: {
+                actor,
+                amount,
+                triggeringUserId,
+                skipUserRouting
+            }
+        })
+        if (routingResult !== ROUTE_LOCALLY) {
+            return routingResult
+        }
+
         closeExistingDialog(TransformationsSpellSlotRecoveryDialog)
 
         return new Promise(resolve =>
         {
-            const viewModel =
-                      createFiendUnbridledPowerSpellSlotRecoveryViewModel({
-                          actor,
-                          amount: Number(amount),
-                          logger
-                      })
+            const viewModel = createFiendUnbridledPowerSpellSlotRecoveryViewModel({
+                actor,
+                amount: Number(amount),
+                logger
+            })
 
-            const controller =
-                      createTransformationsSpellSlotRecoveryController({
-                          resolve,
-                          logger
-                      })
+            const controller = createTransformationsSpellSlotRecoveryController({
+                resolve,
+                logger
+            })
 
             const dialog = new TransformationsSpellSlotRecoveryDialog({
                 viewModel,
@@ -344,7 +464,9 @@ export function createDialogFactory({
         classPrefix = "transformations-spell-slot-recovery",
         dialogClassName = "transformations-spell-slot-recovery-dialog",
         inputName = "transformations-spell-slot-recovery-choice",
-        extraContext = {}
+        extraContext = {},
+        triggeringUserId = null,
+        skipUserRouting = false
     })
     {
         logger.debug("openTransformationsSpellSlotRecovery", {
@@ -352,43 +474,70 @@ export function createDialogFactory({
             title,
             selectionMode,
             maxRecoverableLevel,
-            maxRecoverableCost
+            maxRecoverableCost,
+            triggeringUserId,
+            skipUserRouting
         })
 
         if (!actor) {
             return false
         }
 
+        const routingResult = await routeDialogOpen({
+            methodName: "openTransformationsSpellSlotRecovery",
+            data: {
+                actor,
+                title,
+                description,
+                confirmLabel,
+                cancelLabel,
+                emptyMessage,
+                selectionMode,
+                maxRecoverableLevel,
+                maxRecoverableCost,
+                useEntryGroupLabel,
+                summaryStats,
+                selectionSummary,
+                classPrefix,
+                dialogClassName,
+                inputName,
+                extraContext,
+                triggeringUserId,
+                skipUserRouting
+            }
+        })
+        if (routingResult !== ROUTE_LOCALLY) {
+            return routingResult
+        }
+
         closeExistingDialog(TransformationsSpellSlotRecoveryDialog)
 
         return new Promise(resolve =>
         {
-            const viewModel =
-                      createTransformationsSpellSlotRecoveryViewModel({
-                          actor,
-                          title,
-                          description,
-                          confirmLabel,
-                          cancelLabel,
-                          emptyMessage,
-                          selectionMode,
-                          maxRecoverableLevel,
-                          maxRecoverableCost,
-                          useEntryGroupLabel,
-                          summaryStats,
-                          selectionSummary,
-                          classPrefix,
-                          dialogClassName,
-                          inputName,
-                          extraContext,
-                          logger
-                      })
+            const viewModel = createTransformationsSpellSlotRecoveryViewModel({
+                actor,
+                title,
+                description,
+                confirmLabel,
+                cancelLabel,
+                emptyMessage,
+                selectionMode,
+                maxRecoverableLevel,
+                maxRecoverableCost,
+                useEntryGroupLabel,
+                summaryStats,
+                selectionSummary,
+                classPrefix,
+                dialogClassName,
+                inputName,
+                extraContext,
+                logger
+            })
 
-            const controller =
-                      createTransformationsSpellSlotRecoveryController({
-                          resolve,
-                          logger
-                      })
+            const controller = createTransformationsSpellSlotRecoveryController({
+                resolve,
+                logger
+            })
 
             const dialog = new TransformationsSpellSlotRecoveryDialog({
                 viewModel,
@@ -401,32 +550,46 @@ export function createDialogFactory({
     }
 
     async function openHagSpellRecovery({
-        actor
+        actor,
+        triggeringUserId = null,
+        skipUserRouting = false
     })
     {
         logger.debug("openHagSpellRecovery", {
-            actor
+            actor,
+            triggeringUserId,
+            skipUserRouting
         })
 
         if (!actor) {
             return false
         }
 
+        const routingResult = await routeDialogOpen({
+            methodName: "openHagSpellRecovery",
+            data: {
+                actor,
+                triggeringUserId,
+                skipUserRouting
+            }
+        })
+        if (routingResult !== ROUTE_LOCALLY) {
+            return routingResult
+        }
+
         closeExistingDialog(TransformationsSpellSlotRecoveryDialog)
 
         return new Promise(resolve =>
         {
-            const viewModel =
-                      createHagSpellRecoveryViewModel({
-                          actor,
-                          logger
-                      })
+            const viewModel = createHagSpellRecoveryViewModel({
+                actor,
+                logger
+            })
 
-            const controller =
-                      createTransformationsSpellSlotRecoveryController({
-                          resolve,
-                          logger
-                      })
+            const controller = createTransformationsSpellSlotRecoveryController({
+                resolve,
+                logger
+            })
 
             const dialog = new TransformationsSpellSlotRecoveryDialog({
                 viewModel,
@@ -459,4 +622,71 @@ export function createDialogFactory({
             }
         }
     }
+
+    async function routeDialogOpen({
+        methodName,
+        data
+    } = {})
+    {
+        const targetUserId = normalizeUserId(data?.triggeringUserId)
+
+        if (!targetUserId || data?.skipUserRouting === true) {
+            return ROUTE_LOCALLY
+        }
+
+        if (targetUserId === game.user?.id) {
+            return ROUTE_LOCALLY
+        }
+
+        if (!socketGateway?.isReady?.() || typeof socketGateway.executeAsUser !== "function") {
+            logger.warn("Dialog routing requested before socket gateway was ready", {
+                methodName,
+                targetUserId
+            })
+            return false
+        }
+
+        return socketGateway.executeAsUser("openDialog", targetUserId, {
+            methodName,
+            data: serializeDialogData({
+                ...data,
+                skipUserRouting: true
+            })
+        })
+    }
+}
+
+function normalizeUserId(userId)
+{
+    return typeof userId === "string" && userId.length > 0
+        ? userId
+        : null
+}
+
+function serializeDialogData(data = {})
+{
+    const serialized = {
+        ...(data ?? {})
+    }
+
+    if (data?.actor?.uuid) {
+        serialized.actorUuid = data.actor.uuid
+        delete serialized.actor
+    }
+
+    if (data?.item?.uuid) {
+        serialized.itemUuid = data.item.uuid
+        delete serialized.item
+    }
+
+    if (Array.isArray(serialized.choices)) {
+        serialized.choices = serialized.choices.map(choice =>
+        {
+            const nextChoice = foundry.utils.deepClone(choice)
+            delete nextChoice.sourceItem
+            return nextChoice
+        })
+    }
+
+    return serialized
 }

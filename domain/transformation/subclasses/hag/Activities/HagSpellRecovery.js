@@ -1,7 +1,8 @@
 export async function hagSpellRecovery({
     actor,
     actorRepository,
-    dialogFactory
+    dialogFactory,
+    triggeringUserId = null
 })
 {
     if (!actor || !actorRepository || !dialogFactory?.openHagSpellRecovery) {
@@ -9,7 +10,8 @@ export async function hagSpellRecovery({
     }
 
     const selectedSpellSlot = await dialogFactory.openHagSpellRecovery({
-        actor
+        actor,
+        triggeringUserId
     })
 
     if (!selectedSpellSlot?.slotKey || Number(selectedSpellSlot.level) <= 0) {

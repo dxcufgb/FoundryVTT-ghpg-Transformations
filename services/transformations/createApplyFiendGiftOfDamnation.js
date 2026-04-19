@@ -168,7 +168,8 @@ export function createApplyFiendGiftOfDamnation({
                     label: linkedItem?.name ?? effect.name
                 }
             }),
-            title: "choose an effect to remove"
+            title: "choose an effect to remove",
+            triggeringUserId: game.user?.id ?? null
         })
     }
 }

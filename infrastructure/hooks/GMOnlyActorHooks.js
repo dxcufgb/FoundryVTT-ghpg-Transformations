@@ -61,7 +61,23 @@ export function registerGMOnlyActorHooks({
                     )
                 }
                 break
-
+            case constants.CONDITION.CHARMED:
+            case constants.CONDITION.FRIGHTENED:
+                try {
+                    await triggerRuntime.run("conditionApplied", actor, {
+                        conditions: {
+                            current: {
+                                name: effectName
+                            }
+                        }
+                    })
+                } catch (err) {
+                    logger.error(
+                        "Error handling conditionApplied trigger",
+                        {actor, effectName, err}
+                    )
+                }
+                break
             default:
                 break
         }
@@ -91,6 +107,23 @@ export function registerGMOnlyActorHooks({
                     logger.error(
                         "Error handling unconscious trigger",
                         {actor, err}
+                    )
+                }
+                break
+            case constants.CONDITION.CHARMED:
+            case constants.CONDITION.FRIGHTENED:
+                try {
+                    await triggerRuntime.run("conditionApplied", actor, {
+                        conditions: {
+                            current: {
+                                name: effectName
+                            }
+                        }
+                    })
+                } catch (err) {
+                    logger.error(
+                        "Error handling conditionApplied trigger",
+                        {actor, effectName, err}
                     )
                 }
                 break

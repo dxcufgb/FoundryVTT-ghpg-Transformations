@@ -36,7 +36,8 @@ export async function handleDevilishContractorClick({
     if (stage > 0) {
         await dialogFactory.openFiendGiftOfDamnation({
             actor,
-            stage
+            stage,
+            triggeringUserId: game.user?.id ?? null
         })
     }
 }

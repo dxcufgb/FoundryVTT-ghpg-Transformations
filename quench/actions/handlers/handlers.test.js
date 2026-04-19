@@ -9,6 +9,7 @@ import { registerDialogActionTests } from "./dialogAction.test.js"
 import { registerEffectActionTests } from "./effectAction.test.js"
 import { registerHpActionTests } from "./hpAction.test.js"
 import { registerItemActionTests } from "./itemAction.test.js"
+import { registerItemActivityActionTests } from "./itemActivityAction.test.js"
 import { registerMacroActionTests } from "./macroAction.test.js"
 import { registerRollModifierActionTests } from "./rollModifier.test.js"
 import { registerRollTableActionTests } from "./rollTable.test.js"
@@ -29,6 +30,7 @@ quench.registerBatch(
         registerEffectActionTests({ describe, it, expect })
         registerHpActionTests({ describe, it, expect })
         registerItemActionTests({ describe, it, expect })
+        registerItemActivityActionTests({ describe, it, expect })
         registerMacroActionTests({ describe, it, expect })
         registerRollTableActionTests({ describe, it, expect })
         registerSaveActionTests({ describe, it, expect })

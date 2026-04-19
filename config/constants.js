@@ -72,6 +72,8 @@ export const ROLL_MODE = Object.freeze({
 
 export const CONDITION = Object.freeze({
     BLOODIED: "bloodied",
+    CHARMED: "charmed",
+    FRIGHTENED: "frightened",
     PRONE: "prone",
     STUNNED: "stunned",
     UNCONSCIOUS: "unconscious"

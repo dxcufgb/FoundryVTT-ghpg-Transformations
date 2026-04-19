@@ -1,5 +1,12 @@
 import { applyGiftOfDamnation } from "./applyGiftOfDamnation.js"
 import { getHighestAvailableHitDieDenomination } from "./getHighestAvailableHitDieDenomination.js"
+import {
+    buildPresentedRollData,
+    buildSyntheticActivityButton,
+    injectGiftOfDamnationCard,
+    replaceGiftOfDamnationCard,
+    renderGiftOfDamnationCard
+} from "./GiftOfDamnationMidiCard.js"
 
 export class GiftOfUnbridledPower
 {
@@ -28,33 +35,30 @@ export class GiftOfUnbridledPower
 
             const rollFormula = `2${hitDie}`
             const roll = await RollService.simpleRoll(rollFormula)
-            const tooltip = await roll.getTooltip()
-            const messageRolls = [...(message.rolls ?? []), roll]
+            const presentedRoll = await buildPresentedRollData(roll, {
+                formula: rollFormula
+            })
 
             await actorRepository.consumeHitDie(actor, 2)
 
             await message.update({
-                rolls: messageRolls,
                 "flags.transformations.state": "rolled",
                 "flags.transformations.rollFormula": rollFormula,
                 "flags.transformations.recoveryBudget": roll.total,
-                "flags.transformations.presentedRoll": {
-                    total: roll.total,
-                    tooltip
-                }
+                "flags.transformations.presentedRoll": presentedRoll
             })
 
-            await ChatMessagePartInjector.replaceCard({
+            void ChatMessagePartInjector
+
+            await replaceGiftOfDamnationCard({
+                GiftClass,
                 message,
-                template:
-                    "modules/transformations/scripts/templates/chatMessages/gifts-of-damnation-chat-card.hbs",
-                templateData: {
-                    giftId: GiftClass.id,
+                content: await GiftClass.renderCard({
+                    actor,
+                    message,
                     state: "rolled",
-                    roll: roll.total,
-                    tooltip,
-                    rollFormula
-                }
+                    roll
+                })
             })
         },
 
@@ -74,7 +78,8 @@ export class GiftOfUnbridledPower
             const selectedSpellSlots =
                       await dialogFactory?.openFiendUnbridledPowerSpellSlotRecovery?.({
                           actor,
-                          amount: recoveryBudget
+                          amount: recoveryBudget,
+                          triggeringUserId: game.user?.id ?? null
                       })
 
             if (!Array.isArray(selectedSpellSlots) || selectedSpellSlots.length === 0) {
@@ -118,23 +123,20 @@ export class GiftOfUnbridledPower
                 gift: this.id,
                 state: "initial",
                 hitDie,
-                baseRollCount: message.rolls?.length ?? 0
+                baseRollCount: message.rolls?.length ?? 0,
+                presentedRoll: null
             }
         })
 
-        await ChatMessagePartInjector.inject({
+        void ChatMessagePartInjector
+
+        await injectGiftOfDamnationCard({
             message,
-            template:
-                "modules/transformations/scripts/templates/chatMessages/gifts-of-damnation-chat-card.hbs",
-            templateData: {
-                giftId: this.id,
-                state: "initial",
-                roll: null,
-                tooltip: null,
-                hitDie
-            },
-            selector: ".midi-buttons, .midi-dnd5e-buttons",
-            position: "afterbegin"
+            content: await this.renderCard({
+                actor,
+                message,
+                state: "initial"
+            })
         })
     }
 
@@ -148,30 +150,28 @@ export class GiftOfUnbridledPower
     static async getPresentedRoll(message, rolls) {
         const roll = this.getGiftRoll(message, rolls)
         if (roll) {
-            return {
-                total: roll.total,
-                tooltip: await roll.getTooltip()
-            }
+            return buildPresentedRollData(roll, {
+                formula: message?.flags?.transformations?.rollFormula ?? null
+            })
         }
 
         return message.flags?.transformations?.presentedRoll ?? null
     }
 
     static async complete(message, ChatMessagePartInjector, rolls) {
-        const roll = await this.getPresentedRoll(message, rolls)
-        const rollFormula = message.flags?.transformations?.rollFormula
+        void ChatMessagePartInjector
+        void rolls
 
-        await ChatMessagePartInjector.replaceCard({
+        await replaceGiftOfDamnationCard({
+            GiftClass: this,
             message,
-            template:
-                "modules/transformations/scripts/templates/chatMessages/gifts-of-damnation-chat-card.hbs",
-            templateData: {
-                giftId: this.id,
-                state: "complete",
-                roll: roll?.total,
-                tooltip: roll?.tooltip ?? null,
-                rollFormula
-            }
+            content: await this.renderCard({
+                actor: message?.speaker?.actor
+                    ? game.actors.get(message.speaker.actor)
+                    : null,
+                message,
+                state: "complete"
+            })
         })
 
         await message.update({
@@ -240,5 +240,77 @@ export class GiftOfUnbridledPower
 
         const maxValue = Number(slot.max ?? 0)
         return Number.isFinite(maxValue) ? Math.max(maxValue, 0) : 0
+    }
+
+    static async renderCard({
+        actor,
+        message,
+        state,
+        roll = null
+    } = {})
+    {
+        const rollFormula = message?.flags?.transformations?.rollFormula ?? null
+        const recoveryBudget =
+                  Number(message?.flags?.transformations?.recoveryBudget ?? 0)
+
+        return renderGiftOfDamnationCard({
+            actor,
+            message,
+            GiftClass: this,
+            state,
+            subtitle: rollFormula
+                ? `Spell Slot Budget Roll: ${rollFormula}`
+                : "Spell Slot Budget Roll",
+            supplements: this.buildSupplements({
+                state,
+                recoveryBudget
+            }),
+            buttons: this.buildButtons({state}),
+            roll
+        })
+    }
+
+    static buildButtons({
+        state
+    } = {})
+    {
+        if (state === "initial") {
+            return [
+                buildSyntheticActivityButton({
+                    action: "roll",
+                    label: "Roll"
+                })
+            ]
+        }
+
+        if (state === "rolled") {
+            return [
+                buildSyntheticActivityButton({
+                    action: "recoverSpellSlots",
+                    label: "Recover Spell Slots"
+                })
+            ]
+        }
+
+        return []
+    }
+
+    static buildSupplements({
+        state,
+        recoveryBudget
+    } = {})
+    {
+        if (state === "rolled") {
+            return [
+                `You can recover up to <strong>${recoveryBudget}</strong> spell slot levels.`,
+                `After recovery, you take Psychic damage equal to <strong>${recoveryBudget * 2}</strong>.`
+            ]
+        }
+
+        if (state === "complete") {
+            return ["Gift resolved."]
+        }
+
+        return ["Spend 2 Hit Dice to determine how many spell slot levels you can recover."]
     }
 }

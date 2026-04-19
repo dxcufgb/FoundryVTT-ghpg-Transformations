@@ -37,7 +37,8 @@ export function registerActorSheetControlsAdapter({
                         const transformations = await transformationQueryService.getAll()
                         await moduleUi.dialogs.openTransformationConfig({
                             actor: app.actor,
-                            transformations
+                            transformations,
+                            triggeringUserId: game.user?.id ?? null
                         })
                     } catch (err) {
                         logger.error(

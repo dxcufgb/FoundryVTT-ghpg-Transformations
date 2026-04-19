@@ -30,7 +30,8 @@ export function createTransformationPillController({
 
                 dialogs.openTransformationConfig({
                     actor: app.actor,
-                    transformations
+                    transformations,
+                    triggeringUserId: game.user?.id ?? null
                 })
             })
         }

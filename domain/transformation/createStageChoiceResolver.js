@@ -62,6 +62,15 @@ export function createStageChoiceResolver({
             if (!validChoices.length) return null
 
             if (validChoices.length === 1) {
+                if (typeof requestChoice === "function") {
+                    return requestChoice({
+                        actor,
+                        stage,
+                        choices: validChoices,
+                        autoSelect: true
+                    })
+                }
+
                 return validChoices[0].uuid
             }
 
@@ -96,7 +105,8 @@ export function createStageChoiceResolver({
                     uuid: def.uuid,
                     name: item.name,
                     img: item.img,
-                    description: item.system?.description?.value ?? ""
+                    description: item.system?.description?.value ?? "",
+                    sourceItem: item
                 })
             }
 

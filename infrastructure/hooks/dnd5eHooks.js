@@ -35,6 +35,103 @@ function resolveActorFromSubject(subject)
     )
 }
 
+function resolveDamageTypeMap(actor)
+{
+    return actor?.getFlag?.("transformations", "damageTypePerMidiId") ?? {}
+}
+
+function resolveDamageTypeFromDetails(damageDetails)
+{
+    if (Array.isArray(damageDetails)) {
+        return damageDetails.find(detail =>
+            typeof detail?.type === "string" && detail.type.length > 0
+        )?.type ?? null
+    }
+
+    return typeof damageDetails?.type === "string" && damageDetails.type.length > 0
+        ? damageDetails.type
+        : null
+}
+
+function updateDamageTypePerMidiId({
+    actor,
+    midiId,
+    damageType = null,
+    logger
+} = {})
+{
+    if (!actor?.setFlag || !midiId) {
+        return
+    }
+
+    const current = {
+        ...resolveDamageTypeMap(actor)
+    }
+
+    if (damageType) {
+        current[midiId] = damageType
+    } else {
+        delete current[midiId]
+    }
+
+    const result = actor.setFlag(
+        "transformations",
+        "damageTypePerMidiId",
+        current
+    )
+
+    if (typeof result?.catch === "function") {
+        result.catch(error =>
+            logger?.warn?.("Failed to update damageTypePerMidiId", error)
+        )
+    }
+}
+
+function resolveTriggeringUserId(...values)
+{
+    for (const value of values) {
+        const resolved = walkUserId(value)
+        if (resolved) return resolved
+    }
+
+    return null
+}
+
+function walkUserId(value)
+{
+    if (!value) return null
+
+    if (typeof value === "string") {
+        return value.length > 0
+            ? value
+            : null
+    }
+
+    if (typeof value !== "object") return null
+
+    const directCandidates = [
+        value.userId,
+        value.user?.id,
+        value.author?.id,
+        value.event?.userId,
+        value.options?.userId,
+        value.chatMessage?.user?.id,
+        value.chatMessage?.author?.id,
+        value.card?.user?.id,
+        value.card?.author?.id,
+        value.message?.user?.id,
+        value.message?.author?.id
+    ]
+
+    for (const candidate of directCandidates) {
+        if (typeof candidate === "string" && candidate.length > 0) {
+            return candidate
+        }
+    }
+
+    return null
+}
+
 function isAttackRollConfig(candidate)
 {
     return Boolean(
@@ -194,6 +291,33 @@ function buildPreRollDamageTriggerContext({
     }
 }
 
+function buildActivityUseTriggerContext(activity, usage)
+{
+    const item =
+              usage?.workflow?.item ??
+              activity?.parent?.parent ??
+              activity?.parent ??
+              null
+
+    return {
+        activities: {
+            current: {
+                activity: {
+                    id: activity?.id ?? activity?._id ?? null,
+                    name: activity?.name ?? "",
+                    type: activity?.type ?? ""
+                },
+                item: {
+                    ...normalizeTriggerItem(item),
+                    type: item?.type ?? "",
+                    systemType: item?.system?.type?.value ?? "",
+                    systemSubType: item?.system?.type?.subtype ?? ""
+                }
+            }
+        }
+    }
+}
+
 function getTransformationStage(actor)
 {
     const rawStage =
@@ -249,6 +373,7 @@ export function registerDnd5eHooks({
     transformationService,
     transformationRegistry,
     actorRepository,
+    activeEffectRepository,
     itemRepository,
     dialogFactory,
     triggerRuntime,
@@ -383,20 +508,25 @@ export function registerDnd5eHooks({
         })()
     })
 
-    Hooks.on("dnd5e.restCompleted", (actor, result) =>
+    Hooks.on("dnd5e.restCompleted", (actor, result, config) =>
     {
-        logger.debug("dnd5e.restCompleted called", actor, result)
+        logger.debug("dnd5e.restCompleted called", actor, result, config)
         debouncedTracker.pulse("dnd5e.restCompleted")
         tracker.track((async () =>
         {
             const isLong = result.longRest === true
             const isShort = result.shortRest === true || result.type === "short"
+            const triggeringUserId = resolveTriggeringUserId(config, result)
 
             onceService.resetFlagsOnRest(actor, {isLong, isShort})
             if (isShort) {
-                await triggerRuntime.run("shortRest", actor)
+                await triggerRuntime.run("shortRest", actor, {
+                    triggeringUserId
+                })
             } else if (isLong) {
-                await triggerRuntime.run("longRest", actor)
+                await triggerRuntime.run("longRest", actor, {
+                    triggeringUserId
+                })
             }
         })())
     })
@@ -546,39 +676,39 @@ export function registerDnd5eHooks({
         debouncedTracker.pulse("dnd5e.preRollAttack")
 
         ;(async () =>
-        {
-            const rollConfig = isAttackRollConfig(itemOrRollConfig)
-                ? itemOrRollConfig
-                : rollConfigOrDialog
-            const dialog = isAttackRollConfig(itemOrRollConfig)
-                ? rollConfigOrDialog
-                : null
-            const item = isAttackRollConfig(itemOrRollConfig)
-                ? rollConfig?.subject?.item ?? null
-                : itemOrRollConfig
-            const actor = resolveActorFromSubject(
-                rollConfig?.subject ??
-                item ??
-                null
-            )
+    {
+        const rollConfig = isAttackRollConfig(itemOrRollConfig)
+            ? itemOrRollConfig
+            : rollConfigOrDialog
+        const dialog = isAttackRollConfig(itemOrRollConfig)
+            ? rollConfigOrDialog
+            : null
+        const item = isAttackRollConfig(itemOrRollConfig)
+            ? rollConfig?.subject?.item ?? null
+            : itemOrRollConfig
+        const actor = resolveActorFromSubject(
+            rollConfig?.subject ??
+            item ??
+            null
+        )
 
-            if (!actor) return
+        if (!actor) return
 
-            const transformation = transformationRegistry.getEntryForActor(actor)
+        const transformation = transformationRegistry.getEntryForActor(actor)
 
-            if (!transformation?.TransformationClass?.onPreRollAttack) return
+        if (!transformation?.TransformationClass?.onPreRollAttack) return
 
-            await transformation.TransformationClass.onPreRollAttack({
-                item,
-                rollConfig,
-                dialog,
-                message,
-                actor,
-                actorRepository,
-                itemRepository,
-                logger
-            })
-        })()
+        await transformation.TransformationClass.onPreRollAttack({
+            item,
+            rollConfig,
+            dialog,
+            message,
+            actor,
+            actorRepository,
+            itemRepository,
+            logger
+        })
+    })()
     })
 
     Hooks.on("dnd5e.rollAttack", (rolls, data) =>
@@ -614,11 +744,67 @@ export function registerDnd5eHooks({
         })
     })
 
-    Hooks.on("dnd5e.preUseActivity", (activity, config, options) =>
+    function handlePreUseActivity(
+        hookName,
+        activity,
+        usageConfig,
+        dialogConfig,
+        messageConfig
+    )
     {
-        logger.debug("dnd5e.preUseActivity called", activity, config, options)
-        debouncedTracker.pulse("dnd5e.preUseActivity")
+        logger.debug(`${hookName} called`, activity, usageConfig, dialogConfig, messageConfig)
+        debouncedTracker.pulse(hookName)
 
+        const actor = resolveActorFromSubject(
+            activity ??
+            usageConfig?.subject ??
+            usageConfig?.workflow?.actor ??
+            null
+        )
+        if (!actor) return
+
+        const transformation = transformationRegistry.getEntryForActor(actor)
+
+        if (!transformation?.TransformationClass?.onPreUseActivity) return
+
+        const result = transformation.TransformationClass.onPreUseActivity({
+            activity,
+            usageConfig,
+            dialogConfig,
+            messageConfig,
+            actor,
+            actorRepository,
+            itemRepository,
+            logger
+        })
+
+        if (typeof result?.catch === "function") {
+            result.catch(error =>
+                logger.warn?.("dnd5e.preUseActivity failed", error)
+            )
+        }
+    }
+
+    Hooks.on("dnd5e.preUseActivity", (activity, usageConfig, dialogConfig, messageConfig) =>
+    {
+        handlePreUseActivity(
+            "dnd5e.preUseActivity",
+            activity,
+            usageConfig,
+            dialogConfig,
+            messageConfig
+        )
+    })
+
+    Hooks.on("dnd5e.preActivityUse", (activity, usageConfig, dialogConfig, messageConfig) =>
+    {
+        handlePreUseActivity(
+            "dnd5e.preActivityUse",
+            activity,
+            usageConfig,
+            dialogConfig,
+            messageConfig
+        )
     })
 
     Hooks.on("dnd5e.preRollDamageV2", (configOrArgs, dialog, message) =>
@@ -690,6 +876,7 @@ export function registerDnd5eHooks({
                 html,
                 actor,
                 actorRepository,
+                activeEffectRepository,
                 dialogFactory,
                 ChatMessagePartInjector,
                 RollService,
@@ -702,20 +889,100 @@ export function registerDnd5eHooks({
         logger.debug("dnd5e.postUseActivity called", activity, usage, changes)
         const actor = usage.workflow.actor
         if (!actor) return
+        const triggeringUserId = resolveTriggeringUserId(
+            changes?.message,
+            usage?.message,
+            usage?.workflow,
+            usage,
+            changes
+        )
+
+        if (triggeringUserId && triggeringUserId !== game.user?.id) {
+            return
+        }
 
         const transformation = transformationRegistry.getEntryForActor(actor)
 
-        if (!transformation?.TransformationClass?.onActivityUse) return
+        let activityUseResult = null
 
-        await transformation.TransformationClass.onActivityUse(
-            activity,
-            usage,
-            changes.message,
-            actorRepository,
-            ChatMessagePartInjector,
-            itemRepository,
-            dialogFactory
+        if (transformation?.TransformationClass?.onActivityUse) {
+            activityUseResult = await transformation.TransformationClass.onActivityUse(
+                activity,
+                usage,
+                changes.message,
+                actorRepository,
+                ChatMessagePartInjector,
+                itemRepository,
+                dialogFactory,
+                triggeringUserId
+            )
+        }
+
+        if (
+            activityUseResult?.skipActivityUseTrigger === true ||
+            usage?.flags?.transformations?.skipActivityUseTrigger === true
+        ) {
+            return
+        }
+
+        await triggerRuntime.run(
+            "activityUse",
+            actor,
+            buildActivityUseTriggerContext(activity, usage)
         )
 
     })
+    Hooks.on("dnd5e.preCalculateDamage", (target, damageDetails, details) => {
+        const actor = resolveActorFromSubject(target)
+        if (!actor) return
+
+        const midiId = details?.midi?.sourceActorUuid ?? null
+        const damageType = resolveDamageTypeFromDetails(damageDetails)
+        if (!midiId || !damageType) return
+
+        updateDamageTypePerMidiId({
+            actor,
+            midiId,
+            damageType,
+            logger
+        })
+    })
+
+    Hooks.on("dnd5e.applyDamage", (target, damage, details) => {
+        logger.debug("dnd5e.applyDamage called", target, damage, details)
+        debouncedTracker.pulse("dnd5e.applyDamage")
+
+        const actor = resolveActorFromSubject(target)
+        if (!actor) return
+
+        const midiId = details?.midi?.sourceActorUuid ?? null
+        const transformation = transformationRegistry.getEntryForActor(actor)
+        if (transformation?.TransformationClass?.onPreCalculateDamage) {
+            const result = transformation.TransformationClass.onPreCalculateDamage({
+                actor,
+                target,
+                damage,
+                details,
+                actorRepository,
+                itemRepository,
+                activeEffectRepository,
+                ChatMessagePartInjector,
+                RollService,
+                logger
+            })
+
+            if (typeof result?.catch === "function") {
+                result.catch(error =>
+                    logger.warn?.("dnd5e.preCalculateDamage failed", error)
+                )
+            }
+        }
+
+        updateDamageTypePerMidiId({
+            actor,
+            midiId,
+            damageType: null,
+            logger
+        })
+    });
 }

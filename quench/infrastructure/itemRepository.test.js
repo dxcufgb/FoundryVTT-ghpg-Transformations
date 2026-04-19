@@ -27,20 +27,24 @@ function createDebouncedTracker()
     }
 }
 
-function createItemsCollection()
+function createDocumentCollection()
 {
-    const items = []
-    items.get = function get(id)
+    const documents = []
+    documents.get = function get(id)
     {
         return this.find(item => item.id === id) ?? null
     }
-    return items
+    return documents
 }
 
-function createActor()
+function createActor({
+    con = 12
+} = {})
 {
     let nextItemId = 1
-    const items = createItemsCollection()
+    let nextEffectId = 1
+    const items = createDocumentCollection()
+    const effects = createDocumentCollection()
 
     return {
         id: "actor-1",
@@ -51,12 +55,30 @@ function createActor()
                 stage: 2
             }
         },
+        system: {
+            abilities: {
+                str: {value: 10},
+                dex: {value: 10},
+                con: {value: con},
+                int: {value: 10},
+                wis: {value: 10},
+                cha: {value: 10}
+            }
+        },
         items,
+        effects,
         async createEmbeddedDocuments(type, entries)
         {
             const created = entries.map(entry =>
-                createEmbeddedItem(this, entry, `item-${nextItemId++}`)
+                type === "ActiveEffect"
+                    ? createEmbeddedEffect(this, entry, `effect-${nextEffectId++}`)
+                    : createEmbeddedItem(this, entry, `item-${nextItemId++}`)
             )
+
+            if (type === "ActiveEffect") {
+                this.effects.push(...created)
+                return created
+            }
 
             this.items.push(...created)
             return created
@@ -64,13 +86,44 @@ function createActor()
         async deleteEmbeddedDocuments(type, ids)
         {
             const idSet = new Set(ids)
-            for (let index = this.items.length - 1; index >= 0; index -= 1) {
-                if (idSet.has(this.items[index]?.id)) {
-                    this.items.splice(index, 1)
+            const collection = type === "ActiveEffect"
+                ? this.effects
+                : this.items
+
+            for (let index = collection.length - 1; index >= 0; index -= 1) {
+                if (idSet.has(collection[index]?.id)) {
+                    collection.splice(index, 1)
                 }
             }
         }
     }
+}
+
+function createEmbeddedEffect(actor, data, id)
+{
+    const effect = {
+        ...deepClone(data),
+        id,
+        parent: actor,
+        getFlag(scope, key)
+        {
+            const scopeValue = this.flags?.[scope]
+            if (key === "") return scopeValue ?? null
+            return scopeValue?.[key] ?? null
+        },
+        async update(updateData = {})
+        {
+            for (const [path, value] of Object.entries(updateData)) {
+                setProperty(this, path, value)
+            }
+
+            return this
+        }
+    }
+
+    effect.flags ??= {}
+
+    return effect
 }
 
 function createEmbeddedItem(actor, data, id)
@@ -448,6 +501,134 @@ quench.registerBatch(
                         type: "itemUses",
                         value: "1"
                     }])
+                } finally {
+                    restoreFoundry()
+
+                    if (originalFromUuid === undefined) {
+                        delete globalThis.fromUuid
+                    } else {
+                        globalThis.fromUuid = originalFromUuid
+                    }
+                }
+            })
+
+            it("auto-applies the only remaining item-pool choice after filtering existing items", async function ()
+            {
+                const actor = createActor()
+                const restoreFoundry = installFoundryUtils()
+                const originalFromUuid = globalThis.fromUuid
+
+                const firstSpell = {
+                    uuid: "Compendium.transformations.gh-transformations.Item.0vvQkWQdeXgf3QLR",
+                    name: "First Spell",
+                    img: "first.png",
+                    type: "spell",
+                    system: {
+                        description: {
+                            value: "<p>First</p>"
+                        },
+                        uses: {},
+                        preparation: {},
+                        activities: {
+                            contents: [{
+                                name: "Cast First Spell",
+                                consumption: {
+                                    targets: []
+                                }
+                            }]
+                        }
+                    }
+                }
+                const secondSpell = {
+                    uuid: "Compendium.transformations.gh-transformations.Item.jLTfPpvW44ig6wWI",
+                    name: "Second Spell",
+                    img: "second.png",
+                    type: "spell",
+                    system: {
+                        description: {
+                            value: "<p>Second</p>"
+                        },
+                        uses: {},
+                        preparation: {},
+                        activities: {
+                            contents: [{
+                                name: "Cast Second Spell",
+                                consumption: {
+                                    targets: []
+                                }
+                            }]
+                        }
+                    }
+                }
+
+                globalThis.fromUuid = async uuid =>
+                {
+                    switch (uuid) {
+                        case firstSpell.uuid:
+                            return firstSpell
+                        case secondSpell.uuid:
+                            return secondSpell
+                        default:
+                            return null
+                    }
+                }
+
+                const {calls, repository} = createRepository({
+                    chooseItemPoolResult: ({itemChoices}) => itemChoices[0]
+                })
+
+                try {
+                    await repository.createObjectOnActor(actor, firstSpell, "", {
+                        applyAdvancements: false
+                    })
+
+                    const parentItem = await repository.createObjectOnActor(actor, {
+                        uuid: "Item.parent-filtered-pool",
+                        name: "Filtered Magic Tricks",
+                        type: "feat",
+                        system: {
+                            advancement: [{
+                                configuration: {
+                                    allowDrops: false,
+                                    choices: {
+                                        0: {
+                                            count: 1,
+                                            replacement: false
+                                        }
+                                    },
+                                    pool: [
+                                        {uuid: firstSpell.uuid},
+                                        {uuid: secondSpell.uuid}
+                                    ],
+                                    restriction: {
+                                        list: [],
+                                        level: "available"
+                                    },
+                                    spell: {
+                                        ability: ["int"],
+                                        method: "atwill",
+                                        uses: {
+                                            max: "1",
+                                            per: "day",
+                                            requireSlot: false
+                                        },
+                                        prepared: 0
+                                    },
+                                    type: "spell"
+                                }
+                            }]
+                        }
+                    })
+
+                    const createdSpell = actor.items.find(item =>
+                        item.flags?.transformations?.sourceUuid === secondSpell.uuid
+                    )
+
+                    expect(parentItem).to.exist
+                    expect(calls.chooseItemPool).to.have.length(0)
+                    expect(createdSpell).to.exist
+                    expect(createdSpell.flags.transformations.awardedByItem)
+                    .to.equal(parentItem.uuid)
                 } finally {
                     restoreFoundry()
 

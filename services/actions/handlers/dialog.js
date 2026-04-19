@@ -62,15 +62,19 @@ export function createDialogAction({
                     dialogFactory,
                     {
                         actor,
-                        ...(data ?? {})
+                        ...(data ?? {}),
+                        triggeringUserId:
+                            context?.triggeringUserId ??
+                            data?.triggeringUserId ??
+                            null
                     }
                 )
 
                 if (data.key) {
-                    context.transformation = {
-                        dialogChoices: {
-                            [data.key]: result
-                        }
+                    context.transformation ??= {}
+                    context.transformation.dialogChoices = {
+                        ...(context.transformation.dialogChoices ?? {}),
+                        [data.key]: result
                     }
                 }
                 logger.debug(

@@ -4,20 +4,27 @@ export const stage4 = {
     grants: {
         items: [
             {
-                name: "Primordial Stage 4 Base Feature",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.lYYCNPIBVXMQ5fAg"
             }
         ]
     },
     choices: {
         items: [
             {
-                name: "Primordial Stage 4 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.00vXc5RNzuZPXQui",
+                requires: {
+                    items: [
+                        "Compendium.transformations.gh-transformations.Item.Cb8Zq6I3jiCBWtbZ"
+                    ]
+                }
             },
             {
-                name: "Primordial Stage 4 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.yDWkfqMrAMyFkVrO",
+                requires: {
+                    items: [
+                        "Compendium.transformations.gh-transformations.Item.uhNsp8cIvd8dsvlg"
+                    ]
+                }
             }
         ]
     }

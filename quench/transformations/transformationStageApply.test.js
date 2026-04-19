@@ -11,6 +11,7 @@ import { advanceStageAndChoose } from "../helpers/adcanceStageAndExpectchoiceDia
 import { getDependentChoice, getNonDependentChoice, getStageDef } from "../helpers/transformation.js"
 import { waitForCondition } from "../helpers/waitForCondition.js"
 import { setupTest, teardownAllTest, tearDownEachTest } from "../testLifecycle.js"
+import { UiAccessor } from "../../bootstrap/uiAccessor.js"
 
 quench.registerBatch(
     "transformations.applyStages",
@@ -701,6 +702,83 @@ quench.registerBatch(
                     ?.[3]
 
                 expect(stageChosen).to.equal(nonDependentChoice.uuid)
+            })
+
+            it("shows the item info dialog when stage 3 auto-selects the only valid prerequisite choice", async function()
+            {
+                await expectAsyncWork(
+                    () => runtime.services.transformationService.applyTransformation(
+                        actor,
+                        { definition: transformationDef }
+                    ),
+                    { trackers: runtime.dependencies.utils.asyncTrackers }
+                )
+                await waitForNextFrame()
+
+                const nextStage = getStageDef(transformationDef, 3, expect)
+                const prerequisiteChoice = {
+                    uuid: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
+                }
+                const autoSelectedChoice = getNonDependentChoice(nextStage, expect)
+
+                const chosen = await advanceStageAndChoose({
+                    actor,
+                    stage: 2,
+                    choiceUuid: prerequisiteChoice.uuid,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+
+                expect(chosen).to.equal(prerequisiteChoice.uuid)
+
+                const originalDialogs = UiAccessor.dialogs
+                const originalAutoSelectInfoFlag =
+                    globalThis.__TRANSFORMATIONS_SHOW_AUTOSELECT_ITEM_INFO__
+                const infoDialogCalls = []
+
+                UiAccessor.dialogs = {
+                    ...originalDialogs,
+                    async showItemInfoDialog(args)
+                    {
+                        infoDialogCalls.push(args)
+                        return true
+                    },
+                    async openStageChoiceDialog()
+                    {
+                        throw new Error(
+                            "Stage choice dialog should not open when only one valid choice exists"
+                        )
+                    }
+                }
+                globalThis.__TRANSFORMATIONS_SHOW_AUTOSELECT_ITEM_INFO__ = true
+
+                try {
+                    await advanceStageAndWait({
+                        actor,
+                        stage: 3,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                    })
+
+                    await runtime.dependencies.utils.asyncTrackers.whenIdle()
+                    await waitForNextFrame()
+                } finally {
+                    UiAccessor.dialogs = originalDialogs
+                    globalThis.__TRANSFORMATIONS_SHOW_AUTOSELECT_ITEM_INFO__ =
+                        originalAutoSelectInfoFlag
+                }
+
+                const stageDialog = getChoiceDialogById(actor, 3)
+                expect(stageDialog).to.not.exist
+                expect(infoDialogCalls).to.have.length(1)
+                expect(infoDialogCalls[0]?.item?.uuid).to.equal(
+                    autoSelectedChoice.uuid
+                )
+
+                const stageChosen =
+                    actor.getFlag("transformations", "stageChoices")
+                    ?.[transformationDef.id]
+                    ?.[3]
+
+                expect(stageChosen).to.equal(autoSelectedChoice.uuid)
             })
 
             it("replaces the specified item on the actor when stage 4 is applied", async function()

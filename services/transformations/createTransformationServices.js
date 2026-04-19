@@ -58,9 +58,13 @@ export function createTransformationService({
         )
     }
 
-    async function onActorFlagsUpdated({ actor, diff })
+    async function onActorFlagsUpdated({ actor, diff, userId = null })
     {
-        logger.debug("createTransformationService.onActorFlagsUpdated", { actor, diff })
+        logger.debug("createTransformationService.onActorFlagsUpdated", {
+            actor,
+            diff,
+            userId
+        })
         if (!actor) {
             logger.warn(
                 "Transformation skipped: actor no longer exists",
@@ -75,7 +79,7 @@ export function createTransformationService({
             (async () =>
             {
                 if ("type" in transformationsFlags) {
-                    await handleTransformationChanged(actor)
+                    await handleTransformationChanged(actor, userId)
                     return
                 }
 
@@ -83,16 +87,19 @@ export function createTransformationService({
                     const previousStage = actor?.flags?.transformations?.finishedStage ?? 0
                     const newStage = actor.flags?.transformations?.stage
                     if (newStage > previousStage) {
-                        await handleStageChanged(actor)
+                        await handleStageChanged(actor, userId)
                     }
                 }
             })()
         )
     }
 
-    async function handleTransformationChanged(actor)
+    async function handleTransformationChanged(actor, triggeringUserId = null)
     {
-        logger.debug("createTransformationService.handleTransformationChanged", { actor })
+        logger.debug("createTransformationService.handleTransformationChanged", {
+            actor,
+            triggeringUserId
+        })
         const transformationId = actor.flags?.transformations?.type
 
         if (!transformationId) {
@@ -115,15 +122,19 @@ export function createTransformationService({
 
                 await mutationGateway.initializeTransformation({
                     actorId: actor.id,
-                    definition
+                    definition,
+                    triggeringUserId
                 })
             })()
         )
     }
 
-    async function handleStageChanged(actor)
+    async function handleStageChanged(actor, triggeringUserId = null)
     {
-        logger.debug("createTransformationService.handleStageChanged", { actor })
+        logger.debug("createTransformationService.handleStageChanged", {
+            actor,
+            triggeringUserId
+        })
         const dialogFactory = UiAccessor.dialogs
         if (!dialogFactory) {
             logger.debug(
@@ -165,12 +176,29 @@ export function createTransformationService({
                             actor,
                             definition,
                             stage,
-                            requestChoice: ({ actor, choices }) =>
-                                dialogFactory.openStageChoiceDialog({
+                            requestChoice: async ({
+                                actor,
+                                choices,
+                                autoSelect = false
+                            }) =>
+                            {
+                                if (autoSelect && choices?.length === 1) {
+                                    await showAutoSelectedChoiceInfoDialog({
+                                        dialogFactory,
+                                        choice: choices[0],
+                                        triggeringUserId
+                                    })
+
+                                    return choices[0]?.uuid
+                                }
+
+                                return dialogFactory.openStageChoiceDialog({
                                     actor,
                                     choices,
-                                    stage
+                                    stage,
+                                    triggeringUserId
                                 })
+                            }
                         })
                     }
                     if (choice === undefined) {
@@ -196,10 +224,44 @@ export function createTransformationService({
                     actorId: actor.id,
                     definition,
                     stage,
-                    choice: choiceObject
+                    choice: choiceObject,
+                    triggeringUserId
                 })
             })()
         )
+    }
+
+    async function showAutoSelectedChoiceInfoDialog({
+        dialogFactory,
+        choice,
+        triggeringUserId = null
+    } = {})
+    {
+        if (!shouldShowAutoSelectedChoiceInfoDialog()) {
+            return
+        }
+
+        if (!dialogFactory?.showItemInfoDialog) {
+            return
+        }
+
+        const item = choice?.sourceItem ??
+            (choice?.uuid ? await fromUuid(choice.uuid) : null)
+
+        if (!item) {
+            return
+        }
+
+        await dialogFactory.showItemInfoDialog({
+            item,
+            triggeringUserId
+        })
+    }
+
+    function shouldShowAutoSelectedChoiceInfoDialog()
+    {
+        return globalThis.__TRANSFORMATIONS_TEST__ !== true ||
+            globalThis.__TRANSFORMATIONS_SHOW_AUTOSELECT_ITEM_INFO__ === true
     }
 
     async function onTrigger(actor, triggerName, context)
