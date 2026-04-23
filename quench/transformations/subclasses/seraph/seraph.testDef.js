@@ -29,6 +29,18 @@ const BOW_OF_CELESTIAL_JUDGEMENT_UUID =
           "Compendium.transformations.gh-transformations.Item.LlaGTb9Vq4r4Sx9V"
 const BOW_OF_CELESTIAL_JUDGEMENT_ITEM_UUID =
           "Compendium.transformations.gh-transformations.Item.9RWqtVVjy7Yvvmgk"
+const SERAPH_STAGE_FOUR_ITEM_UUID =
+          "Compendium.transformations.gh-transformations.Item.nbEepKdcM50RJvbI"
+const SERAPH_STAGE_FOUR_EFFECT_UUID =
+          "Compendium.transformations.gh-transformations.Item.nbEepKdcM50RJvbI.ActiveEffect.jtTKgErRNcmd9Ewh"
+const AURA_OF_HOLY_PURGE_UUID =
+          "Compendium.transformations.gh-transformations.Item.PZPpHME9RtoA1TXo"
+const AURA_OF_RIGHTEOUS_MERCY_UUID =
+          "Compendium.transformations.gh-transformations.Item.D7EkVFh6Tre3FfgI"
+const BOW_OF_CELESTIAL_DOMINATION_UUID =
+          "Compendium.transformations.gh-transformations.Item.2XemZzO5OR7Qr9Eu"
+const SERAPH_STAGE_FOUR_DEFAULT_CHOICE_UUID =
+          AURA_OF_HOLY_PURGE_UUID
 const HIDING_CELESTIAL_FORM_EFFECT_NAME = "Hiding Celestial Form"
 
 async function waitForSeraphStage1State({
@@ -125,6 +137,40 @@ async function waitForSeraphStage3State({
         ) &&
         actor.items.some(item =>
             item.flags?.transformations?.sourceUuid === stage3ChoiceUuid
+        )
+    )
+}
+
+async function waitForSeraphStage4State({
+    runtime,
+    actor,
+    waiters,
+    stage1ChoiceUuid,
+    stage2ChoiceUuid,
+    stage3ChoiceUuid,
+    stage4ChoiceUuid
+})
+{
+    await waitForSeraphStage3State({
+        runtime,
+        actor,
+        waiters,
+        stage1ChoiceUuid,
+        stage2ChoiceUuid,
+        stage3ChoiceUuid
+    })
+
+    await waiters.waitForDomainStability({
+        actor,
+        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+    })
+
+    await waiters.waitForCondition(() =>
+        actor.items.some(item =>
+            item.flags?.transformations?.sourceUuid === SERAPH_STAGE_FOUR_ITEM_UUID
+        ) &&
+        actor.items.some(item =>
+            item.flags?.transformations?.sourceUuid === stage4ChoiceUuid
         )
     )
 }
@@ -645,6 +691,144 @@ function addBowOfCelestialJudgementItemAssertions(actorDto, {
     })
 }
 
+function addSeraphCorruptionItemAssertions(actorDto)
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [SERAPH_STAGE_FOUR_ITEM_UUID]
+        item.itemName = "Seraph Corruption"
+        item.type = "feat"
+        item.systemType = "transformation"
+        item.systemSubType = "seraph"
+        item.numberOfActivities = 1
+        item.numberOfEffects = 1
+        item.addActivity(activity =>
+        {
+            activity.activationType = "turnStart"
+            activity.range.units = "self"
+            activity.target.affects.type = "self"
+            activity.target.prompt = false
+            activity.addDamagePart(damagePart =>
+            {
+                damagePart.roll = "1d10"
+                damagePart.bonus = ""
+                damagePart.scalingNumber = 1
+                damagePart.numberOfTypes = 1
+                damagePart.damageTypes = ["psychic"]
+            })
+        })
+        item.addEffect(effect =>
+        {
+            effect.name = "Seraph Corruption"
+            effect.duration.seconds = 60
+            effect.duration.turns = 10
+            effect.changes.count = 0
+        })
+    })
+}
+
+function addAuraOfHolyPurgeItemAssertions(actorDto)
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [AURA_OF_HOLY_PURGE_UUID]
+        item.itemName = "Aura of Holy Purge"
+        item.type = "feat"
+        item.systemType = "transformation"
+        item.systemSubType = "seraph"
+        item.numberOfActivities = 0
+        item.numberOfEffects = 1
+        item.addEffect(effect =>
+        {
+            effect.name = "Aura of Holy Purge"
+            effect.changes.count = 0
+            effect.flags.match.push({
+                path: "dae",
+                expected: {
+                    disableIncapacitated: true
+                }
+            })
+            effect.flags.match.push({
+                path: "ActiveAuras",
+                expected: {
+                    isAura: true,
+                    aura: "Allies",
+                    radius: "20",
+                    ignoreSelf: true
+                }
+            })
+        })
+    })
+}
+
+function addAuraOfRighteousMercyItemAssertions(actorDto)
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [AURA_OF_RIGHTEOUS_MERCY_UUID]
+        item.itemName = "Aura of Righteous Mercy"
+        item.type = "feat"
+        item.systemType = "transformation"
+        item.systemSubType = "seraph"
+        item.numberOfActivities = 0
+        item.numberOfEffects = 1
+        item.addEffect(effect =>
+        {
+            effect.name = "Aura of Righteous Mercy"
+            effect.changes.count = 0
+            effect.flags.match.push({
+                path: "dae",
+                expected: {
+                    disableIncapacitated: true
+                }
+            })
+            effect.flags.match.push({
+                path: "ActiveAuras",
+                expected: {
+                    isAura: true,
+                    aura: "Allies",
+                    radius: "20",
+                    ignoreSelf: true
+                }
+            })
+        })
+    })
+}
+
+function addBowOfCelestialDominationItemAssertions(actorDto)
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [BOW_OF_CELESTIAL_DOMINATION_UUID]
+        item.itemName = "Bow of Celestial Domination"
+        item.type = "feat"
+        item.systemType = "transformation"
+        item.systemSubType = "seraph"
+        item.numberOfActivities = 0
+        item.numberOfEffects = 1
+        item.addEffect(effect =>
+        {
+            effect.name = "Bow of Celestial Domination"
+            effect.changes.count = 1
+            effect.changes = [
+                {
+                    key: "system.traits.di.value",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: "necrotic",
+                    priority: 20
+                }
+            ]
+            effect.flags.match.push({
+                path: "dae",
+                expected: {
+                    disableCondition:
+                        "@flags.transformations.seraph.bowManifested != 1"
+                }
+            })
+        })
+    })
+}
+
 function buildSeraphRequiredPath(stage)
 {
     const path = [
@@ -658,6 +842,20 @@ function buildSeraphRequiredPath(stage)
         path.push({
             stage: 2,
             choose: SERAPH_STAGE_TWO_CHOICE_UUID
+        })
+    }
+
+    if (stage >= 3) {
+        path.push({
+            stage: 3,
+            choose: PROTECTIVE_WINGS_UUID
+        })
+    }
+
+    if (stage >= 4) {
+        path.push({
+            stage: 4,
+            choose: SERAPH_STAGE_FOUR_DEFAULT_CHOICE_UUID
         })
     }
 
@@ -1083,6 +1281,75 @@ const blindingRadianceSavingThrowCases = [
         })
     }
 }))
+
+const seraphStage4SavingThrowCases = [
+    {
+        name: "Seraph stage 4 natural 1 saving throw applies the granted effect",
+        uuid: SERAPH_STAGE_FOUR_ITEM_UUID,
+        requiredPath: buildSeraphRequiredPath(4),
+        setup: async ({staticVars}) =>
+        {
+            staticVars.stage4NatOneEffect = await fromUuid(
+                SERAPH_STAGE_FOUR_EFFECT_UUID
+            )
+
+            if (!staticVars.stage4NatOneEffect) {
+                throw new Error(
+                    `Unable to resolve Seraph stage 4 effect ${SERAPH_STAGE_FOUR_EFFECT_UUID}`
+                )
+            }
+
+            staticVars.stage4NatOneExpectedOrigin =
+                staticVars.stage4NatOneEffect.origin ||
+                SERAPH_STAGE_FOUR_EFFECT_UUID
+        },
+        steps: [
+            async ({actor, runtime}) =>
+            {
+                await runtime.services.triggerRuntime.run("savingThrow", actor, {
+                    saves: {
+                        current: {
+                            ability: "wis",
+                            isSpell: true,
+                            naturalRoll: 1,
+                            total: 1,
+                            success: false
+                        }
+                    }
+                })
+            }
+        ],
+        await: async ({actor, waiters, staticVars}) =>
+        {
+            await waiters.waitForCondition(() =>
+                actor.effects.some(effect =>
+                    effect.name === staticVars.stage4NatOneEffect.name &&
+                    effect.origin === staticVars.stage4NatOneExpectedOrigin &&
+                    effect.getFlag("transformations", "addedByTransformation") === true
+                )
+            )
+        },
+        assertions: async ({actor, assert, staticVars}) =>
+        {
+            const matchingEffects = actor.effects.filter(effect =>
+                effect.name === staticVars.stage4NatOneEffect.name &&
+                effect.origin === staticVars.stage4NatOneExpectedOrigin &&
+                effect.getFlag("transformations", "addedByTransformation") === true
+            )
+
+            assert.equal(
+                matchingEffects.length,
+                1,
+                "Expected one instantiated Seraph stage 4 effect after a natural 1 save"
+            )
+            assert.equal(
+                matchingEffects[0]?.changes?.length ?? 0,
+                staticVars.stage4NatOneEffect.changes.length,
+                "Expected the instantiated Seraph stage 4 effect to copy the source changes"
+            )
+        }
+    }
+]
 
 export const seraphTestDef = {
     id: "seraph",
@@ -1743,12 +2010,337 @@ export const seraphTestDef = {
                 validate(actorDto, {assert})
                 assertSeraphSubtype({actor, assert})
             }
+        },
+        {
+            name: "stage 4 with Aura of Holy Purge",
+            steps: [
+                {
+                    stage: 1,
+                    choose: ANGELIC_WINGS_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            1
+                        )
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: SACRED_RETRIBUTION_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            2
+                        )
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: PROTECTIVE_WINGS_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            3
+                        )
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: AURA_OF_HOLY_PURGE_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            4
+                        )
+                    }
+                }
+            ],
+            finalAwait: async ({runtime, actor, waiters}) =>
+            {
+                await waitForSeraphStage4State({
+                    runtime,
+                    actor,
+                    waiters,
+                    stage1ChoiceUuid: ANGELIC_WINGS_UUID,
+                    stage2ChoiceUuid: SACRED_RETRIBUTION_UUID,
+                    stage3ChoiceUuid: PROTECTIVE_WINGS_UUID,
+                    stage4ChoiceUuid: AURA_OF_HOLY_PURGE_UUID
+                })
+            },
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+
+                actorDto.hasItemWithSourceUuids = [
+                    CELESTIAL_FORM_UUID,
+                    PLANAR_BINDING_UUID,
+                    ANGELIC_WINGS_UUID,
+                    BLINDING_RADIANCE_UUID,
+                    SACRED_RETRIBUTION_UUID,
+                    BEACON_TO_DARKNESS_UUID,
+                    PROTECTIVE_WINGS_UUID,
+                    SERAPH_STAGE_FOUR_ITEM_UUID,
+                    AURA_OF_HOLY_PURGE_UUID
+                ]
+                actorDto.stats.resistances = ["radiant"]
+                actorDto.rollModes.disadvantage.push({
+                    identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
+                })
+
+                addSeraphRaceItemAssertion(actorDto)
+                addCelestialFormItemAssertions(actorDto)
+                addPlanarBindingItemAssertions(actorDto)
+                addAngelicWingsItemAssertions(actorDto, {
+                    usesMax: 4
+                })
+                addBlindingRadianceItemAssertions(actorDto)
+                addSacredRetributionItemAssertions(actorDto, {
+                    usesMax: 4
+                })
+                addBeaconToDarknessItemAssertions(actorDto)
+                addProtectiveWingsItemAssertions(actorDto)
+                addSeraphCorruptionItemAssertions(actorDto)
+                addAuraOfHolyPurgeItemAssertions(actorDto)
+
+                validate(actorDto, {assert})
+                assertSeraphSubtype({actor, assert})
+            }
+        },
+        {
+            name: "stage 4 with Aura of Righteous Mercy",
+            steps: [
+                {
+                    stage: 1,
+                    choose: ANGELIC_WINGS_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            1
+                        )
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: SACRED_RETRIBUTION_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            2
+                        )
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: PROTECTIVE_WINGS_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            3
+                        )
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: AURA_OF_RIGHTEOUS_MERCY_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            4
+                        )
+                    }
+                }
+            ],
+            finalAwait: async ({runtime, actor, waiters}) =>
+            {
+                await waitForSeraphStage4State({
+                    runtime,
+                    actor,
+                    waiters,
+                    stage1ChoiceUuid: ANGELIC_WINGS_UUID,
+                    stage2ChoiceUuid: SACRED_RETRIBUTION_UUID,
+                    stage3ChoiceUuid: PROTECTIVE_WINGS_UUID,
+                    stage4ChoiceUuid: AURA_OF_RIGHTEOUS_MERCY_UUID
+                })
+            },
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+
+                actorDto.hasItemWithSourceUuids = [
+                    CELESTIAL_FORM_UUID,
+                    PLANAR_BINDING_UUID,
+                    ANGELIC_WINGS_UUID,
+                    BLINDING_RADIANCE_UUID,
+                    SACRED_RETRIBUTION_UUID,
+                    BEACON_TO_DARKNESS_UUID,
+                    PROTECTIVE_WINGS_UUID,
+                    SERAPH_STAGE_FOUR_ITEM_UUID,
+                    AURA_OF_RIGHTEOUS_MERCY_UUID
+                ]
+                actorDto.stats.resistances = ["radiant"]
+                actorDto.rollModes.disadvantage.push({
+                    identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
+                })
+
+                addSeraphRaceItemAssertion(actorDto)
+                addCelestialFormItemAssertions(actorDto)
+                addPlanarBindingItemAssertions(actorDto)
+                addAngelicWingsItemAssertions(actorDto, {
+                    usesMax: 4
+                })
+                addBlindingRadianceItemAssertions(actorDto)
+                addSacredRetributionItemAssertions(actorDto, {
+                    usesMax: 4
+                })
+                addBeaconToDarknessItemAssertions(actorDto)
+                addProtectiveWingsItemAssertions(actorDto)
+                addSeraphCorruptionItemAssertions(actorDto)
+                addAuraOfRighteousMercyItemAssertions(actorDto)
+
+                validate(actorDto, {assert})
+                assertSeraphSubtype({actor, assert})
+            }
+        },
+        {
+            name: "stage 4 with Bow of Celestial Domination",
+            steps: [
+                {
+                    stage: 1,
+                    choose: HOLY_STRIKES_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            1
+                        )
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: SACRED_RETRIBUTION_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            2
+                        )
+                    }
+                },
+                {
+                    stage: 3,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            3
+                        )
+                    }
+                },
+                {
+                    stage: 4,
+                    choose: BOW_OF_CELESTIAL_DOMINATION_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            4
+                        )
+                    }
+                }
+            ],
+            finalAwait: async ({runtime, actor, waiters}) =>
+            {
+                await waitForSeraphStage4State({
+                    runtime,
+                    actor,
+                    waiters,
+                    stage1ChoiceUuid: HOLY_STRIKES_UUID,
+                    stage2ChoiceUuid: SACRED_RETRIBUTION_UUID,
+                    stage3ChoiceUuid: BOW_OF_CELESTIAL_JUDGEMENT_UUID,
+                    stage4ChoiceUuid: BOW_OF_CELESTIAL_DOMINATION_UUID
+                })
+            },
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorProf = actor.system.attributes.prof
+                const actorDto = new ActorValidationDTO(actor)
+
+                actorDto.hasItemWithSourceUuids = [
+                    CELESTIAL_FORM_UUID,
+                    PLANAR_BINDING_UUID,
+                    HOLY_STRIKES_UUID,
+                    BLINDING_RADIANCE_UUID,
+                    SACRED_RETRIBUTION_UUID,
+                    BEACON_TO_DARKNESS_UUID,
+                    BOW_OF_CELESTIAL_JUDGEMENT_UUID,
+                    SERAPH_STAGE_FOUR_ITEM_UUID,
+                    BOW_OF_CELESTIAL_DOMINATION_UUID
+                ]
+                actorDto.stats.resistances = ["radiant"]
+                actorDto.rollModes.disadvantage.push({
+                    identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
+                })
+
+                addSeraphRaceItemAssertion(actorDto)
+                addCelestialFormItemAssertions(actorDto)
+                addPlanarBindingItemAssertions(actorDto)
+                addHolyStrikesItemAssertions(actorDto, {
+                    actorProf,
+                    stage: 4
+                })
+                addBlindingRadianceItemAssertions(actorDto)
+                addSacredRetributionItemAssertions(actorDto, {
+                    usesMax: 4
+                })
+                addBeaconToDarknessItemAssertions(actorDto)
+                addBowOfCelestialJudgementItemAssertions(actorDto, {
+                    usesMax: 4
+                })
+                addSeraphCorruptionItemAssertions(actorDto)
+                addBowOfCelestialDominationItemAssertions(actorDto)
+
+                validate(actorDto, {assert})
+                assertSeraphSubtype({actor, assert})
+            }
         }
     ],
     itemBehaviorTests: [
         ...blindingRadianceTriggerCases,
         ...blindingRadianceActivityUseCases,
         ...blindingRadianceNonTriggerCases,
-        ...blindingRadianceSavingThrowCases
+        ...blindingRadianceSavingThrowCases,
+        ...seraphStage4SavingThrowCases
     ]
 }
