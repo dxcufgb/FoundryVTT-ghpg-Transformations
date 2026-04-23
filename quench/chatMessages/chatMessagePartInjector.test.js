@@ -1,4 +1,5 @@
 import { ChatMessagePartInjector } from "../../ui/chatCards/ChatMessagePartInjector.js"
+import { renderMidiRequestButtons } from "../../ui/chatCards/MidiRequestButtons.js"
 
 const TEST_TEMPLATE =
           "modules/transformations/scripts/templates/tests/chat-message-part-injector-test.hbs"
@@ -59,6 +60,57 @@ quench.registerBatch(
                 expect(
                     injectedCard?.querySelector("button")?.textContent?.trim()
                 ).to.equal("Roll Hit Die")
+            })
+
+            it("injects provided html without rendering a template", async function ()
+            {
+                const message = createMessage(
+                    `<div class="midi-buttons"></div>`
+                )
+
+                await ChatMessagePartInjector.inject({
+                    message,
+                    selector: ".midi-buttons",
+                    position: "afterbegin",
+                    html: renderMidiRequestButtons({
+                        buttons: [
+                            {
+                                icon: '<i class="fa-solid fa-shield-heart" inert></i>',
+                                visibleLabel: "DC 16 Constitution",
+                                hiddenLabel: "Constitution Saving Throw",
+                                dataset: {
+                                    action: "rollRequest",
+                                    visibility: "all",
+                                    type: "save",
+                                    ability: "con",
+                                    dc: "16"
+                                }
+                            }
+                        ],
+                        rootAttributes: {
+                            "data-transformations-blinding-radiance-save-request": ""
+                        }
+                    })
+                })
+
+                const parsed = parseContent(message.content)
+                const requestRoot = parsed.querySelector(
+                    "[data-transformations-blinding-radiance-save-request]"
+                )
+                const button = requestRoot?.querySelector("button")
+
+                expect(message.updates.length).to.equal(1)
+                expect(requestRoot).to.exist
+                expect(button).to.exist
+                expect(button?.dataset?.action).to.equal("rollRequest")
+                expect(button?.dataset?.ability).to.equal("con")
+                expect(button?.dataset?.dc).to.equal("16")
+                expect(
+                    button?.querySelector(".visible-dc")?.textContent?.trim()
+                ).to.equal("DC 16 Constitution")
+                expect(
+                    button?.querySelector(".hidden-dc")?.textContent?.trim()
+                ).to.equal("Constitution Saving Throw")
             })
 
             it("replaces the matched selector with rendered html", async function ()

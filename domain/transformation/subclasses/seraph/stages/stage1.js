@@ -1,15 +1,12 @@
 export const stage1 = {
-    name: "Seraph Stage 1",
     stage: 1,
     grants: {
         items: [
             {
-                name: "Seraph Stage 1 Base Feature",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.lPVIY7UVSXBCdK5K"
             },
             {
-                name: "Seraph Stage 1 Radiant Grace",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.ZdNOjtoY9BtunP6Q"
             }
         ],
         actor: {
@@ -19,12 +16,10 @@ export const stage1 = {
     choices: {
         items: [
             {
-                name: "Seraph Stage 1 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.0JNmGyBDqHalcz3W"
             },
             {
-                name: "Seraph Stage 1 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.ybOElBsdS36JW9E4"
             }
         ]
     }

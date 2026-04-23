@@ -1,23 +1,19 @@
 export const stage2 = {
-    name: "Seraph Stage 2",
     stage: 2,
     grants: {
         items: [
             {
-                name: "Seraph Stage 2 Base Feature",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.bZN7ITmrxwj3MmOI"
             }
         ]
     },
     choices: {
         items: [
             {
-                name: "Seraph Stage 2 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.UH9aHsk5HHd7k7dS"
             },
             {
-                name: "Seraph Stage 2 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.bWIalvbrSuMrPvNT"
             }
         ]
     }
