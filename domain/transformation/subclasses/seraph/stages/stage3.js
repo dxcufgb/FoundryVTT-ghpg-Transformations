@@ -10,10 +10,20 @@ export const stage3 = {
     choices: {
         items: [
             {
-                uuid: "Compendium.transformations.gh-transformations.Item.Sz5sOHIQ1y9QWdRF"
+                uuid: "Compendium.transformations.gh-transformations.Item.Sz5sOHIQ1y9QWdRF",
+                requires: {
+                    items: [
+                        "Compendium.transformations.gh-transformations.Item.bWIalvbrSuMrPvNT"
+                    ]
+                }
             },
             {
-                uuid: "Compendium.transformations.gh-transformations.Item.5MgmZYeNffq5C6f6"
+                uuid: "Compendium.transformations.gh-transformations.Item.5MgmZYeNffq5C6f6",
+                requires: {
+                    items: [
+                        "Compendium.transformations.gh-transformations.Item.0JNmGyBDqHalcz3W"
+                    ]
+                }
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.LlaGTb9Vq4r4Sx9V"

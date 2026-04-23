@@ -19,6 +19,16 @@ const DIVINE_CLEMENCY_UUID =
 const SACRED_RETRIBUTION_UUID = SERAPH_STAGE_TWO_CHOICE_UUID
 const HEALING_WORD_UUID =
           "Compendium.transformations.gh-transformations.Item.2nv0dM4U2yTrf0B5"
+const BEACON_TO_DARKNESS_UUID =
+          "Compendium.transformations.gh-transformations.Item.zFkviDvFLp8QiKJl"
+const CLEANSE_AFFLICTION_UUID =
+          "Compendium.transformations.gh-transformations.Item.Sz5sOHIQ1y9QWdRF"
+const PROTECTIVE_WINGS_UUID =
+          "Compendium.transformations.gh-transformations.Item.5MgmZYeNffq5C6f6"
+const BOW_OF_CELESTIAL_JUDGEMENT_UUID =
+          "Compendium.transformations.gh-transformations.Item.LlaGTb9Vq4r4Sx9V"
+const BOW_OF_CELESTIAL_JUDGEMENT_ITEM_UUID =
+          "Compendium.transformations.gh-transformations.Item.9RWqtVVjy7Yvvmgk"
 const HIDING_CELESTIAL_FORM_EFFECT_NAME = "Hiding Celestial Form"
 
 async function waitForSeraphStage1State({
@@ -78,6 +88,43 @@ async function waitForSeraphStage2State({
         ) &&
         actor.items.some(item =>
             item.flags?.transformations?.sourceUuid === choiceUuid
+        )
+    )
+}
+
+async function waitForSeraphStage3State({
+    runtime,
+    actor,
+    waiters,
+    stage1ChoiceUuid,
+    stage2ChoiceUuid,
+    stage3ChoiceUuid
+})
+{
+    await waitForSeraphStage1State({
+        runtime,
+        actor,
+        waiters,
+        choiceUuid: stage1ChoiceUuid
+    })
+
+    await waiters.waitForDomainStability({
+        actor,
+        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+    })
+
+    await waiters.waitForCondition(() =>
+        actor.items.some(item =>
+            item.flags?.transformations?.sourceUuid === BLINDING_RADIANCE_UUID
+        ) &&
+        actor.items.some(item =>
+            item.flags?.transformations?.sourceUuid === stage2ChoiceUuid
+        ) &&
+        actor.items.some(item =>
+            item.flags?.transformations?.sourceUuid === BEACON_TO_DARKNESS_UUID
+        ) &&
+        actor.items.some(item =>
+            item.flags?.transformations?.sourceUuid === stage3ChoiceUuid
         )
     )
 }
@@ -155,7 +202,9 @@ function addPlanarBindingItemAssertions(actorDto)
     })
 }
 
-function addAngelicWingsItemAssertions(actorDto)
+function addAngelicWingsItemAssertions(actorDto, {
+    usesMax = 2
+} = {})
 {
     actorDto.addItem(item =>
     {
@@ -172,7 +221,7 @@ function addAngelicWingsItemAssertions(actorDto)
             activity.activationType = "bonus"
             activity.range.units = "self"
             activity.target.affects.type = "self"
-            activity.uses.max = 2
+            activity.uses.max = usesMax
             activity.uses.addRecovery(recovery =>
             {
                 recovery.period = "lr"
@@ -306,7 +355,55 @@ function addBlindingRadianceItemAssertions(actorDto)
     })
 }
 
-function addDivineClemencyItemAssertions(actorDto)
+function addHolyStrikesItemAssertions(actorDto, {
+    actorProf,
+    stage
+} = {})
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [HOLY_STRIKES_UUID]
+        item.itemName = "Holy Strikes"
+        item.type = "feat"
+        item.systemType = "transformation"
+        item.systemSubType = "seraph"
+        item.numberOfActivities = 1
+        item.numberOfEffects = 0
+        item.addActivity(activity =>
+        {
+            activity.activationType = "special"
+            activity.range.units = "spec"
+            activity.target.affects.type = "creature"
+            activity.target.affects.count = "1"
+            activity.uses.max = actorProf + stage
+            activity.uses.addRecovery(recovery =>
+            {
+                recovery.period = "lr"
+                recovery.type = "recoverAll"
+            })
+            activity.uses.addRecovery(recovery =>
+            {
+                recovery.period = "sr"
+                recovery.type = "recoverAll"
+            })
+            activity.critical.allow = true
+            activity.critical.bonus = ""
+            activity.addDamagePart(damagePart =>
+            {
+                damagePart.customEnabled = true
+                damagePart.custom = "(@flags.transformations.stage)d6"
+                damagePart.bonus = ""
+                damagePart.scalingNumber = 1
+                damagePart.numberOfTypes = 1
+                damagePart.damageTypes = ["radiant"]
+            })
+        })
+    })
+}
+
+function addDivineClemencyItemAssertions(actorDto, {
+    usesMax = 2
+} = {})
 {
     actorDto.addItem(item =>
     {
@@ -320,7 +417,7 @@ function addDivineClemencyItemAssertions(actorDto)
             activity.activationType = "reaction"
             activity.range.units = "self"
             activity.target.prompt = true
-            activity.uses.max = 2
+            activity.uses.max = usesMax
             activity.spellUuid = HEALING_WORD_UUID
         })
         item.addAdvancement(advancement =>
@@ -338,7 +435,9 @@ function addDivineClemencyItemAssertions(actorDto)
     })
 }
 
-function addSacredRetributionItemAssertions(actorDto)
+function addSacredRetributionItemAssertions(actorDto, {
+    usesMax = 2
+} = {})
 {
     actorDto.addItem(item =>
     {
@@ -358,7 +457,7 @@ function addSacredRetributionItemAssertions(actorDto)
             activity.target.affects.type = "ally"
             activity.target.affects.count = "1"
             activity.target.prompt = false
-            activity.uses.max = 2
+            activity.uses.max = usesMax
             activity.critical.allow = true
             activity.critical.bonus = ""
             activity.addDamagePart(damagePart =>
@@ -369,6 +468,179 @@ function addSacredRetributionItemAssertions(actorDto)
                 damagePart.numberOfTypes = 1
                 damagePart.damageTypes = ["radiant"]
             })
+        })
+    })
+}
+
+function addBeaconToDarknessItemAssertions(actorDto)
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [BEACON_TO_DARKNESS_UUID]
+        item.itemName = "Beacon to Darkness"
+        item.type = "feat"
+        item.systemType = "transformation"
+        item.systemSubType = "seraph"
+        item.numberOfActivities = 0
+        item.numberOfEffects = 1
+        item.addEffect(effect =>
+        {
+            effect.name = "Beacon to Darkness"
+            effect.changes.count = 3
+            effect.changes = [
+                {
+                    key: "flags.midi-qol.disadvantage.attack.all",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: "1",
+                    priority: 20
+                },
+                {
+                    key: "flags.midi-qol.disadvantage.attack.save",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: "1",
+                    priority: 20
+                },
+                {
+                    key: "flags.midi-qol.disadvantage.save.all",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: "1",
+                    priority: 20
+                }
+            ]
+        })
+    })
+}
+
+function addCleanseAfflictionItemAssertions(actorDto)
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [CLEANSE_AFFLICTION_UUID]
+        item.itemName = "Cleanse Affliction"
+        item.type = "feat"
+        item.systemType = "transformation"
+        item.systemSubType = "seraph"
+        item.numberOfActivities = 0
+        item.numberOfEffects = 1
+        item.addEffect(effect =>
+        {
+            effect.name = "Roll Advantage"
+            effect.changes.count = 1
+            effect.changes = [
+                {
+                    key: "flags.midi-qol.advantage.all",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: "1",
+                    priority: 20
+                }
+            ]
+            effect.flags.match.push({
+                path: "dae",
+                expected: {
+                    specialDuration: [
+                        "isSave",
+                        "isCheck",
+                        "isSkill",
+                        "isInitiative",
+                        "1Attack"
+                    ]
+                }
+            })
+        })
+    })
+}
+
+function addProtectiveWingsItemAssertions(actorDto)
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [PROTECTIVE_WINGS_UUID]
+        item.itemName = "Protective Wings"
+        item.type = "feat"
+        item.systemType = "transformation"
+        item.systemSubType = "seraph"
+        item.numberOfActivities = 0
+        item.numberOfEffects = 1
+        item.addEffect(effect =>
+        {
+            effect.name = "Protective Wings"
+            effect.changes.count = 1
+            effect.changes = [
+                {
+                    key: "system.attributes.movement.fly",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: "10",
+                    priority: 20
+                }
+            ]
+            effect.flags.match.push({
+                path: "dae",
+                expected: {
+                    disableCondition:
+                        "@flags.transformations.seraph.angelicWings != 1"
+                }
+            })
+        })
+    })
+}
+
+function addBowOfCelestialJudgementItemAssertions(actorDto, {
+    usesMax = 3
+} = {})
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [BOW_OF_CELESTIAL_JUDGEMENT_UUID]
+        item.itemName = "Bow of Celestial Judgement"
+        item.type = "feat"
+        item.systemType = "transformation"
+        item.systemSubType = "seraph"
+        item.numberOfActivities = 1
+        item.numberOfEffects = 1
+        item.addActivity(activity =>
+        {
+            activity.name = "Manifest Bow of Celestial Judgement"
+            activity.activationType = "bonus"
+            activity.range.units = "self"
+            activity.target.affects.type = "self"
+            activity.target.prompt = true
+            activity.uses.max = usesMax
+            activity.uses.addRecovery(recovery =>
+            {
+                recovery.period = "lr"
+                recovery.type = "recoverAll"
+            })
+            activity.addEffect(effect =>
+            {
+                effect.name = "Bow of Celestial Judgement"
+            })
+        })
+        item.addEffect(effect =>
+        {
+            effect.name = "Bow of Celestial Judgement"
+            effect.duration.seconds = 60
+            effect.duration.turns = 10
+            effect.changes.count = 3
+            effect.changes = [
+                {
+                    key: "macro.createItem",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: BOW_OF_CELESTIAL_JUDGEMENT_ITEM_UUID,
+                    priority: 20
+                },
+                {
+                    key: "system.traits.dr.value",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: "necrotic",
+                    priority: 20
+                },
+                {
+                    key: "flags.transformations.seraph.bowManifested",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: "1",
+                    priority: 20
+                }
+            ]
         })
     })
 }
@@ -1051,7 +1323,7 @@ export const seraphTestDef = {
                             damagePart.bonus = ""
                             damagePart.scalingNumber = 1
                             damagePart.numberOfTypes = 1
-                            damagePart.type = "radiant"
+                            damagePart.damageTypes = ["radiant"]
                         })
                     })
                 })
@@ -1118,9 +1390,13 @@ export const seraphTestDef = {
                 addSeraphRaceItemAssertion(actorDto)
                 addCelestialFormItemAssertions(actorDto)
                 addPlanarBindingItemAssertions(actorDto)
-                addAngelicWingsItemAssertions(actorDto)
+                addAngelicWingsItemAssertions(actorDto, {
+                    usesMax: 2
+                })
                 addBlindingRadianceItemAssertions(actorDto)
-                addDivineClemencyItemAssertions(actorDto)
+                addDivineClemencyItemAssertions(actorDto, {
+                    usesMax: 2
+                })
 
                 validate(actorDto, {assert})
                 assertSeraphSubtype({actor, assert})
@@ -1184,9 +1460,285 @@ export const seraphTestDef = {
                 addSeraphRaceItemAssertion(actorDto)
                 addCelestialFormItemAssertions(actorDto)
                 addPlanarBindingItemAssertions(actorDto)
-                addAngelicWingsItemAssertions(actorDto)
+                addAngelicWingsItemAssertions(actorDto, {
+                    usesMax: 2
+                })
                 addBlindingRadianceItemAssertions(actorDto)
-                addSacredRetributionItemAssertions(actorDto)
+                addSacredRetributionItemAssertions(actorDto, {
+                    usesMax: 2
+                })
+
+                validate(actorDto, {assert})
+                assertSeraphSubtype({actor, assert})
+            }
+        },
+        {
+            name: "stage 3 with Cleanse Affliction",
+            steps: [
+                {
+                    stage: 1,
+                    choose: HOLY_STRIKES_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            1
+                        )
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: DIVINE_CLEMENCY_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            2
+                        )
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: CLEANSE_AFFLICTION_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            3
+                        )
+                    }
+                }
+            ],
+            finalAwait: async ({runtime, actor, waiters}) =>
+            {
+                await waitForSeraphStage3State({
+                    runtime,
+                    actor,
+                    waiters,
+                    stage1ChoiceUuid: HOLY_STRIKES_UUID,
+                    stage2ChoiceUuid: DIVINE_CLEMENCY_UUID,
+                    stage3ChoiceUuid: CLEANSE_AFFLICTION_UUID
+                })
+            },
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorProf = actor.system.attributes.prof
+                const actorDto = new ActorValidationDTO(actor)
+
+                actorDto.hasItemWithSourceUuids = [
+                    CELESTIAL_FORM_UUID,
+                    PLANAR_BINDING_UUID,
+                    HOLY_STRIKES_UUID,
+                    BLINDING_RADIANCE_UUID,
+                    DIVINE_CLEMENCY_UUID,
+                    BEACON_TO_DARKNESS_UUID,
+                    CLEANSE_AFFLICTION_UUID
+                ]
+                actorDto.stats.resistances = ["radiant"]
+                actorDto.rollModes.disadvantage.push({
+                    identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
+                })
+
+                addSeraphRaceItemAssertion(actorDto)
+                addCelestialFormItemAssertions(actorDto)
+                addPlanarBindingItemAssertions(actorDto)
+                addHolyStrikesItemAssertions(actorDto, {
+                    actorProf,
+                    stage: 3
+                })
+                addBlindingRadianceItemAssertions(actorDto)
+                addDivineClemencyItemAssertions(actorDto, {
+                    usesMax: 3
+                })
+                addBeaconToDarknessItemAssertions(actorDto)
+                addCleanseAfflictionItemAssertions(actorDto)
+
+                validate(actorDto, {assert})
+                assertSeraphSubtype({actor, assert})
+            }
+        },
+        {
+            name: "stage 3 with Protective Wings",
+            steps: [
+                {
+                    stage: 1,
+                    choose: ANGELIC_WINGS_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            1
+                        )
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: SACRED_RETRIBUTION_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            2
+                        )
+                    }
+                },
+                {
+                    stage: 3,
+                    choose: PROTECTIVE_WINGS_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            3
+                        )
+                    }
+                }
+            ],
+            finalAwait: async ({runtime, actor, waiters}) =>
+            {
+                await waitForSeraphStage3State({
+                    runtime,
+                    actor,
+                    waiters,
+                    stage1ChoiceUuid: ANGELIC_WINGS_UUID,
+                    stage2ChoiceUuid: SACRED_RETRIBUTION_UUID,
+                    stage3ChoiceUuid: PROTECTIVE_WINGS_UUID
+                })
+            },
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+
+                actorDto.hasItemWithSourceUuids = [
+                    CELESTIAL_FORM_UUID,
+                    PLANAR_BINDING_UUID,
+                    ANGELIC_WINGS_UUID,
+                    BLINDING_RADIANCE_UUID,
+                    SACRED_RETRIBUTION_UUID,
+                    BEACON_TO_DARKNESS_UUID,
+                    PROTECTIVE_WINGS_UUID
+                ]
+                actorDto.stats.resistances = ["radiant"]
+                actorDto.rollModes.disadvantage.push({
+                    identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
+                })
+
+                addSeraphRaceItemAssertion(actorDto)
+                addCelestialFormItemAssertions(actorDto)
+                addPlanarBindingItemAssertions(actorDto)
+                addAngelicWingsItemAssertions(actorDto, {
+                    usesMax: 3
+                })
+                addBlindingRadianceItemAssertions(actorDto)
+                addSacredRetributionItemAssertions(actorDto, {
+                    usesMax: 3
+                })
+                addBeaconToDarknessItemAssertions(actorDto)
+                addProtectiveWingsItemAssertions(actorDto)
+
+                validate(actorDto, {assert})
+                assertSeraphSubtype({actor, assert})
+            }
+        },
+        {
+            name: "stage 3 with Bow of Celestial Judgement",
+            steps: [
+                {
+                    stage: 1,
+                    choose: HOLY_STRIKES_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            1
+                        )
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: SACRED_RETRIBUTION_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            2
+                        )
+                    }
+                },
+                {
+                    stage: 3,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            3
+                        )
+                    }
+                }
+            ],
+            finalAwait: async ({runtime, actor, waiters}) =>
+            {
+                await waitForSeraphStage3State({
+                    runtime,
+                    actor,
+                    waiters,
+                    stage1ChoiceUuid: HOLY_STRIKES_UUID,
+                    stage2ChoiceUuid: SACRED_RETRIBUTION_UUID,
+                    stage3ChoiceUuid: BOW_OF_CELESTIAL_JUDGEMENT_UUID
+                })
+            },
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorProf = actor.system.attributes.prof
+                const actorDto = new ActorValidationDTO(actor)
+
+                actorDto.hasItemWithSourceUuids = [
+                    CELESTIAL_FORM_UUID,
+                    PLANAR_BINDING_UUID,
+                    HOLY_STRIKES_UUID,
+                    BLINDING_RADIANCE_UUID,
+                    SACRED_RETRIBUTION_UUID,
+                    BEACON_TO_DARKNESS_UUID,
+                    BOW_OF_CELESTIAL_JUDGEMENT_UUID
+                ]
+                actorDto.stats.resistances = ["radiant"]
+                actorDto.rollModes.disadvantage.push({
+                    identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
+                })
+
+                addSeraphRaceItemAssertion(actorDto)
+                addCelestialFormItemAssertions(actorDto)
+                addPlanarBindingItemAssertions(actorDto)
+                addHolyStrikesItemAssertions(actorDto, {
+                    actorProf,
+                    stage: 3
+                })
+                addBlindingRadianceItemAssertions(actorDto)
+                addSacredRetributionItemAssertions(actorDto, {
+                    usesMax: 3
+                })
+                addBeaconToDarknessItemAssertions(actorDto)
+                addBowOfCelestialJudgementItemAssertions(actorDto, {
+                    usesMax: 3
+                })
 
                 validate(actorDto, {assert})
                 assertSeraphSubtype({actor, assert})
