@@ -1,6 +1,13 @@
 import { registerDnd5eHooks } from "../../infrastructure/hooks/dnd5eHooks.js"
 import { Lycanthrope } from "../../domain/transformation/subclasses/lycanthrope/Lycanthrope.js"
 import { Primordial } from "../../domain/transformation/subclasses/primordial/Primordial.js"
+import { Seraph } from "../../domain/transformation/subclasses/seraph/Seraph.js"
+import {
+    BLINDING_RADIANCE_ACTIVITY_ID
+} from "../../domain/transformation/subclasses/seraph/Feats/BlindingRadiance.js"
+import {
+    BLINDING_RADIANCE_UUID
+} from "../../domain/transformation/subclasses/seraph/triggers/blindingRadianceTriggerCommon.js"
 
 function createLogger()
 {
@@ -684,6 +691,283 @@ quench.registerBatch(
                         },
                         usage,
                         {message: {id: "message-4"}}
+                    )
+
+                    expect(
+                        harness.calls.triggerRuntime.some(call =>
+                            call.name === "activityUse"
+                        )
+                    ).to.equal(false)
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it(
+                "delegates preUseActivity to the transformation class and applies Blinding Radiance stage DC for actor activities",
+                async function ()
+                {
+                    const actor = {
+                        id: "actor-seraph-1",
+                        flags: {
+                            transformations: {
+                                stage: 3
+                            }
+                        },
+                        getFlag(scope, key)
+                        {
+                            if (scope === "transformations" && key === "stage") {
+                                return 3
+                            }
+
+                            return null
+                        }
+                    }
+                    const harness = createHookHarness({
+                        transformationOverrides: {
+                            TransformationClass: Seraph
+                        }
+                    })
+                    let persistedUpdate = null
+                    const item = {
+                        id: "item-seraph-1",
+                        name: "Blinding Radiance",
+                        uuid: "Actor.actor-seraph-1.Item.item-seraph-1",
+                        system: {
+                            activities: {
+                                get(id)
+                                {
+                                    return id === BLINDING_RADIANCE_ACTIVITY_ID
+                                        ? activity
+                                        : null
+                                }
+                            }
+                        },
+                        flags: {
+                            transformations: {
+                                sourceUuid: BLINDING_RADIANCE_UUID
+                            }
+                        },
+                        updateSource(update)
+                        {
+                            persistedUpdate = update
+                        }
+                    }
+                    const activity = {
+                        id: BLINDING_RADIANCE_ACTIVITY_ID,
+                        uuid:
+                            `Actor.actor-seraph-1.Item.item-seraph-1.Activity.${BLINDING_RADIANCE_ACTIVITY_ID}`,
+                        actor,
+                        item,
+                        save: {
+                            dc: {
+                                calculation: "",
+                                formula: ""
+                            }
+                        },
+                        system: {
+                            save: {
+                                dc: {
+                                    calculation: "",
+                                    formula: ""
+                                }
+                            }
+                        }
+                    }
+                    const usageConfig = {}
+                    const dialogConfig = {
+                        dc: {
+                            value: 0
+                        }
+                    }
+                    const messageConfig = {}
+
+                    try {
+                        const callback = harness.callbacks.get("dnd5e.preUseActivity")
+                        expect(callback).to.be.a("function")
+
+                        callback(activity, usageConfig, dialogConfig, messageConfig)
+
+                        await flushAsyncWork()
+
+                        expect(Array.from(activity.save.ability ?? [])).to.deep.equal(["con"])
+                        expect(activity.save.dc.formula).to.equal("16")
+                        expect(activity.save.dc.value).to.equal(16)
+                        expect(Array.from(activity.system.save.ability ?? [])).to.deep.equal(["con"])
+                        expect(activity.system.save.dc.formula).to.equal("16")
+                        expect(activity.system.save.dc.value).to.equal(16)
+                        expect(activity.labels.save.trim()).to.match(/^DC 16(?:\s+.*)?$/)
+                        expect(dialogConfig.dc.value).to.equal(16)
+                        expect(messageConfig.dc.value).to.equal(16)
+                        expect(
+                            messageConfig.data.flags.transformations.blindingRadianceSaveRequest
+                        ).to.deep.equal({
+                            type: "save",
+                            ability: "con",
+                            dc: 16
+                        })
+                        expect(persistedUpdate).to.deep.equal({
+                            [`system.activities.${BLINDING_RADIANCE_ACTIVITY_ID}.save.ability`]: [
+                                "con"
+                            ],
+                            [`system.activities.${BLINDING_RADIANCE_ACTIVITY_ID}.save.dc.calculation`]: "",
+                            [`system.activities.${BLINDING_RADIANCE_ACTIVITY_ID}.save.dc.formula`]: "16"
+                        })
+                    } finally {
+                        harness.restore()
+                    }
+                }
+            )
+
+            it(
+                "delegates preActivityUse to the transformation class and applies Blinding Radiance stage DC",
+                async function ()
+                {
+                    const actor = {
+                        id: "actor-seraph-2",
+                        flags: {
+                            transformations: {
+                                stage: 4
+                            }
+                        },
+                        getFlag(scope, key)
+                        {
+                            if (scope === "transformations" && key === "stage") {
+                                return 4
+                            }
+
+                            return null
+                        }
+                    }
+                    const harness = createHookHarness({
+                        transformationOverrides: {
+                            TransformationClass: Seraph
+                        }
+                    })
+                    let persistedUpdate = null
+                    const item = {
+                        id: "item-seraph-2",
+                        name: "Blinding Radiance",
+                        uuid: "Actor.actor-seraph-2.Item.item-seraph-2",
+                        system: {
+                            activities: {
+                                get(id)
+                                {
+                                    return id === BLINDING_RADIANCE_ACTIVITY_ID
+                                        ? activity
+                                        : null
+                                }
+                            }
+                        },
+                        flags: {
+                            transformations: {
+                                sourceUuid: BLINDING_RADIANCE_UUID
+                            }
+                        },
+                        updateSource(update)
+                        {
+                            persistedUpdate = update
+                        }
+                    }
+                    const activity = {
+                        _id: BLINDING_RADIANCE_ACTIVITY_ID,
+                        uuid:
+                            `Actor.actor-seraph-2.Item.item-seraph-2.Activity.${BLINDING_RADIANCE_ACTIVITY_ID}`,
+                        actor,
+                        item,
+                        save: {
+                            dc: {
+                                calculation: "",
+                                formula: "",
+                                value: 0
+                            }
+                        },
+                        system: {
+                            save: {
+                                dc: {
+                                    calculation: "",
+                                    formula: "",
+                                    value: 0
+                                }
+                            }
+                        }
+                    }
+                    const dialogConfig = {}
+                    const messageConfig = {}
+
+                    try {
+                        const callback = harness.callbacks.get("dnd5e.preActivityUse")
+                        expect(callback).to.be.a("function")
+
+                        callback(activity, {}, dialogConfig, messageConfig)
+
+                        await flushAsyncWork()
+
+                        expect(Array.from(activity.save.ability ?? [])).to.deep.equal(["con"])
+                        expect(activity.save.dc.formula).to.equal("20")
+                        expect(activity.save.dc.value).to.equal(20)
+                        expect(Array.from(activity.system.save.ability ?? [])).to.deep.equal(["con"])
+                        expect(activity.labels.save.trim()).to.match(/^DC 20(?:\s+.*)?$/)
+                        expect(messageConfig.dc.value).to.equal(20)
+                        expect(
+                            messageConfig.data.flags.transformations.blindingRadianceSaveRequest
+                        ).to.deep.equal({
+                            type: "save",
+                            ability: "con",
+                            dc: 20
+                        })
+                        expect(persistedUpdate).to.deep.equal({
+                            [`system.activities.${BLINDING_RADIANCE_ACTIVITY_ID}.save.ability`]: [
+                                "con"
+                            ],
+                            [`system.activities.${BLINDING_RADIANCE_ACTIVITY_ID}.save.dc.calculation`]: "",
+                            [`system.activities.${BLINDING_RADIANCE_ACTIVITY_ID}.save.dc.formula`]: "20"
+                        })
+                    } finally {
+                        harness.restore()
+                    }
+                }
+            )
+
+            it("skips activityUse trigger dispatch for the Blinding Radiance self-save activity", async function ()
+            {
+                const actor = createActor()
+                const harness = createHookHarness({
+                    transformationOverrides: {
+                        TransformationClass: Seraph
+                    }
+                })
+                const item = {
+                    id: "item-seraph-3",
+                    name: "Blinding Radiance",
+                    uuid: "Actor.actor-1.Item.item-seraph-3",
+                    flags: {
+                        transformations: {
+                            sourceUuid: BLINDING_RADIANCE_UUID
+                        }
+                    }
+                }
+                const usage = {
+                    workflow: {
+                        actor,
+                        item
+                    }
+                }
+
+                try {
+                    const callback = harness.callbacks.get("dnd5e.postUseActivity")
+                    expect(callback).to.be.a("function")
+
+                    await callback(
+                        {
+                            id: BLINDING_RADIANCE_ACTIVITY_ID,
+                            uuid:
+                                `Actor.actor-1.Item.item-seraph-3.Activity.${BLINDING_RADIANCE_ACTIVITY_ID}`,
+                            name: "",
+                            type: "save"
+                        },
+                        usage,
+                        {message: {id: "message-seraph-3"}}
                     )
 
                     expect(

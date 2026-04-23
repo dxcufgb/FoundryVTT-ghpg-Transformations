@@ -16,7 +16,12 @@ export class ChatMessagePartInjector
 
         if (!target) return
 
-        const partHTML = await foundry.applications.handlebars.renderTemplate(template, templateData)
+        const partHTML = await resolvePartHtml({
+            html,
+            template,
+            templateData
+        })
+        if (!partHTML) return
 
         target.insertAdjacentHTML(position, partHTML)
 
@@ -28,6 +33,7 @@ export class ChatMessagePartInjector
     static async replace({
         message,
         selector,
+        html,
         template,
         templateData
     })
@@ -38,7 +44,12 @@ export class ChatMessagePartInjector
         const target = wrapper.querySelector(selector)
         if (!target) return
 
-        const partHTML = await foundry.applications.handlebars.renderTemplate(template, templateData)
+        const partHTML = await resolvePartHtml({
+            html,
+            template,
+            templateData
+        })
+        if (!partHTML) return
 
         target.outerHTML = partHTML
 
@@ -64,6 +75,7 @@ export class ChatMessagePartInjector
 
     static async replaceCard({
         message,
+        html,
         template,
         templateData
     })
@@ -71,6 +83,7 @@ export class ChatMessagePartInjector
         await this.replace({
             message,
             selector: CARD_SELECTOR,
+            html,
             template,
             templateData
         })
@@ -78,3 +91,18 @@ export class ChatMessagePartInjector
 }
 
 const CARD_SELECTOR = "[data-transformations-card], .gift-of-damnation-card"
+
+async function resolvePartHtml({
+    html,
+    template,
+    templateData
+} = {})
+{
+    if (typeof html === "string") {
+        return html
+    }
+
+    if (!template) return ""
+
+    return foundry.applications.handlebars.renderTemplate(template, templateData)
+}
