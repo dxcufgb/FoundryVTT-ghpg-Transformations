@@ -1,30 +1,19 @@
 export const stage1 = {
-    name: "Shadowsteel Ghoul Stage 1",
     stage: 1,
     grants: {
         items: [
             {
-                name: "Shadowsteel Ghoul Stage 1 Base Feature",
-                uuid: ""
-            },
-            {
-                name: "Shadowsteel Ghoul Stage 1 Grave Hunger",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.jAHcNJNgWzYnzltV"
             }
-        ],
-        actor: {
-            creatureSubType: "undead"
-        }
+        ]
     },
     choices: {
         items: [
             {
-                name: "Shadowsteel Ghoul Stage 1 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.RshxXEgOJC48inhb"
             },
             {
-                name: "Shadowsteel Ghoul Stage 1 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.Wzrt24WLkhcY77sr"
             }
         ]
     }

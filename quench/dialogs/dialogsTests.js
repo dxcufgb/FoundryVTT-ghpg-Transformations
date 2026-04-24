@@ -1,5 +1,6 @@
 import "./transformationConfig.test.js"
 import "./transformationGeneralChoice.test.js"
+import "./abilityScoreAdvancementDialog.test.js"
 import "./fiendGiftOfDamnationDialog.test.js"
 import "./fiendUnbridledPowerSpellSlotRecoveryDialog.test.js"
 import "./hagSpellRecoveryDialog.test.js"

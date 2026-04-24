@@ -1,0 +1,99 @@
+<div class="ability-score-advancement">
+    <div class="ability-score-advancement__summary">
+        <div class="ability-score-advancement__stat">
+            <span class="ability-score-advancement__stat-label">
+                Points Remaining
+            </span>
+            <strong
+                class="ability-score-advancement__stat-value"
+                data-points-remaining>
+                {{pointsRemaining}}
+            </strong>
+        </div>
+
+        <div class="ability-score-advancement__stat">
+            <span class="ability-score-advancement__stat-label">
+                Per Ability Cap
+            </span>
+            <strong class="ability-score-advancement__stat-value">
+                {{capLabel}}
+            </strong>
+        </div>
+
+        <div class="ability-score-advancement__stat">
+            <span class="ability-score-advancement__stat-label">
+                Maximum Score
+            </span>
+            <strong class="ability-score-advancement__stat-value">
+                {{maxLabel}}
+            </strong>
+        </div>
+    </div>
+
+    <div class="ability-score-advancement__rows">
+        {{#each abilities}}
+            <div
+                class="ability-score-advancement__row"
+                data-ability-row="{{key}}">
+                <div class="ability-score-advancement__details">
+                    <div class="ability-score-advancement__label">
+                        {{label}}
+                    </div>
+
+                    <div class="ability-score-advancement__meta">
+                        <span class="ability-score-advancement__current">
+                            Current: {{currentValue}}
+                        </span>
+
+                        {{#if fixedIncrease}}
+                            <span class="ability-score-advancement__fixed">
+                                Fixed: +{{fixedIncrease}}
+                            </span>
+                        {{/if}}
+
+                        {{#if locked}}
+                            <span class="ability-score-advancement__locked">
+                                Locked
+                            </span>
+                        {{/if}}
+                    </div>
+                </div>
+
+                <div class="ability-score-advancement__controls">
+                    <button
+                        type="button"
+                        class="ability-score-advancement__button"
+                        data-action="decrease"
+                        data-ability-key="{{key}}"
+                        aria-label="Decrease {{label}}">
+                        -
+                    </button>
+
+                    <div
+                        class="ability-score-advancement__value"
+                        data-selected-value>
+                        {{selectedValue}}
+                    </div>
+
+                    <button
+                        type="button"
+                        class="ability-score-advancement__button"
+                        data-action="increase"
+                        data-ability-key="{{key}}"
+                        aria-label="Increase {{label}}">
+                        +
+                    </button>
+                </div>
+            </div>
+        {{/each}}
+    </div>
+
+    <div class="ability-score-advancement__actions">
+        <button type="button" data-action="close">
+            {{cancelLabel}}
+        </button>
+        <button type="button" data-action="confirm">
+            {{confirmLabel}}
+        </button>
+    </div>
+</div>

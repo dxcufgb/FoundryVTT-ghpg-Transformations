@@ -1,9 +1,12 @@
 import { TransformationConfigDialog } from "./TransformationConfigDialog.js"
 import { TransformationChoiceDialog } from "./TransformationChoiceDialog.js"
 import { TransformationGeneralChoiceDialog } from "./transformationGeneralChoiceDialog.js"
+import { AbilityScoreAdvancementDialog } from "./AbilityScoreAdvancementDialog.js"
 import { ItemInfoDialog } from "./ItemInfoDialog.js"
 import { createItemInfoViewModel } from "../viewModels/ItemInfoViewModel.js"
 import { createItemInfoController } from "../controllers/ItemInfoController.js"
+import { createAbilityScoreAdvancementViewModel } from "../viewModels/createAbilityScoreAdvancementViewModel.js"
+import { createAbilityScoreAdvancementController } from "../controllers/abilityScoreAdvancementController.js"
 import { createFeyExhaustionRecoveryViewModel } from "../viewModels/createFeyExhaustionRecoveryViewModel.js"
 import { createFeyExhaustionRecoveryController } from "../controllers/feyExhaustionRecoveryController.js"
 import { FeyExhaustionRecoveryDialog } from "./feyExhaustionRecoveryDialog.js"
@@ -233,6 +236,71 @@ export function createDialogFactory({
             })
 
             await dialog.render(true)
+        })
+    }
+
+    async function openAbilityScoreAdvancementDialog({
+        actor,
+        advancementConfiguration = {},
+        title = "Allocate Ability Scores",
+        triggeringUserId = null,
+        skipUserRouting = false
+    })
+    {
+        logger.debug("openAbilityScoreAdvancementDialog", {
+            actor,
+            advancementConfiguration,
+            title,
+            triggeringUserId,
+            skipUserRouting
+        })
+
+        if (!actor) {
+            return false
+        }
+
+        const routingResult = await routeDialogOpen({
+            methodName: "openAbilityScoreAdvancementDialog",
+            data: {
+                actor,
+                advancementConfiguration,
+                title,
+                triggeringUserId,
+                skipUserRouting
+            }
+        })
+        if (routingResult !== ROUTE_LOCALLY) {
+            return routingResult
+        }
+
+        closeExistingDialog(AbilityScoreAdvancementDialog)
+
+        return new Promise(resolve =>
+        {
+            const viewModel = createAbilityScoreAdvancementViewModel({
+                actor,
+                advancementConfiguration,
+                title,
+                logger
+            })
+
+            const controller = createAbilityScoreAdvancementController({
+                resolve,
+                logger
+            })
+
+            const dialog = new AbilityScoreAdvancementDialog({
+                actor,
+                viewModel,
+                controller,
+                options: {
+                    id: `ability-score-advancement-${actor.id}`,
+                    title: viewModel.title
+                },
+                logger
+            })
+
+            dialog.render(true)
         })
     }
 
@@ -605,6 +673,7 @@ export function createDialogFactory({
         openTransformationConfig,
         openStageChoiceDialog,
         openTransformationGeneralChoiceDialog,
+        openAbilityScoreAdvancementDialog,
         showItemInfoDialog,
         openFeyExhaustionRecovery,
         openFiendGiftOfDamnation,

@@ -374,6 +374,137 @@
     pointer-events: none;
 }
 
+.ability-score-advancement-dialog {
+    min-width: 34rem;
+}
+
+.ability-score-advancement {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 0.85rem 0.7rem 0.45rem;
+}
+
+.ability-score-advancement__summary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.3rem 1rem;
+}
+
+.ability-score-advancement__stat {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+}
+
+.ability-score-advancement__stat-label {
+    opacity: 0.72;
+}
+
+.ability-score-advancement__stat-value {
+    font-size: 0.98rem;
+}
+
+.ability-score-advancement__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.ability-score-advancement__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid color-mix(in srgb, var(--transformations-color-border-highlight) 42%, var(--transformations-color-border-light-primary) 58%);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--transformations-background-card) 97%, white 3%);
+}
+
+.ability-score-advancement__details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.ability-score-advancement__label {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.ability-score-advancement__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.55rem;
+    font-size: 0.82rem;
+    opacity: 0.82;
+}
+
+.ability-score-advancement__locked {
+    color: color-mix(in srgb, var(--transformations-color-note-warn) 72%, white 28%);
+}
+
+.ability-score-advancement__controls {
+    display: grid;
+    grid-template-columns: 2.4rem minmax(3rem, auto) 2.4rem;
+    align-items: center;
+    gap: 0.45rem;
+    flex-shrink: 0;
+}
+
+.ability-score-advancement__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    padding: 0;
+    border-radius: 6px;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.ability-score-advancement__button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.ability-score-advancement__value {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3rem;
+    min-height: 2.4rem;
+    padding: 0 0.6rem;
+    border-radius: 6px;
+    border: 1px solid color-mix(in srgb, var(--transformations-color-border-highlight) 42%, transparent);
+    background: color-mix(in srgb, var(--transformations-pill-background) 92%, white 8%);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.ability-score-advancement__actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    padding-top: 0.25rem;
+}
+
+.ability-score-advancement__actions button {
+    min-width: 140px;
+    padding: 0.45rem 0.9rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.ability-score-advancement__actions button[data-action="close"] {
+    background: transparent;
+}
+
 .item-info-dialog {
     width: 40rem;
 }

@@ -14,7 +14,8 @@ function createLogger()
 function createActor(
     skillValues = {},
     saveProficiencies = {},
-    traitValues = {}
+    traitValues = {},
+    abilityValues = {}
 )
 {
     return {
@@ -22,12 +23,30 @@ function createActor(
         uuid: "Actor.actor-1",
         system: {
             abilities: {
-                str: {proficient: saveProficiencies.str ?? 0},
-                dex: {proficient: saveProficiencies.dex ?? 0},
-                con: {proficient: saveProficiencies.con ?? 0},
-                int: {proficient: saveProficiencies.int ?? 0},
-                wis: {proficient: saveProficiencies.wis ?? 0},
-                cha: {proficient: saveProficiencies.cha ?? 0}
+                str: {
+                    proficient: saveProficiencies.str ?? 0,
+                    value: abilityValues.str ?? 10
+                },
+                dex: {
+                    proficient: saveProficiencies.dex ?? 0,
+                    value: abilityValues.dex ?? 10
+                },
+                con: {
+                    proficient: saveProficiencies.con ?? 0,
+                    value: abilityValues.con ?? 10
+                },
+                int: {
+                    proficient: saveProficiencies.int ?? 0,
+                    value: abilityValues.int ?? 10
+                },
+                wis: {
+                    proficient: saveProficiencies.wis ?? 0,
+                    value: abilityValues.wis ?? 10
+                },
+                cha: {
+                    proficient: saveProficiencies.cha ?? 0,
+                    value: abilityValues.cha ?? 10
+                }
             },
             skills: {
                 acr: {value: skillValues.acr ?? 0},
@@ -49,12 +68,14 @@ function createActor(
 
 function createHandler({
     dialogResult = "acid",
+    abilityScoreDialogResult = {},
     stageDialogResult = "Compendium.transformations.gh-transformations.Item.sKoEV2o2qWnMSxMW",
     createResult = {id: "effect-1"}
 } = {})
 {
     const calls = {
         dialog: [],
+        abilityScoreDialog: [],
         stageDialog: [],
         createdEffects: []
     }
@@ -74,6 +95,13 @@ function createHandler({
                 return typeof dialogResult === "function"
                     ? dialogResult(data)
                     : dialogResult
+            },
+            async openAbilityScoreAdvancementDialog(data)
+            {
+                calls.abilityScoreDialog.push(data)
+                return typeof abilityScoreDialogResult === "function"
+                    ? abilityScoreDialogResult(data)
+                    : abilityScoreDialogResult
             },
             async openStageChoiceDialog(data)
             {
@@ -212,6 +240,152 @@ quench.registerBatch(
 
                 expect(result).to.equal(false)
                 expect(calls.createdEffects).to.have.length(0)
+            })
+
+            it("opens the ability-score dialog and creates a hidden ability score effect", async function ()
+            {
+                const actor = createActor({}, {}, {}, {
+                    str: 15,
+                    dex: 14,
+                    con: 13,
+                    int: 10,
+                    wis: 12,
+                    cha: 8
+                })
+                const sourceItem = {
+                    img: "asi.png",
+                    name: "Ability Training",
+                    uuid: "Compendium.transformations.gh-transformations.Item.ability-training"
+                }
+                const {calls, handler} = createHandler({
+                    abilityScoreDialogResult: {
+                        str: 15,
+                        dex: 14,
+                        con: 13,
+                        int: 11,
+                        wis: 12,
+                        cha: 8
+                    }
+                })
+
+                const result = await handler.chooseAbilityScoreAdvancement({
+                    actor,
+                    advancementConfiguration: {
+                        cap: 1,
+                        fixed: {},
+                        locked: ["str", "dex", "con"],
+                        max: 20,
+                        points: 1,
+                        recommendation: null
+                    },
+                    sourceItem,
+                    triggeringUserId: "user-1"
+                })
+
+                expect(result).to.equal(true)
+                expect(calls.abilityScoreDialog).to.have.length(1)
+                expect(calls.abilityScoreDialog[0].actor).to.equal(actor)
+                expect(calls.abilityScoreDialog[0].triggeringUserId)
+                .to.equal("user-1")
+                expect(calls.createdEffects).to.have.length(1)
+                expect(calls.createdEffects[0]).to.deep.equal({
+                    actor,
+                    name: "Ability Score Increase: Intelligence",
+                    description: "Set ability scores to Intelligence 11.",
+                    source: "transformation",
+                    icon: "asi.png",
+                    origin:
+                        "Compendium.transformations.gh-transformations.Item.ability-training",
+                    changes: [
+                        {
+                            key: "system.abilities.int.value",
+                            mode: UPGRADE_MODE,
+                            value: 11
+                        }
+                    ],
+                    flags: {
+                        dnd5e: {
+                            hidden: true
+                        },
+                        transformations: {
+                            advancementChoiceType: "abilityScore",
+                            advancementChoiceSelection: {
+                                int: 11
+                            }
+                        }
+                    }
+                })
+            })
+
+            it("returns true without creating an effect when the ability-score dialog confirms no changes", async function ()
+            {
+                const {calls, handler} = createHandler({
+                    abilityScoreDialogResult: {
+                        str: 10,
+                        dex: 10,
+                        con: 10,
+                        int: 10,
+                        wis: 10,
+                        cha: 10
+                    }
+                })
+
+                const result = await handler.chooseAbilityScoreAdvancement({
+                    actor: createActor(),
+                    advancementConfiguration: {
+                        cap: 1,
+                        fixed: {},
+                        locked: [],
+                        max: 20,
+                        points: 1
+                    }
+                })
+
+                expect(result).to.equal(true)
+                expect(calls.createdEffects).to.have.length(0)
+            })
+
+            it("normalizes invalid ability-score dialog values against lock, cap, max, and point rules", async function ()
+            {
+                const actor = createActor({}, {}, {}, {
+                    str: 12,
+                    dex: 10,
+                    con: 10,
+                    int: 10,
+                    wis: 19,
+                    cha: 8
+                })
+                const {calls, handler} = createHandler({
+                    abilityScoreDialogResult: {
+                        str: 13,
+                        dex: 12,
+                        con: 9,
+                        int: 11,
+                        wis: 21,
+                        cha: 11
+                    }
+                })
+
+                const result = await handler.chooseAbilityScoreAdvancement({
+                    actor,
+                    advancementConfiguration: {
+                        cap: 1,
+                        fixed: {},
+                        locked: ["str"],
+                        max: 20,
+                        points: 1
+                    }
+                })
+
+                expect(result).to.equal(true)
+                expect(calls.createdEffects).to.have.length(1)
+                expect(calls.createdEffects[0].changes).to.deep.equal([
+                    {
+                        key: "system.abilities.dex.value",
+                        mode: UPGRADE_MODE,
+                        value: 11
+                    }
+                ])
             })
 
             it("returns null when advancement choices mix different handler types", async function ()
