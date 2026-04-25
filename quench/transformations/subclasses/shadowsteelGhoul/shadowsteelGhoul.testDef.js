@@ -15,26 +15,19 @@ const DEBILITATING_MAGIC_CHOICE_UUIDS = Object.freeze([
 const DEFAULT_DEBILITATING_MAGIC_CHOICE_UUID =
           DEBILITATING_MAGIC_CHOICE_UUIDS[0]
 
-const SHADOWSTEEL_CURSER_UUID =
-          "Compendium.transformations.gh-transformations.Item.RshxXEgOJC48inhb"
-const SHADOWSTEEL_ADEPT_UUID =
-          "Compendium.transformations.gh-transformations.Item.GwljdRzCeN45tXwU"
-const SHADOWSTEEL_WEAPON_UUID =
-          "Compendium.transformations.gh-transformations.Item.Wzrt24WLkhcY77sr"
-const FRIENDLESS_UUID =
-          "Compendium.transformations.gh-transformations.Item.L0FKF6UOzmw52wGQ"
-const MAGIC_RESISTANCE_UUID =
-          "Compendium.transformations.gh-transformations.Item.Rk5NUrsyEyNZ31fq"
-const SHADOWSTEEL_ABSORPTION_UUID =
-          "Compendium.transformations.gh-transformations.Item.Gf5NFuIgltNZ1RFI"
-const SHADOWSTEEL_CASTER_UUID =
-          "Compendium.transformations.gh-transformations.Item.gvvygnTzC90tBIGL"
-const SHADOWSTEEL_MASTER_UUID =
-          "Compendium.transformations.gh-transformations.Item.4YcoPEDzRJx4ozHb"
-const SHADOWSTEEL_WEAPON_HEAL_ACTIVITY_NAME =
-          "Shadowsteel Weapon Heal on Kill"
-const SHADOWSTEEL_WEAPON_IMBUE_ACTIVITY_NAME =
-          "Imbue with Shadowsteel fragment"
+const SHADOWSTEEL_CURSER_UUID = "Compendium.transformations.gh-transformations.Item.RshxXEgOJC48inhb"
+const SHADOWSTEEL_ADEPT_UUID = "Compendium.transformations.gh-transformations.Item.GwljdRzCeN45tXwU"
+const SHADOWSTEEL_WEAPON_UUID = "Compendium.transformations.gh-transformations.Item.Wzrt24WLkhcY77sr"
+const FRIENDLESS_UUID = "Compendium.transformations.gh-transformations.Item.L0FKF6UOzmw52wGQ"
+const MAGIC_RESISTANCE_UUID = "Compendium.transformations.gh-transformations.Item.Rk5NUrsyEyNZ31fq"
+const SHADOWSTEEL_ABSORPTION_UUID = "Compendium.transformations.gh-transformations.Item.Gf5NFuIgltNZ1RFI"
+const SHADOWSTEEL_CASTER_UUID = "Compendium.transformations.gh-transformations.Item.gvvygnTzC90tBIGL"
+const SHADOWSTEEL_MASTER_UUID = "Compendium.transformations.gh-transformations.Item.4YcoPEDzRJx4ozHb"
+const CURSED_CLAW_UUID = "Compendium.transformations.gh-transformations.Item.1ZK9Hn5Ap2ElY9zw"
+const CURSED_CLAW_ATTACK_UUID = "Compendium.transformations.gh-transformations.Item.bTbxbNpRk21fnpwa"
+const HEALING_RESISTANCE_UUID = "Compendium.transformations.gh-transformations.Item.HvC6Uee6gg6jpq3d"
+const SHADOWSTEEL_WEAPON_HEAL_ACTIVITY_NAME = "Shadowsteel Weapon Heal on Kill"
+const SHADOWSTEEL_WEAPON_IMBUE_ACTIVITY_NAME = "Imbue with Shadowsteel fragment"
 const SHADOWSTEEL_WEAPON_EFFECT_NAME = "Shadowsteel Weapon"
 const FRIENDLESS_EFFECT_NAME = "Friendless"
 const MAGIC_RESISTANCE_EFFECT_NAME = "Magic Resistance"
@@ -43,6 +36,9 @@ const SHADOWSTEEL_CASTER_ACTIVITY_NAME = "Regain Spell Slot"
 const SHADOWSTEEL_MASTER_ITEM_NAME = "Shadowsteel Master (Shadowsteel Ghoul)"
 const SHADOWSTEEL_MASTER_HARMONY_ACTIVITY_NAME = "Necrotic Harmony"
 const SHADOWSTEEL_MASTER_WEAPON_ACTIVITY_NAME = "Necrotic Weapon"
+const CURSED_CLAW_ITEM_NAME = "Cursed Claw"
+const HEALING_RESISTANCE_ITEM_NAME = "Healing Resistance"
+const CURSED_CLAW_ATTACK_ITEM_NAME = "Claw"
 const SHADOWSTEEL_CURSER_ALLOWED_ABILITY_KEYS = Object.freeze([
     "wis",
     "int",
@@ -81,16 +77,38 @@ async function chooseDebilitatingMagic({
     ]
 }
 
-async function waitForStage1Stability({
+async function waitForStageStability({
     runtime,
     actor,
-    waiters
+    waiters,
+    stage
 })
 {
+    await waitForStageCompletion({
+        runtime,
+        actor,
+        waiters,
+        stage
+    })
     await waiters.waitForDomainStability({
         actor,
         asyncTrackers: runtime.dependencies.utils.asyncTrackers
     })
+}
+
+async function waitForStageCompletion({
+    runtime,
+    actor,
+    waiters,
+    stage
+})
+{
+    await waiters.waitForStageFinished(
+        runtime,
+        actor,
+        waiters.waitForCondition,
+        stage
+    )
 }
 
 function resolveShadowsteelCurserAbilityKey(actor)
@@ -212,6 +230,123 @@ async function chooseShadowsteelMasterAbilityIncrease({
     })
 }
 
+function buildDefaultStage3Steps()
+{
+    return [
+        {
+            stage: 1,
+            choose: SHADOWSTEEL_WEAPON_UUID,
+            await: async ({runtime, actor, waiters}) =>
+            {
+                await waitForStageCompletion({
+                    runtime,
+                    actor,
+                    waiters,
+                    stage: 1
+                })
+            }
+        },
+        {
+            stage: 2,
+            choose: [
+                MAGIC_RESISTANCE_UUID,
+                SHADOWSTEEL_ABSORPTION_UUID
+            ],
+            await: async ({runtime, actor, waiters}) =>
+            {
+                await waitForStageCompletion({
+                    runtime,
+                    actor,
+                    waiters,
+                    stage: 2
+                })
+            }
+        },
+        {
+            stage: 3,
+            await: async ({runtime, actor, waiters}) =>
+            {
+                await waitForStageCompletion({
+                    runtime,
+                    actor,
+                    waiters,
+                    stage: 3
+                })
+            }
+        }
+    ]
+}
+
+function addCursedClawFeatureAssertions(actorDto)
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [CURSED_CLAW_UUID]
+        item.itemName = CURSED_CLAW_ITEM_NAME
+        item.type = "feat"
+        item.systemType = "transformation"
+        item.systemSubType = "shadowsteelGhoul"
+        item.numberOfActivities = 0
+        item.numberOfEffects = 1
+        item.addEffect(effect =>
+        {
+            effect.name = CURSED_CLAW_ITEM_NAME
+            effect.type = "base"
+            effect.changes.count = 1
+            effect.changes = [
+                {
+                    key: "macro.createItem",
+                    mode: 0,
+                    value: CURSED_CLAW_ATTACK_UUID,
+                    priority: 20
+                }
+            ]
+        })
+    })
+}
+
+function addCursedClawAttackAssertions(actorDto)
+{
+    actorDto.addItem(item =>
+    {
+        item.itemName = CURSED_CLAW_ATTACK_ITEM_NAME
+        item.type = "weapon"
+        item.addDamagePart("base", damagePart =>
+        {
+            damagePart.roll = "2d6"
+            damagePart.bonus = "@mod"
+        })
+    })
+}
+
+function addHealingResistanceAssertions(actorDto)
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [HEALING_RESISTANCE_UUID]
+        item.itemName = HEALING_RESISTANCE_ITEM_NAME
+        item.type = "feat"
+        item.systemType = "transformation"
+        item.systemSubType = "shadowsteelGhoul"
+        item.numberOfActivities = 0
+        item.numberOfEffects = 1
+        item.addEffect(effect =>
+        {
+            effect.name = HEALING_RESISTANCE_ITEM_NAME
+            effect.type = "base"
+            effect.changes.count = 1
+            effect.changes = [
+                {
+                    key: "system.traits.da.healing",
+                    mode: 2,
+                    value: "0.5",
+                    priority: 20
+                }
+            ]
+        })
+    })
+}
+
 export const shadowsteelGhoulTestDef = {
     id: "shadowsteelGhoul",
     name: "Shadowsteel Ghoul",
@@ -242,7 +377,8 @@ export const shadowsteelGhoulTestDef = {
                     }
                 }
             ],
-            finalAwait: waitForStage1Stability,
+            finalAwait: async args =>
+                waitForStageStability({...args, stage: 1}),
             finalAssertions: async ({actor, assert, loopVars}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
@@ -290,7 +426,8 @@ export const shadowsteelGhoulTestDef = {
                     }
                 }
             ],
-            finalAwait: waitForStage1Stability,
+            finalAwait: async args =>
+                waitForStageStability({...args, stage: 1}),
             finalAssertions: async ({actor, assert, staticVars}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
@@ -334,7 +471,8 @@ export const shadowsteelGhoulTestDef = {
                     }
                 }
             ],
-            finalAwait: waitForStage1Stability,
+            finalAwait: async args =>
+                waitForStageStability({...args, stage: 1}),
             finalAssertions: async ({actor, assert}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
@@ -421,7 +559,8 @@ export const shadowsteelGhoulTestDef = {
                     }
                 }
             ],
-            finalAwait: waitForStage1Stability,
+            finalAwait: async args =>
+                waitForStageStability({...args, stage: 2}),
             finalAssertions: async ({actor, assert}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
@@ -496,7 +635,8 @@ export const shadowsteelGhoulTestDef = {
                     }
                 }
             ],
-            finalAwait: waitForStage1Stability,
+            finalAwait: async args =>
+                waitForStageStability({...args, stage: 2}),
             finalAssertions: async ({actor, assert}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
@@ -566,7 +706,8 @@ export const shadowsteelGhoulTestDef = {
                     }
                 }
             ],
-            finalAwait: waitForStage1Stability,
+            finalAwait: async args =>
+                waitForStageStability({...args, stage: 2}),
             finalAssertions: async ({actor, assert}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
@@ -665,7 +806,8 @@ export const shadowsteelGhoulTestDef = {
                     }
                 }
             ],
-            finalAwait: waitForStage1Stability,
+            finalAwait: async args =>
+                waitForStageStability({...args, stage: 2}),
             finalAssertions: async ({actor, assert, staticVars}) =>
             {
                 const actorSpellMod = actor.system.attributes.spell.mod
@@ -779,7 +921,8 @@ export const shadowsteelGhoulTestDef = {
                     }
                 }
             ],
-            finalAwait: waitForStage1Stability,
+            finalAwait: async args =>
+                waitForStageStability({...args, stage: 2}),
             finalAssertions: async ({actor, assert, staticVars}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
@@ -840,6 +983,65 @@ export const shadowsteelGhoulTestDef = {
                 })
 
                 validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "stage 3 with Cursed Claw",
+            setup: async () =>
+            {
+                await chooseDebilitatingMagic()
+            },
+            steps: buildDefaultStage3Steps(),
+            finalAwait: async args =>
+                waitForStageStability({...args, stage: 3}),
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    DEBILITATING_MAGIC_UUID,
+                    DEFAULT_DEBILITATING_MAGIC_CHOICE_UUID,
+                    SHADOWSTEEL_WEAPON_UUID,
+                    MAGIC_RESISTANCE_UUID,
+                    SHADOWSTEEL_ABSORPTION_UUID,
+                    FRIENDLESS_UUID,
+                    CURSED_CLAW_UUID,
+                    HEALING_RESISTANCE_UUID
+                ]
+                addCursedClawFeatureAssertions(actorDto)
+                addCursedClawAttackAssertions(actorDto)
+
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "stage 3 with Healing Resistance",
+            setup: async () =>
+            {
+                await chooseDebilitatingMagic()
+            },
+            steps: buildDefaultStage3Steps(),
+            finalAwait: async args => waitForStageStability({...args, stage: 3}),
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    DEBILITATING_MAGIC_UUID,
+                    DEFAULT_DEBILITATING_MAGIC_CHOICE_UUID,
+                    SHADOWSTEEL_WEAPON_UUID,
+                    MAGIC_RESISTANCE_UUID,
+                    SHADOWSTEEL_ABSORPTION_UUID,
+                    FRIENDLESS_UUID,
+                    CURSED_CLAW_UUID,
+                    HEALING_RESISTANCE_UUID
+                ]
+                addHealingResistanceAssertions(actorDto)
+
+                validate(actorDto, {assert})
+                assert.strictEqual(
+                    Number(actor.system?.traits?.da?.healing),
+                    0.5,
+                    "Healing Resistance should halve healing received"
+                )
             }
         }
     ]
