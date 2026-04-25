@@ -1,6 +1,8 @@
-export function createRollModifierAction({ tracker, logger })
+const appliedModifierKeyRegistry = new WeakMap()
+
+export function createRollModifierAction({tracker, logger})
 {
-    logger.debug("createRollModifierAction", { tracker })
+    logger.debug("createRollModifierAction", {tracker})
 
     return async function ROLL_MODIFIER({
         actor,
@@ -15,7 +17,7 @@ export function createRollModifierAction({ tracker, logger })
         })
 
         return tracker.track((async () =>
-            applyRollModifierAction(context, action)
+                applyRollModifierAction(context, action)
         )())
     }
 }
@@ -41,6 +43,11 @@ export function applyRollModifierAction(context, action)
     if (mode === "addDamageType") {
         const damageType = config.damageType ?? config.value ?? null
         return addDamageTypeToContext(context, damageType)
+    }
+
+    if (mode === "addFlatBonus") {
+        const bonus = config.bonus ?? config.value ?? null
+        return addFlatBonusToContext(context, bonus, config.key ?? null)
     }
 
     return false
@@ -84,6 +91,84 @@ function addDamageTypeToContext(context, damageType)
     }
 
     return modified
+}
+
+function addFlatBonusToContext(context, bonus, modifierKey = null)
+{
+    const numericBonus = Number(bonus)
+    if (!Number.isFinite(numericBonus) || numericBonus === 0) {
+        return false
+    }
+
+    const rollCollections = [
+        context?.damage?.current?.rolls,
+        context?.attacks?.current?.rolls,
+        context?.rolls
+    ]
+
+    let modified = false
+
+    for (const rolls of rollCollections) {
+        if (!Array.isArray(rolls)) continue
+
+        for (const roll of rolls) {
+            modified =
+                applyFlatBonusToRoll(roll, numericBonus, modifierKey) ||
+                modified
+        }
+    }
+
+    return modified
+}
+
+function applyFlatBonusToRoll(roll, bonus, modifierKey = null)
+{
+    if (!roll || typeof roll !== "object") {
+        return false
+    }
+
+    const appliedModifierKeys = getAppliedModifierKeys(roll)
+    if (modifierKey && appliedModifierKeys.has(modifierKey)) {
+        return false
+    }
+
+    const formattedBonus = formatFlatBonus(bonus)
+    let modified = false
+
+    if (Array.isArray(roll.parts)) {
+        roll.parts.push(formattedBonus)
+    } else if (typeof roll.formula === "string") {
+        roll.formula = `${roll.formula} ${formattedBonus}`.trim()
+        modified = true
+
+        if (typeof roll._formula === "string") {
+            roll._formula = `${roll._formula} ${formattedBonus}`.trim()
+        }
+    }
+
+    if (modified && modifierKey) {
+        appliedModifierKeys.add(modifierKey)
+    }
+
+    return modified
+}
+
+function formatFlatBonus(bonus)
+{
+    return bonus >= 0
+        ? `+ ${bonus}`
+        : `- ${Math.abs(bonus)}`
+}
+
+function getAppliedModifierKeys(roll)
+{
+    if (appliedModifierKeyRegistry.has(roll)) {
+        return appliedModifierKeyRegistry.get(roll)
+    }
+
+    const appliedModifierKeys = new Set()
+    appliedModifierKeyRegistry.set(roll, appliedModifierKeys)
+    return appliedModifierKeys
 }
 
 function applyDamageTypeToRolls(rolls, damageType)

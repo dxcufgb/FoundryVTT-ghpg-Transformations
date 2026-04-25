@@ -73,6 +73,7 @@ export function createLocalTransformationMutationAdapter({
         actorId,
         stage,
         choice = null,
+        choices = [],
         triggeringUserId = null
     })
     {
@@ -80,6 +81,7 @@ export function createLocalTransformationMutationAdapter({
             actorId,
             stage,
             choice,
+            choices,
             triggeringUserId
         })
         const actor = actorRepository.getById(actorId)
@@ -93,12 +95,18 @@ export function createLocalTransformationMutationAdapter({
                 const {definition} = await getTransformationQueryService().getForActor(actor)
                 if (!definition)
                     return
+                const selectedChoices =
+                          normalizeSelectedChoices(choices).length > 0
+                              ? choices
+                              : choice == null
+                                  ? []
+                                  : [choice]
 
                 await applyStage(
                     actor,
                     definition,
                     stage,
-                    choice,
+                    selectedChoices,
                     triggeringUserId
                 )
                 logger.debug(`settings finishedStage flag to ${stage}`)
@@ -155,7 +163,7 @@ export function createLocalTransformationMutationAdapter({
         actor,
         definition,
         stage,
-        choice,
+        choices = [],
         triggeringUserId = null
     )
     {
@@ -163,7 +171,7 @@ export function createLocalTransformationMutationAdapter({
             actor,
             definition,
             stage,
-            choice,
+            choices,
             triggeringUserId
         })
         if (stage != 0) {
@@ -173,13 +181,21 @@ export function createLocalTransformationMutationAdapter({
                 stage
             })
 
-            if (choice != null) {
-                grants.items.push({...choice})
-            }
+            const selectedChoices = normalizeSelectedChoices(choices)
+            grants.items.push(
+                ...selectedChoices.map(selectedChoice => ({
+                    ...selectedChoice
+                }))
+            )
 
             return tracker.track(
                 (async () =>
                 {
+                    const selectedChoiceUuids = new Set(
+                        selectedChoices
+                        .map(selectedChoice => selectedChoice?.uuid)
+                        .filter(uuid => typeof uuid === "string")
+                    )
 
                     for (const itemGrant of grants.items) {
                         const sourceItem = await compendiumRepository.getDocumentByUuid(itemGrant.uuid)
@@ -189,7 +205,10 @@ export function createLocalTransformationMutationAdapter({
                             continue
                         }
 
-                        if (globalThis?.__TRANSFORMATIONS_TEST__ !== true && sourceItem.uuid != choice?.uuid) {
+                        if (
+                            globalThis?.__TRANSFORMATIONS_TEST__ !== true &&
+                            !selectedChoiceUuids.has(sourceItem.uuid)
+                        ) {
                             await game.transformations
                             .getDialogFactory()
                             .showItemInfoDialog({
@@ -217,6 +236,13 @@ export function createLocalTransformationMutationAdapter({
         }
         logger.debug(`settings finishedStage flag to ${stage}`)
         await actor.setFlag("transformations", "finishedStage", stage)
+    }
+
+    function normalizeSelectedChoices(choices = [])
+    {
+        return (Array.isArray(choices) ? choices : [choices]).filter(choice =>
+            choice && typeof choice.uuid === "string" && choice.uuid.length > 0
+        )
     }
 }
 

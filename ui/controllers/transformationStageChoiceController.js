@@ -4,26 +4,31 @@ export function createTransformationStageChoiceController({
     logger
 })
 {
-    logger.debug("createTransformationStageChoiceController", { actor, resolve })
+    logger?.debug?.("createTransformationStageChoiceController", {
+        actor,
+        resolve
+    })
     let settled = false
 
     function choose(choiceId)
     {
-        logger.debug("createTransformationStageChoiceController.choose", { choiceId })
+        logger?.debug?.("createTransformationStageChoiceController.choose", {
+            choiceId
+        })
         if (settled) return
         settled = true
 
-        logger.debug("Stage choice selected", actor.id, choiceId)
+        logger?.debug?.("Stage choice selected", actor?.id, choiceId)
         resolve(choiceId)
     }
 
     function cancel()
     {
-        logger.debug("createTransformationStageChoiceController.cancel", {})
+        logger?.debug?.("createTransformationStageChoiceController.cancel", {})
         if (settled) return
         settled = true
 
-        logger.debug("Stage choice cancelled", actor.id)
+        logger?.debug?.("Stage choice cancelled", actor?.id)
         resolve(undefined)
     }
 

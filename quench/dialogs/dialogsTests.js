@@ -1,4 +1,5 @@
 import "./transformationConfig.test.js"
+import "./transformationChoiceDialog.test.js"
 import "./transformationGeneralChoice.test.js"
 import "./abilityScoreAdvancementDialog.test.js"
 import "./fiendGiftOfDamnationDialog.test.js"

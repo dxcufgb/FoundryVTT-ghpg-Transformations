@@ -1,11 +1,10 @@
 <div class="choice-wrapper">
 
-  <!-- RADIO BUTTONS -->
   <fieldset class="choice-radio-group">
     {{#each choices}}
       <label class="choice-radio">
         <input
-          type="radio"
+          type="{{../selectionInputType}}"
           name="choice"
           value="{{id}}"
           data-uuid="{{uuid}}"
@@ -19,7 +18,6 @@
     {{/each}}
   </fieldset>
 
-  <!-- SCROLLABLE DESCRIPTION PANEL -->
   <div class="choice-description-container" hidden>
     {{#each choices}}
       <div
@@ -33,8 +31,13 @@
     {{/each}}
   </div>
 
-  <!-- CHOOSE BUTTON -->
   <footer class="choice-footer" hidden>
+    {{#if isMultiChoice}}
+      <p class="choice-selection-summary">
+        Select {{choiceCount}} choices. Remaining:
+        <span data-choice-counter-value>{{choicesLeft}}</span>
+      </p>
+    {{/if}}
     <button type="button" data-action="choose" data-uuid="{{uuid}}" class="choice-confirm">
       Choose
     </button>

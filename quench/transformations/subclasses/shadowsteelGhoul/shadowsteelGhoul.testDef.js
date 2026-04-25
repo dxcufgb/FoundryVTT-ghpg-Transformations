@@ -3,7 +3,7 @@ import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorV
 
 const DEBILITATING_MAGIC_NAME = "Debilitating Magic"
 const DEBILITATING_MAGIC_UUID =
-    "Compendium.transformations.gh-transformations.Item.jAHcNJNgWzYnzltV"
+          "Compendium.transformations.gh-transformations.Item.jAHcNJNgWzYnzltV"
 const DEBILITATING_MAGIC_CHOICE_UUIDS = Object.freeze([
     "Compendium.transformations.gh-transformations.Item.isnJl7FKtG06YPAu",
     "Compendium.transformations.gh-transformations.Item.uz5tgoO2cJUssjij",
@@ -13,14 +13,36 @@ const DEBILITATING_MAGIC_CHOICE_UUIDS = Object.freeze([
     "Compendium.transformations.gh-transformations.Item.bwyV8maZr7H0NHNi"
 ])
 const DEFAULT_DEBILITATING_MAGIC_CHOICE_UUID =
-    DEBILITATING_MAGIC_CHOICE_UUIDS[0]
+          DEBILITATING_MAGIC_CHOICE_UUIDS[0]
 
 const SHADOWSTEEL_CURSER_UUID =
-    "Compendium.transformations.gh-transformations.Item.RshxXEgOJC48inhb"
+          "Compendium.transformations.gh-transformations.Item.RshxXEgOJC48inhb"
 const SHADOWSTEEL_ADEPT_UUID =
-    "Compendium.transformations.gh-transformations.Item.GwljdRzCeN45tXwU"
+          "Compendium.transformations.gh-transformations.Item.GwljdRzCeN45tXwU"
 const SHADOWSTEEL_WEAPON_UUID =
-    "Compendium.transformations.gh-transformations.Item.Wzrt24WLkhcY77sr"
+          "Compendium.transformations.gh-transformations.Item.Wzrt24WLkhcY77sr"
+const FRIENDLESS_UUID =
+          "Compendium.transformations.gh-transformations.Item.L0FKF6UOzmw52wGQ"
+const MAGIC_RESISTANCE_UUID =
+          "Compendium.transformations.gh-transformations.Item.Rk5NUrsyEyNZ31fq"
+const SHADOWSTEEL_ABSORPTION_UUID =
+          "Compendium.transformations.gh-transformations.Item.Gf5NFuIgltNZ1RFI"
+const SHADOWSTEEL_CASTER_UUID =
+          "Compendium.transformations.gh-transformations.Item.gvvygnTzC90tBIGL"
+const SHADOWSTEEL_MASTER_UUID =
+          "Compendium.transformations.gh-transformations.Item.4YcoPEDzRJx4ozHb"
+const SHADOWSTEEL_WEAPON_HEAL_ACTIVITY_NAME =
+          "Shadowsteel Weapon Heal on Kill"
+const SHADOWSTEEL_WEAPON_IMBUE_ACTIVITY_NAME =
+          "Imbue with Shadowsteel fragment"
+const SHADOWSTEEL_WEAPON_EFFECT_NAME = "Shadowsteel Weapon"
+const FRIENDLESS_EFFECT_NAME = "Friendless"
+const MAGIC_RESISTANCE_EFFECT_NAME = "Magic Resistance"
+const SHADOWSTEEL_ABSORPTION_EFFECT_NAME = "Shadowsteel Absorption"
+const SHADOWSTEEL_CASTER_ACTIVITY_NAME = "Regain Spell Slot"
+const SHADOWSTEEL_MASTER_ITEM_NAME = "Shadowsteel Master (Shadowsteel Ghoul)"
+const SHADOWSTEEL_MASTER_HARMONY_ACTIVITY_NAME = "Necrotic Harmony"
+const SHADOWSTEEL_MASTER_WEAPON_ACTIVITY_NAME = "Necrotic Weapon"
 const SHADOWSTEEL_CURSER_ALLOWED_ABILITY_KEYS = Object.freeze([
     "wis",
     "int",
@@ -78,11 +100,24 @@ function resolveShadowsteelCurserAbilityKey(actor)
     ) ?? null
 }
 
-async function chooseShadowsteelCurserAbilityIncrease({
+function resolveShadowsteelMasterAbilityKey(actor, {
+    excludedAbilityKeys = []
+} = {})
+{
+    return SHADOWSTEEL_CURSER_ALLOWED_ABILITY_KEYS.find(abilityKey =>
+        !excludedAbilityKeys.includes(abilityKey) &&
+        Number(actor?.system?.abilities?.[abilityKey]?.value ?? 0) < 20
+    ) ?? resolveShadowsteelCurserAbilityKey(actor)
+}
+
+async function chooseAbilityScoreAdvancementIncrease({
     runtime,
     actor,
     waiters,
-    staticVars
+    abilityKey,
+    expectedValue,
+    stage,
+    sourceName
 })
 {
     await waiters.waitForCondition(() =>
@@ -91,23 +126,22 @@ async function chooseShadowsteelCurserAbilityIncrease({
 
     const dialog = getAbilityScoreAdvancementDialogElement()
     if (!dialog) {
-        throw new Error("Shadowsteel Curser ability score dialog did not open")
+        throw new Error(`${sourceName} ability score dialog did not open`)
     }
 
-    const abilityKey = staticVars.curserAbilityKey
     const increaseButton = dialog.querySelector(
         `[data-action='increase'][data-ability-key='${abilityKey}']`
     )
 
     if (!increaseButton) {
         throw new Error(
-            `Shadowsteel Curser increase button not found for ${abilityKey}`
+            `${sourceName} increase button not found for ${abilityKey}`
         )
     }
 
     if (increaseButton.disabled) {
         throw new Error(
-            `Shadowsteel Curser increase button was disabled for ${abilityKey}`
+            `${sourceName} increase button was disabled for ${abilityKey}`
         )
     }
 
@@ -120,12 +154,12 @@ async function chooseShadowsteelCurserAbilityIncrease({
 
     await waiters.waitForCondition(() =>
         selectedValue?.textContent?.trim() ===
-        String(staticVars.curserExpectedAbilityValue)
+        String(expectedValue)
     )
 
     const confirmButton = dialog.querySelector("[data-action='confirm']")
     if (!confirmButton) {
-        throw new Error("Shadowsteel Curser confirm button not found")
+        throw new Error(`${sourceName} confirm button not found`)
     }
 
     confirmButton.click()
@@ -138,8 +172,44 @@ async function chooseShadowsteelCurserAbilityIncrease({
         runtime,
         actor,
         waiters.waitForCondition,
-        1
+        stage
     )
+}
+
+async function chooseShadowsteelCurserAbilityIncrease({
+    runtime,
+    actor,
+    waiters,
+    staticVars
+})
+{
+    await chooseAbilityScoreAdvancementIncrease({
+        runtime,
+        actor,
+        waiters,
+        abilityKey: staticVars.curserAbilityKey,
+        expectedValue: staticVars.curserExpectedAbilityValue,
+        stage: 1,
+        sourceName: "Shadowsteel Curser"
+    })
+}
+
+async function chooseShadowsteelMasterAbilityIncrease({
+    runtime,
+    actor,
+    waiters,
+    staticVars
+})
+{
+    await chooseAbilityScoreAdvancementIncrease({
+        runtime,
+        actor,
+        waiters,
+        abilityKey: staticVars.masterAbilityKey,
+        expectedValue: staticVars.masterExpectedAbilityValue,
+        stage: 2,
+        sourceName: "Shadowsteel Master"
+    })
 }
 
 export const shadowsteelGhoulTestDef = {
@@ -279,10 +349,493 @@ export const shadowsteelGhoulTestDef = {
                     item.type = "feat"
                     item.systemType = "transformation"
                     item.systemSubType = "shadowsteelGhoul"
+                    item.numberOfActivities = 2
+                    item.numberOfEffects = 1
                     item.addActivity(activity =>
                     {
-                        activity.name = "Shadowsteel Weapon Heal on Kill"
+                        activity.name = SHADOWSTEEL_WEAPON_HEAL_ACTIVITY_NAME
                         activity.activationType = "special"
+                        activity.duration.units = "inst"
+                        activity.range.units = "self"
+                        activity.target.affects.type = "self"
+                        activity.target.prompt = true
+                        activity.healing.roll = "1d8"
+                        activity.healing.numberOfTypes = 1
+                        activity.healing.types = ["temphp"]
+                    })
+                    item.addActivity(activity =>
+                    {
+                        activity.name = SHADOWSTEEL_WEAPON_IMBUE_ACTIVITY_NAME
+                        activity.activationType = "longRest"
+                        activity.duration.units = "inst"
+                        activity.range.units = "self"
+                        activity.target.affects.count = "1"
+                        activity.target.affects.type = "object"
+                        activity.target.prompt = false
+                    })
+                    item.addEffect(effect =>
+                    {
+                        effect.name = SHADOWSTEEL_WEAPON_EFFECT_NAME
+                        effect.type = "enchantment"
+                        effect.changes.count = 2
+                    })
+                })
+
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "stage 2 with Magic Resistance",
+            setup: async () =>
+            {
+                await chooseDebilitatingMagic()
+            },
+            steps: [
+                {
+                    stage: 1,
+                    choose: SHADOWSTEEL_WEAPON_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            1
+                        )
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: [
+                        MAGIC_RESISTANCE_UUID,
+                        SHADOWSTEEL_ABSORPTION_UUID
+                    ],
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            2
+                        )
+                    }
+                }
+            ],
+            finalAwait: waitForStage1Stability,
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    DEBILITATING_MAGIC_UUID,
+                    DEFAULT_DEBILITATING_MAGIC_CHOICE_UUID,
+                    SHADOWSTEEL_WEAPON_UUID,
+                    MAGIC_RESISTANCE_UUID,
+                    SHADOWSTEEL_ABSORPTION_UUID
+                ]
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = [MAGIC_RESISTANCE_UUID]
+                    item.itemName = "Magic Resistance"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "shadowsteelGhoul"
+                    item.numberOfActivities = 0
+                    item.numberOfEffects = 1
+                    item.addEffect(effect =>
+                    {
+                        effect.name = MAGIC_RESISTANCE_EFFECT_NAME
+                        effect.type = "base"
+                        effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "flags.midi-qol.magicResistance.all",
+                                value: "1",
+                                mode: 0
+                            }
+                        ]
+                    })
+                })
+
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "stage 2 grants Friendless",
+            setup: async () =>
+            {
+                await chooseDebilitatingMagic()
+            },
+            steps: [
+                {
+                    stage: 1,
+                    choose: SHADOWSTEEL_WEAPON_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            1
+                        )
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: [
+                        MAGIC_RESISTANCE_UUID,
+                        SHADOWSTEEL_ABSORPTION_UUID
+                    ],
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            2
+                        )
+                    }
+                }
+            ],
+            finalAwait: waitForStage1Stability,
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    DEBILITATING_MAGIC_UUID,
+                    DEFAULT_DEBILITATING_MAGIC_CHOICE_UUID,
+                    SHADOWSTEEL_WEAPON_UUID,
+                    MAGIC_RESISTANCE_UUID,
+                    SHADOWSTEEL_ABSORPTION_UUID,
+                    FRIENDLESS_UUID
+                ]
+                actorDto.abilities.cha.check.roll.mode = -1
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = [FRIENDLESS_UUID]
+                    item.itemName = "Friendless"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "shadowsteelGhoul"
+                    item.numberOfActivities = 0
+                    item.numberOfEffects = 1
+                    item.addEffect(effect =>
+                    {
+                        effect.name = FRIENDLESS_EFFECT_NAME
+                        effect.type = "base"
+                        effect.changes.count = 1
+                    })
+                })
+
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "stage 2 with Shadowsteel Absorption",
+            setup: async () =>
+            {
+                await chooseDebilitatingMagic()
+            },
+            steps: [
+                {
+                    stage: 1,
+                    choose: SHADOWSTEEL_WEAPON_UUID,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            1
+                        )
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: [
+                        MAGIC_RESISTANCE_UUID,
+                        SHADOWSTEEL_ABSORPTION_UUID
+                    ],
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            2
+                        )
+                    }
+                }
+            ],
+            finalAwait: waitForStage1Stability,
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    DEBILITATING_MAGIC_UUID,
+                    DEFAULT_DEBILITATING_MAGIC_CHOICE_UUID,
+                    SHADOWSTEEL_WEAPON_UUID,
+                    MAGIC_RESISTANCE_UUID,
+                    SHADOWSTEEL_ABSORPTION_UUID
+                ]
+                actorDto.stats.ac = 11
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = [SHADOWSTEEL_ABSORPTION_UUID]
+                    item.itemName = "Shadowsteel Absorption"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "shadowsteelGhoul"
+                    item.numberOfActivities = 0
+                    item.numberOfEffects = 1
+                    item.addEffect(effect =>
+                    {
+                        effect.name = SHADOWSTEEL_ABSORPTION_EFFECT_NAME
+                        effect.type = "base"
+                        effect.changes.count = 1
+                    })
+                })
+
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "stage 2 with Shadowsteel Caster",
+            setup: async ({actor, staticVars}) =>
+            {
+                await chooseDebilitatingMagic()
+                staticVars.curserAbilityKey =
+                    resolveShadowsteelCurserAbilityKey(actor)
+
+                if (!staticVars.curserAbilityKey) {
+                    throw new Error(
+                        "No valid Shadowsteel Curser ability was available to increase"
+                    )
+                }
+
+                staticVars.curserExpectedAbilityValue =
+                    Number(
+                        actor.system?.abilities?.[staticVars.curserAbilityKey]
+                            ?.value ?? 0
+                    ) + 1
+                staticVars.masterAbilityKey =
+                    resolveShadowsteelMasterAbilityKey(actor, {
+                        excludedAbilityKeys: [staticVars.curserAbilityKey]
+                    })
+
+                if (!staticVars.masterAbilityKey) {
+                    throw new Error(
+                        "No valid Shadowsteel Master ability was available to increase"
+                    )
+                }
+
+                staticVars.masterExpectedAbilityValue =
+                    Number(
+                        actor.system?.abilities?.[staticVars.masterAbilityKey]
+                            ?.value ?? 0
+                    ) + 1
+            },
+            steps: [
+                {
+                    stage: 1,
+                    choose: SHADOWSTEEL_CURSER_UUID,
+                    await: async ({runtime, actor, waiters, staticVars}) =>
+                    {
+                        await chooseShadowsteelCurserAbilityIncrease({
+                            runtime,
+                            actor,
+                            waiters,
+                            staticVars
+                        })
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: [
+                        SHADOWSTEEL_CASTER_UUID,
+                        MAGIC_RESISTANCE_UUID
+                    ],
+                    await: async ({runtime, actor, waiters, staticVars}) =>
+                    {
+                        await chooseShadowsteelMasterAbilityIncrease({
+                            runtime,
+                            actor,
+                            waiters,
+                            staticVars
+                        })
+                    }
+                }
+            ],
+            finalAwait: waitForStage1Stability,
+            finalAssertions: async ({actor, assert, staticVars}) =>
+            {
+                const actorSpellMod = actor.system.attributes.spell.mod
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    DEBILITATING_MAGIC_UUID,
+                    DEFAULT_DEBILITATING_MAGIC_CHOICE_UUID,
+                    SHADOWSTEEL_CURSER_UUID,
+                    SHADOWSTEEL_ADEPT_UUID,
+                    MAGIC_RESISTANCE_UUID,
+                    SHADOWSTEEL_CASTER_UUID,
+                    SHADOWSTEEL_MASTER_UUID
+                ]
+                actorDto.abilities[staticVars.curserAbilityKey].value =
+                    staticVars.curserExpectedAbilityValue
+                actorDto.abilities[staticVars.masterAbilityKey].value =
+                    staticVars.masterExpectedAbilityValue
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = [SHADOWSTEEL_CASTER_UUID]
+                    item.itemName = "Shadowsteel Caster"
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "shadowsteelGhoul"
+                    item.numberOfActivities = 1
+                    item.numberOfEffects = 0
+                    item.addActivity(activity =>
+                    {
+                        activity.name = SHADOWSTEEL_CASTER_ACTIVITY_NAME
+                        activity.activationType = "action"
+                        activity.duration.units = "inst"
+                        activity.range.units = "self"
+                        activity.target.affects.type = "self"
+                        activity.target.prompt = true
+                        activity.uses.max = actorSpellMod
+                        activity.uses.addRecovery(recovery =>
+                        {
+                            recovery.period = "lr"
+                            recovery.type = "recoverAll"
+                        })
+                    })
+                })
+
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "stage 2 with Shadowsteel Master",
+            setup: async ({actor, staticVars}) =>
+            {
+                await chooseDebilitatingMagic()
+                staticVars.curserAbilityKey =
+                    resolveShadowsteelCurserAbilityKey(actor)
+
+                if (!staticVars.curserAbilityKey) {
+                    throw new Error(
+                        "No valid Shadowsteel Curser ability was available to increase"
+                    )
+                }
+
+                staticVars.curserExpectedAbilityValue =
+                    Number(
+                        actor.system?.abilities?.[staticVars.curserAbilityKey]
+                            ?.value ?? 0
+                    ) + 1
+                staticVars.masterAbilityKey =
+                    resolveShadowsteelMasterAbilityKey(actor, {
+                        excludedAbilityKeys: [staticVars.curserAbilityKey]
+                    })
+
+                if (!staticVars.masterAbilityKey) {
+                    throw new Error(
+                        "No valid Shadowsteel Master ability was available to increase"
+                    )
+                }
+
+                staticVars.masterExpectedAbilityValue =
+                    Number(
+                        actor.system?.abilities?.[staticVars.masterAbilityKey]
+                            ?.value ?? 0
+                    ) + 1
+            },
+            steps: [
+                {
+                    stage: 1,
+                    choose: SHADOWSTEEL_CURSER_UUID,
+                    await: async ({runtime, actor, waiters, staticVars}) =>
+                    {
+                        await chooseShadowsteelCurserAbilityIncrease({
+                            runtime,
+                            actor,
+                            waiters,
+                            staticVars
+                        })
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: [
+                        SHADOWSTEEL_CASTER_UUID,
+                        MAGIC_RESISTANCE_UUID
+                    ],
+                    await: async ({runtime, actor, waiters, staticVars}) =>
+                    {
+                        await chooseShadowsteelMasterAbilityIncrease({
+                            runtime,
+                            actor,
+                            waiters,
+                            staticVars
+                        })
+                    }
+                }
+            ],
+            finalAwait: waitForStage1Stability,
+            finalAssertions: async ({actor, assert, staticVars}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.hasItemWithSourceUuids = [
+                    DEBILITATING_MAGIC_UUID,
+                    DEFAULT_DEBILITATING_MAGIC_CHOICE_UUID,
+                    SHADOWSTEEL_CURSER_UUID,
+                    SHADOWSTEEL_ADEPT_UUID,
+                    MAGIC_RESISTANCE_UUID,
+                    SHADOWSTEEL_CASTER_UUID,
+                    SHADOWSTEEL_MASTER_UUID
+                ]
+                actorDto.abilities[staticVars.curserAbilityKey].value =
+                    staticVars.curserExpectedAbilityValue
+                actorDto.abilities[staticVars.masterAbilityKey].value =
+                    staticVars.masterExpectedAbilityValue
+                actorDto.addItem(item =>
+                {
+                    item.expectedItemUuids = [SHADOWSTEEL_MASTER_UUID]
+                    item.itemName = SHADOWSTEEL_MASTER_ITEM_NAME
+                    item.type = "feat"
+                    item.systemType = "transformation"
+                    item.systemSubType = "shadowsteelGhoul"
+                    item.numberOfActivities = 2
+                    item.numberOfEffects = 0
+                    item.addActivity(activity =>
+                    {
+                        activity.name = SHADOWSTEEL_MASTER_HARMONY_ACTIVITY_NAME
+                        activity.activationType = "special"
+                        activity.duration.units = "inst"
+                        activity.range.value = "5"
+                        activity.range.units = "ft"
+                        activity.target.prompt = true
+                        activity.addDamagePart(damagePart =>
+                        {
+                            damagePart.roll = "1d4"
+                            damagePart.numberOfTypes = 1
+                            damagePart.damageTypes = ["necrotic"]
+                        })
+                    })
+                    item.addActivity(activity =>
+                    {
+                        activity.name = SHADOWSTEEL_MASTER_WEAPON_ACTIVITY_NAME
+                        activity.activationType = "special"
+                        activity.duration.units = "inst"
+                        activity.range.value = "5"
+                        activity.range.units = "ft"
+                        activity.target.affects.count = "1"
+                        activity.target.affects.type = "creature"
+                        activity.target.prompt = true
+                        activity.addDamagePart(damagePart =>
+                        {
+                            damagePart.roll = "2d8"
+                            damagePart.numberOfTypes = 1
+                            damagePart.damageTypes = ["necrotic"]
+                        })
                     })
                 })
 

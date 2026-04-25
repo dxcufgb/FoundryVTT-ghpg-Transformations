@@ -108,6 +108,7 @@ export function createDialogFactory({
     async function openStageChoiceDialog({
         actor,
         choices,
+        choiceCount = 1,
         stage,
         triggeringUserId = null,
         skipUserRouting = false
@@ -116,6 +117,7 @@ export function createDialogFactory({
         logger.debug("createDialogFactory.openStageChoiceDialog", {
             actor,
             choices,
+            choiceCount,
             stage,
             triggeringUserId,
             skipUserRouting
@@ -129,6 +131,7 @@ export function createDialogFactory({
             data: {
                 actor,
                 choices,
+                choiceCount,
                 stage,
                 triggeringUserId,
                 skipUserRouting
@@ -144,7 +147,8 @@ export function createDialogFactory({
         {
             const viewModel = viewModels.createTransformationStageChoiceViewModel({
                 choices,
-                selectedId: null
+                selectedIds: [],
+                choiceCount
             })
 
             const controller = controllers.createTransformationStageChoiceController({

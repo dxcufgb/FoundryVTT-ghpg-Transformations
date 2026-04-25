@@ -1,5 +1,9 @@
-import { findChoiceDialogRadioByUuid, findChoiceFooterButton } from "../selectors/choiceDialog.finders.js"
-import { advanceStageAndExpectChoiceDialog } from "./advanceStageAndExpectChoiceDialog.js"
+import {
+    findChoiceDialogById,
+    findChoiceDialogRadioByUuid,
+    findChoiceFooterButton,
+    getChoiceDialogById
+} from "../selectors/choiceDialog.finders.js"
 import { expectAsyncWork } from "./async/expectAsyncWork.js"
 import { waitForElementGone, waitForNextFrame } from "./dom.js"
 import { waitForCondition } from "./waitForCondition.js"
@@ -12,56 +16,102 @@ export async function advanceStageAndChoose({
 })
 {
     const transformationId = actor.getFlag("transformations", "type")
-    // 1️⃣ Open dialog
-    const dialog = await advanceStageAndExpectChoiceDialog({
-        actor,
-        stage,
-        asyncTrackers
+    const expectedChoiceSelection = Array.isArray(choiceUuid)
+        ? choiceUuid
+        : [choiceUuid]
+
+    await actor.update({
+        "flags.transformations.stage": stage
     })
-
-    if (!dialog) {
-        throw new Error(`Choice dialog for stage ${stage} did not open`)
-    }
-
-    // 2️⃣ Find radio
-    const radio = await findChoiceDialogRadioByUuid(dialog, choiceUuid)
-
-    if (!radio) {
-        throw new Error(
-            `Radio with uuid ${choiceUuid} not found in stage ${stage} dialog`
-        )
-    }
-
-    // Use click instead of manual checked mutation
-    radio.click()
-    await waitForNextFrame()
-
-    // 3️⃣ Confirm
-    const confirmButton = await findChoiceFooterButton(dialog)
-
-    if (!confirmButton) {
-        throw new Error(`Confirm button not found in stage ${stage} dialog`)
-    }
-
-    await expectAsyncWork(
-        () => confirmButton.click(),
-        { trackers: asyncTrackers }
-    )
-    await waitForNextFrame()
-
-    // 4️⃣ Wait for dialog to close
-    await waitForElementGone(() =>
-        document.body.contains(dialog) === false
-    )
 
     await asyncTrackers.whenIdle()
     await waitForNextFrame()
-    // 5️⃣ Return stored value
-    await waitForCondition(() =>
-        actor.getFlag("transformations", "stageChoices")
-        ?.[transformationId]?.[stage] === choiceUuid
-    )
 
-    return actor.getFlag("transformations", "stageChoices")
-        ?.[transformationId]?.[stage]
+    let dialog = getChoiceDialogById(actor, stage)
+
+    if (!dialog) {
+        try {
+            dialog = await findChoiceDialogById(actor, stage, {
+                timeout: 250
+            })
+        } catch (error) {
+            dialog = null
+        }
+    }
+
+    if (dialog) {
+        for (const selectedChoiceUuid of expectedChoiceSelection) {
+            const choiceInput = await findChoiceDialogRadioByUuid(
+                dialog,
+                selectedChoiceUuid
+            )
+
+            if (!choiceInput) {
+                throw new Error(
+                    `Choice input with uuid ${selectedChoiceUuid} not found in stage ${stage} dialog`
+                )
+            }
+
+            choiceInput.click()
+            await waitForNextFrame()
+        }
+
+        const confirmButton = await findChoiceFooterButton(dialog)
+
+        if (!confirmButton) {
+            throw new Error(`Confirm button not found in stage ${stage} dialog`)
+        }
+
+        await expectAsyncWork(
+            () => confirmButton.click(),
+            { trackers: asyncTrackers }
+        )
+        await waitForNextFrame()
+
+        await waitForElementGone(() =>
+            document.body.contains(dialog) === false
+        )
+    }
+
+    await asyncTrackers.whenIdle()
+    await waitForNextFrame()
+
+    await waitForCondition(() =>
+    {
+        const storedChoiceSelection = actor.getFlag(
+            "transformations",
+            "stageChoices"
+        )?.[transformationId]?.[stage]
+
+        if (Array.isArray(choiceUuid)) {
+            return Array.isArray(storedChoiceSelection) &&
+                storedChoiceSelection.length === expectedChoiceSelection.length &&
+                expectedChoiceSelection.every(selectedChoiceUuid =>
+                    storedChoiceSelection.includes(selectedChoiceUuid)
+                )
+        }
+
+        return storedChoiceSelection === choiceUuid ||
+            (
+                Array.isArray(storedChoiceSelection) &&
+                storedChoiceSelection.includes(choiceUuid)
+            )
+    })
+
+    const storedChoiceSelection = actor.getFlag(
+        "transformations",
+        "stageChoices"
+    )?.[transformationId]?.[stage]
+
+    if (Array.isArray(choiceUuid)) {
+        return storedChoiceSelection
+    }
+
+    if (Array.isArray(storedChoiceSelection)) {
+        return storedChoiceSelection.includes(choiceUuid)
+            ? choiceUuid
+            : storedChoiceSelection[0]
+    }
+
+    return storedChoiceSelection
 }

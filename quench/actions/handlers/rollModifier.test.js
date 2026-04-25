@@ -237,6 +237,154 @@ export function registerRollModifierActionTests({ describe, it, expect })
             expect(result).to.equal(false)
         })
 
+        it("appends a flat bonus part to each pre-roll damage roll", async function()
+        {
+            const context = {
+                damage: {
+                    current: {
+                        rolls: [
+                            { parts: ["1d8"] },
+                            { parts: ["2d6 + 3"] }
+                        ]
+                    }
+                }
+            }
+
+            const result = await handler({
+                actor,
+                action: {
+                    data: {
+                        mode: "addFlatBonus",
+                        value: 4
+                    }
+                },
+                context
+            })
+
+            expect(result).to.equal(false)
+            expect(context.damage.current.rolls[0].parts).to.deep.equal([
+                "1d8",
+                "+ 4"
+            ])
+            expect(context.damage.current.rolls[1].parts).to.deep.equal([
+                "2d6 + 3",
+                "+ 4"
+            ])
+        })
+
+        it("appends a flat bonus part after existing split damage parts", async function()
+        {
+            const context = {
+                damage: {
+                    current: {
+                        rolls: [
+                            {
+                                parts: ["1d8", "@mod"]
+                            }
+                        ]
+                    }
+                }
+            }
+
+            const result = await handler({
+                actor,
+                action: {
+                    data: {
+                        mode: "addFlatBonus",
+                        value: 4
+                    }
+                },
+                context
+            })
+
+            expect(result).to.equal(false)
+            expect(context.damage.current.rolls[0].parts).to.deep.equal([
+                "1d8",
+                "@mod",
+                "+ 4"
+            ])
+        })
+
+        it("does not apply the same keyed flat bonus to a roll twice", async function()
+        {
+            const context = {
+                damage: {
+                    current: {
+                        rolls: [
+                            { formula: "1d8", _formula: "1d8" }
+                        ]
+                    }
+                }
+            }
+            const action = {
+                data: {
+                    mode: "addFlatBonus",
+                    key: "shadowsteelGhoul.shadowsteelWeaponMasterDamage",
+                    value: 4
+                }
+            }
+
+            const firstResult = await handler({
+                actor,
+                action,
+                context
+            })
+            const secondResult = await handler({
+                actor,
+                action,
+                context
+            })
+
+            expect(firstResult).to.equal(true)
+            expect(secondResult).to.equal(false)
+            expect(context.damage.current.rolls[0].formula).to.equal("1d8 + 4")
+            expect(context.damage.current.rolls[0]._formula).to.equal("1d8 + 4")
+        })
+
+        it("adds a flat bonus to roll formulas when parts are not present", async function()
+        {
+            const context = {
+                damage: {
+                    current: {
+                        rolls: [
+                            { formula: "1d10", _formula: "1d10" }
+                        ]
+                    }
+                }
+            }
+
+            const result = await handler({
+                actor,
+                action: {
+                    data: {
+                        mode: "addFlatBonus",
+                        value: 4
+                    }
+                },
+                context
+            })
+
+            expect(result).to.equal(true)
+            expect(context.damage.current.rolls[0].formula).to.equal("1d10 + 4")
+            expect(context.damage.current.rolls[0]._formula).to.equal("1d10 + 4")
+        })
+
+        it("returns false when addFlatBonus has no pending roll collection", async function()
+        {
+            const result = await handler({
+                actor,
+                action: {
+                    data: {
+                        mode: "addFlatBonus",
+                        value: 4
+                    }
+                },
+                context: {}
+            })
+
+            expect(result).to.equal(false)
+        })
+
         it("removes all occurrences of the string if present multiple times", async function()
         {
             const context = {
