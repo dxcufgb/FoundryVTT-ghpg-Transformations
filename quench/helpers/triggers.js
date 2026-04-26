@@ -31,5 +31,8 @@ export async function triggerFunction(runtime, trigger, actor)
         case ("unconscious"):
             await runtime.services.triggerRuntime.run("unconscious", actor)
             break
+        case ("zeroHp"):
+            await runtime.services.triggerRuntime.run("zeroHp", actor)
+            break
     }
 }

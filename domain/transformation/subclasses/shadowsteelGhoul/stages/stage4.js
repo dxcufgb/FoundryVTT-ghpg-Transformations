@@ -1,23 +1,24 @@
 export const stage4 = {
-    name: "Shadowsteel Ghoul Stage 4",
     stage: 4,
     grants: {
         items: [
             {
-                name: "Shadowsteel Ghoul Stage 4 Base Feature",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.chksYSoa3648qwfi"
             }
         ]
     },
     choices: {
         items: [
             {
-                name: "Shadowsteel Ghoul Stage 4 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.fBNYwBpU5KAHwt2q",
+                requires: {
+                    items: [
+                        "Compendium.transformations.gh-transformations.Item.gvvygnTzC90tBIGL"
+                    ]
+                }
             },
             {
-                name: "Shadowsteel Ghoul Stage 4 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.ZQsAVpvhSsifyrTQ"
             }
         ]
     }

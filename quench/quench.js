@@ -1,4 +1,5 @@
 import "./helpers/rules/defaultRules.js"
+import "./helpers/helpersTests.js"
 
 import "./actorSheet/actorSheetTests.js"
 import "./dialogs/dialogsTests.js"

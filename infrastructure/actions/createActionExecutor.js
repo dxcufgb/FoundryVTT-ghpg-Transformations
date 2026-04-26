@@ -84,11 +84,6 @@ export function createActionExecutor({
                         }
                         const handler = handlers[action.type]
                         // After handler execution
-                        if (action.once?.key) {
-                            await onceService.setOnceFlag(actor, action.once)
-                        }
-
-
                         if (!handler) {
                             logger.warn(
                                 "No handler for action type",
@@ -103,6 +98,10 @@ export function createActionExecutor({
                             context,
                             variables
                         })
+
+                        if (action.once?.key && result !== false) {
+                            await onceService.setOnceFlag(actor, action.once)
+                        }
 
                         if (action.data?.blocker === true && result === false) {
                             logger.debug(

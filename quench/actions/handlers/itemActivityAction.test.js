@@ -9,6 +9,8 @@ export function registerItemActivityActionTests({ describe, it, expect })
         let handler
         let fakeRepo
         let calls
+        let loggerCalls
+        let logger
 
         beforeEach(async function()
         {
@@ -22,6 +24,14 @@ export function registerItemActivityActionTests({ describe, it, expect })
             }))
 
             calls = []
+            loggerCalls = []
+            logger = {
+                debug() {},
+                warn(...args)
+                {
+                    loggerCalls.push(args)
+                }
+            }
 
             fakeRepo = {
                 __itemsById: new Map(),
@@ -41,7 +51,7 @@ export function registerItemActivityActionTests({ describe, it, expect })
             handler = createItemActivityAction({
                 itemRepository: fakeRepo,
                 tracker: fakeTracker,
-                logger: console
+                logger
             })
         })
 
@@ -140,6 +150,56 @@ export function registerItemActivityActionTests({ describe, it, expect })
             expect(calls[0].config).to.equal(undefined)
         })
 
+        it("uses a specific embedded activity resolved by exact activity name", async function()
+        {
+            const activity = {
+                id: "activity-by-name",
+                name: "Midi Save",
+                async use(config)
+                {
+                    calls.push({
+                        fn: "activity.use",
+                        config
+                    })
+                }
+            }
+            const item = {
+                id: "item-by-name",
+                uuid: "Actor.actor-1.Item.item-by-name",
+                flags: {
+                    transformations: {
+                        sourceUuid:
+                            "Compendium.transformations.test.Item.item-by-name"
+                    }
+                },
+                system: {
+                    activities: {
+                        contents: [activity]
+                    }
+                }
+            }
+
+            fakeRepo.__itemsByUuid.set(
+                "Compendium.transformations.test.Item.item-by-name",
+                item
+            )
+
+            const result = await handler({
+                actor,
+                action: {
+                    data: {
+                        itemUuid:
+                            "Compendium.transformations.test.Item.item-by-name",
+                        activityName: "Midi Save"
+                    }
+                }
+            })
+
+            expect(result).to.equal(true)
+            expect(calls).to.have.length(1)
+            expect(calls[0].fn).to.equal("activity.use")
+        })
+
         it("falls back to the only activity when the item has no direct use method", async function()
         {
             const activity = {
@@ -223,6 +283,10 @@ export function registerItemActivityActionTests({ describe, it, expect })
 
             expect(result).to.equal(false)
             expect(calls).to.have.length(0)
+            expect(loggerCalls.length).to.be.greaterThan(0)
+            expect(String(loggerCalls.at(-1)?.[0] ?? "")).to.contain(
+                "ITEM_ACTIVITY action could not resolve usable activity"
+            )
         })
 
         it("uses an item resolved by embedded item id", async function()

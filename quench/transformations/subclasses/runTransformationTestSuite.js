@@ -21,6 +21,12 @@ export function runTransformationTestSuite({
 })
 {
     const {describe, it, assert, expect} = mochaFunctions
+    const registerAfterEach =
+        typeof mochaFunctions.afterEach === "function"
+            ? mochaFunctions.afterEach
+            : typeof globalThis.afterEach === "function"
+                ? globalThis.afterEach
+                : null
     const helpers = {
         getCharacterClass,
         getDndItem,
@@ -50,6 +56,19 @@ export function runTransformationTestSuite({
         waitForStageFinished,
         waitForElementGone,
         waitForElement
+    }
+
+    function cleanupNativeRollConfigurationDialogs()
+    {
+        for (const dialog of document.querySelectorAll(
+            "dialog.application.roll-configuration"
+        )) {
+            try {
+                dialog.close?.()
+            } catch (_err) {}
+
+            dialog.remove?.()
+        }
     }
 
     if (testDef.scenarios?.length > 0) {
@@ -97,6 +116,13 @@ export function runTransformationTestSuite({
                 globalThis.___TransformationTestEnvironment___ = {}
                 staticVars = {}
             })
+
+            if (registerAfterEach) {
+                registerAfterEach(function()
+                {
+                    cleanupNativeRollConfigurationDialogs()
+                })
+            }
 
             for (const scenario of testDef.scenarios) {
 
@@ -224,6 +250,14 @@ export function runTransformationTestSuite({
                 globalThis.___TransformationTestEnvironment___ = {}
                 staticVars = {}
             })
+
+            if (registerAfterEach) {
+                registerAfterEach(function()
+                {
+                    cleanupNativeRollConfigurationDialogs()
+                })
+            }
+
             for (const behavior of testDef.itemBehaviorTests ?? []) {
 
                 const loopContexts = behavior.loop
@@ -375,6 +409,13 @@ export function runTransformationTestSuite({
                 ) != transformationDef.id) throw new Error(`Transformation type not set to ${transformationDef.id} in beforeEach`)
                 globalThis.___TransformationTestEnvironment___ = {}
             })
+
+            if (registerAfterEach) {
+                registerAfterEach(function()
+                {
+                    cleanupNativeRollConfigurationDialogs()
+                })
+            }
             for (const effectTest of testDef.rollTableEffects ?? []) {
                 it(`Roll Table Effect: ${effectTest.name}`, async function ()
                 {
