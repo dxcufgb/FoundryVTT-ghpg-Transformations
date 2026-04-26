@@ -1,3 +1,10 @@
+import {
+    hasCompleteTransformationStageChoiceSelection,
+    normalizeTransformationStageChoiceCount,
+    normalizeTransformationStageChoiceSelection,
+    serializeTransformationStageChoiceSelection
+} from "../../utils/transformationStageChoiceSelection.js"
+
 export function createStageChoiceResolver({
     tracker,
     compendiumRepository,
@@ -27,6 +34,9 @@ export function createStageChoiceResolver({
 
         const stageDef = definition.stages[stage]
         if (!stageDef?.choices?.items?.length) return null
+        const choiceCount = normalizeTransformationStageChoiceCount(
+            stageDef?.choices?.count
+        )
 
         return tracker.track((async () =>
         {
@@ -35,13 +45,29 @@ export function createStageChoiceResolver({
                 "stageChoices"
             )?.[definition.id]?.[stage]
 
-            // If stored choice still valid, reuse it
-            if (existing && await isChoiceRuntimeValid({
-                actor,
-                stageDef,
-                choiceUuid: existing
-            })) {
-                return existing
+            const existingSelections =
+                      normalizeTransformationStageChoiceSelection(
+                          existing,
+                          choiceCount
+                      )
+
+            if (
+                hasCompleteTransformationStageChoiceSelection(
+                    existing,
+                    choiceCount
+                ) &&
+                existingSelections.every(choiceUuid =>
+                    isChoiceRuntimeValid({
+                        actor,
+                        stageDef,
+                        choiceUuid
+                    })
+                )
+            ) {
+                return serializeTransformationStageChoiceSelection(
+                    existingSelections,
+                    choiceCount
+                )
             }
 
             const candidates = await buildChoiceList({
@@ -61,23 +87,28 @@ export function createStageChoiceResolver({
 
             if (!validChoices.length) return null
 
-            if (validChoices.length === 1) {
+            if (validChoices.length <= choiceCount) {
                 if (typeof requestChoice === "function") {
                     return requestChoice({
                         actor,
                         stage,
                         choices: validChoices,
+                        choiceCount,
                         autoSelect: true
                     })
                 }
 
-                return validChoices[0].uuid
+                return serializeTransformationStageChoiceSelection(
+                    validChoices.map(choice => choice.uuid),
+                    choiceCount
+                )
             }
 
             return requestChoice({
                 actor,
                 stage,
-                choices: validChoices
+                choices: validChoices,
+                choiceCount
             })
 
         })())
@@ -102,6 +133,7 @@ export function createStageChoiceResolver({
                 }
 
                 results.push({
+                    id: def.uuid,
                     uuid: def.uuid,
                     name: item.name,
                     img: item.img,

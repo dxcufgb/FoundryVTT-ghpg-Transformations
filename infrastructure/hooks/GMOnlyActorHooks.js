@@ -34,6 +34,8 @@ export function registerGMOnlyActorHooks({
         logger
     })
 
+    const previousHpByActorId = new Map()
+
     Hooks.on("createActiveEffect", async (effect, options, userId) =>
     {
         logger.debug("GM createActiveEffect", effect, options, userId)
@@ -80,6 +82,67 @@ export function registerGMOnlyActorHooks({
                 break
             default:
                 break
+        }
+    })
+
+    Hooks.on("preUpdateActor", (actor, changed, options, userId) =>
+    {
+        logger.debug("GM preUpdateActor", actor, changed, options, userId)
+
+        const nextHpValue = getUpdatedHpValue(changed)
+
+        if (nextHpValue == null) {
+            return
+        }
+
+        const previousHp = Number(actor?.system?.attributes?.hp?.value ?? NaN)
+
+        if (!Number.isFinite(previousHp) || !actor?.id) {
+            return
+        }
+
+        previousHpByActorId.set(actor.id, previousHp)
+    })
+
+    Hooks.on("updateActor", async (actor, changed, options, userId) =>
+    {
+        logger.debug("GM updateActor", actor, changed, options, userId)
+        debouncedTracker.pulse("GM.updateActor")
+
+        const previousHp = actor?.id
+            ? previousHpByActorId.get(actor.id)
+            : undefined
+
+        if (actor?.id) {
+            previousHpByActorId.delete(actor.id)
+        }
+
+        if (previousHp == null || !didTransitionToZeroHp(actor, previousHp)) {
+            return
+        }
+
+        const executionContext = actor?.getFlag?.(
+            "transformations",
+            "executionContext"
+        )
+
+        if (executionContext === "macro") return
+
+        const resolvedActor = actorRepository.resolveActor(actor)
+        if (!resolvedActor) return
+
+        const transformation = await transformationQueryService.getForActor(
+            resolvedActor
+        )
+        if (!transformation) return
+
+        try {
+            await triggerRuntime.run("zeroHp", resolvedActor)
+        } catch (err) {
+            logger.error(
+                "Error handling zeroHp trigger",
+                {actor: resolvedActor, err}
+            )
         }
     })
 
@@ -237,4 +300,23 @@ export function registerGMOnlyActorHooks({
             userId
         )
     })
+
+    function getUpdatedHpValue(changed)
+    {
+        return foundry.utils.getProperty(
+            changed,
+            "system.attributes.hp.value"
+        )
+    }
+
+    function didTransitionToZeroHp(actor, previousHp)
+    {
+        const currentHp = Number(actor?.system?.attributes?.hp?.value ?? NaN)
+
+        if (!Number.isFinite(previousHp) || !Number.isFinite(currentHp)) {
+            return false
+        }
+
+        return previousHp > 0 && currentHp <= 0
+    }
 }

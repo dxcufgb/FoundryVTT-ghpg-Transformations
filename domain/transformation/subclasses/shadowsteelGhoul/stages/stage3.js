@@ -4,20 +4,10 @@ export const stage3 = {
     grants: {
         items: [
             {
-                name: "Shadowsteel Ghoul Stage 3 Base Feature",
-                uuid: ""
-            }
-        ]
-    },
-    choices: {
-        items: [
-            {
-                name: "Shadowsteel Ghoul Stage 3 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.1ZK9Hn5Ap2ElY9zw"
             },
             {
-                name: "Shadowsteel Ghoul Stage 3 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.HvC6Uee6gg6jpq3d"
             }
         ]
     }

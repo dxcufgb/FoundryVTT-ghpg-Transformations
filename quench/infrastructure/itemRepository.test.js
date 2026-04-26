@@ -239,16 +239,25 @@ function installFoundryUtils()
 }
 
 function createRepository({
+    chooseAbilityScoreAdvancementResult = true,
     chooseItemPoolResult = null
 } = {})
 {
     const calls = {
+        chooseAbilityScoreAdvancement: [],
         chooseItemPool: []
     }
 
     const repository = createItemRepository({
         advancementChoiceHandler: {
             async choose() { return null },
+            async chooseAbilityScoreAdvancement(data)
+            {
+                calls.chooseAbilityScoreAdvancement.push(data)
+                return typeof chooseAbilityScoreAdvancementResult === "function"
+                    ? chooseAbilityScoreAdvancementResult(data)
+                    : chooseAbilityScoreAdvancementResult
+            },
             async chooseItemPool(data)
             {
                 calls.chooseItemPool.push(data)
@@ -629,6 +638,120 @@ quench.registerBatch(
                     expect(createdSpell).to.exist
                     expect(createdSpell.flags.transformations.awardedByItem)
                     .to.equal(parentItem.uuid)
+                } finally {
+                    restoreFoundry()
+
+                    if (originalFromUuid === undefined) {
+                        delete globalThis.fromUuid
+                    } else {
+                        globalThis.fromUuid = originalFromUuid
+                    }
+                }
+            })
+
+            it("routes ability-score advancement configurations through the dedicated handler", async function ()
+            {
+                const actor = createActor()
+                const restoreFoundry = installFoundryUtils()
+
+                const {calls, repository} = createRepository()
+
+                try {
+                    const parentItem = await repository.createObjectOnActor(actor, {
+                        uuid: "Item.parent-ability-score",
+                        name: "Ability Training",
+                        type: "feat",
+                        system: {
+                            advancement: [{
+                                configuration: {
+                                    cap: 1,
+                                    fixed: {},
+                                    locked: ["str", "dex", "con"],
+                                    max: 20,
+                                    points: 1,
+                                    recommendation: null
+                                }
+                            }]
+                        }
+                    }, "", {
+                        triggeringUserId: "user-1"
+                    })
+
+                    expect(parentItem).to.exist
+                    expect(calls.chooseAbilityScoreAdvancement).to.have.length(1)
+                    expect(calls.chooseAbilityScoreAdvancement[0].actor).to.equal(actor)
+                    expect(calls.chooseAbilityScoreAdvancement[0].sourceItem?.uuid)
+                    .to.equal(parentItem.uuid)
+                    expect(calls.chooseAbilityScoreAdvancement[0].triggeringUserId)
+                    .to.equal("user-1")
+                    expect(calls.chooseAbilityScoreAdvancement[0].advancementConfiguration)
+                    .to.deep.equal({
+                        cap: 1,
+                        fixed: {},
+                        locked: ["str", "dex", "con"],
+                        max: 20,
+                        points: 1,
+                        recommendation: null
+                    })
+                } finally {
+                    restoreFoundry()
+                }
+            })
+
+            it("preserves triggeringUserId for nested granted items that contain ability-score advancements", async function ()
+            {
+                const actor = createActor()
+                const restoreFoundry = installFoundryUtils()
+                const originalFromUuid = globalThis.fromUuid
+                const grantedFeat = {
+                    uuid: "Compendium.transformations.gh-transformations.Item.ability-score-child",
+                    name: "Child Ability Training",
+                    type: "feat",
+                    system: {
+                        advancement: [{
+                            configuration: {
+                                cap: 1,
+                                fixed: {},
+                                locked: ["str", "dex", "con"],
+                                max: 20,
+                                points: 1,
+                                recommendation: null
+                            }
+                        }]
+                    }
+                }
+
+                globalThis.fromUuid = async uuid =>
+                    uuid === grantedFeat.uuid
+                        ? grantedFeat
+                        : null
+
+                const {calls, repository} = createRepository()
+
+                try {
+                    const parentItem = await repository.createObjectOnActor(actor, {
+                        uuid: "Item.parent-granting-ability-score",
+                        name: "Parent Ability Training",
+                        type: "feat",
+                        system: {
+                            advancement: [{
+                                configuration: {
+                                    items: [{
+                                        uuid: grantedFeat.uuid
+                                    }]
+                                }
+                            }]
+                        }
+                    }, "", {
+                        triggeringUserId: "user-1"
+                    })
+
+                    expect(parentItem).to.exist
+                    expect(calls.chooseAbilityScoreAdvancement).to.have.length(1)
+                    expect(calls.chooseAbilityScoreAdvancement[0].sourceItem?.name)
+                    .to.equal("Child Ability Training")
+                    expect(calls.chooseAbilityScoreAdvancement[0].triggeringUserId)
+                    .to.equal("user-1")
                 } finally {
                     restoreFoundry()
 

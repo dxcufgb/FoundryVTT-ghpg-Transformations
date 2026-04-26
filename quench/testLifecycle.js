@@ -98,6 +98,16 @@ export async function tearDownEachTest({
             tearDownExtras.sheet = null
         }
 
+        for (const dialog of document.querySelectorAll(
+            "dialog.application.roll-configuration"
+        )) {
+            try {
+                dialog.close?.()
+            } catch (_err) {}
+
+            dialog.remove?.()
+        }
+
     } catch (err) {
         console.error("tearDownTest failed:", err)
     }

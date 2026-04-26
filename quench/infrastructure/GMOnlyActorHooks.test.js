@@ -5,6 +5,7 @@ function createLogger()
 {
     return {
         debug() {},
+        warn() {},
         error() {}
     }
 }
@@ -50,9 +51,18 @@ function createSoulVessel(actor, {
 function createActor()
 {
     return {
+        id: "actor-1",
         flags: {
             transformations: {
                 lich: {}
+            }
+        },
+        system: {
+            attributes: {
+                hp: {
+                    value: 10,
+                    max: 10
+                }
             }
         },
         getFlag(scope, key)
@@ -276,6 +286,115 @@ quench.registerBatch(
                             }
                         }
                     })
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("dispatches bloodied when the bloodied effect is created", async function()
+            {
+                const actor = createActor()
+                const harness = createHarness()
+                const effect = {
+                    parent: actor,
+                    name: "Bloodied"
+                }
+
+                try {
+                    const callback = harness.callbacks.get("createActiveEffect")
+                    expect(callback).to.be.a("function")
+
+                    await callback(effect, {}, "user-1")
+
+                    expect(harness.calls.triggerRuntime).to.deep.include({
+                        name: "bloodied",
+                        actor,
+                        data: undefined
+                    })
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("dispatches zeroHp when actor hp transitions from above 0 to 0", async function()
+            {
+                const actor = createActor()
+                const harness = createHarness()
+
+                try {
+                    const preUpdateCallback = harness.callbacks.get("preUpdateActor")
+                    const updateCallback = harness.callbacks.get("updateActor")
+                    expect(preUpdateCallback).to.be.a("function")
+                    expect(updateCallback).to.be.a("function")
+
+                    const changed = {
+                        system: {
+                            attributes: {
+                                hp: {
+                                    value: 0
+                                }
+                            }
+                        }
+                    }
+
+                    await preUpdateCallback(actor, changed, {}, "user-1")
+                    actor.system.attributes.hp.value = 0
+                    await updateCallback(actor, changed, {}, "user-1")
+
+                    expect(harness.calls.triggerRuntime).to.deep.include({
+                        name: "zeroHp",
+                        actor,
+                        data: undefined
+                    })
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("does not dispatch zeroHp again while actor remains at 0 hp", async function()
+            {
+                const actor = createActor()
+                const harness = createHarness()
+
+                try {
+                    const preUpdateCallback = harness.callbacks.get("preUpdateActor")
+                    const updateCallback = harness.callbacks.get("updateActor")
+                    expect(preUpdateCallback).to.be.a("function")
+                    expect(updateCallback).to.be.a("function")
+
+                    const firstChange = {
+                        system: {
+                            attributes: {
+                                hp: {
+                                    value: 0
+                                }
+                            }
+                        }
+                    }
+
+                    await preUpdateCallback(actor, firstChange, {}, "user-1")
+                    actor.system.attributes.hp.value = 0
+                    await updateCallback(actor, firstChange, {}, "user-1")
+
+                    const secondChange = {
+                        system: {
+                            attributes: {
+                                hp: {
+                                    value: 0
+                                }
+                            }
+                        }
+                    }
+
+                    await preUpdateCallback(actor, secondChange, {}, "user-1")
+                    actor.system.attributes.hp.value = 0
+                    await updateCallback(actor, secondChange, {}, "user-1")
+
+                    expect(
+                        harness.calls.triggerRuntime.filter(call =>
+                            call.name === "zeroHp"
+                        )
+                    ).to.have.length(1)
                 } finally {
                     harness.restore()
                 }

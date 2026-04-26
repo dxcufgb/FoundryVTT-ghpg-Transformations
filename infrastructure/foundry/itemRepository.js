@@ -1,3 +1,7 @@
+import {
+    isAbilityScoreAdvancementConfiguration
+} from "../../utils/abilityScoreAdvancement.js"
+
 export function createItemRepository({
     advancementChoiceHandler,
     advancementGrantResolver,
@@ -521,15 +525,34 @@ export function createItemRepository({
                                   ? item
                                   : item?.uuid
                     const sourceItem = await fromUuid(itemUuid)
-                    const createOptions = buildAdvancementItemCreateOptions(
-                        advancementConfiguration,
-                        sourceItem
-                    )
+                    const createOptions = {
+                        ...buildAdvancementItemCreateOptions(
+                            advancementConfiguration,
+                            sourceItem
+                        ),
+                        triggeringUserId
+                    }
                     await createObjectOnActor(
                         actor,
                         sourceItem,
                         parentItem?.uuid ?? "",
                         createOptions
+                    )
+                }
+            }
+            if (isAbilityScoreAdvancementConfiguration(advancementConfiguration)) {
+                const abilityScoreApplied =
+                    await advancementChoiceHandler.chooseAbilityScoreAdvancement({
+                        actor,
+                        advancementConfiguration,
+                        sourceItem: parentItem,
+                        triggeringUserId
+                    })
+
+                if (abilityScoreApplied == null || abilityScoreApplied === false) {
+                    logger.warn(
+                        "Ability score advancement skipped: no selection returned",
+                        advancementConfiguration
                     )
                 }
             }
@@ -573,7 +596,8 @@ export function createItemRepository({
                         actor,
                         sourceItem: selectedChoice.sourceItem,
                         parentItem,
-                        createOptions
+                        createOptions,
+                        triggeringUserId
                     })
 
                     remainingChoices = remainingChoices.filter(choice =>

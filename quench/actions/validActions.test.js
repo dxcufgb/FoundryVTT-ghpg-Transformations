@@ -349,6 +349,66 @@ quench.registerBatch(
                 expect(callCount).to.equal(1)
             })
 
+            it("does not consume once-only state when the handler fails", async function ()
+            {
+                let callCount = 0
+                let shouldSucceed = false
+
+                const handlers = {
+                    TEST: async () =>
+                    {
+                        callCount++
+                        return shouldSucceed
+                    }
+                }
+
+                const actionGroups = [
+                    {
+                        name: "once-failure-test",
+                        actions: [
+                            {
+                                type: "TEST",
+                                once: {
+                                    key: "once-failure-key",
+                                    reset: "shortRest"
+                                }
+                            }
+                        ]
+                    }
+                ]
+
+                await actionExecutor.execute({
+                    actorId: actor.id,
+                    actionGroups,
+                    context: {},
+                    variables: {},
+                    handlers
+                })
+
+                expect(callCount).to.equal(1)
+                expect(actor.getFlag("transformations", "once") == null).to.equal(true)
+
+                shouldSucceed = true
+
+                await actionExecutor.execute({
+                    actorId: actor.id,
+                    actionGroups,
+                    context: {},
+                    variables: {},
+                    handlers
+                })
+
+                await actionExecutor.execute({
+                    actorId: actor.id,
+                    actionGroups,
+                    context: {},
+                    variables: {},
+                    handlers
+                })
+
+                expect(callCount).to.equal(2)
+            })
+
             it("resets once-only action on long rest", async function ()
             {
                 let callCount = 0

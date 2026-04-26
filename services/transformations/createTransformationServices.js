@@ -1,4 +1,10 @@
 import { UiAccessor } from "../../bootstrap/uiAccessor.js"
+import {
+    normalizeTransformationStageChoiceCount,
+    normalizeTransformationStageChoiceSelection,
+    serializeTransformationStageChoiceSelection
+} from "../../utils/transformationStageChoiceSelection.js"
+
 export function createTransformationService({
     tracker,
     mutationGateway,
@@ -164,9 +170,13 @@ export function createTransformationService({
                 const definition = transformation.definition
 
                 let choice = null
-                let choiceObject = null
+                let choiceObjects = []
                 if (definition.stages[stage].choices !== undefined) {
                     const choiceItems = definition.stages[stage].choices.items
+                    const choiceCount =
+                              normalizeTransformationStageChoiceCount(
+                                  definition.stages[stage].choices?.count
+                              )
                     choice = actor.getFlag(
                         "transformations",
                         "stageChoices"
@@ -179,22 +189,27 @@ export function createTransformationService({
                             requestChoice: async ({
                                 actor,
                                 choices,
+                                choiceCount,
                                 autoSelect = false
                             }) =>
                             {
-                                if (autoSelect && choices?.length === 1) {
-                                    await showAutoSelectedChoiceInfoDialog({
+                                if (autoSelect) {
+                                    await showAutoSelectedChoiceInfoDialogs({
                                         dialogFactory,
-                                        choice: choices[0],
+                                        choices,
                                         triggeringUserId
                                     })
 
-                                    return choices[0]?.uuid
+                                    return serializeTransformationStageChoiceSelection(
+                                        choices.map(entry => entry.uuid),
+                                        choiceCount
+                                    )
                                 }
 
                                 return dialogFactory.openStageChoiceDialog({
                                     actor,
                                     choices,
+                                    choiceCount,
                                     stage,
                                     triggeringUserId
                                 })
@@ -208,32 +223,45 @@ export function createTransformationService({
                         )
                         return
                     }
-                    actor.setFlag(
+                    const normalizedChoiceSelection =
+                              normalizeTransformationStageChoiceSelection(
+                                  choice,
+                                  choiceCount
+                              )
+
+                    await actor.setFlag(
                         "transformations",
                         "stageChoices",
-                        {
-                            [definition.id]: {
-                                [stage]: choice
-                            }
-                        }
+                        storeStageChoiceSelection(
+                            actor.getFlag("transformations", "stageChoices"),
+                            definition.id,
+                            stage,
+                            serializeTransformationStageChoiceSelection(
+                                normalizedChoiceSelection,
+                                choiceCount
+                            )
+                        )
                     )
-                    choiceObject = choiceItems.find(c => c.uuid == choice)
+                    choiceObjects = choiceItems.filter(choiceItem =>
+                        normalizedChoiceSelection.includes(choiceItem.uuid)
+                    )
                 }
 
                 await mutationGateway.advanceStage({
                     actorId: actor.id,
                     definition,
                     stage,
-                    choice: choiceObject,
+                    choice: choiceObjects[0] ?? null,
+                    choices: choiceObjects,
                     triggeringUserId
                 })
             })()
         )
     }
 
-    async function showAutoSelectedChoiceInfoDialog({
+    async function showAutoSelectedChoiceInfoDialogs({
         dialogFactory,
-        choice,
+        choices = [],
         triggeringUserId = null
     } = {})
     {
@@ -245,17 +273,19 @@ export function createTransformationService({
             return
         }
 
-        const item = choice?.sourceItem ??
-            (choice?.uuid ? await fromUuid(choice.uuid) : null)
+        for (const choice of choices) {
+            const item = choice?.sourceItem ??
+                (choice?.uuid ? await fromUuid(choice.uuid) : null)
 
-        if (!item) {
-            return
+            if (!item) {
+                continue
+            }
+
+            await dialogFactory.showItemInfoDialog({
+                item,
+                triggeringUserId
+            })
         }
-
-        await dialogFactory.showItemInfoDialog({
-            item,
-            triggeringUserId
-        })
     }
 
     function shouldShowAutoSelectedChoiceInfoDialog()
@@ -339,4 +369,21 @@ export function createTransformationService({
             )
         }
     }
+}
+
+function storeStageChoiceSelection(
+    existingStageChoices,
+    definitionId,
+    stage,
+    choiceSelection
+)
+{
+    const storedStageChoices = foundry.utils.deepClone(
+        existingStageChoices ?? {}
+    )
+
+    storedStageChoices[definitionId] ??= {}
+    storedStageChoices[definitionId][stage] = choiceSelection
+
+    return storedStageChoices
 }

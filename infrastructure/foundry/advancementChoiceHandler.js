@@ -8,6 +8,11 @@ import {
     createSkillChoiceName,
     resolveSkillChoiceValue
 } from "./advancementSkillResolver.js"
+import {
+    createAbilityScoreAdvancementState,
+    getAbilityScoreSelectionChanges,
+    normalizeAbilityScoreSelection
+} from "../../utils/abilityScoreAdvancement.js"
 
 export function createAdvancementChoiceHandler({
     activeEffectRepository,
@@ -175,6 +180,79 @@ export function createAdvancementChoiceHandler({
         }
 
         return results.every(Boolean)
+    }
+
+    async function chooseAbilityScoreAdvancement({
+        actor,
+        advancementConfiguration = {},
+        sourceItem = null,
+        title = "Allocate Ability Scores",
+        apply = true,
+        triggeringUserId = null
+    })
+    {
+        logger.debug("advancementChoiceHandler.chooseAbilityScoreAdvancement", {
+            actor,
+            advancementConfiguration,
+            sourceItem,
+            title,
+            apply,
+            triggeringUserId
+        })
+
+        if (!actor) {
+            return null
+        }
+
+        const dialogFactory = getDialogFactory?.()
+        if (!dialogFactory?.openAbilityScoreAdvancementDialog) {
+            logger.warn(
+                "Ability score advancement skipped: dialog factory not available",
+                advancementConfiguration
+            )
+            return null
+        }
+
+        const abilityState = createAbilityScoreAdvancementState({
+            actor,
+            advancementConfiguration
+        })
+        const selectedValues = await resolveAbilityScoreAdvancementSelection({
+            actor,
+            dialogFactory,
+            abilityState,
+            sourceItem,
+            title,
+            triggeringUserId
+        })
+
+        if (selectedValues == null) {
+            return false
+        }
+
+        const normalizedSelection = normalizeAbilityScoreSelection(
+            selectedValues,
+            abilityState.abilities,
+            abilityState.advancementConfiguration.points
+        )
+        const effectData = buildAbilityScoreAdvancementEffectData({
+            actor,
+            sourceItem,
+            abilityStates: abilityState.abilities,
+            selection: normalizedSelection
+        })
+
+        if (!apply) {
+            return effectData ? [effectData] : []
+        }
+
+        if (!effectData) {
+            return true
+        }
+
+        const effect = await activeEffectRepository.create(effectData)
+
+        return effect != null
     }
 
     async function chooseItemPool({
@@ -875,6 +953,98 @@ export function createAdvancementChoiceHandler({
 
     return Object.freeze({
         choose,
+        chooseAbilityScoreAdvancement,
         chooseItemPool
     })
+
+    async function resolveAbilityScoreAdvancementSelection({
+        actor,
+        dialogFactory,
+        abilityState,
+        sourceItem,
+        title,
+        triggeringUserId = null
+    })
+    {
+        const testChoice = globalThis.___TransformationTestEnvironment___
+            ?.choosenAdvancement
+            ?.find(choice => choice.name === sourceItem?.name)
+
+        if (testChoice) {
+            return normalizeAbilityScoreSelectionInput(testChoice.choice)
+        }
+
+        return dialogFactory.openAbilityScoreAdvancementDialog({
+            actor,
+            advancementConfiguration: abilityState.advancementConfiguration,
+            title,
+            triggeringUserId
+        })
+    }
+
+    function normalizeAbilityScoreSelectionInput(selection)
+    {
+        if (!selection || typeof selection !== "object") {
+            return {}
+        }
+
+        if (
+            selection.selectedValues &&
+            typeof selection.selectedValues === "object"
+        ) {
+            return selection.selectedValues
+        }
+
+        return selection
+    }
+
+    function buildAbilityScoreAdvancementEffectData({
+        actor,
+        sourceItem,
+        abilityStates = [],
+        selection = {}
+    })
+    {
+        const selectedChanges = getAbilityScoreSelectionChanges(
+            selection,
+            abilityStates
+        )
+
+        if (!selectedChanges.length) {
+            return null
+        }
+
+        const labels = selectedChanges.map(change => change.label)
+        const summary = selectedChanges.map(change =>
+            `${change.label} ${change.selectedValue}`
+        ).join(", ")
+
+        return {
+            actor,
+            name: `Ability Score Increase: ${labels.join(", ")}`,
+            description: `Set ability scores to ${summary}.`,
+            source: "transformation",
+            icon: sourceItem?.img ?? selectedChanges[0]?.icon ?? null,
+            origin: sourceItem?.uuid ?? actor?.uuid ?? "",
+            changes: selectedChanges.map(change => ({
+                key: `system.abilities.${change.key}.value`,
+                mode: globalThis.CONST?.ACTIVE_EFFECT_MODES?.UPGRADE ?? 4,
+                value: change.selectedValue
+            })),
+            flags: {
+                dnd5e: {
+                    hidden: true
+                },
+                transformations: {
+                    advancementChoiceType: "abilityScore",
+                    advancementChoiceSelection:
+                        selectedChanges.reduce((mappedSelection, change) =>
+                        {
+                            mappedSelection[change.key] = change.selectedValue
+                            return mappedSelection
+                        }, {})
+                }
+            }
+        }
+    }
 }

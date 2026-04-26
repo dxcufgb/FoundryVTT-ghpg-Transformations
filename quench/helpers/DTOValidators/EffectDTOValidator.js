@@ -5,7 +5,7 @@ import { BaseDTOValidator } from "./BaseDTOValidator.js"
 export class EffectDTOValidator extends BaseDTOValidator
 {
     static rules = {
-        type: path("effects.type").equals(),
+        type: path("effect.type").equals(),
         collisionTypes: path("effect.system.collisionTypes").toArray().equalsArray(),
         distanceFormula: path("effects.system.distanceFormula").equals(),
         statuses: resolve(ctx =>
@@ -27,7 +27,7 @@ export class EffectDTOValidator extends BaseDTOValidator
         count: path("effects.contents").count().equals(),
         has: path("effects.contents").pluck("name").includesAll(),
         notHas: path("effects.contents").pluck("name").notIncludesAny(),
-        withOrigin: path("effects.contents").whereOrigin().count().equals(),
+        withOrigin: path("effects.contents").whereOrigin().count().equals()
     }
 
     validate(effect, dto)
@@ -35,7 +35,7 @@ export class EffectDTOValidator extends BaseDTOValidator
         if (!effect)
             throw new Error(`[${this.path}] Missing effect`)
 
-        super.validate(this.buildValidationDTO(dto), { effect })
+        super.validate(this.buildValidationDTO(dto), {effect})
 
         return true
     }
