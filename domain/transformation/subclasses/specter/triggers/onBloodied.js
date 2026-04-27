@@ -1,5 +1,5 @@
 const FRAYING_REALITY_ITEM_UUID =
-    "Compendium.transformations.gh-transformations.Item.daxJPuEvp9ATh0Lq"
+          "Compendium.transformations.gh-transformations.Item.daxJPuEvp9ATh0Lq"
 const FRAYING_REALITY_ACTIVITY_NAME = "Midi Save"
 
 export const onBloodied = {
@@ -17,15 +17,6 @@ export const onBloodied = {
                 }
             },
             actions: [
-                {
-                    type: "ITEM",
-                    data: {
-                        uuid: FRAYING_REALITY_ITEM_UUID,
-                        mode: "consume",
-                        blocker: true,
-                        uses: 1
-                    }
-                },
                 {
                     type: "ITEM_ACTIVITY",
                     data: {

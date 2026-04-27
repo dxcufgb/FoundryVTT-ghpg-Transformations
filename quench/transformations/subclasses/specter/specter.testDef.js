@@ -3,16 +3,28 @@ import { validate } from "../../../helpers/DTOValidators/validate.js"
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js"
 
 const SPECTRAL_FORM_UUID =
-          "Compendium.transformations.gh-transformations.Item.AAFvnzh8Y6gK8N2i"
+    "Compendium.transformations.gh-transformations.Item.AAFvnzh8Y6gK8N2i"
 const DRAWN_TO_DARKNESS_UUID =
-          "Compendium.transformations.gh-transformations.Item.DwuZGkMkuXkYTFbI"
+    "Compendium.transformations.gh-transformations.Item.DwuZGkMkuXkYTFbI"
 const INCORPOREAL_MOVEMENT_UUID =
-          "Compendium.transformations.gh-transformations.Item.c22yc2mUwC93M0Ey"
+    "Compendium.transformations.gh-transformations.Item.c22yc2mUwC93M0Ey"
 const GHASTLY_TOUCH_UUID =
-          "Compendium.transformations.gh-transformations.Item.TVXr6k6ItMlp8jPn"
+    "Compendium.transformations.gh-transformations.Item.TVXr6k6ItMlp8jPn"
+const UNTETHERED_FROM_LIFE_UUID =
+    "Compendium.transformations.gh-transformations.Item.rLi1CEdtteycxQmc"
+const HAUNTING_FLIGHT_UUID =
+    "Compendium.transformations.gh-transformations.Item.IwVCDClcKRjGrCy5"
+const ETHEREAL_PHASING_UUID =
+    "Compendium.transformations.gh-transformations.Item.XbL7I9z00L9jk555"
+const BLINK_SPELL_UUID =
+    "Compendium.transformations.gh-transformations.Item.uUPMmfL3Qa1Dic8Y"
 const STAGE_1_GRANTED_ITEM_UUIDS = Object.freeze([
     SPECTRAL_FORM_UUID,
     DRAWN_TO_DARKNESS_UUID
+])
+const STAGE_2_GRANTED_ITEM_UUIDS = Object.freeze([
+    ...STAGE_1_GRANTED_ITEM_UUIDS,
+    UNTETHERED_FROM_LIFE_UUID
 ])
 const placeholderChoices = Object.freeze([
     {
@@ -23,26 +35,45 @@ const placeholderChoices = Object.freeze([
         name: "Ghastly Touch",
         uuid: GHASTLY_TOUCH_UUID
     },
-    {name: "Specter Stage 2 Choice A", uuid: ""},
-    {name: "Specter Stage 2 Choice B", uuid: ""},
-    {name: "Specter Stage 3 Choice A", uuid: ""},
-    {name: "Specter Stage 3 Choice B", uuid: ""},
-    {name: "Specter Stage 4 Choice A", uuid: ""},
-    {name: "Specter Stage 4 Choice B", uuid: ""}
+    {
+        name: "Ethereal Phasing",
+        uuid: ETHEREAL_PHASING_UUID
+    },
+    {
+        name: "Haunting Flight",
+        uuid: HAUNTING_FLIGHT_UUID
+    },
+    { name: "Specter Stage 3 Choice A", uuid: "" },
+    { name: "Specter Stage 3 Choice B", uuid: "" },
+    { name: "Specter Stage 4 Choice A", uuid: "" },
+    { name: "Specter Stage 4 Choice B", uuid: "" }
 ])
 
-async function waitForSpecterStage1State({
+function buildStagePath(choiceUuids = [])
+{
+    return choiceUuids.map((choiceUuid, index) => ({
+        stage: index + 1,
+        choose: choiceUuid,
+        await: async ({ runtime, actor, waiters }) =>
+        {
+            await waiters.waitForStageFinished(
+                runtime,
+                actor,
+                waiters.waitForCondition,
+                index + 1
+            )
+        }
+    }))
+}
+
+async function waitForSpecterState({
     runtime,
     actor,
     waiters,
-    choiceUuid
+    expectedItemUuids = [],
+    extraPredicate = null
 })
 {
-    const expectedItemUuids = [
-        ...STAGE_1_GRANTED_ITEM_UUIDS,
-        choiceUuid
-    ]
-
     await waiters.waitForCondition(() =>
     {
         const raceItem = actor.items.find(item => item.type === "race")
@@ -55,7 +86,10 @@ async function waitForSpecterStage1State({
             ) &&
             raceItem?.system?.type?.value === "humanoid" &&
             raceItem?.system?.type?.subtype === "Undead" &&
-            resistances.includes("necrotic")
+            resistances.includes("necrotic") &&
+            (typeof extraPredicate === "function"
+                ? extraPredicate(actor)
+                : true)
     })
 
     await waiters.waitForDomainStability({
@@ -64,7 +98,7 @@ async function waitForSpecterStage1State({
     })
 }
 
-function addStage1CommonAssertions(actorDto)
+function addSpecterBaseAssertions(actorDto)
 {
     actorDto.stats.resistances = ["necrotic"]
     actorDto.rollModes.disadvantage.push({
@@ -125,7 +159,9 @@ function addDrawnToDarknessAssertions(actorDto)
     })
 }
 
-function addIncorporealMovementAssertions(actorDto, actorProf)
+function addIncorporealMovementAssertions(actorDto, {
+    actorProf
+} = {})
 {
     actorDto.addItem(item =>
     {
@@ -134,7 +170,6 @@ function addIncorporealMovementAssertions(actorDto, actorProf)
         item.type = "feat"
         item.systemType = "transformation"
         item.systemSubType = "specter"
-        item.uses.max = actorProf
         item.usesLeft = actorProf
         item.numberOfActivities = 1
         item.numberOfEffects = 1
@@ -157,13 +192,13 @@ function addIncorporealMovementAssertions(actorDto, actorProf)
             effect.changes = [
                 {
                     key: "system.traits.dr.all",
-                    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                    mode: 0,
                     value: "",
                     priority: 20
                 },
                 {
                     key: "system.traits.dr.value",
-                    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                    mode: 0,
                     value: "-force",
                     priority: 20
                 }
@@ -172,7 +207,9 @@ function addIncorporealMovementAssertions(actorDto, actorProf)
     })
 }
 
-function addGhastlyTouchAssertions(actorDto, actorProf)
+function addGhastlyTouchAssertions(actorDto, {
+    usesMax
+} = {})
 {
     actorDto.addItem(item =>
     {
@@ -181,8 +218,7 @@ function addGhastlyTouchAssertions(actorDto, actorProf)
         item.type = "feat"
         item.systemType = "transformation"
         item.systemSubType = "specter"
-        item.uses.max = actorProf + 1
-        item.usesLeft = actorProf + 1
+        item.usesLeft = usesMax
         item.numberOfActivities = 2
         item.numberOfEffects = 0
         item.addActivity(activity =>
@@ -217,6 +253,126 @@ function addGhastlyTouchAssertions(actorDto, actorProf)
     })
 }
 
+function addUntetheredFromLifeAssertions(actorDto)
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [UNTETHERED_FROM_LIFE_UUID]
+        item.itemName = "Untethered from Life"
+        item.type = "feat"
+        item.systemType = "transformation"
+        item.systemSubType = "specter"
+        item.numberOfActivities = 0
+        item.numberOfEffects = 1
+        item.addEffect(effect =>
+        {
+            effect.name = "Untethered from Life"
+            effect.changes.count = 1
+            effect.changes = [{
+                key: "system.traits.da.healing",
+                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                value: "0.5",
+                priority: 20
+            }]
+        })
+    })
+}
+
+function addHauntingFlightAssertions(actorDto, {
+    saveDc = 12
+} = {})
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [HAUNTING_FLIGHT_UUID]
+        item.itemName = "Haunting Flight"
+        item.type = "feat"
+        item.systemType = "transformation"
+        item.systemSubType = "specter"
+        item.usesLeft = 1
+        item.numberOfActivities = 1
+        item.numberOfEffects = 2
+        item.addActivity(activity =>
+        {
+            activity.name = "Terrifying prescence"
+            activity.activationType = "bonus"
+            activity.range.value = 30
+            activity.range.units = "ft"
+            activity.target.affects.type = "creature"
+            activity.target.affects.count = "1"
+            activity.target.prompt = false
+            activity.saveAbility = ["wis"]
+            activity.saveDc = saveDc
+            activity.addEffect(effect =>
+            {
+                effect.name = "Terrifying Prescense"
+                effect.statuses = ["frightened"]
+            })
+        })
+        item.addEffect(effect =>
+        {
+            effect.name = "Terrifying Prescense"
+            effect.statuses = ["frightened"]
+        })
+        item.addEffect(effect =>
+        {
+            effect.name = "Haunting Flight"
+            effect.changes.count = 1
+            effect.changes = [{
+                key: "system.attributes.movement.fly",
+                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                value: "@attributes.movement.walk",
+                priority: 20
+            }]
+        })
+    })
+}
+
+function addEtherealPhasingAssertions(actorDto, {
+    stage
+} = {})
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [ETHEREAL_PHASING_UUID]
+        item.itemName = "Ethereal Phasing"
+        item.type = "feat"
+        item.usesLeft = stage
+        item.numberOfActivities = 2
+        item.numberOfEffects = 0
+        item.addActivity(activity =>
+        {
+            activity.activationType = "special"
+            activity.range.units = "self"
+            activity.target.prompt = false
+            activity.healing.customEnabled = true
+            activity.healing.custom = "@prof + @flags.transformations.stage"
+            activity.healing.scalingNumber = 1
+            activity.healing.numberOfTypes = 1
+            activity.healing.types = ["temphp"]
+        })
+        item.addActivity(activity =>
+        {
+            activity.activationType = "action"
+            activity.range.units = "self"
+            activity.target.prompt = true
+            activity.spellUuid = BLINK_SPELL_UUID
+        })
+        item.addAdvancement(advancement =>
+        {
+            advancement.addConfiguration(configuration =>
+            {
+                configuration.items = [BLINK_SPELL_UUID]
+                configuration.spell.method = "spell"
+                configuration.spell.prepared = 2
+                configuration.spell.uses.max = ""
+                configuration.spell.uses.per = ""
+                configuration.spell.uses.requireSlot = true
+            })
+        })
+    })
+}
+
 export const specterTestDef = {
     id: "specter",
     name: "Specter",
@@ -227,27 +383,16 @@ export const specterTestDef = {
     scenarios: [
         {
             name: "stage 1 with granted items and Incorporeal Movement",
-            steps: [
-                {
-                    stage: 1,
-                    choose: INCORPOREAL_MOVEMENT_UUID,
-                    await: async ({runtime, actor, waiters}) =>
-                    {
-                        await waiters.waitForStageFinished(
-                            runtime,
-                            actor,
-                            waiters.waitForCondition,
-                            1
-                        )
-                    }
-                }
-            ],
+            steps: buildStagePath([INCORPOREAL_MOVEMENT_UUID]),
             finalAwait: async args =>
-                waitForSpecterStage1State({
+                waitForSpecterState({
                     ...args,
-                    choiceUuid: INCORPOREAL_MOVEMENT_UUID
+                    expectedItemUuids: [
+                        ...STAGE_1_GRANTED_ITEM_UUIDS,
+                        INCORPOREAL_MOVEMENT_UUID
+                    ]
                 }),
-            finalAssertions: async ({actor, assert}) =>
+            finalAssertions: async ({ actor, assert }) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 const actorProf = actor.system.attributes.prof
@@ -256,35 +401,24 @@ export const specterTestDef = {
                     ...STAGE_1_GRANTED_ITEM_UUIDS,
                     INCORPOREAL_MOVEMENT_UUID
                 ]
-                addStage1CommonAssertions(actorDto)
-                addIncorporealMovementAssertions(actorDto, actorProf)
+                addSpecterBaseAssertions(actorDto)
+                addIncorporealMovementAssertions(actorDto, { actorProf })
 
-                validate(actorDto, {assert})
+                validate(actorDto, { assert })
             }
         },
         {
             name: "stage 1 with Ghastly Touch",
-            steps: [
-                {
-                    stage: 1,
-                    choose: GHASTLY_TOUCH_UUID,
-                    await: async ({runtime, actor, waiters}) =>
-                    {
-                        await waiters.waitForStageFinished(
-                            runtime,
-                            actor,
-                            waiters.waitForCondition,
-                            1
-                        )
-                    }
-                }
-            ],
+            steps: buildStagePath([GHASTLY_TOUCH_UUID]),
             finalAwait: async args =>
-                waitForSpecterStage1State({
+                waitForSpecterState({
                     ...args,
-                    choiceUuid: GHASTLY_TOUCH_UUID
+                    expectedItemUuids: [
+                        ...STAGE_1_GRANTED_ITEM_UUIDS,
+                        GHASTLY_TOUCH_UUID
+                    ]
                 }),
-            finalAssertions: async ({actor, assert}) =>
+            finalAssertions: async ({ actor, assert }) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
                 const actorProf = actor.system.attributes.prof
@@ -293,10 +427,111 @@ export const specterTestDef = {
                     ...STAGE_1_GRANTED_ITEM_UUIDS,
                     GHASTLY_TOUCH_UUID
                 ]
-                addStage1CommonAssertions(actorDto)
-                addGhastlyTouchAssertions(actorDto, actorProf)
+                addSpecterBaseAssertions(actorDto)
+                addGhastlyTouchAssertions(actorDto, {
+                    usesMax: actorProf + 1
+                })
 
-                validate(actorDto, {assert})
+                validate(actorDto, { assert })
+            }
+        },
+        {
+            name: "stage 2 with Untethered from Life and Haunting Flight",
+            steps: buildStagePath([
+                INCORPOREAL_MOVEMENT_UUID,
+                HAUNTING_FLIGHT_UUID
+            ]),
+            finalAwait: async args =>
+                waitForSpecterState({
+                    ...args,
+                    expectedItemUuids: [
+                        ...STAGE_2_GRANTED_ITEM_UUIDS,
+                        INCORPOREAL_MOVEMENT_UUID,
+                        HAUNTING_FLIGHT_UUID
+                    ],
+                    extraPredicate: actor =>
+                        Number(actor.system?.traits?.da?.healing) === 0.5 &&
+                        Number(actor.system?.attributes?.movement?.fly ?? 0) ===
+                            Number(actor.system?.attributes?.movement?.walk ?? 0)
+                }),
+            finalAssertions: async ({ actor, assert }) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                const actorProf = actor.system.attributes.prof
+                const stage = Number(
+                    actor.flags?.transformations?.stage ?? 2
+                )
+
+                actorDto.hasItemWithSourceUuids = [
+                    ...STAGE_2_GRANTED_ITEM_UUIDS,
+                    INCORPOREAL_MOVEMENT_UUID,
+                    HAUNTING_FLIGHT_UUID
+                ]
+                addSpecterBaseAssertions(actorDto)
+                addIncorporealMovementAssertions(actorDto, { actorProf })
+                addUntetheredFromLifeAssertions(actorDto)
+                addHauntingFlightAssertions(actorDto, {
+                    saveDc: actorProf + stage + 8
+                })
+
+                validate(actorDto, { assert })
+                assert.strictEqual(
+                    Number(actor.system?.traits?.da?.healing),
+                    0.5,
+                    "Untethered from Life should halve healing received"
+                )
+                assert.strictEqual(
+                    Number(actor.system?.attributes?.movement?.fly ?? 0),
+                    Number(actor.system?.attributes?.movement?.walk ?? 0),
+                    "Haunting Flight should grant a fly speed equal to walk speed"
+                )
+            }
+        },
+        {
+            name: "stage 2 with Ethereal Phasing",
+            steps: buildStagePath([
+                GHASTLY_TOUCH_UUID,
+                ETHEREAL_PHASING_UUID
+            ]),
+            finalAwait: async args =>
+                waitForSpecterState({
+                    ...args,
+                    expectedItemUuids: [
+                        ...STAGE_2_GRANTED_ITEM_UUIDS,
+                        GHASTLY_TOUCH_UUID,
+                        ETHEREAL_PHASING_UUID,
+                        BLINK_SPELL_UUID
+                    ],
+                    extraPredicate: actor =>
+                        Number(actor.system?.traits?.da?.healing) === 0.5
+                }),
+            finalAssertions: async ({ actor, assert }) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                const actorProf = actor.system.attributes.prof
+                const stage = Number(
+                    actor.flags?.transformations?.stage ?? 2
+                )
+
+                actorDto.hasItemWithSourceUuids = [
+                    ...STAGE_2_GRANTED_ITEM_UUIDS,
+                    GHASTLY_TOUCH_UUID,
+                    ETHEREAL_PHASING_UUID,
+                    BLINK_SPELL_UUID
+                ]
+                addSpecterBaseAssertions(actorDto)
+                addGhastlyTouchAssertions(actorDto, {
+                    usesMax: actorProf + stage
+                })
+                addUntetheredFromLifeAssertions(actorDto)
+                addEtherealPhasingAssertions(actorDto, { stage })
+
+                validate(actorDto, { assert })
+                assert.strictEqual(
+                    Number(actor.system?.traits?.da?.healing),
+                    0.5,
+                    "Untethered from Life should halve healing received"
+                )
             }
         }
     ]
