@@ -1,5 +1,8 @@
 import { DAMAGE_TYPE_CHOICES, SKILL_CHOICES } from "./advancementCatalog.js"
 import { createSkillChoiceDescription, createSkillChoiceName, resolveSkillChoiceValue } from "./advancementSkillResolver.js"
+import {
+    resolveDamageResistanceGrantType
+} from "./advancementDamageResistance.js"
 
 export function createAdvancementGrantResolver({
     activeEffectRepository,
@@ -11,6 +14,7 @@ export function createAdvancementGrantResolver({
     })
 
     const grantHandlers = Object.freeze({
+        dr: applyDamageResistanceGrant,
         dv: applyDamageVulnerabilityGrant,
         skills: applySkillGrant
     })
@@ -120,6 +124,60 @@ export function createAdvancementGrantResolver({
                 transformations: {
                     advancementGrant: parsedGrant.raw,
                     advancementGrantType: "damageVulnerability"
+                }
+            }
+        })
+
+        return effect != null
+    }
+
+    async function applyDamageResistanceGrant({
+        actor,
+        sourceItem,
+        parsedGrant
+    })
+    {
+        const entry = DAMAGE_TYPE_CHOICES[parsedGrant.value]
+        if (!entry) {
+            logger.warn(
+                "Advancement grant skipped: unknown damage resistance",
+                parsedGrant.value
+            )
+            return false
+        }
+
+        const grantType = resolveDamageResistanceGrantType({
+            actor,
+            sourceItem,
+            damageType: parsedGrant.value
+        })
+        const grantsImmunity = grantType === "immunity"
+
+        const effect = await activeEffectRepository.create({
+            actor,
+            name:
+                `${grantsImmunity ? "Damage Immunity" : "Damage Resistance"}: ${entry.label}`,
+            label: entry.label,
+            description:
+                `Gain ${grantsImmunity ? "immunity" : "resistance"} to ${entry.label.toLowerCase()} damage.`,
+            source: "transformation",
+            icon: entry.icon,
+            origin: sourceItem?.uuid ?? actor?.uuid ?? "",
+            resistanceIdentifier: parsedGrant.value,
+            changes: [{
+                key: grantsImmunity
+                    ? "system.traits.di.value"
+                    : "system.traits.dr.value",
+                mode: globalThis.CONST?.ACTIVE_EFFECT_MODES?.ADD ?? 2,
+                value: entry.id
+            }],
+            flags: {
+                dnd5e: {
+                    hidden: true
+                },
+                transformations: {
+                    advancementGrant: parsedGrant.raw,
+                    advancementGrantType: "damageResistance"
                 }
             }
         })

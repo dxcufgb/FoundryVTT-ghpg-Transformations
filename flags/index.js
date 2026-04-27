@@ -15,6 +15,7 @@ import { shadowsteelGhoul } from "./shadowsteel-ghoul.flags.js";
 import { specter } from "./specter.flags.js";
 import { vampire } from "./vampire.flags.js";
 import { primevalBodyFlags } from "./primevalBody.flags.js";
+import { spectralFormFlags } from "./spectralForm.flags.js";
 
 export const transformationFlagEntries = [
     aberrantHorror,
@@ -33,5 +34,6 @@ export const transformationFlagEntries = [
     seraph,
     shadowsteelGhoul,
     specter,
+    spectralFormFlags,
     vampire
 ]

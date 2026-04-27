@@ -1,15 +1,12 @@
 export const stage1 = {
-    name: "Specter Stage 1",
     stage: 1,
     grants: {
         items: [
             {
-                name: "Specter Stage 1 Base Feature",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.AAFvnzh8Y6gK8N2i"
             },
             {
-                name: "Specter Stage 1 Ethereal Drift",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.DwuZGkMkuXkYTFbI"
             }
         ],
         actor: {
@@ -19,12 +16,10 @@ export const stage1 = {
     choices: {
         items: [
             {
-                name: "Specter Stage 1 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.c22yc2mUwC93M0Ey"
             },
             {
-                name: "Specter Stage 1 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.TVXr6k6ItMlp8jPn"
             }
         ]
     }

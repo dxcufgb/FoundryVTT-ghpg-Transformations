@@ -1,23 +1,19 @@
 export const stage2 = {
-    name: "Specter Stage 2",
     stage: 2,
     grants: {
         items: [
             {
-                name: "Specter Stage 2 Base Feature",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.rLi1CEdtteycxQmc"
             }
         ]
     },
     choices: {
         items: [
             {
-                name: "Specter Stage 2 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.XbL7I9z00L9jk555"
             },
             {
-                name: "Specter Stage 2 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.IwVCDClcKRjGrCy5"
             }
         ]
     }

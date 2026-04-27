@@ -21,6 +21,14 @@ function createActor()
                 arc: { value: 0 },
                 ath: { value: 0 },
                 sur: { value: 0 }
+            },
+            traits: {
+                dr: {
+                    value: new Set()
+                },
+                di: {
+                    value: new Set()
+                }
             }
         }
     }
@@ -57,6 +65,48 @@ quench.registerBatch(
     {
         describe("createAdvancementGrantResolver", function()
         {
+            it("creates a hidden damage resistance effect for supported grants", async function()
+            {
+                const actor = createActor()
+                const sourceItem = { uuid: "Item.item-1" }
+                const { calls, resolver } = createResolver()
+
+                const result = await resolver.resolve({
+                    actor,
+                    grant: "dr:acid",
+                    sourceItem
+                })
+
+                expect(result).to.equal(true)
+                expect(calls.createdEffects).to.have.length(1)
+                expect(calls.createdEffects[0]).to.deep.equal({
+                    actor,
+                    name: "Damage Resistance: Acid",
+                    label: "Acid",
+                    description: "Gain resistance to acid damage.",
+                    source: "transformation",
+                    icon: "modules/transformations/icons/damageTypes/Acid.png",
+                    origin: "Item.item-1",
+                    resistanceIdentifier: "acid",
+                    changes: [
+                        {
+                            key: "system.traits.dr.value",
+                            mode: ADD_MODE,
+                            value: "acid"
+                        }
+                    ],
+                    flags: {
+                        dnd5e: {
+                            hidden: true
+                        },
+                        transformations: {
+                            advancementGrant: "dr:acid",
+                            advancementGrantType: "damageResistance"
+                        }
+                    }
+                })
+            })
+
             it("creates a hidden damage vulnerability effect for supported grants", async function()
             {
                 const actor = createActor()
@@ -93,6 +143,57 @@ quench.registerBatch(
                         transformations: {
                             advancementGrant: "dv:acid",
                             advancementGrantType: "damageVulnerability"
+                        }
+                    }
+                })
+            })
+
+            it("upgrades a damage resistance grant to immunity when the source item requests upgrade and the actor already resists the granted type", async function()
+            {
+                const actor = createActor()
+                actor.system.traits.dr.value = new Set(["acid"])
+                const sourceItem = {
+                    uuid: "Compendium.transformations.gh-transformations.Item.parent",
+                    flags: {
+                        transformations: {
+                            advancementOverride: "upgrade"
+                        }
+                    }
+                }
+                const { calls, resolver } = createResolver()
+
+                const result = await resolver.resolve({
+                    actor,
+                    grant: "dr:acid",
+                    sourceItem
+                })
+
+                expect(result).to.equal(true)
+                expect(calls.createdEffects).to.have.length(1)
+                expect(calls.createdEffects[0]).to.deep.equal({
+                    actor,
+                    name: "Damage Immunity: Acid",
+                    label: "Acid",
+                    description: "Gain immunity to acid damage.",
+                    source: "transformation",
+                    icon: "modules/transformations/icons/damageTypes/Acid.png",
+                    origin:
+                        "Compendium.transformations.gh-transformations.Item.parent",
+                    resistanceIdentifier: "acid",
+                    changes: [
+                        {
+                            key: "system.traits.di.value",
+                            mode: ADD_MODE,
+                            value: "acid"
+                        }
+                    ],
+                    flags: {
+                        dnd5e: {
+                            hidden: true
+                        },
+                        transformations: {
+                            advancementGrant: "dr:acid",
+                            advancementGrantType: "damageResistance"
                         }
                     }
                 })
