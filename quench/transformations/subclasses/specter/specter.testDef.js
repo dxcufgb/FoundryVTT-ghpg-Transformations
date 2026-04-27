@@ -24,6 +24,12 @@ const DRAINING_FLIGHT_UUID =
           "Compendium.transformations.gh-transformations.Item.reDuZAA1Mv6KFiz1"
 const PARALYZING_TOUCH_UUID =
           "Compendium.transformations.gh-transformations.Item.kqUqRvNBuxkVNGNH"
+const PULL_OF_OBLIVION_UUID =
+          "Compendium.transformations.gh-transformations.Item.gIZ5Gzc4nCAkiUQ6"
+const POSSESSION_UUID =
+          "Compendium.transformations.gh-transformations.Item.vy4upM1CoHNJ07zW"
+const CALL_OF_UNMAKING_UUID =
+          "Compendium.transformations.gh-transformations.Item.PdRY64cTjNWgaL30"
 const STAGE_1_GRANTED_ITEM_UUIDS = Object.freeze([
     SPECTRAL_FORM_UUID,
     DRAWN_TO_DARKNESS_UUID
@@ -35,6 +41,10 @@ const STAGE_2_GRANTED_ITEM_UUIDS = Object.freeze([
 const STAGE_3_GRANTED_ITEM_UUIDS = Object.freeze([
     ...STAGE_2_GRANTED_ITEM_UUIDS,
     FRAYING_REALITY_UUID
+])
+const STAGE_4_GRANTED_ITEM_UUIDS = Object.freeze([
+    ...STAGE_3_GRANTED_ITEM_UUIDS,
+    PULL_OF_OBLIVION_UUID
 ])
 const placeholderChoices = Object.freeze([
     {
@@ -61,8 +71,14 @@ const placeholderChoices = Object.freeze([
         name: "Paralyzing Touch",
         uuid: PARALYZING_TOUCH_UUID
     },
-    {name: "Specter Stage 4 Choice A", uuid: ""},
-    {name: "Specter Stage 4 Choice B", uuid: ""}
+    {
+        name: "Call of Unmaking",
+        uuid: CALL_OF_UNMAKING_UUID
+    },
+    {
+        name: "Possession",
+        uuid: POSSESSION_UUID
+    }
 ])
 
 function buildStagePath(choiceUuids = [])
@@ -526,6 +542,136 @@ function addParalyzingTouchAssertions(actorDto, {
     })
 }
 
+function addPullOfOblivionAssertions(actorDto)
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [PULL_OF_OBLIVION_UUID]
+        item.itemName = "Pull of Oblivion"
+        item.type = "feat"
+        item.systemType = "transformation"
+        item.systemSubType = "specter"
+        item.numberOfActivities = 1
+        item.numberOfEffects = 0
+        item.addActivity(activity =>
+        {
+            activity.activationType = "special"
+            activity.range.units = "self"
+            activity.target.affects.type = "self"
+            activity.target.prompt = false
+            activity.addDamagePart(damagePart =>
+            {
+                damagePart.roll = "4d6"
+                damagePart.numberOfTypes = 1
+                damagePart.damageTypes = ["force"]
+            })
+        })
+    })
+}
+
+function addPossessionAssertions(actorDto)
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [POSSESSION_UUID]
+        item.itemName = "Possession"
+        item.type = "feat"
+        item.systemType = "transformation"
+        item.systemSubType = "specter"
+        item.usesLeft = 1
+        item.numberOfActivities = 1
+        item.numberOfEffects = 1
+        item.addActivity(activity =>
+        {
+            activity.name = "Possess"
+            activity.activationType = "action"
+            activity.range.units = "touch"
+            activity.target.affects.type = "creature"
+            activity.target.affects.count = "1"
+            activity.target.prompt = false
+            activity.saveAbility = ["cha"]
+            activity.saveDc = 15
+            activity.addEffect(effect =>
+            {
+                effect.name = "Possessed"
+            })
+        })
+        item.addEffect(effect =>
+        {
+            effect.name = "Possessed"
+            effect.changes.count = 2
+            effect.changes = [
+                {
+                    key: "system.traits.ci.value",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: "charmed",
+                    priority: 20
+                },
+                {
+                    key: "system.traits.ci.value",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: "frightened",
+                    priority: 20
+                }
+            ]
+            effect.duration.seconds = 3600
+        })
+    })
+}
+
+function addCallOfUnmakingAssertions(actorDto, {
+    saveDc = 15
+} = {})
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [CALL_OF_UNMAKING_UUID]
+        item.itemName = "Call of Unmaking"
+        item.type = "feat"
+        item.systemType = "transformation"
+        item.systemSubType = "specter"
+        item.usesLeft = 1
+        item.numberOfActivities = 2
+        item.numberOfEffects = 1
+        item.addActivity(activity =>
+        {
+            activity.name = "Mournful Wail"
+            activity.activationType = "bonus"
+            activity.range.units = "self"
+            activity.target.template.type = "radius"
+            activity.target.template.units = "ft"
+            activity.target.template.size = "30"
+            activity.target.affects.type = "creature"
+            activity.target.affects.special = "Any creature you choose"
+            activity.target.prompt = false
+            activity.saveAbility = ["con"]
+            activity.saveDc = saveDc
+            activity.addEffect(effect =>
+            {
+                effect.name = "Mark of Unmaking"
+            })
+        })
+        item.addActivity(activity =>
+        {
+            activity.activationType = "special"
+            activity.range.units = "self"
+            activity.target.affects.type = "creature"
+            activity.target.affects.count = "1"
+            activity.target.prompt = false
+            activity.addDamagePart(damagePart =>
+            {
+                damagePart.roll = "1d6"
+                damagePart.numberOfTypes = 1
+                damagePart.damageTypes = ["necrotic"]
+            })
+        })
+        item.addEffect(effect =>
+        {
+            effect.name = "Mark of Unmaking"
+        })
+    })
+}
+
 export const specterTestDef = {
     id: "specter",
     name: "Specter",
@@ -792,6 +938,132 @@ export const specterTestDef = {
                     stage,
                     saveDc: actorProf + stage + 8
                 })
+
+                validate(actorDto, {assert})
+                assert.strictEqual(
+                    Number(actor.system?.traits?.da?.healing),
+                    0.5,
+                    "Untethered from Life should halve healing received"
+                )
+            }
+        },
+        {
+            name: "stage 4 with Pull of Oblivion and Call of Unmaking",
+            steps: buildStagePath([
+                INCORPOREAL_MOVEMENT_UUID,
+                HAUNTING_FLIGHT_UUID,
+                DRAINING_FLIGHT_UUID,
+                CALL_OF_UNMAKING_UUID
+            ]),
+            finalAwait: async args =>
+                waitForSpecterState({
+                    ...args,
+                    expectedItemUuids: [
+                        ...STAGE_4_GRANTED_ITEM_UUIDS,
+                        INCORPOREAL_MOVEMENT_UUID,
+                        HAUNTING_FLIGHT_UUID,
+                        DRAINING_FLIGHT_UUID,
+                        CALL_OF_UNMAKING_UUID
+                    ],
+                    extraPredicate: actor =>
+                        Number(actor.system?.traits?.da?.healing) === 0.5 &&
+                        Number(actor.system?.attributes?.movement?.fly ?? 0) ===
+                        Number(actor.system?.attributes?.movement?.walk ?? 0) * 2
+                }),
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                const actorProf = actor.system.attributes.prof
+                const stage = Number(
+                    actor.flags?.transformations?.stage ?? 4
+                )
+
+                actorDto.hasItemWithSourceUuids = [
+                    ...STAGE_4_GRANTED_ITEM_UUIDS,
+                    INCORPOREAL_MOVEMENT_UUID,
+                    HAUNTING_FLIGHT_UUID,
+                    DRAINING_FLIGHT_UUID,
+                    CALL_OF_UNMAKING_UUID
+                ]
+                addSpecterBaseAssertions(actorDto)
+                addIncorporealMovementAssertions(actorDto, {actorProf})
+                addUntetheredFromLifeAssertions(actorDto)
+                addHauntingFlightAssertions(actorDto, {
+                    saveDc: actorProf + stage + 8
+                })
+                addFrayingRealityAssertions(actorDto)
+                addDrainingFlightAssertions(actorDto, {
+                    saveDc: actorProf + stage + 8
+                })
+                addPullOfOblivionAssertions(actorDto)
+                addCallOfUnmakingAssertions(actorDto, {
+                    saveDc: actorProf + stage + 8
+                })
+
+                validate(actorDto, {assert})
+                assert.strictEqual(
+                    Number(actor.system?.traits?.da?.healing),
+                    0.5,
+                    "Untethered from Life should halve healing received"
+                )
+                assert.strictEqual(
+                    Number(actor.system?.attributes?.movement?.fly ?? 0),
+                    Number(actor.system?.attributes?.movement?.walk ?? 0) * 2,
+                    "Draining Flight should stack with Haunting Flight to double fly speed"
+                )
+            }
+        },
+        {
+            name: "stage 4 with Possession",
+            steps: buildStagePath([
+                GHASTLY_TOUCH_UUID,
+                ETHEREAL_PHASING_UUID,
+                null,
+                POSSESSION_UUID
+            ]),
+            finalAwait: async args =>
+                waitForSpecterState({
+                    ...args,
+                    expectedItemUuids: [
+                        ...STAGE_4_GRANTED_ITEM_UUIDS,
+                        GHASTLY_TOUCH_UUID,
+                        ETHEREAL_PHASING_UUID,
+                        BLINK_SPELL_UUID,
+                        PARALYZING_TOUCH_UUID,
+                        POSSESSION_UUID
+                    ],
+                    extraPredicate: actor =>
+                        Number(actor.system?.traits?.da?.healing) === 0.5
+                }),
+            finalAssertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                const actorProf = actor.system.attributes.prof
+                const stage = Number(
+                    actor.flags?.transformations?.stage ?? 4
+                )
+
+                actorDto.hasItemWithSourceUuids = [
+                    ...STAGE_4_GRANTED_ITEM_UUIDS,
+                    GHASTLY_TOUCH_UUID,
+                    ETHEREAL_PHASING_UUID,
+                    BLINK_SPELL_UUID,
+                    PARALYZING_TOUCH_UUID,
+                    POSSESSION_UUID
+                ]
+                addSpecterBaseAssertions(actorDto)
+                addGhastlyTouchAssertions(actorDto, {
+                    usesMax: actorProf + stage
+                })
+                addUntetheredFromLifeAssertions(actorDto)
+                addEtherealPhasingAssertions(actorDto, {stage})
+                addFrayingRealityAssertions(actorDto)
+                addParalyzingTouchAssertions(actorDto, {
+                    stage,
+                    saveDc: actorProf + stage + 8
+                })
+                addPullOfOblivionAssertions(actorDto)
+                addPossessionAssertions(actorDto)
 
                 validate(actorDto, {assert})
                 assert.strictEqual(
