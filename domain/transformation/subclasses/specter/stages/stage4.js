@@ -1,23 +1,19 @@
 export const stage4 = {
-    name: "Specter Stage 4",
     stage: 4,
     grants: {
         items: [
             {
-                name: "Specter Stage 4 Base Feature",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.gIZ5Gzc4nCAkiUQ6"
             }
         ]
     },
     choices: {
         items: [
             {
-                name: "Specter Stage 4 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.PdRY64cTjNWgaL30"
             },
             {
-                name: "Specter Stage 4 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.vy4upM1CoHNJ07zW"
             }
         ]
     }
