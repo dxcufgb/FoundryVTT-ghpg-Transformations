@@ -31,12 +31,20 @@ export function createStageGrantResolver({
                 grantUuid: grant.uuid
             })
         )
+        const transformationFlags = normalizeActorFlags(
+            stageDef.grants?.actor?.flags
+        )
 
-        if (!validItemGrants.length && !stageDef.grants?.actor?.creatureSubType) return null
+        if (
+            !validItemGrants.length &&
+            !stageDef.grants?.actor?.creatureSubType &&
+            !transformationFlags
+        ) return null
 
         return {
             items: normalizeItems(validItemGrants),
-            creatureSubType: stageDef.grants?.actor?.creatureSubType ?? null
+            creatureSubType: stageDef.grants?.actor?.creatureSubType ?? null,
+            transformationFlags
         }
     }
 
@@ -59,8 +67,18 @@ export function createStageGrantResolver({
         logger.debug("createStageGrantResolver.empty", {})
         return {
             items: [],
-            creatureSubType: null
+            creatureSubType: null,
+            transformationFlags: null
         }
+    }
+
+    function normalizeActorFlags(flags)
+    {
+        if (!flags || typeof flags !== "object" || Array.isArray(flags)) {
+            return null
+        }
+
+        return flags
     }
 
     return Object.freeze({

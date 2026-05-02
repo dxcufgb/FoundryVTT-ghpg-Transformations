@@ -207,8 +207,20 @@ export function createAdvancementChoiceHandler({
             return null
         }
 
-        const dialogFactory = getDialogFactory?.()
-        if (!dialogFactory?.openAbilityScoreAdvancementDialog) {
+        const abilityState = createAbilityScoreAdvancementState({
+            actor,
+            advancementConfiguration
+        })
+        const requiresAbilityScoreDialog =
+            abilityState.abilities.some(ability => !ability.locked)
+        const dialogFactory = requiresAbilityScoreDialog
+            ? getDialogFactory?.()
+            : null
+
+        if (
+            requiresAbilityScoreDialog &&
+            !dialogFactory?.openAbilityScoreAdvancementDialog
+        ) {
             logger.warn(
                 "Ability score advancement skipped: dialog factory not available",
                 advancementConfiguration
@@ -216,10 +228,6 @@ export function createAdvancementChoiceHandler({
             return null
         }
 
-        const abilityState = createAbilityScoreAdvancementState({
-            actor,
-            advancementConfiguration
-        })
         const selectedValues = await resolveAbilityScoreAdvancementSelection({
             actor,
             dialogFactory,
@@ -933,6 +941,10 @@ export function createAdvancementChoiceHandler({
             ?.choosenAdvancement
             ?.find(choice => choice.name === sourceItem?.name)
 
+        if (allAbilityScoreAdvancementAbilitiesLocked(abilityState)) {
+            return buildLockedAbilityScoreSelection(abilityState)
+        }
+
         if (testChoice) {
             return normalizeAbilityScoreSelectionInput(testChoice.choice)
         }
@@ -959,6 +971,27 @@ export function createAdvancementChoiceHandler({
         }
 
         return selection
+    }
+
+    function allAbilityScoreAdvancementAbilitiesLocked(abilityState)
+    {
+        const abilities = abilityState?.abilities ?? []
+
+        return abilities.length > 0 &&
+            abilities.every(ability => ability?.locked === true)
+    }
+
+    function buildLockedAbilityScoreSelection(abilityState)
+    {
+        return (abilityState?.abilities ?? []).reduce((selection, ability) =>
+        {
+            if (!ability?.key) {
+                return selection
+            }
+
+            selection[ability.key] = ability.minimumValue
+            return selection
+        }, {})
     }
 
     function buildAbilityScoreAdvancementEffectData({

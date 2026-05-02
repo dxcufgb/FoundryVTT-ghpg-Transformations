@@ -1,9 +1,14 @@
 import { BaseDTOValidator } from "./BaseDTOValidator.js"
 import { AdvancementConfigurationDTOValidator } from "./AdvancementConfigurationDTOValidator.js"
+import { path } from "../rules/RuleBuilder.js"
 
 // @ts-check
 export class AdvancementDTOValidator extends BaseDTOValidator
 {
+    static rules = {
+        type: path("advancement.type").equals()
+    }
+
     /**
      * @param {any} advancement
      * @param {import("../validationDTOs/advancement/AdvancementValidationDTO.js").AdvancementValidationDTO} dto

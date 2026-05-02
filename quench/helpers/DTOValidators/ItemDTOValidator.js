@@ -9,13 +9,28 @@ import { EffectDTOValidator } from "./EffectDTOValidator.js"
 export class ItemDTOValidator extends BaseDTOValidator
 {
     static rules = {
-
+        itemName: path("item.name").equals(),
+        img: path("item.img").equals(),
+        identifier: path("item.system.identifier").equals(),
+        descriptionIncludes: resolve(ctx =>
+            ctx.item.system?.description?.value ??
+            ""
+        ).includes(),
+        descriptionChatIncludes: resolve(ctx =>
+            ctx.item.system?.description?.chat ??
+            ""
+        ).includes(),
         type: path("item.type").equals(),
         activationType: resolve(ctx =>
             ctx.item.system?.activation?.type ??
             ctx.item.activation?.type ??
             null
         ).equals(),
+        equipped: path("item.system.equipped").equals(),
+        proficient: path("item.system.proficient").equals(),
+        propertiesIncludes: resolve(ctx =>
+            Array.from(ctx.item.system?.properties ?? [])
+        ).includesAll(),
         systemSubType: path("item.system.type.subtype").equals(),
         systemType: path("item.system.type.value").equals(),
         usesLeft: resolve(ctx =>
@@ -25,6 +40,7 @@ export class ItemDTOValidator extends BaseDTOValidator
 
             return (uses.max ?? 0) - (uses.spent ?? 0)
         }).equals(),
+        numberOfAdvancements: path("item.system.advancement").count().equals(),
         numberOfActivities: path("item.system.activities.contents").count().equals(),
         numberOfEffects: path("item.effects.contents").count().equals()
     }
@@ -110,8 +126,16 @@ export class ItemDTOValidator extends BaseDTOValidator
         activities.forEach((activityDTO, index) =>
         {
             const activity =
-                activityDTO.name
+                activityDTO.id
+                    ? itemActivities.find(activity =>
+                        (activity?.id ?? activity?._id ?? null) === activityDTO.id
+                    )
+                    : activityDTO.name
                     ? itemActivities.find(a => a.name === activityDTO.name)
+                    : activityDTO.macroName
+                        ? itemActivities.find(activity =>
+                            activity?.macroData?.name === activityDTO.macroName
+                        )
                     : itemActivities[index]
 
             this.assert.isOk(

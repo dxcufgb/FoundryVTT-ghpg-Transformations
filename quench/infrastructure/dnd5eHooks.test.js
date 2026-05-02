@@ -373,6 +373,68 @@ quench.registerBatch(
                 }
             })
 
+            it("dispatches transformation class pre-roll damage hooks from preRollDamageV2", async function ()
+            {
+                const actor = createActor()
+                const item = {
+                    id: "item-vampire-bite",
+                    name: "Fanged Bite",
+                    uuid: "Actor.actor-1.Item.item-vampire-bite"
+                }
+                const activity = {
+                    id: "activity-vampire-bite",
+                    name: "Midi Attack"
+                }
+                const rolls = [
+                    {
+                        formula: "1d6 + 1"
+                    }
+                ]
+                const workflow = {
+                    actor,
+                    item,
+                    activity
+                }
+                const capturedCalls = []
+                const harness = createHookHarness({
+                    transformationOverrides: {
+                        TransformationClass: {
+                            async onPreRollDamage(args)
+                            {
+                                capturedCalls.push(args)
+                            }
+                        }
+                    }
+                })
+
+                try {
+                    const callback = harness.callbacks.get("dnd5e.preRollDamageV2")
+                    expect(callback).to.be.a("function")
+
+                    callback({
+                        workflow,
+                        rolls
+                    }, {id: "dialog-1"}, {id: "message-1"})
+
+                    await flushAsyncWork()
+
+                    expect(capturedCalls).to.have.length(1)
+                    expect(capturedCalls[0]?.actor).to.equal(actor)
+                    expect(capturedCalls[0]?.item).to.equal(item)
+                    expect(capturedCalls[0]?.activity).to.equal(activity)
+                    expect(capturedCalls[0]?.workflow).to.equal(workflow)
+                    expect(capturedCalls[0]?.rolls).to.equal(rolls)
+                    expect(capturedCalls[0]?.dialog).to.deep.equal({
+                        id: "dialog-1"
+                    })
+                    expect(capturedCalls[0]?.message).to.deep.equal({
+                        id: "message-1"
+                    })
+                } finally {
+                    harness.restore()
+                }
+            })
+
             it("dispatches activityUse trigger context from postUseActivity", async function ()
             {
                 const actor = createActor()

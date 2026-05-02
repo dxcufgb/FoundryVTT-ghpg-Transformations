@@ -5,7 +5,9 @@ import { BaseDTOValidator } from "./BaseDTOValidator.js"
 export class RangeDTOValidator extends BaseDTOValidator
 {
     static rules = {
+        long: path("range.long").equals(),
         override: path("range.override").equals(),
+        reach: path("range.reach").equals(),
         scalar: path("range.scalar").equals(),
         special: path("range.special").equals(),
         units: path("range.units").equals(),

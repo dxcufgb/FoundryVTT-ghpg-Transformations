@@ -1,15 +1,37 @@
 import { BaseDTOValidator } from "./BaseDTOValidator.js"
 import { ConsupmtionTargetDTOValidator } from "./ConsumptionTargetDTOValidator.js"
+import { resolve } from "../rules/RuleBuilder.js"
 
 // @ts-check
 export class ConsumptionDTOValidator extends BaseDTOValidator
 {
-    /**
-     * @param {any} consumption
-     * @param {import("../validationDTOs/consumption/ConsumptionValidationDTO.js").ConsumptionValidationDTO} dto
-     */
-    validate(consumption, dto)
+    static rules = {
+        numberOfTargets: resolve(ctx =>
+            Array.isArray(ctx.consumption?.targets)
+                ? ctx.consumption.targets.length
+                : 0
+        ).equals()
+    }
+
+    validate(dtoOrConsumption, dtoOrContext = null)
     {
+        const isNestedContext =
+            dtoOrContext != null &&
+            typeof dtoOrContext === "object" &&
+            (
+                "activity" in dtoOrContext ||
+                "consumption" in dtoOrContext
+            )
+
+        const dto = isNestedContext ? dtoOrConsumption : dtoOrContext
+        const consumption = isNestedContext
+            ? (
+                dtoOrContext.consumption ??
+                dtoOrContext.activity?.consumption ??
+                null
+            )
+            : dtoOrConsumption
+
         if (!consumption) {
             if (!dto.targets?.length)
                 return true

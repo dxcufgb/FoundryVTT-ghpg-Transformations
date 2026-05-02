@@ -5,9 +5,23 @@ import { BaseDTOValidator } from "./BaseDTOValidator.js"
 export class AdvancementConfigurationDTOValidator extends BaseDTOValidator
 {
     static rules = {
+        allowReplacements: path("configuration.allowReplacements").equals(),
+        cap: path("configuration.cap").equals(),
         items: resolve(ctx =>
             (ctx.configuration?.items ?? []).map(item => item?.uuid ?? item)
         ).equalsArray(),
+        fixed: path("configuration.fixed").deepEquals(),
+        grants: resolve(ctx =>
+            Array.from(ctx.configuration?.grants ?? [])
+        ).includesAll(),
+        locked: resolve(ctx =>
+            Array.from(ctx.configuration?.locked ?? [])
+        ).equalsArray(),
+        max: path("configuration.max").equals(),
+        mode: path("configuration.mode").equals(),
+        optional: path("configuration.optional").equals(),
+        points: path("configuration.points").equals(),
+        recommendation: path("configuration.recommendation").equals(),
         choices: resolve(ctx =>
             (ctx.configuration?.choices ?? []).map(choice => ({
                 count: choice?.count,

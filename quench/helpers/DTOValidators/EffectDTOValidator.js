@@ -5,6 +5,13 @@ import { BaseDTOValidator } from "./BaseDTOValidator.js"
 export class EffectDTOValidator extends BaseDTOValidator
 {
     static rules = {
+        name: resolve(ctx => resolveEffectDocument(ctx)?.name ?? null).equals(),
+        description: resolve(ctx =>
+            resolveEffectDocument(ctx)?.description ??
+            resolveEffectDocument(ctx)?.system?.description ??
+            null
+        ).equals(),
+        transfer: resolve(ctx => resolveEffectDocument(ctx)?.transfer ?? null).equals(),
         type: path("effect.type").equals(),
         collisionTypes: path("effect.system.collisionTypes").toArray().equalsArray(),
         distanceFormula: path("effects.system.distanceFormula").equals(),
@@ -39,4 +46,15 @@ export class EffectDTOValidator extends BaseDTOValidator
 
         return true
     }
+}
+
+function resolveEffectDocument(ctx)
+{
+    const effectContext = ctx?.effect ?? null
+
+    if (effectContext?.effectType) {
+        return effectContext.effectObject?.effect ?? null
+    }
+
+    return effectContext
 }
