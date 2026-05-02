@@ -9,6 +9,7 @@ export class ActorStatsDTOValidator extends BaseDTOValidator
         ac: path("actor.system.attributes.ac.value").equals(),
         exhaustion: path("actor.system.attributes.exhaustion").equals(),
         movementBonus: path("actor.system.attributes.movement.bonus").equals(),
+        darkvision: path("actor.system.attributes.senses.darkvision").equals(),
         resistances: path("actor.system.traits.dr.value").equalsArray(),
         immunities: path("actor.system.traits.di.value").equalsArray(),
         vulnerabilities: path("actor.system.traits.dv.value").equalsArray(),

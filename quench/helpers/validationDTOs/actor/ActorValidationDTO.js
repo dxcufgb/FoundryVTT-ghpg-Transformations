@@ -57,6 +57,7 @@ export class ActorStatsDTO
         this.deathSaveDelta = null
         this.movementSpeed = null    // { type, value }
         this.movementBonus = null
+        this.darkvision = null
         this.resistances = []
         this.vulnerabilities = []
         this.immunities = []

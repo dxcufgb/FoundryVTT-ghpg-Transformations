@@ -4,12 +4,15 @@ import { ContextValidationDTO } from "../../../helpers/validationDTOs/context/Co
 
 const THE_SANGUINE_CURSE_UUID =
           "Compendium.transformations.gh-transformations.Item.Zd5sRelguKUDcoAP"
+const GREATER_SANGUINE_CURSE_UUID =
+          "Compendium.transformations.gh-transformations.Item.ZCqnYQJ2nFR8AWQq"
 const FANGED_BITE_UUID =
           "Compendium.transformations.gh-transformations.Item.TreKDUe7BregxPRU"
 const FZEG_CLAW_UUID =
           "Compendium.transformations.gh-transformations.Item.0ZgPuhqfVv3Nk0x4"
 const FANGED_BITE_MIDI_ATTACK_ACTIVITY_ID = "ddjFKkSGslAQQjB4"
-const MAXIMUM_DAYS_PER_FEED = 7
+const STAGE1_MAXIMUM_DAYS_PER_FEED = 7
+const STAGE2_MAXIMUM_DAYS_PER_FEED = 4
 const ABILITY_KEYS = Object.freeze([
     "str",
     "dex",
@@ -130,7 +133,7 @@ const stage1Choices = Object.freeze([
                 effect.name = "Soman Bloodline"
                 effect.transfer = true
                 effect.changes.count = 1
-                effect.changes.changes = [
+                effect.changes = [
                     {
                         key: "system.attributes.movement.climb",
                         mode: 2,
@@ -201,7 +204,7 @@ const stage1Choices = Object.freeze([
                 effect.name = "Fzeg Bloodline"
                 effect.transfer = true
                 effect.changes.count = 1
-                effect.changes.changes = [
+                effect.changes = [
                     {
                         key: "system.attributes.movement.walk",
                         mode: 2,
@@ -213,6 +216,177 @@ const stage1Choices = Object.freeze([
         }
     }
 ])
+
+const DEFAULT_STAGE2_PREREQUISITE_STAGE1_CHOICE = stage1Choices[0]
+
+const stage2Choices = Object.freeze([
+    {
+        name: "Eyes of the Night",
+        uuid: "Compendium.transformations.gh-transformations.Item.3JGiaLxVh3KNd8Br",
+        img: "modules/transformations/Icons/Transformations/Vampire/Eyes%20of%20the%20Night.png",
+        identifier: "eyes-of-the-night",
+        descriptionSnippet: "You gain Darkvision out to 60 feet",
+        advancementCount: 0,
+        activityCount: 0,
+        effectCount: 1,
+        usesMax: "",
+        finalAwait: async ({actor, waiters, staticVars}) =>
+        {
+            const expectedDarkvision =
+                      Number(staticVars.initialDarkvision ?? 0) + 60
+
+            await waiters.waitForCondition(() =>
+                Number(actor.system?.attributes?.senses?.darkvision ?? 0) ===
+                expectedDarkvision
+            )
+        },
+        configureAppliedActorValidation: (actorDto, {staticVars}) =>
+        {
+            actorDto.stats.darkvision =
+                Number(staticVars.initialDarkvision ?? 0) + 60
+        },
+        configureChoiceItemValidation: item =>
+        {
+            item.addEffect(effect =>
+            {
+                effect.name = "Eyes of the Night"
+                effect.transfer = true
+                effect.changes.count = 1
+                effect.changes = [
+                    {
+                        key: "system.attributes.senses.darkvision",
+                        mode: 2,
+                        value: "+60",
+                        priority: 20,
+                        fieldName: "Senses (Darkvision)",
+                        fieldDescription: ""
+                    }
+                ]
+            })
+        }
+    },
+    {
+        name: "Grave-Touched Soul",
+        uuid: "Compendium.transformations.gh-transformations.Item.G8cE7iKgR6oa9yYe",
+        img: "modules/transformations/Icons/Transformations/Vampire/Grave-Touched%20Soul.png",
+        identifier: "grave-touched-soul",
+        descriptionSnippet: "You gain Resistance to Necrotic damage",
+        advancementCount: 1,
+        activityCount: 0,
+        effectCount: 0,
+        usesMax: "",
+        finalAwait: async ({actor, waiters}) =>
+        {
+            await waiters.waitForCondition(() =>
+                Array.from(actor.system?.traits?.dr?.value ?? [])
+                .includes("necrotic")
+            )
+        },
+        configureAppliedActorValidation: actorDto =>
+        {
+            actorDto.stats.resistances = ["necrotic"]
+        },
+        configureChoiceItemValidation: item =>
+        {
+            item.addAdvancement(advancement =>
+            {
+                advancement.type = "Trait"
+                advancement.addConfiguration(configuration =>
+                {
+                    configuration.allowReplacements = false
+                    configuration.grants = ["dr:necrotic"]
+                    configuration.mode = "default"
+                })
+            })
+        }
+    },
+    {
+        name: "Inhuman Reflexes",
+        uuid: "Compendium.transformations.gh-transformations.Item.rviGB0iP3bPoH6dZ",
+        img: "modules/transformations/Icons/Transformations/Vampire/inhuman%20Reflexes.png",
+        identifier: "inhuman-reflexes",
+        descriptionSnippet: "You have Advantage on Dexterity saving throws",
+        advancementCount: 0,
+        activityCount: 0,
+        effectCount: 1,
+        usesMax: "",
+        finalAwait: async ({actor, waiters}) =>
+        {
+            await waiters.waitForCondition(() =>
+                Number(actor.system?.abilities?.dex?.save?.roll?.mode ?? 0) === 1
+            )
+        },
+        configureAppliedActorValidation: actorDto =>
+        {
+            actorDto.abilities.dex.save.roll.mode = 1
+        },
+        configureChoiceItemValidation: item =>
+        {
+            item.addEffect(effect =>
+            {
+                effect.name = "Inhuman Reflexes"
+                effect.transfer = true
+                effect.changes.count = 1
+                effect.changes = [
+                    {
+                        key: "system.abilities.dex.save.roll.mode",
+                        mode: 2,
+                        value: "+1",
+                        priority: 20,
+                        fieldName: "DND5E AdvantageMode",
+                        fieldDescription: ""
+                    }
+                ]
+            })
+        }
+    },
+    {
+        name: "Undead Resilience",
+        uuid: "Compendium.transformations.gh-transformations.Item.E4IbeEVR4pGBOCIw",
+        img: "modules/transformations/Icons/Transformations/Vampire/Undead%20Resilience.png",
+        identifier: "undead-resilience",
+        descriptionSnippet:
+            "you cannot use it again until you finish a Long Rest",
+        advancementCount: 0,
+        activityCount: 1,
+        effectCount: 0,
+        usesMax: "1",
+        finalAwait: async () => {},
+        configureAppliedActorValidation: () => {},
+        configureChoiceItemValidation: item =>
+        {
+            item.addActivity(activity =>
+            {
+                activity.id = "PKnfExKlJ20Rt4Kx"
+                activity.type = "heal"
+                activity.activationType = "special"
+                activity.duration.units = "inst"
+                activity.duration.concentration = false
+                activity.range.units = "self"
+                activity.target.affects.type = "self"
+                activity.target.prompt = true
+                activity.consumption.numberOfTargets = 1
+                activity.addConsumptionTarget(target =>
+                {
+                    target.target = ""
+                    target.type = "itemUses"
+                    target.value = "1"
+                })
+                activity.uses.max = ""
+                activity.healing.customEnabled = true
+                activity.healing.custom = "1"
+                activity.healing.scalingNumber = 1
+                activity.healing.types = ["healing"]
+                activity.healing.numberOfTypes = 1
+                activity.healing.bonus = ""
+            })
+        }
+    }
+])
+
+const stage2ChoicePairs = Object.freeze(
+    createStage2ChoicePairs(stage2Choices)
+)
 
 const fangedBiteBehaviorCases = Object.freeze([
     {
@@ -252,13 +426,37 @@ const fangedBiteBehaviorCases = Object.freeze([
 
 const placeholderChoices = Object.freeze([
     ...stage1Choices,
-    {name: "Vampire Stage 2 Choice A", uuid: ""},
-    {name: "Vampire Stage 2 Choice B", uuid: ""},
+    ...stage2Choices,
     {name: "Vampire Stage 3 Choice A", uuid: ""},
     {name: "Vampire Stage 3 Choice B", uuid: ""},
     {name: "Vampire Stage 4 Choice A", uuid: ""},
     {name: "Vampire Stage 4 Choice B", uuid: ""}
 ])
+
+function createStage2ChoicePairs(choices)
+{
+    const pairs = []
+
+    for (let index = 0; index < choices.length; index++) {
+        for (
+            let comparisonIndex = index + 1;
+            comparisonIndex < choices.length;
+            comparisonIndex++
+        )
+        {
+            const firstChoice = choices[index]
+            const secondChoice = choices[comparisonIndex]
+
+            pairs.push({
+                name: `${firstChoice.name} and ${secondChoice.name}`,
+                uuids: [firstChoice.uuid, secondChoice.uuid],
+                choices: [firstChoice, secondChoice]
+            })
+        }
+    }
+
+    return pairs
+}
 
 function getItemBySourceUuid(actor, sourceUuid)
 {
@@ -347,7 +545,11 @@ function getMainFangedBiteActivity(item)
     ) ?? null
 }
 
-function createVampireActorValidationDTO(actor, requiredSourceUuids = [])
+function createVampireActorValidationDTO(
+    actor,
+    requiredSourceUuids = [],
+    maximumDaysPerFeed  = STAGE1_MAXIMUM_DAYS_PER_FEED
+)
 {
     const actorDto = new ActorValidationDTO(actor)
 
@@ -355,7 +557,7 @@ function createVampireActorValidationDTO(actor, requiredSourceUuids = [])
     actorDto.flags.match.push({
         path: "transformations.vampire",
         expected: {
-            maximumDaysPerFeed: MAXIMUM_DAYS_PER_FEED
+            maximumDaysPerFeed
         }
     })
 
@@ -367,11 +569,17 @@ function expectUsesMaxMatchesVampireFeedWindow(expect, usesMax)
     expect(
         [
             "@flags.transformations.vampire.maximumDaysPerFeed",
-            "7",
-            7
+            String(STAGE1_MAXIMUM_DAYS_PER_FEED),
+            STAGE1_MAXIMUM_DAYS_PER_FEED
         ].includes(usesMax),
         `Unexpected uses.max value: ${usesMax}`
     ).to.equal(true)
+}
+
+function captureVampireStage2InitialState(actor, staticVars)
+{
+    staticVars.initialDarkvision =
+        Number(actor.system?.attributes?.senses?.darkvision ?? 0)
 }
 
 function addTheSanguineCurseValidation(actorDto)
@@ -517,6 +725,26 @@ function addFangedBiteValidation(actorDto)
     })
 }
 
+function addGreaterSanguineCurseValidation(actorDto)
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [GREATER_SANGUINE_CURSE_UUID]
+        item.itemName = "Greater Sanguine Curse"
+        item.type = "feat"
+        item.img =
+            "modules/transformations/Icons/Transformations/Vampire/Greater%20Sanguine%20Curse.png"
+        item.identifier = "greater-sanguine-curse"
+        item.descriptionIncludes = "You must feed every 4 days"
+        item.systemType = ""
+        item.systemSubType = ""
+        item.numberOfAdvancements = 0
+        item.numberOfActivities = 0
+        item.numberOfEffects = 0
+        item.uses.max = ""
+    })
+}
+
 function addStage1ChoiceItemValidation(actorDto, loopVars)
 {
     actorDto.addItem(item =>
@@ -539,13 +767,43 @@ function addStage1ChoiceItemValidation(actorDto, loopVars)
     })
 }
 
+function addStage2ChoiceItemValidation(actorDto, choice)
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [choice.uuid]
+        item.itemName = choice.name
+        item.type = "feat"
+        item.img = choice.img
+        item.identifier = choice.identifier
+        item.descriptionIncludes = choice.descriptionSnippet
+        item.systemType = "transformation"
+        item.systemSubType = "vampire"
+        item.propertiesIncludes = ["trait"]
+        item.numberOfAdvancements = choice.advancementCount
+        item.numberOfActivities = choice.activityCount
+        item.numberOfEffects = choice.effectCount
+        item.uses.max = choice.usesMax
+
+        choice.configureChoiceItemValidation(item)
+    })
+}
+
+function addStage2ChoicePairItemValidations(actorDto, loopVars)
+{
+    loopVars.choices.forEach(choice =>
+    {
+        addStage2ChoiceItemValidation(actorDto, choice)
+    })
+}
+
 function buildVampireStage1BaseActorValidationDTO(actor, loopVars)
 {
     const actorDto = createVampireActorValidationDTO(actor, [
         THE_SANGUINE_CURSE_UUID,
         FANGED_BITE_UUID,
         loopVars.uuid
-    ])
+    ], STAGE1_MAXIMUM_DAYS_PER_FEED)
 
     addTheSanguineCurseValidation(actorDto)
     addFangedBiteValidation(actorDto)
@@ -558,10 +816,45 @@ function buildVampireStage1AppliedActorValidationDTO(actor, loopVars)
 {
     const actorDto = createVampireActorValidationDTO(actor, [
         loopVars.uuid
-    ])
+    ], STAGE1_MAXIMUM_DAYS_PER_FEED)
 
     addStage1ChoiceItemValidation(actorDto, loopVars)
     loopVars.configureAppliedActorValidation(actorDto)
+
+    return actorDto
+}
+
+function buildVampireStage2BaseActorValidationDTO(actor, loopVars)
+{
+    const actorDto = createVampireActorValidationDTO(actor, [
+        GREATER_SANGUINE_CURSE_UUID,
+        ...loopVars.uuids
+    ], STAGE2_MAXIMUM_DAYS_PER_FEED)
+
+    addGreaterSanguineCurseValidation(actorDto)
+    addStage2ChoicePairItemValidations(actorDto, loopVars)
+
+    return actorDto
+}
+
+function buildVampireStage2AppliedActorValidationDTO(
+    actor,
+    loopVars,
+    staticVars
+)
+{
+    const actorDto = createVampireActorValidationDTO(actor, [
+        GREATER_SANGUINE_CURSE_UUID,
+        ...loopVars.uuids
+    ], STAGE2_MAXIMUM_DAYS_PER_FEED)
+
+    addGreaterSanguineCurseValidation(actorDto)
+    addStage2ChoicePairItemValidations(actorDto, loopVars)
+
+    loopVars.choices.forEach(choice =>
+    {
+        choice.configureAppliedActorValidation(actorDto, {staticVars})
+    })
 
     return actorDto
 }
@@ -611,7 +904,7 @@ export const vampireTestDef = {
             {
                 await waiters.waitForCondition(() =>
                     actor.getFlag("transformations", "vampire")
-                        ?.maximumDaysPerFeed === MAXIMUM_DAYS_PER_FEED
+                        ?.maximumDaysPerFeed === STAGE1_MAXIMUM_DAYS_PER_FEED
                 )
 
                 await waiters.waitForCondition(() =>
@@ -675,6 +968,143 @@ export const vampireTestDef = {
             {
                 const actorDto =
                           buildVampireStage1AppliedActorValidationDTO(actor, loopVars)
+
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: loopVars =>
+                `stage 2 grants vampire stage 2 items with ${loopVars.name}`,
+
+            loop: () => stage2ChoicePairs,
+
+            steps: [
+                {
+                    stage: 1,
+                    choose: () => DEFAULT_STAGE2_PREREQUISITE_STAGE1_CHOICE.uuid,
+                    await: async ({runtime, actor, waiters, staticVars}) =>
+                    {
+                        await waitForAppliedStageWithoutAbilityScoreDialog({
+                            runtime,
+                            actor,
+                            waiters,
+                            stage: 1,
+                            sourceName:
+                            DEFAULT_STAGE2_PREREQUISITE_STAGE1_CHOICE.name
+                        })
+                        captureVampireStage2InitialState(actor, staticVars)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: loopVars => loopVars.uuids,
+                    await: async ({runtime, actor, waiters, loopVars}) =>
+                    {
+                        await waitForAppliedStageWithoutAbilityScoreDialog({
+                            runtime,
+                            actor,
+                            waiters,
+                            stage: 2,
+                            sourceName: loopVars.name
+                        })
+                    }
+                }
+            ],
+
+            finalAwait: async ({actor, waiters, loopVars}) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.getFlag("transformations", "vampire")
+                        ?.maximumDaysPerFeed === STAGE2_MAXIMUM_DAYS_PER_FEED
+                )
+
+                await waiters.waitForCondition(() =>
+                    Boolean(
+                        getItemBySourceUuid(actor, GREATER_SANGUINE_CURSE_UUID)
+                    )
+                )
+
+                for (const sourceUuid of loopVars.uuids) {
+                    await waiters.waitForCondition(() =>
+                        Boolean(getItemBySourceUuid(actor, sourceUuid))
+                    )
+                }
+            },
+
+            finalAssertions: async ({actor, assert, loopVars}) =>
+            {
+                const actorDto =
+                          buildVampireStage2BaseActorValidationDTO(actor, loopVars)
+
+                validate(actorDto, {assert})
+            }
+        },
+        {
+            name: loopVars => `stage 2 applies ${loopVars.name}`,
+
+            loop: () => stage2ChoicePairs,
+
+            steps: [
+                {
+                    stage: 1,
+                    choose: () => DEFAULT_STAGE2_PREREQUISITE_STAGE1_CHOICE.uuid,
+                    await: async ({runtime, actor, waiters, staticVars}) =>
+                    {
+                        await waitForAppliedStageWithoutAbilityScoreDialog({
+                            runtime,
+                            actor,
+                            waiters,
+                            stage: 1,
+                            sourceName:
+                            DEFAULT_STAGE2_PREREQUISITE_STAGE1_CHOICE.name
+                        })
+                        captureVampireStage2InitialState(actor, staticVars)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: loopVars => loopVars.uuids,
+                    await: async ({runtime, actor, waiters, loopVars}) =>
+                    {
+                        await waitForAppliedStageWithoutAbilityScoreDialog({
+                            runtime,
+                            actor,
+                            waiters,
+                            stage: 2,
+                            sourceName: loopVars.name
+                        })
+                    }
+                }
+            ],
+
+            finalAwait: async ({actor, waiters, loopVars, staticVars}) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.getFlag("transformations", "vampire")
+                        ?.maximumDaysPerFeed === STAGE2_MAXIMUM_DAYS_PER_FEED
+                )
+
+                await waiters.waitForCondition(() =>
+                    Boolean(
+                        getItemBySourceUuid(actor, GREATER_SANGUINE_CURSE_UUID)
+                    )
+                )
+
+                for (const choice of loopVars.choices) {
+                    await waiters.waitForCondition(() =>
+                        Boolean(getItemBySourceUuid(actor, choice.uuid))
+                    )
+                    await choice.finalAwait({actor, waiters, staticVars})
+                }
+            },
+
+            finalAssertions: async ({actor, assert, loopVars, staticVars}) =>
+            {
+                const actorDto = buildVampireStage2AppliedActorValidationDTO(
+                    actor,
+                    loopVars,
+                    staticVars
+                )
 
                 validate(actorDto, {assert})
             }
