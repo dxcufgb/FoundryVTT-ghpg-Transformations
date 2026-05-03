@@ -13,6 +13,20 @@ RuleRegistry.register("equals", ({ expected, actual, path, assert }) =>
     )
 })
 
+RuleRegistry.register("normalizedTextEquals", ({ expected, actual, path, assert }) =>
+{
+    console.debug("Rule: normalizedTextEquals called", expected, actual, path, assert)
+
+    const normalizedExpected = normalizeComparableText(expected)
+    const normalizedActual = normalizeComparableText(actual)
+
+    assert.equal(
+        normalizedActual,
+        normalizedExpected,
+        `[${path}] Expected ${normalizedExpected} but got ${normalizedActual}`
+    )
+})
+
 /**
  * Deep equality
  */
@@ -315,3 +329,14 @@ RuleRegistry.register("partialDeepMatch", ({ actual, expected, path }) =>
         }
     })
 })
+
+function normalizeComparableText(value)
+{
+    if (typeof value !== "string") {
+        return value
+    }
+
+    return value
+        .replace(/\s+/gu, " ")
+        .trim()
+}

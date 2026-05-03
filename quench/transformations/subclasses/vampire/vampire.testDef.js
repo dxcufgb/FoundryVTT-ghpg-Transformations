@@ -1,6 +1,9 @@
 import { validate } from "../../../helpers/DTOValidators/validate.js"
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js"
 import { ContextValidationDTO } from "../../../helpers/validationDTOs/context/ContextValidationDTO.js"
+import { RollService } from "../../../../services/rolls/RollService.js"
+import { Vampire } from "../../../../domain/transformation/subclasses/vampire/Vampire.js"
+import { TRUE_APPEARANCE_EFFECT_NAME, TRUE_APPEARANCE_SAVE_ACTIVITY_NAME, TRUE_APPEARANCE_SAVE_ITEM_UUID } from "../../../../domain/transformation/subclasses/vampire/triggers/trueAppearanceTriggerCommon.js"
 
 const THE_SANGUINE_CURSE_UUID =
           "Compendium.transformations.gh-transformations.Item.Zd5sRelguKUDcoAP"
@@ -11,6 +14,11 @@ const FANGED_BITE_UUID =
 const FZEG_CLAW_UUID =
           "Compendium.transformations.gh-transformations.Item.0ZgPuhqfVv3Nk0x4"
 const FANGED_BITE_MIDI_ATTACK_ACTIVITY_ID = "ddjFKkSGslAQQjB4"
+const SANGROMANCY_SPECIALIST_UUID =
+          "Compendium.transformations.gh-transformations.Item.qmepd5HkL0LpxOJv"
+const SANGROMANCY_SPECIALIST_ACTIVITY_NAME = "Enhance Cantrip Damage"
+const TRUE_APPEARANCE_HIDE_ACTIVITY_NAME = "Hide True Appearance"
+const STAGE3_MAXIMUM_DAYS_PER_FEED = 2
 const STAGE1_MAXIMUM_DAYS_PER_FEED = 7
 const STAGE2_MAXIMUM_DAYS_PER_FEED = 4
 const ABILITY_KEYS = Object.freeze([
@@ -387,6 +395,18 @@ const stage2Choices = Object.freeze([
 const stage2ChoicePairs = Object.freeze(
     createStage2ChoicePairs(stage2Choices)
 )
+const DEFAULT_STAGE3_PREREQUISITE_STAGE2_CHOICES = Object.freeze([
+    stage2Choices[0].uuid,
+    stage2Choices[2].uuid
+])
+const DEFAULT_TRUE_APPEARANCE_STAGE3_CHOICE_UUIDS = Object.freeze([
+    "Compendium.transformations.gh-transformations.Item.zqHnVx3qp8v5MqM6",
+    "Compendium.transformations.gh-transformations.Item.85DUuTRth5jW8GG2"
+])
+const DEFAULT_STAGE3_CHOICE_UUIDS = Object.freeze([
+    SANGROMANCY_SPECIALIST_UUID,
+    "Compendium.transformations.gh-transformations.Item.zqHnVx3qp8v5MqM6"
+])
 
 const fangedBiteBehaviorCases = Object.freeze([
     {
@@ -424,6 +444,150 @@ const fangedBiteBehaviorCases = Object.freeze([
     }
 ])
 
+const sangromancyResourceBehaviorCases = Object.freeze([
+    {
+        name: "Sangromancy Specialist consumes item charges before class hit dice",
+        classDefinitions: [
+            {
+                className: "Wizard",
+                levels: 4,
+                hitDiceValue: 2
+            }
+        ],
+        charges: 2,
+        rollButtonText: "Roll 2 Dice",
+        expectedFormula: "2d6",
+        expectedUsesSpent: 2,
+        expectedClassStates: [
+            {
+                className: "Wizard",
+                remainingHitDice: 2
+            }
+        ],
+        expectedPresentButtons: [
+            "Roll 1 Die",
+            "Roll 2 Dice"
+        ],
+        expectedAbsentButtons: [
+            "Roll 3 Dice"
+        ]
+    },
+    {
+        name: "Sangromancy Specialist item charges roll using the actor's highest class hit die denomination",
+        classDefinitions: [
+            {
+                className: "Wizard",
+                levels: 4,
+                hitDiceValue: 2
+            },
+            {
+                className: "Fighter",
+                levels: 1,
+                hitDiceValue: 0
+            }
+        ],
+        charges: 2,
+        rollButtonText: "Roll 2 Dice",
+        expectedFormula: "2d10",
+        expectedUsesSpent: 2,
+        expectedClassStates: [
+            {
+                className: "Wizard",
+                remainingHitDice: 2
+            },
+            {
+                className: "Fighter",
+                remainingHitDice: 0
+            }
+        ],
+        expectedPresentButtons: [
+            "Roll 1 Die",
+            "Roll 2 Dice"
+        ],
+        expectedAbsentButtons: [
+            "Roll 3 Dice"
+        ]
+    },
+    {
+        name: "Sangromancy Specialist spends class hit dice from the highest denomination first after charges are depleted",
+        classDefinitions: [
+            {
+                className: "Wizard",
+                levels: 4,
+                hitDiceValue: 1
+            },
+            {
+                className: "Fighter",
+                levels: 1,
+                hitDiceValue: 1
+            }
+        ],
+        charges: 0,
+        rollButtonText: "Roll 2 Dice",
+        expectedFormula: "1d10 + 1d6",
+        expectedUsesSpent: 0,
+        expectedClassStates: [
+            {
+                className: "Wizard",
+                remainingHitDice: 0
+            },
+            {
+                className: "Fighter",
+                remainingHitDice: 0
+            }
+        ],
+        expectedPresentButtons: [
+            "Roll 1 Die",
+            "Roll 2 Dice"
+        ],
+        expectedAbsentButtons: [
+            "Roll 3 Dice"
+        ]
+    },
+    {
+        name: "Sangromancy Specialist respects the total available resource pool",
+        classDefinitions: [
+            {
+                className: "Wizard",
+                levels: 4,
+                hitDiceValue: 0
+            }
+        ],
+        charges: 1,
+        rollButtonText: "Roll 1 Die",
+        expectedFormula: "1d6",
+        expectedUsesSpent: 1,
+        expectedClassStates: [
+            {
+                className: "Wizard",
+                remainingHitDice: 0
+            }
+        ],
+        expectedPresentButtons: [
+            "Roll 1 Die"
+        ],
+        expectedAbsentButtons: [
+            "Roll 2 Dice",
+            "Roll 3 Dice"
+        ]
+    }
+])
+
+const trueAppearanceAutoTriggerCases = Object.freeze([
+    {
+        name: "True Appearance bloodied trigger uses Midi Save",
+        trigger: "bloodied"
+    },
+    {
+        name: "True Appearance concentration trigger uses Midi Save",
+        trigger: "concentration"
+    },
+    {
+        name: "True Appearance unconscious trigger uses Midi Save",
+        trigger: "unconscious"
+    }
+])
+
 const placeholderChoices = Object.freeze([
     ...stage1Choices,
     ...stage2Choices,
@@ -458,11 +622,18 @@ function createStage2ChoicePairs(choices)
     return pairs
 }
 
+function resolveCurrentActor(actor)
+{
+    return game?.actors?.get?.(actor?.id) ?? actor
+}
+
 function getItemBySourceUuid(actor, sourceUuid)
 {
-    return actor.items.find(item =>
+    const currentActor = resolveCurrentActor(actor)
+
+    return currentActor?.items?.find?.(item =>
         item.flags?.transformations?.sourceUuid === sourceUuid
-    )
+    ) ?? null
 }
 
 function getAbilityScoreAdvancementDialogElement()
@@ -543,6 +714,351 @@ function getMainFangedBiteActivity(item)
         activity?.name === "Midi Attack" ||
         activity?.macroData?.name === "Midi Attack"
     ) ?? null
+}
+
+function getSangromancySpecialistActivity(item)
+{
+    return getItemActivities(item).find(activity =>
+        activity?.name === SANGROMANCY_SPECIALIST_ACTIVITY_NAME
+    ) ?? null
+}
+
+function getTrueAppearanceItem(actor)
+{
+    return getItemBySourceUuid(actor, TRUE_APPEARANCE_SAVE_ITEM_UUID)
+}
+
+function getTrueAppearanceSaveActivity(item)
+{
+    return getItemActivities(item).find(activity =>
+        activity?.name === TRUE_APPEARANCE_SAVE_ACTIVITY_NAME
+    ) ?? null
+}
+
+function getTrueAppearanceHideActivity(item)
+{
+    return getItemActivities(item).find(activity =>
+        normalizeText(activity?.name) ===
+        normalizeText(TRUE_APPEARANCE_HIDE_ACTIVITY_NAME)
+    ) ?? null
+}
+
+async function createHidingTrueAppearanceEffect(actor)
+{
+    const currentActor = resolveCurrentActor(actor)
+    if (!currentActor) {
+        return
+    }
+
+    if (currentActor.effects.some(effect =>
+        effect.name === TRUE_APPEARANCE_EFFECT_NAME
+    ))
+    {
+        return
+    }
+
+    await currentActor.createEmbeddedDocuments("ActiveEffect", [
+        {
+            name: TRUE_APPEARANCE_EFFECT_NAME,
+            disabled: false
+        }
+    ])
+}
+
+async function tryCreateHidingTrueAppearanceEffectFromActivity({
+    actor,
+    runtime,
+    waiters
+})
+{
+    const currentActor = resolveCurrentActor(actor)
+    if (!currentActor) {
+        return false
+    }
+
+    const trueAppearanceItem = getTrueAppearanceItem(currentActor)
+    const hideActivity = getTrueAppearanceHideActivity(trueAppearanceItem)
+
+    if (!hideActivity || typeof hideActivity.use !== "function") {
+        return false
+    }
+
+    await hideActivity.use()
+
+    if (runtime && waiters) {
+        await waiters.waitForDomainStability({
+            actor: currentActor,
+            asyncTrackers: runtime.dependencies.utils.asyncTrackers
+        })
+        await waiters.waitForNextFrame()
+    }
+
+    return resolveCurrentActor(actor).effects.some(effect =>
+        effect.name === TRUE_APPEARANCE_EFFECT_NAME
+    )
+}
+
+async function ensureHidingTrueAppearanceEffect({
+    actor,
+    runtime,
+    waiters
+})
+{
+    const currentActor = resolveCurrentActor(actor)
+    if (currentActor?.effects?.some?.(effect =>
+        effect.name === TRUE_APPEARANCE_EFFECT_NAME
+    ))
+    {
+        return currentActor
+    }
+
+    const wasCreatedByActivity =
+              await tryCreateHidingTrueAppearanceEffectFromActivity({
+                  actor,
+                  runtime,
+                  waiters
+              })
+
+    if (!wasCreatedByActivity) {
+        await createHidingTrueAppearanceEffect(actor)
+    }
+
+    if (runtime && waiters) {
+        await waitForHidingTrueAppearanceState({
+            actor,
+            runtime,
+            waiters,
+            present: true
+        })
+    }
+
+    return resolveCurrentActor(actor)
+}
+
+async function waitForHidingTrueAppearanceState({
+    actor,
+    runtime,
+    waiters,
+    present
+})
+{
+    await waiters.waitForDomainStability({
+        actor,
+        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+    })
+
+    await waiters.waitForCondition(() =>
+    {
+        const currentActor = resolveCurrentActor(actor)
+
+        return currentActor.effects.some(effect =>
+            effect.name === TRUE_APPEARANCE_EFFECT_NAME
+        ) === present
+    })
+}
+
+function assertHidingTrueAppearanceState({
+    actor,
+    assert,
+    present
+})
+{
+    const actorDto = new ActorValidationDTO(resolveCurrentActor(actor))
+
+    if (present) {
+        actorDto.effects.has.push(TRUE_APPEARANCE_EFFECT_NAME)
+    } else {
+        actorDto.effects.notHas.push(TRUE_APPEARANCE_EFFECT_NAME)
+    }
+
+    validate(actorDto, {assert})
+}
+
+function normalizeText(value)
+{
+    return String(value ?? "")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
+async function createCharacterClassWithHitDice({
+    actor,
+    helpers,
+    className,
+    hitDiceValue,
+    hitDiceMax = null,
+    levels = 1
+})
+{
+    const resolvedHitDiceMax = hitDiceMax == null
+        ? Math.max(hitDiceValue, levels)
+        : hitDiceMax
+    const sourceClass = await helpers.getCharacterClass(className)
+    const classItem = await helpers.createActorItemAndWait(
+        actor,
+        sourceClass,
+        {
+            setTransformationFlags: false,
+            setDdbImporterFlag: false,
+            applyAdvancements: false,
+            levels
+        }
+    )
+
+    await classItem.update({
+        "system.hd.value": hitDiceValue,
+        "system.hd.max": resolvedHitDiceMax,
+        "system.hd.spent": Math.max(resolvedHitDiceMax - hitDiceValue, 0)
+    })
+
+    return actor.items.get(classItem.id) ?? classItem
+}
+
+async function configureSangromancySpecialistCharges({
+    actor,
+    item,
+    charges
+})
+{
+    await actor.setFlag(
+        "transformations",
+        "vampire.sangromancyHitDieMax",
+        charges
+    )
+
+    await item.update({
+        "system.uses.max": charges,
+        "system.uses.value": charges,
+        "system.uses.spent": 0
+    })
+}
+
+async function prepareSangromancySpecialistChatCard({
+    actor,
+    runtime,
+    helpers,
+    waiters,
+    staticVars,
+    loopVars
+})
+{
+    staticVars.sangromancySpecialist = getItemBySourceUuid(
+        actor,
+        SANGROMANCY_SPECIALIST_UUID
+    )
+
+    if (!staticVars.sangromancySpecialist) {
+        throw new Error("Sangromancy Specialist item not present on actor")
+    }
+
+    await configureSangromancySpecialistCharges({
+        actor,
+        item: staticVars.sangromancySpecialist,
+        charges: loopVars.charges
+    })
+
+    staticVars.sangromancyActivity = getSangromancySpecialistActivity(
+        staticVars.sangromancySpecialist
+    )
+
+    if (!staticVars.sangromancyActivity) {
+        throw new Error(
+            "Enhance Cantrip Damage activity not present on Sangromancy Specialist"
+        )
+    }
+
+    staticVars.initialMessageIds = new Set(
+        game.messages.contents.map(message => message.id)
+    )
+
+    const activityUseResult = await staticVars.sangromancyActivity.use({actor})
+
+    await waiters.waitForCondition(() =>
+        game.messages.get(
+            activityUseResult?.message?.id ??
+            activityUseResult?.chatMessage?.id ??
+            activityUseResult?.changes?.message?.id ??
+            ""
+        ) != null ||
+        game.messages.contents.some(message =>
+            !staticVars.initialMessageIds.has(message.id)
+        )
+    )
+
+    staticVars.message =
+        game.messages.get(
+            activityUseResult?.message?.id ??
+            activityUseResult?.chatMessage?.id ??
+            activityUseResult?.changes?.message?.id ??
+            ""
+        ) ??
+        game.messages.contents.find(message =>
+            !staticVars.initialMessageIds.has(message.id)
+        ) ??
+        game.messages.contents.at(-1)
+
+    if (!staticVars.message) {
+        throw new Error("Enhance Cantrip Damage activity did not create a chat message")
+    }
+
+    staticVars.chatCardHelper = helpers.createChatCardTestHelper({
+        message: staticVars.message
+    })
+}
+
+async function bindSangromancySpecialistCard({
+    actor,
+    runtime,
+    message
+})
+{
+    const currentMessage = game.messages.get(message?.id) ?? message ?? null
+    const html = document.createElement("div")
+    html.innerHTML = currentMessage?.content ?? ""
+
+    const transformation =
+              runtime.services.transformationRegistry.getEntryForActor(actor)
+
+    await transformation?.TransformationClass?.onRenderChatMessage?.({
+        message: currentMessage,
+        html,
+        actor,
+        actorRepository: runtime.infrastructure.actorRepository,
+        itemRepository: runtime.infrastructure.itemRepository,
+        ChatMessagePartInjector: runtime.ui.ChatMessagePartInjector,
+        RollService
+    })
+
+    return html
+}
+
+async function clickSangromancySpecialistCardButton({
+    actor,
+    runtime,
+    message,
+    waiters,
+    text
+})
+{
+    const html = await bindSangromancySpecialistCard({
+        actor,
+        runtime,
+        message
+    })
+    const button = Array.from(
+        html.querySelectorAll("button")
+    ).find(candidate =>
+        normalizeText(candidate.textContent) === normalizeText(text)
+    )
+
+    if (!button) {
+        throw new Error(
+            `Sangromancy Specialist chat card button not found with text "${text}"`
+        )
+    }
+
+    button.click()
+    await waiters.waitForNextFrame()
 }
 
 function createVampireActorValidationDTO(
@@ -725,6 +1241,28 @@ function addFangedBiteValidation(actorDto)
     })
 }
 
+function addSangromancySpecialistValidation(actorDto)
+{
+    actorDto.addItem(item =>
+    {
+        item.expectedItemUuids = [SANGROMANCY_SPECIALIST_UUID]
+        item.itemName = "Sangromancy Specialist"
+        item.addActivity(activity =>
+        {
+            activity.name = SANGROMANCY_SPECIALIST_ACTIVITY_NAME
+            activity.type = "utility"
+            activity.activationType = "special"
+            activity.duration.units = "inst"
+            activity.duration.concentration = false
+            activity.range.units = "self"
+            activity.target.affects.type = "self"
+            activity.target.prompt = false
+            activity.consumption.numberOfTargets = 0
+            activity.uses.max = ""
+        })
+    })
+}
+
 function addGreaterSanguineCurseValidation(actorDto)
 {
     actorDto.addItem(item =>
@@ -865,6 +1403,42 @@ function configureFixedVampireAbilityScoreAdvancement(itemName)
         {
             name: itemName,
             choice: {}
+        }
+    ]
+}
+
+function buildSangromancySpecialistRequiredPath()
+{
+    return [
+        {
+            stage: 1,
+            choose: DEFAULT_STAGE2_PREREQUISITE_STAGE1_CHOICE.uuid
+        },
+        {
+            stage: 2,
+            choose: DEFAULT_STAGE3_PREREQUISITE_STAGE2_CHOICES
+        },
+        {
+            stage: 3,
+            choose: DEFAULT_STAGE3_CHOICE_UUIDS
+        }
+    ]
+}
+
+function buildTrueAppearanceRequiredPath()
+{
+    return [
+        {
+            stage: 1,
+            choose: DEFAULT_STAGE2_PREREQUISITE_STAGE1_CHOICE.uuid
+        },
+        {
+            stage: 2,
+            choose: DEFAULT_STAGE3_PREREQUISITE_STAGE2_CHOICES
+        },
+        {
+            stage: 3,
+            choose: DEFAULT_TRUE_APPEARANCE_STAGE3_CHOICE_UUIDS
         }
     ]
 }
@@ -1241,6 +1815,955 @@ export const vampireTestDef = {
                 }
 
                 validate(contextDto, {assert})
+            }
+        },
+        {
+            name:
+                "Sangromancy Specialist grants Enhance Cantrip Damage and renders a vampire midi chat card",
+
+            setup: async ({actor, helpers, staticVars}) =>
+            {
+                staticVars.classItems = {
+                    Wizard: await createCharacterClassWithHitDice({
+                        actor,
+                        helpers,
+                        className: "Wizard",
+                        levels: 4,
+                        hitDiceValue: 2
+                    })
+                }
+            },
+
+            requiredPath: buildSangromancySpecialistRequiredPath(),
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars}) =>
+                {
+                    await prepareSangromancySpecialistChatCard({
+                        actor,
+                        runtime,
+                        helpers,
+                        waiters,
+                        staticVars,
+                        loopVars: {
+                            charges: 2
+                        }
+                    })
+                }
+            ],
+
+            await: async ({staticVars}) =>
+            {
+                await staticVars.chatCardHelper.waitForCard({
+                    preferLive: false
+                })
+                await staticVars.chatCardHelper.waitForButton(
+                    {
+                        text: "Roll 1 Die"
+                    },
+                    {
+                        preferLive: false
+                    }
+                )
+                await staticVars.chatCardHelper.waitForButton(
+                    {
+                        text: "Roll 2 Dice"
+                    },
+                    {
+                        preferLive: false
+                    }
+                )
+            },
+
+            assertions: async ({actor, expect, assert, staticVars}) =>
+            {
+                const actorDto = createVampireActorValidationDTO(actor, [
+                    SANGROMANCY_SPECIALIST_UUID
+                ], STAGE3_MAXIMUM_DAYS_PER_FEED)
+                addSangromancySpecialistValidation(actorDto)
+                validate(actorDto, {assert})
+
+                const activity = getSangromancySpecialistActivity(
+                    staticVars.sangromancySpecialist
+                )
+
+                expect(activity).to.exist
+                expect(activity?.name).to.equal(
+                    SANGROMANCY_SPECIALIST_ACTIVITY_NAME
+                )
+                expect(staticVars.message?.flags?.transformations?.vampireActivity)
+                .to.equal("sangromancyEnhanceCantripDamage")
+                expect(staticVars.message?.flags?.transformations?.state)
+                .to.equal("initial")
+                expect(
+                    staticVars.message?.flags?.transformations?.maxDice
+                ).to.equal(2)
+
+                const card = staticVars.chatCardHelper.getCardElement({
+                    require: true
+                })
+                expect(card.dataset.vampireActivity)
+                .to.equal("sangromancyEnhanceCantripDamage")
+                expect(String(staticVars.message?.content ?? ""))
+                .to.contain('data-transformations-card="true"')
+                expect(
+                    staticVars.chatCardHelper.hasButton({
+                        text: "Roll 1 Die"
+                    })
+                ).to.equal(true)
+                expect(
+                    staticVars.chatCardHelper.hasButton({
+                        text: "Roll 2 Dice"
+                    })
+                ).to.equal(true)
+                expect(
+                    staticVars.chatCardHelper.hasButton({
+                        text: "Roll 3 Dice"
+                    })
+                ).to.equal(false)
+            }
+        },
+        {
+            name: loopVars => loopVars.name,
+
+            loop: () => sangromancyResourceBehaviorCases,
+
+            setup: async ({actor, helpers, loopVars, staticVars}) =>
+            {
+                staticVars.classItems = {}
+
+                for (const classDefinition of loopVars.classDefinitions) {
+                    staticVars.classItems[classDefinition.className] =
+                        await createCharacterClassWithHitDice({
+                            actor,
+                            helpers,
+                            className: classDefinition.className,
+                            levels: classDefinition.levels,
+                            hitDiceValue: classDefinition.hitDiceValue,
+                            hitDiceMax: classDefinition.hitDiceMax ?? null
+                        })
+                }
+            },
+
+            requiredPath: buildSangromancySpecialistRequiredPath(),
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars, loopVars}) =>
+                {
+                    await prepareSangromancySpecialistChatCard({
+                        actor,
+                        runtime,
+                        helpers,
+                        waiters,
+                        staticVars,
+                        loopVars
+                    })
+                }
+            ],
+
+            await: async ({staticVars, loopVars}) =>
+            {
+                await staticVars.chatCardHelper.waitForCard({
+                    preferLive: false
+                })
+
+                for (const buttonText of loopVars.expectedPresentButtons) {
+                    await staticVars.chatCardHelper.waitForButton(
+                        {
+                            text: buttonText
+                        },
+                        {
+                            preferLive: false
+                        }
+                    )
+                }
+            },
+
+            assertions: async ({
+                actor,
+                runtime,
+                expect,
+                assert,
+                helpers,
+                waiters,
+                loopVars,
+                staticVars
+            }) =>
+            {
+                const actorDto = createVampireActorValidationDTO(actor, [
+                    SANGROMANCY_SPECIALIST_UUID
+                ], STAGE3_MAXIMUM_DAYS_PER_FEED)
+                addSangromancySpecialistValidation(actorDto)
+                validate(actorDto, {assert})
+
+                for (const buttonText of loopVars.expectedPresentButtons) {
+                    expect(
+                        staticVars.chatCardHelper.hasButton({
+                            text: buttonText
+                        }),
+                        `Expected button "${buttonText}" on Sangromancy Specialist card`
+                    ).to.equal(true)
+                }
+
+                for (const buttonText of loopVars.expectedAbsentButtons) {
+                    expect(
+                        staticVars.chatCardHelper.hasButton({
+                            text: buttonText
+                        }),
+                        `Did not expect button "${buttonText}" on Sangromancy Specialist card`
+                    ).to.equal(false)
+                }
+
+                const rollHelper = helpers.createDeterministicRollHelper()
+
+                try {
+                    rollHelper.queueRoll({
+                        formula: loopVars.expectedFormula,
+                        total: 7
+                    })
+
+                    await clickSangromancySpecialistCardButton({
+                        actor,
+                        runtime,
+                        message: staticVars.message,
+                        waiters,
+                        text: loopVars.rollButtonText
+                    })
+
+                    await waiters.waitForCondition(() =>
+                        rollHelper.getCalls().some(call =>
+                            call.type === "roll" &&
+                            call.formula === loopVars.expectedFormula
+                        )
+                    )
+
+                    await waiters.waitForCondition(() =>
+                        staticVars.chatCardHelper.getMessage()
+                            ?.flags?.transformations?.state === "rolled"
+                    )
+
+                    const presentedRolls =
+                              await staticVars.chatCardHelper.waitForPresentedRolls({
+                                  count: 1,
+                                  preferLive: false
+                              })
+
+                    const currentSangromancySpecialist =
+                              actor.items.get(staticVars.sangromancySpecialist.id) ??
+                              getItemBySourceUuid(actor, SANGROMANCY_SPECIALIST_UUID)
+
+                    expect(
+                        currentSangromancySpecialist?.system?.uses?.spent
+                    ).to.equal(loopVars.expectedUsesSpent)
+                    expect(
+                        staticVars.chatCardHelper.hasButton({
+                            text: loopVars.rollButtonText
+                        })
+                    ).to.equal(false)
+
+                    for (const classState of loopVars.expectedClassStates) {
+                        await waiters.waitForCondition(() =>
+                            Number(
+                                staticVars.classItems[classState.className]
+                                    ?.system?.hd?.value ?? 0
+                            ) === classState.remainingHitDice
+                        )
+
+                        expect(
+                            Number(
+                                staticVars.classItems[classState.className]
+                                    ?.system?.hd?.value ?? 0
+                            )
+                        ).to.equal(classState.remainingHitDice)
+                    }
+
+                    const contextDto = new ContextValidationDTO({
+                        advantage: false,
+                        rolls: presentedRolls.map(roll => ({
+                            formula: roll.formula
+                        }))
+                    })
+                    contextDto.advantage = false
+                    contextDto.rolls = {
+                        values: [
+                            {
+                                formula: loopVars.expectedFormula
+                            }
+                        ],
+                        mode: "equal"
+                    }
+
+                    validate(contextDto, {assert})
+                } finally {
+                    rollHelper.restore()
+                }
+            }
+        },
+        {
+            name:
+                "True Appearance revealTrueAppearance removes Hiding True Appearance",
+
+            requiredPath: buildTrueAppearanceRequiredPath(),
+
+            steps: [
+                async ({actor, runtime, waiters}) =>
+                {
+                    const currentActor =
+                              await ensureHidingTrueAppearanceEffect({
+                                  actor,
+                                  runtime,
+                                  waiters
+                              })
+
+                    await Vampire.revealTrueAppearance(currentActor)
+                }
+            ],
+
+            await: async ({actor, runtime, waiters}) =>
+            {
+                await waitForHidingTrueAppearanceState({
+                    actor,
+                    runtime,
+                    waiters,
+                    present: false
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assertHidingTrueAppearanceState({
+                    actor,
+                    assert,
+                    present: false
+                })
+            }
+        },
+        {
+            name:
+                "True Appearance revealTrueAppearance does nothing when the hiding effect is missing",
+
+            requiredPath: buildTrueAppearanceRequiredPath(),
+
+            steps: [
+                async ({actor}) =>
+                {
+                    await Vampire.revealTrueAppearance(resolveCurrentActor(actor))
+                }
+            ],
+
+            await: async ({actor, runtime, waiters}) =>
+            {
+                await waitForHidingTrueAppearanceState({
+                    actor,
+                    runtime,
+                    waiters,
+                    present: false
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assertHidingTrueAppearanceState({
+                    actor,
+                    assert,
+                    present: false
+                })
+            }
+        },
+        {
+            name:
+                "True Appearance Midi Save applies stage 3 DC on preUseActivity",
+
+            requiredPath: buildTrueAppearanceRequiredPath(),
+
+            steps: [
+                async ({actor, waiters, staticVars}) =>
+                {
+                    const currentActor = resolveCurrentActor(actor)
+
+                    staticVars.trueAppearanceItem =
+                        getTrueAppearanceItem(currentActor)
+                    staticVars.trueAppearanceActivity =
+                        getTrueAppearanceSaveActivity(
+                            staticVars.trueAppearanceItem
+                        )
+
+                    if (!staticVars.trueAppearanceItem) {
+                        throw new Error(
+                            "True Appearance save item not present on actor"
+                        )
+                    }
+
+                    if (!staticVars.trueAppearanceActivity) {
+                        throw new Error(
+                            "True Appearance Midi Save activity not present on actor"
+                        )
+                    }
+
+                    staticVars.usageConfig = {}
+                    staticVars.dialogConfig = {
+                        dc: {
+                            value: 0
+                        }
+                    }
+                    staticVars.messageConfig = {}
+
+                    Hooks.call(
+                        "dnd5e.preUseActivity",
+                        staticVars.trueAppearanceActivity,
+                        staticVars.usageConfig,
+                        staticVars.dialogConfig,
+                        staticVars.messageConfig
+                    )
+
+                    await waiters.waitForNextFrame()
+                    await waiters.waitForNextFrame()
+                }
+            ],
+
+            assertions: async ({expect, staticVars}) =>
+            {
+                expect(
+                    staticVars.trueAppearanceActivity?.save?.dc?.formula
+                ).to.equal("16")
+                expect(
+                    staticVars.trueAppearanceActivity?.save?.dc?.value
+                ).to.equal(16)
+                expect(
+                    staticVars.trueAppearanceActivity?.system?.save?.dc?.formula
+                ).to.equal("16")
+                expect(staticVars.dialogConfig?.dc?.value).to.equal(16)
+                expect(staticVars.messageConfig?.dc?.value).to.equal(16)
+            }
+        },
+        {
+            name:
+                "True Appearance Midi Save applies stage 4 DC on preActivityUse",
+
+            requiredPath: buildTrueAppearanceRequiredPath(),
+
+            steps: [
+                async ({actor, waiters, staticVars}) =>
+                {
+                    const currentActor = resolveCurrentActor(actor)
+
+                    await currentActor.setFlag("transformations", "stage", 4)
+                    await waiters.waitForCondition(() =>
+                        resolveCurrentActor(actor).getFlag(
+                            "transformations",
+                            "stage"
+                        ) === 4
+                    )
+
+                    staticVars.trueAppearanceItem =
+                        getTrueAppearanceItem(currentActor)
+                    staticVars.trueAppearanceActivity =
+                        getTrueAppearanceSaveActivity(
+                            staticVars.trueAppearanceItem
+                        )
+
+                    if (!staticVars.trueAppearanceActivity) {
+                        throw new Error(
+                            "True Appearance Midi Save activity not present on actor"
+                        )
+                    }
+
+                    staticVars.dialogConfig = {}
+                    staticVars.messageConfig = {}
+
+                    Hooks.call(
+                        "dnd5e.preActivityUse",
+                        staticVars.trueAppearanceActivity,
+                        {},
+                        staticVars.dialogConfig,
+                        staticVars.messageConfig
+                    )
+
+                    await waiters.waitForNextFrame()
+                    await waiters.waitForNextFrame()
+                }
+            ],
+
+            assertions: async ({expect, staticVars}) =>
+            {
+                expect(
+                    staticVars.trueAppearanceActivity?.save?.dc?.formula
+                ).to.equal("20")
+                expect(
+                    staticVars.trueAppearanceActivity?.save?.dc?.value
+                ).to.equal(20)
+                expect(
+                    staticVars.trueAppearanceActivity?.system?.save?.dc?.formula
+                ).to.equal("20")
+                expect(staticVars.messageConfig?.dc?.value).to.equal(20)
+            }
+        },
+        {
+            name:
+                "True Appearance DC override does not apply to the wrong activity",
+
+            requiredPath: buildTrueAppearanceRequiredPath(),
+
+            steps: [
+                async ({actor, waiters, staticVars}) =>
+                {
+                    const currentActor = resolveCurrentActor(actor)
+
+                    staticVars.activity = {
+                        name: "Not Midi Save",
+                        actor: currentActor,
+                        item: getTrueAppearanceItem(currentActor),
+                        save: {
+                            dc: {
+                                calculation: "",
+                                formula: "",
+                                value: 0
+                            }
+                        },
+                        system: {
+                            save: {
+                                dc: {
+                                    calculation: "",
+                                    formula: "",
+                                    value: 0
+                                }
+                            }
+                        }
+                    }
+
+                    Hooks.call(
+                        "dnd5e.preUseActivity",
+                        staticVars.activity,
+                        {},
+                        {},
+                        {}
+                    )
+
+                    await waiters.waitForNextFrame()
+                    await waiters.waitForNextFrame()
+                }
+            ],
+
+            assertions: async ({expect, staticVars}) =>
+            {
+                expect(staticVars.activity?.save?.dc?.formula).to.equal("")
+                expect(staticVars.activity?.save?.dc?.value).to.equal(0)
+            }
+        },
+        {
+            name: loopVars => loopVars.name,
+
+            loop: () => trueAppearanceAutoTriggerCases,
+
+            requiredPath: buildTrueAppearanceRequiredPath(),
+
+            steps: [
+                async ({actor, runtime, waiters, staticVars}) =>
+                {
+                    const currentActor =
+                              await ensureHidingTrueAppearanceEffect({
+                                  actor,
+                                  runtime,
+                                  waiters
+                              })
+
+                    staticVars.trueAppearanceItem =
+                        getTrueAppearanceItem(currentActor)
+                    staticVars.trueAppearanceActivity =
+                        getTrueAppearanceSaveActivity(
+                            staticVars.trueAppearanceItem
+                        )
+
+                    if (!staticVars.trueAppearanceActivity) {
+                        throw new Error(
+                            "True Appearance Midi Save activity not present on actor"
+                        )
+                    }
+
+                    staticVars.trueAppearanceUseCount = 0
+
+                    Object.defineProperty(
+                        staticVars.trueAppearanceActivity,
+                        "use",
+                        {
+                            configurable: true,
+                            writable: true,
+                            value: async function use()
+                            {
+                                staticVars.trueAppearanceUseCount += 1
+                                return true
+                            }
+                        }
+                    )
+                },
+                async ({actor, runtime, loopVars}) =>
+                {
+                    await runtime.services.triggerRuntime.run(
+                        loopVars.trigger,
+                        resolveCurrentActor(actor)
+                    )
+                }
+            ],
+
+            await: async ({waiters, staticVars}) =>
+            {
+                await waiters.waitForCondition(() =>
+                    staticVars.trueAppearanceUseCount === 1
+                )
+            },
+
+            assertions: async ({actor, assert, expect, staticVars}) =>
+            {
+                expect(staticVars.trueAppearanceUseCount).to.equal(1)
+                assertHidingTrueAppearanceState({
+                    actor,
+                    assert,
+                    present: true
+                })
+            }
+        },
+        {
+            name:
+                "True Appearance failed Midi Save removes Hiding True Appearance",
+
+            requiredPath: buildTrueAppearanceRequiredPath(),
+
+            steps: [
+                async ({actor, runtime, waiters}) =>
+                {
+                    const currentActor =
+                              await ensureHidingTrueAppearanceEffect({
+                                  actor,
+                                  runtime,
+                                  waiters
+                              })
+
+                    await runtime.services.triggerRuntime.run("savingThrow", currentActor, {
+                        saves: {
+                            current: {
+                                ability: "con",
+                                naturalRoll: 5,
+                                total: 10,
+                                success: false,
+                                item: {
+                                    sourceUuid: TRUE_APPEARANCE_SAVE_ITEM_UUID
+                                }
+                            }
+                        }
+                    })
+                }
+            ],
+
+            await: async ({actor, runtime, waiters}) =>
+            {
+                await waitForHidingTrueAppearanceState({
+                    actor,
+                    runtime,
+                    waiters,
+                    present: false
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assertHidingTrueAppearanceState({
+                    actor,
+                    assert,
+                    present: false
+                })
+            }
+        },
+        {
+            name:
+                "True Appearance successful Midi Save keeps Hiding True Appearance",
+
+            requiredPath: buildTrueAppearanceRequiredPath(),
+
+            steps: [
+                async ({actor, runtime, waiters}) =>
+                {
+                    const currentActor =
+                              await ensureHidingTrueAppearanceEffect({
+                                  actor,
+                                  runtime,
+                                  waiters
+                              })
+
+                    await runtime.services.triggerRuntime.run("savingThrow", currentActor, {
+                        saves: {
+                            current: {
+                                ability: "con",
+                                naturalRoll: 17,
+                                total: 17,
+                                success: true,
+                                item: {
+                                    sourceUuid: TRUE_APPEARANCE_SAVE_ITEM_UUID
+                                }
+                            }
+                        }
+                    })
+                }
+            ],
+
+            await: async ({actor, runtime, waiters}) =>
+            {
+                await waitForHidingTrueAppearanceState({
+                    actor,
+                    runtime,
+                    waiters,
+                    present: true
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assertHidingTrueAppearanceState({
+                    actor,
+                    assert,
+                    present: true
+                })
+            }
+        },
+        {
+            name:
+                "True Appearance sunlight Radiant damage reveals the actor",
+
+            requiredPath: buildTrueAppearanceRequiredPath(),
+
+            steps: [
+                async ({actor, runtime, waiters}) =>
+                {
+                    const currentActor =
+                              await ensureHidingTrueAppearanceEffect({
+                                  actor,
+                                  runtime,
+                                  waiters
+                              })
+
+                    await currentActor.setFlag("transformations", "damageTypePerMidiId", {
+                        "sunlight-source": "radiant"
+                    })
+
+                    await Vampire.onPreCalculateDamage({
+                        actor: currentActor,
+                        target: currentActor,
+                        damage: 7,
+                        details: {
+                            midi: {
+                                sourceActorUuid: "sunlight-source"
+                            },
+                            item: {
+                                name: "Sunlight"
+                            }
+                        }
+                    })
+                }
+            ],
+
+            await: async ({actor, runtime, waiters}) =>
+            {
+                await waitForHidingTrueAppearanceState({
+                    actor,
+                    runtime,
+                    waiters,
+                    present: false
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assertHidingTrueAppearanceState({
+                    actor,
+                    assert,
+                    present: false
+                })
+            }
+        },
+        {
+            name:
+                "True Appearance ignores non-sunlight Radiant damage",
+
+            requiredPath: buildTrueAppearanceRequiredPath(),
+
+            steps: [
+                async ({actor, runtime, waiters}) =>
+                {
+                    const currentActor =
+                              await ensureHidingTrueAppearanceEffect({
+                                  actor,
+                                  runtime,
+                                  waiters
+                              })
+
+                    await currentActor.setFlag("transformations", "damageTypePerMidiId", {
+                        "moonbeam-source": "radiant"
+                    })
+
+                    await Vampire.onPreCalculateDamage({
+                        actor: currentActor,
+                        target: currentActor,
+                        damage: 7,
+                        details: {
+                            midi: {
+                                sourceActorUuid: "moonbeam-source"
+                            },
+                            item: {
+                                name: "Moonbeam"
+                            }
+                        }
+                    })
+                }
+            ],
+
+            await: async ({actor, runtime, waiters}) =>
+            {
+                await waitForHidingTrueAppearanceState({
+                    actor,
+                    runtime,
+                    waiters,
+                    present: true
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assertHidingTrueAppearanceState({
+                    actor,
+                    assert,
+                    present: true
+                })
+            }
+        },
+        {
+            name:
+                "True Appearance feeding frenzy reveal removes Hiding True Appearance",
+
+            requiredPath: buildTrueAppearanceRequiredPath(),
+
+            steps: [
+                async ({actor, runtime, waiters}) =>
+                {
+                    const currentActor =
+                              await ensureHidingTrueAppearanceEffect({
+                                  actor,
+                                  runtime,
+                                  waiters
+                              })
+
+                    await Vampire.handleFeedingFrenzyReveal(currentActor)
+                }
+            ],
+
+            await: async ({actor, runtime, waiters}) =>
+            {
+                await waitForHidingTrueAppearanceState({
+                    actor,
+                    runtime,
+                    waiters,
+                    present: false
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assertHidingTrueAppearanceState({
+                    actor,
+                    assert,
+                    present: false
+                })
+            }
+        },
+        {
+            name:
+                "True Appearance hallowed ground reveal removes Hiding True Appearance",
+
+            requiredPath: buildTrueAppearanceRequiredPath(),
+
+            steps: [
+                async ({actor, runtime, waiters}) =>
+                {
+                    const currentActor =
+                              await ensureHidingTrueAppearanceEffect({
+                                  actor,
+                                  runtime,
+                                  waiters
+                              })
+
+                    await Vampire.handleHallowedGroundReveal(currentActor)
+                }
+            ],
+
+            await: async ({actor, runtime, waiters}) =>
+            {
+                await waitForHidingTrueAppearanceState({
+                    actor,
+                    runtime,
+                    waiters,
+                    present: false
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assertHidingTrueAppearanceState({
+                    actor,
+                    assert,
+                    present: false
+                })
+            }
+        },
+        {
+            name:
+                "True Appearance manual reveal activity removes Hiding True Appearance",
+
+            requiredPath: buildTrueAppearanceRequiredPath(),
+
+            steps: [
+                async ({actor, runtime, waiters}) =>
+                {
+                    const currentActor =
+                              await ensureHidingTrueAppearanceEffect({
+                                  actor,
+                                  runtime,
+                                  waiters
+                              })
+                    const item = getTrueAppearanceItem(currentActor)
+
+                    await Vampire.onActivityUse(
+                        {
+                            name: "Reveal Yourself",
+                            parent: {
+                                parent: item
+                            }
+                        },
+                        {
+                            workflow: {
+                                actor: currentActor,
+                                item
+                            }
+                        },
+                        null
+                    )
+                }
+            ],
+
+            await: async ({actor, runtime, waiters}) =>
+            {
+                await waitForHidingTrueAppearanceState({
+                    actor,
+                    runtime,
+                    waiters,
+                    present: false
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                assertHidingTrueAppearanceState({
+                    actor,
+                    assert,
+                    present: false
+                })
             }
         }
     ]

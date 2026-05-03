@@ -801,7 +801,7 @@ export const fiendTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
-                                target.type = "item"
+                                target.type = "itemUses"
                                 target.value = 1
                             })
                         })
@@ -976,7 +976,7 @@ export const fiendTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
-                                target.type = "item"
+                                target.type = "itemUses"
                                 target.value = 1
                             })
                         })

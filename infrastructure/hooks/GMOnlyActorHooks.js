@@ -63,6 +63,16 @@ export function registerGMOnlyActorHooks({
                     )
                 }
                 break
+            case constants.CONDITION.UNCONSCIOUS:
+                try {
+                    await triggerRuntime.run("unconscious", actor)
+                } catch (err) {
+                    logger.error(
+                        "Error handling unconscious trigger",
+                        {actor, err}
+                    )
+                }
+                break
             case constants.CONDITION.CHARMED:
             case constants.CONDITION.FRIGHTENED:
                 try {
@@ -163,6 +173,16 @@ export function registerGMOnlyActorHooks({
         const effectName = context.effect?.name?.toLowerCase()
 
         switch (effectName) {
+            case constants.CONDITION.BLOODIED:
+                try {
+                    await triggerRuntime.run("bloodied", actor)
+                } catch (err) {
+                    logger.error(
+                        "Error handling bloodied trigger",
+                        {actor, err}
+                    )
+                }
+                break
             case constants.CONDITION.UNCONSCIOUS:
                 try {
                     await triggerRuntime.run("unconscious", actor)

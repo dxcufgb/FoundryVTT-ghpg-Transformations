@@ -7,7 +7,12 @@ export const stage4 = {
                 name: "Vampire Stage 4 Base Feature",
                 uuid: ""
             }
-        ]
+        ],
+        actor: {
+            flags: {
+                maximumDaysPerFeed: 1
+            }
+        }
     },
     choices: {
         items: [

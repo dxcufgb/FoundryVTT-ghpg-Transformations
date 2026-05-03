@@ -10,6 +10,7 @@ export class EffectValidationDTO
     constructor ()
     {
         this.name = null
+        this.description = null
         this.type = null
         this.collisionTypes = null
         this.distanceFormula = null

@@ -10,7 +10,7 @@ export class EffectDTOValidator extends BaseDTOValidator
             resolveEffectDocument(ctx)?.description ??
             resolveEffectDocument(ctx)?.system?.description ??
             null
-        ).equals(),
+        ).normalizedTextEquals(),
         transfer: resolve(ctx => resolveEffectDocument(ctx)?.transfer ?? null).equals(),
         type: path("effect.type").equals(),
         collisionTypes: path("effect.system.collisionTypes").toArray().equalsArray(),

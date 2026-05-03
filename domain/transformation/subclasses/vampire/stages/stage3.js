@@ -1,23 +1,34 @@
 export const stage3 = {
-    name: "Vampire Stage 3",
     stage: 3,
     grants: {
         items: [
             {
-                name: "Vampire Stage 3 Base Feature",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.5nFmQkoKj3YFFNuj"
             }
-        ]
+        ],
+        actor: {
+            flags: {
+                maximumDaysPerFeed: 2
+            }
+        }
     },
     choices: {
+        count: 2,
         items: [
             {
-                name: "Vampire Stage 3 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.zqHnVx3qp8v5MqM6"
             },
             {
-                name: "Vampire Stage 3 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.85DUuTRth5jW8GG2"
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.5pMyJHeDUAqvJQBP"
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.qmepd5HkL0LpxOJv",
+                requires: {
+                    actor: "HAS_SPELL_SLOTS"
+                }
             }
         ]
     }

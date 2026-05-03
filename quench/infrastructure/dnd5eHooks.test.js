@@ -2,9 +2,14 @@ import { registerDnd5eHooks } from "../../infrastructure/hooks/dnd5eHooks.js"
 import { Lycanthrope } from "../../domain/transformation/subclasses/lycanthrope/Lycanthrope.js"
 import { Primordial } from "../../domain/transformation/subclasses/primordial/Primordial.js"
 import { Seraph } from "../../domain/transformation/subclasses/seraph/Seraph.js"
+import { Vampire } from "../../domain/transformation/subclasses/vampire/Vampire.js"
 import { onPreRollDamage as shadowsteelGhoulOnPreRollDamage } from "../../domain/transformation/subclasses/shadowsteelGhoul/triggers/onPreRollDamage.js"
 import { BLINDING_RADIANCE_ACTIVITY_ID } from "../../domain/transformation/subclasses/seraph/Feats/BlindingRadiance.js"
 import { BLINDING_RADIANCE_UUID } from "../../domain/transformation/subclasses/seraph/triggers/blindingRadianceTriggerCommon.js"
+import {
+    TRUE_APPEARANCE_SAVE_ACTIVITY_NAME,
+    TRUE_APPEARANCE_SAVE_ITEM_UUID
+} from "../../domain/transformation/subclasses/vampire/triggers/trueAppearanceTriggerCommon.js"
 
 function createLogger()
 {
@@ -981,6 +986,206 @@ quench.registerBatch(
                             ],
                             [`system.activities.${BLINDING_RADIANCE_ACTIVITY_ID}.save.dc.calculation`]: "",
                             [`system.activities.${BLINDING_RADIANCE_ACTIVITY_ID}.save.dc.formula`]: "20"
+                        })
+                    } finally {
+                        harness.restore()
+                    }
+                }
+            )
+
+            it(
+                "delegates preUseActivity to the vampire transformation class and applies the True Appearance stage 3 DC",
+                async function ()
+                {
+                    const actor = {
+                        id: "actor-vampire-1",
+                        flags: {
+                            transformations: {
+                                stage: 3
+                            }
+                        },
+                        getFlag(scope, key)
+                        {
+                            if (scope === "transformations" && key === "stage") {
+                                return 3
+                            }
+
+                            return null
+                        }
+                    }
+                    const harness = createHookHarness({
+                        transformationOverrides: {
+                            TransformationClass: Vampire
+                        }
+                    })
+                    let persistedUpdate = null
+                    const item = {
+                        id: "item-vampire-1",
+                        uuid: "Actor.actor-vampire-1.Item.item-vampire-1",
+                        system: {
+                            activities: {
+                                get(id)
+                                {
+                                    return id === "vampire-midi-save"
+                                        ? activity
+                                        : null
+                                }
+                            }
+                        },
+                        flags: {
+                            transformations: {
+                                sourceUuid: TRUE_APPEARANCE_SAVE_ITEM_UUID
+                            }
+                        },
+                        updateSource(update)
+                        {
+                            persistedUpdate = update
+                        }
+                    }
+                    const activity = {
+                        id: "vampire-midi-save",
+                        name: TRUE_APPEARANCE_SAVE_ACTIVITY_NAME,
+                        actor,
+                        item,
+                        save: {
+                            dc: {
+                                calculation: "",
+                                formula: "",
+                                value: 0
+                            }
+                        },
+                        system: {
+                            save: {
+                                dc: {
+                                    calculation: "",
+                                    formula: "",
+                                    value: 0
+                                }
+                            }
+                        }
+                    }
+                    const usageConfig = {}
+                    const dialogConfig = {
+                        dc: {
+                            value: 0
+                        }
+                    }
+                    const messageConfig = {}
+
+                    try {
+                        const callback = harness.callbacks.get("dnd5e.preUseActivity")
+                        expect(callback).to.be.a("function")
+
+                        callback(activity, usageConfig, dialogConfig, messageConfig)
+
+                        await flushAsyncWork()
+
+                        expect(activity.save.dc.formula).to.equal("16")
+                        expect(activity.save.dc.value).to.equal(16)
+                        expect(activity.system.save.dc.formula).to.equal("16")
+                        expect(activity.system.save.dc.value).to.equal(16)
+                        expect(dialogConfig.dc.value).to.equal(16)
+                        expect(messageConfig.dc.value).to.equal(16)
+                        expect(persistedUpdate).to.deep.equal({
+                            "system.activities.vampire-midi-save.save.dc.calculation": "",
+                            "system.activities.vampire-midi-save.save.dc.formula": "16"
+                        })
+                    } finally {
+                        harness.restore()
+                    }
+                }
+            )
+
+            it(
+                "delegates preActivityUse to the vampire transformation class and applies the True Appearance stage 4 DC",
+                async function ()
+                {
+                    const actor = {
+                        id: "actor-vampire-2",
+                        flags: {
+                            transformations: {
+                                stage: 4
+                            }
+                        },
+                        getFlag(scope, key)
+                        {
+                            if (scope === "transformations" && key === "stage") {
+                                return 4
+                            }
+
+                            return null
+                        }
+                    }
+                    const harness = createHookHarness({
+                        transformationOverrides: {
+                            TransformationClass: Vampire
+                        }
+                    })
+                    let persistedUpdate = null
+                    const item = {
+                        id: "item-vampire-2",
+                        uuid: "Actor.actor-vampire-2.Item.item-vampire-2",
+                        system: {
+                            activities: {
+                                get(id)
+                                {
+                                    return id === "vampire-midi-save"
+                                        ? activity
+                                        : null
+                                }
+                            }
+                        },
+                        flags: {
+                            transformations: {
+                                sourceUuid: TRUE_APPEARANCE_SAVE_ITEM_UUID
+                            }
+                        },
+                        updateSource(update)
+                        {
+                            persistedUpdate = update
+                        }
+                    }
+                    const activity = {
+                        _id: "vampire-midi-save",
+                        name: TRUE_APPEARANCE_SAVE_ACTIVITY_NAME,
+                        actor,
+                        item,
+                        save: {
+                            dc: {
+                                calculation: "",
+                                formula: "",
+                                value: 0
+                            }
+                        },
+                        system: {
+                            save: {
+                                dc: {
+                                    calculation: "",
+                                    formula: "",
+                                    value: 0
+                                }
+                            }
+                        }
+                    }
+                    const dialogConfig = {}
+                    const messageConfig = {}
+
+                    try {
+                        const callback = harness.callbacks.get("dnd5e.preActivityUse")
+                        expect(callback).to.be.a("function")
+
+                        callback(activity, {}, dialogConfig, messageConfig)
+
+                        await flushAsyncWork()
+
+                        expect(activity.save.dc.formula).to.equal("20")
+                        expect(activity.save.dc.value).to.equal(20)
+                        expect(activity.system.save.dc.formula).to.equal("20")
+                        expect(activity.system.save.dc.value).to.equal(20)
+                        expect(messageConfig.dc.value).to.equal(20)
+                        expect(persistedUpdate).to.deep.equal({
+                            "system.activities.vampire-midi-save.save.dc.calculation": "",
+                            "system.activities.vampire-midi-save.save.dc.formula": "20"
                         })
                     } finally {
                         harness.restore()

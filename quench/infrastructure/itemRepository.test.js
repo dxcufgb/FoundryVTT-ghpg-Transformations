@@ -5,7 +5,8 @@ function createLogger()
     return {
         debug() {},
         warn() {},
-        trace() {}
+        trace() {},
+        error() {}
     }
 }
 
@@ -67,6 +68,23 @@ function createActor({
         },
         items,
         effects,
+        getFlag(scope, key)
+        {
+            const scopeValue = this.flags?.[scope]
+
+            if (!key) return scopeValue ?? null
+
+            return key.split(".").reduce(
+                (current, part) => current?.[part],
+                scopeValue
+            ) ?? null
+        },
+        async setFlag(scope, key, value)
+        {
+            this.flags[scope] ??= {}
+            setProperty(this.flags[scope], key, value)
+            return value
+        },
         async createEmbeddedDocuments(type, entries)
         {
             const created = entries.map(entry =>
@@ -240,7 +258,9 @@ function installFoundryUtils()
 
 function createRepository({
     chooseAbilityScoreAdvancementResult = true,
-    chooseItemPoolResult = null
+    chooseItemPoolResult = null,
+    transformationQueryService = null,
+    logger = createLogger()
 } = {})
 {
     const calls = {
@@ -271,8 +291,8 @@ function createRepository({
         },
         tracker: createTracker(),
         debouncedTracker: createDebouncedTracker(),
-        getTransformationQueryService: () => null,
-        logger: createLogger()
+        getTransformationQueryService: () => transformationQueryService,
+        logger
     })
 
     return {
@@ -762,6 +782,7 @@ quench.registerBatch(
                     }
                 }
             })
+
         })
     }
 )

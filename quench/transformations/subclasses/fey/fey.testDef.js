@@ -1439,12 +1439,12 @@ export const feyTestDef = {
                             consumption.numberOfTargets = 2
                             consumption.addTarget(target =>
                             {
-                                target.type = "activityUses"
+                                target.type = "itemUses"
                                 target.value = "1"
                             })
                             consumption.addTarget(target =>
                             {
-                                target.type = "itemUses"
+                                target.type = "activityUses"
                                 target.value = "1"
                             })
                         })

@@ -27,7 +27,8 @@ function getApplicationRoot(application)
     if (
         application?.nodeType === Node.ELEMENT_NODE ||
         application instanceof ShadowRoot
-    ) {
+    )
+    {
         return application
     }
 
@@ -269,7 +270,8 @@ async function closeApplication(application)
     if (
         application?.nodeType === Node.ELEMENT_NODE ||
         application instanceof ShadowRoot
-    ) {
+    )
+    {
         if (typeof application.close === "function") {
             application.close()
         }
@@ -462,12 +464,12 @@ export const lichTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 2
                             consumption.addTarget(target => {
-                                target.type = "activity"
-                                target.value = 1
+                                target.type = "itemUses"
+                                target.value = -1
                             })
                             consumption.addTarget(target => {
-                                target.type = "item"
-                                target.value = -1
+                                target.type = "activityUses"
+                                target.value = 1
                             })
                         })
                         activity.uses.addRecovery(recovery => {
@@ -495,7 +497,7 @@ export const lichTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
-                                consumption.type = "activity"
+                                consumption.type = "activityUses"
                                 consumption.value = 1
                             })
                         })
@@ -757,7 +759,7 @@ export const lichTestDef = {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
                                 target.value = 1
-                                target.type = "item"
+                                target.type = "itemUses"
                             })
                         })
                         activity.range.value = 30
@@ -943,7 +945,7 @@ export const lichTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.number = 1
                             consumption.addTarget(target => {
-                                target.type = "item"
+                                target.type = "itemUses"
                                 target.amount = 1
                             })
                         })
@@ -1008,6 +1010,7 @@ export const lichTestDef = {
             ],
             finalAssertions: async ({actor, assert}) =>
             {
+                const soulVesselId = actor.items.find(i => i.name === "Soul Vessel")._id
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.aEwUSvKYm17M9rRY"
@@ -1021,9 +1024,9 @@ export const lichTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
-                                target.type = "item"
+                                target.type = "itemUses"
                                 target.amount = 1
-                                target.target = "soul-vessel"
+                                target.target = soulVesselId
                             })
                         })
                         activity.range.type = "special"
@@ -1102,7 +1105,7 @@ export const lichTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
-                                target.type = "item"
+                                target.type = "itemUses"
                                 target.amount = 1
                             })
                         })
@@ -1199,7 +1202,7 @@ export const lichTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
-                                target.type = "item"
+                                target.type = "itemUses"
                                 target.value = -1
                                 target.target = "soul-vessel"
                             })
