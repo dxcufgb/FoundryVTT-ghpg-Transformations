@@ -22,19 +22,29 @@ export class ActivityValidationDTO
 
     constructor()
     {
+        this.id = null
         this.name = null
+        this.type = null
         this.abilityTypes = null
         this.activationType = null
         this.isConcentration = null
 
         this.saveAbility = null
         this.saveDc = null
+        this.saveDcFormula = null
 
         this.checkAbility = null
         this.checkDc = null
 
         this.spellUuid = null
         this.usesLeft = null
+        this.attackType = null
+        this.attackFlat = null
+        this.attackMode = null
+        this.attackRollPerTarget = null
+        this.macroName = null
+        this.triggeredActivityRollAs = null
+        this.damageIncludeBase = null
 
         this.damageParts = [] // DamagePartValidationDTO[]
         this.consumption = new ConsumptionValidationDTO()

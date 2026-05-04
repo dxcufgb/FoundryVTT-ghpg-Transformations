@@ -21,6 +21,11 @@ export class FlagDTOValidator extends BaseDTOValidator
                         { flags: ctx.effect.flags },
                         `flags.${e.path}`
                     )
+                } else if (ctx.item) {
+                    actual = getByPath(
+                        { flags: ctx.item.flags },
+                        `flags.${e.path}`
+                    )
                 }
                 return actual
 
@@ -30,10 +35,23 @@ export class FlagDTOValidator extends BaseDTOValidator
         not: resolve((ctx, expected) =>
         {
             return expected.map(path =>
-                getByPath(
-                    { flags: ctx.actor.flags },
-                    `flags.${path}`
-                )
+            {
+                if (ctx.actor) {
+                    return getByPath(
+                        { flags: ctx.actor.flags },
+                        `flags.${path}`
+                    )
+                }
+
+                if (ctx.item) {
+                    return getByPath(
+                        { flags: ctx.item.flags },
+                        `flags.${path}`
+                    )
+                }
+
+                return undefined
+            }
             )
         }).notIncludesAny()
     }

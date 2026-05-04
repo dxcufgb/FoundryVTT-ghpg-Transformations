@@ -179,7 +179,11 @@ export function createLocalTransformationMutationAdapter({
                 actor,
                 definition,
                 stage
-            })
+            }) ?? {
+                items: [],
+                creatureSubType: null,
+                transformationFlags: null
+            }
 
             const selectedChoices = normalizeSelectedChoices(choices)
             grants.items.push(
@@ -228,6 +232,13 @@ export function createLocalTransformationMutationAdapter({
 
                     if (grants.creatureSubType) {
                         await creatureTypeService.applyCreatureSubType(actor, grants.creatureSubType)
+                    }
+                    if (grants.transformationFlags) {
+                        await actorRepository.mergeTransformationScopedFlags(
+                            actor,
+                            definition.id,
+                            grants.transformationFlags
+                        )
                     }
                     logger.debug(`settings finishedStage flag to ${stage}`)
                     await actor.setFlag("transformations", "finishedStage", stage)

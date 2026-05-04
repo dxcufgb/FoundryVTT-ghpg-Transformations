@@ -1,9 +1,10 @@
+import { ConsumptionDTOValidator } from "../../DTOValidators/ConsumptionDTOValidator.js"
 import { ConsumptionTargetValidationDTO } from "../consumptionTarget/ConsumptionTargetValidationDTO.js"
 
 // @ts-check
 export class ConsumptionValidationDTO
 {
-    static validator = null
+    static validator = ConsumptionDTOValidator
 
     constructor ()
     {

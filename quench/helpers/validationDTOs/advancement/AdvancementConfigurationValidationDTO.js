@@ -11,7 +11,17 @@ export class AdvancementConfigurationValidationDTO
 
     constructor ()
     {
+        this.allowReplacements = null
+        this.cap = null
         this.items = null
+        this.fixed = null
+        this.grants = null
+        this.locked = null
+        this.max = null
+        this.mode = null
+        this.optional = null
+        this.points = null
+        this.recommendation = null
         this.choices = null
         defineLazyDTOProperty(
             this,

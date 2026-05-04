@@ -5,7 +5,9 @@ import { BaseDTOValidator } from "./BaseDTOValidator.js"
 export class RangeDTOValidator extends BaseDTOValidator
 {
     static rules = {
+        long: path("range.long").equals(),
         override: path("range.override").equals(),
+        reach: path("range.reach").equals(),
         scalar: path("range.scalar").equals(),
         special: path("range.special").equals(),
         units: path("range.units").equals(),
@@ -31,10 +33,26 @@ export class RangeDTOValidator extends BaseDTOValidator
             )
             : dtoOrRange
 
-        if (!range)
+        if (!range) {
+            if (!hasRangeExpectations(dto))
+                return true
+
             throw new Error(`[${this.path}] Missing range`)
+        }
 
         super.validate(this.buildValidationDTO(dto), { range })
         return true
     }
+}
+
+function hasRangeExpectations(dto)
+{
+    if (!dto || typeof dto !== "object")
+        return false
+
+    return Object.values(dto).some(value =>
+        value !== null &&
+        value !== undefined &&
+        (!Array.isArray(value) || value.length > 0)
+    )
 }

@@ -131,6 +131,32 @@ export class Transformation
         )
     }
 
+    static async onPreRollDamage({
+        actor,
+        item,
+        activity,
+        rolls = [],
+        workflow = null,
+        config = null,
+        dialog = null,
+        message = null,
+        logger
+    } = {})
+    {
+        this.logger?.debug?.(
+            "Transformation.onPreRollDamage",
+            actor,
+            item,
+            activity,
+            rolls,
+            workflow,
+            config,
+            dialog,
+            message,
+            logger
+        )
+    }
+
     static async onActivityUse(activity, usage, message) {
         this.logger?.debug?.("Transformation.onActivityUse", activity, usage, message)
     }

@@ -153,7 +153,7 @@ export const HagTestDef = {
                         activity.name = "Look at Reflection"
                         activity.activationType = "action"
                         activity.addConsumptionTarget(consumptionTarget => {
-                            consumptionTarget.type = "activity"
+                            consumptionTarget.type = "activityUses"
                             consumptionTarget.value = 1
                         })
                         activity.uses.addRecovery(recovery => {
@@ -404,7 +404,7 @@ export const HagTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
-                                target.type = "item"
+                                target.type = "itemUses"
                                 target.value = 1
                             })
                         })
@@ -510,7 +510,7 @@ export const HagTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
-                                target.type = "activity"
+                                target.type = "activityUses"
                                 target.value = 1
                             })
                         })
@@ -639,7 +639,7 @@ export const HagTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
-                                target.type = "activity"
+                                target.type = "activityUses"
                                 target.value = 1
                             })
                         })
@@ -738,7 +738,7 @@ export const HagTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
-                                target.type = "activity"
+                                target.type = "activityUses"
                                 target.value = 1
                             })
                         })
@@ -848,7 +848,7 @@ export const HagTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
-                                target.type = "activity"
+                                target.type = "activityUses"
                                 target.value = 1
                             })
                         })
@@ -1373,7 +1373,7 @@ export const HagTestDef = {
             await: async ({runtime, waiters, staticVars, actor}) =>
             {
                 const dialogSelector =
-                    ".transformations-spell-slot-recovery-dialog, .hag-spell-recovery"
+                          ".transformations-spell-slot-recovery-dialog, .hag-spell-recovery"
 
                 await waiters.waitForCondition(() =>
                     document.querySelector(dialogSelector) != null

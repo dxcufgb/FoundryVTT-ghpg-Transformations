@@ -670,7 +670,7 @@ export const AberrantHorrorTestDef = {
                 messageDto.flavors.values = ["Unstable Form Stage 4"]
 
                 const effectDto = new EffectValidationDTO()
-                effectDto.count = 1
+                effectDto.count = 2
                 effectDto.has = ["Aberrant Slow Speech"]
                 effectDto.withOrigin = {origin: "Unstable Form", expected: 1}
 
@@ -1955,7 +1955,7 @@ export const AberrantHorrorTestDef = {
             assertions: async ({actor, assert}) =>
             {
                 const actorEffectDto = new EffectValidationDTO()
-                actorEffectDto.name = "Aberrant Confusions"
+                actorEffectDto.name = "Aberrant Confusion"
                 actorEffectDto.count = 1
 
                 const actorDto = new ActorValidationDTO(actor)
@@ -2019,7 +2019,7 @@ export const AberrantHorrorTestDef = {
             assertions: async ({actor, assert}) =>
             {
                 const actorEffectDto = new EffectValidationDTO()
-                actorEffectDto.name = "Aberrant Confusions"
+                actorEffectDto.name = "Aberrant Confusion"
                 actorEffectDto.count = 1
 
                 const actorDto = new ActorValidationDTO(actor)
@@ -2190,14 +2190,8 @@ export const AberrantHorrorTestDef = {
             assertions: async ({actor, assert, validators}) =>
             {
                 const effectsDto = new EffectValidationDTO()
-                effectsDto.match = {
-                    expected: 2,
-                    matchMode: "and",
-                    filters: [
-                        {key: "name", value: "Chitinous Shell"},
-                        {key: "name", value: "Poisonous Mutations"}
-                    ]
-                }
+                effectsDto.count = 2
+                effectsDto.has.push("Chitinous Shell", "Damage Resistance: Poison")
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectsDto
                 validate(actorDto, {assert})
@@ -2249,14 +2243,8 @@ export const AberrantHorrorTestDef = {
             assertions: async ({actor, assert, validators}) =>
             {
                 const effectsDto = new EffectValidationDTO()
-                effectsDto.match = {
-                    expected: 2,
-                    matchMode: "and",
-                    filters: [
-                        {key: "name", value: "Eldritch Limbs"},
-                        {key: "name", value: "Poisonous Mutations"}
-                    ]
-                }
+                effectsDto.count = 2
+                effectsDto.has.push("Eldritch Limbs", "Damage Resistance: Poison")
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectsDto
                 validate(actorDto, {assert})
@@ -2308,14 +2296,8 @@ export const AberrantHorrorTestDef = {
             assertions: async ({actor, assert, validators}) =>
             {
                 const effectsDto = new EffectValidationDTO()
-                effectsDto.match = {
-                    expected: 2,
-                    matchMode: "and",
-                    filters: [
-                        {key: "name", value: "Slimy Form"},
-                        {key: "name", value: "Poisonous Mutations"}
-                    ]
-                }
+                effectsDto.count = 2
+                effectsDto.has.push("Slimy Form", "Damage Resistance: Poison")
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectsDto
                 validate(actorDto, {assert})
@@ -2368,8 +2350,8 @@ export const AberrantHorrorTestDef = {
             assertions: async ({actor, assert, validators}) =>
             {
                 const effectsDto = new EffectValidationDTO()
-                effectsDto.count = 1
-                effectsDto.has.push("Aberrant Confusion")
+                effectsDto.count = 2
+                effectsDto.has.push("Aberrant Confusion", "Damage Resistance: Poison")
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectsDto
                 validate(actorDto, {assert})
@@ -2423,8 +2405,8 @@ export const AberrantHorrorTestDef = {
             assertions: async ({actor, assert, validators}) =>
             {
                 const effectsDto = new EffectValidationDTO()
-                effectsDto.count = 1
-                effectsDto.has.push("Aberrant Confusion")
+                effectsDto.count = 2
+                effectsDto.has.push("Aberrant Confusion", "Damage Resistance: Poison")
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectsDto
                 validate(actorDto, {assert})
@@ -2489,8 +2471,8 @@ export const AberrantHorrorTestDef = {
             assertions: async ({actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
-                dto.effects.has.push("Aberrant Confusion")
-                dto.effects.count = 1
+                dto.effects.has.push("Aberrant Confusion", "Damage Resistance: Poison")
+                dto.effects.count = 2
                 validate(dto, {assert})
             }
         },
@@ -2552,8 +2534,8 @@ export const AberrantHorrorTestDef = {
             assertions: async ({actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
-                dto.effects.has.push("Aberrant Confusion")
-                dto.effects.count = 1
+                dto.effects.has.push("Aberrant Confusion", "Damage Resistance: Poison")
+                dto.effects.count = 2
                 validate(dto, {assert})
             }
         },
@@ -2614,8 +2596,8 @@ export const AberrantHorrorTestDef = {
             assertions: async ({actor, assert, validators}) =>
             {
                 const effectsDto = new EffectValidationDTO()
-                effectsDto.count = 1
-                effectsDto.has.push("Aberrant Slow Speech")
+                effectsDto.count = 2
+                effectsDto.has.push("Aberrant Slow Speech", "Damage Resistance: Poison")
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectsDto
                 validate(actorDto, {assert})

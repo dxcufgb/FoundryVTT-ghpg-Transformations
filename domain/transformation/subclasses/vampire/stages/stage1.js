@@ -1,30 +1,30 @@
 export const stage1 = {
-    name: "Vampire Stage 1",
     stage: 1,
     grants: {
         items: [
             {
-                name: "Vampire Stage 1 Base Feature",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.Zd5sRelguKUDcoAP"
             },
             {
-                name: "Vampire Stage 1 Blood Thirst",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.TreKDUe7BregxPRU"
             }
         ],
         actor: {
-            creatureSubType: "undead"
+            flags: {
+                maximumDaysPerFeed: 7
+            }
         }
     },
     choices: {
         items: [
             {
-                name: "Vampire Stage 1 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.HjL4gLx90PsSkSK7"
             },
             {
-                name: "Vampire Stage 1 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.JwXmICxuswhNaTxu"
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.1WKmzJQpwJ3MO0uc"
             }
         ]
     }

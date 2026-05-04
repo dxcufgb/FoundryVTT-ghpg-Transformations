@@ -113,6 +113,56 @@ export function createActorRepository({
         )
     }
 
+    async function mergeTransformationScopedFlags(actor, transformationId, flags)
+    {
+        logger.debug("createActorRepository.mergeTransformationScopedFlags", {
+            actor,
+            transformationId,
+            flags
+        })
+        if (
+            !actor ||
+            !transformationId ||
+            !flags ||
+            typeof flags !== "object" ||
+            Array.isArray(flags)
+        ) {
+            return
+        }
+
+        return tracker.track(
+            (async () =>
+            {
+                const existingFlags =
+                    actor.getFlag("transformations", transformationId)
+                const currentFlags =
+                    existingFlags &&
+                    typeof existingFlags === "object" &&
+                    !Array.isArray(existingFlags)
+                        ? existingFlags
+                        : {}
+                const nextFlags = foundry.utils.mergeObject(
+                    foundry.utils.deepClone(currentFlags),
+                    flags,
+                    {
+                        inplace: false,
+                        insertKeys: true,
+                        insertValues: true,
+                        overwrite: true,
+                        recursive: true
+                    }
+                )
+
+                debouncedTracker.pulse("applyTransformationFlags")
+                await actor.setFlag(
+                    "transformations",
+                    transformationId,
+                    nextFlags
+                )
+            })()
+        )
+    }
+
     function getCreatureTypeFlags(actor)
     {
         logger.debug("createActorRepository.getCreatureTypeFlags", {actor})
@@ -573,6 +623,7 @@ export function createActorRepository({
         clearCreatureTypeFlags,
         clearTransformation,
         setTransformationStage,
+        mergeTransformationScopedFlags,
 
         hasMacroExecution,
         setMacroExecution,

@@ -851,6 +851,20 @@ export function registerDnd5eHooks({
             await func?.(workflow, rolls)
         }
 
+        await transformation?.TransformationClass?.onPreRollDamage?.({
+            actor,
+            item,
+            activity,
+            rolls,
+            workflow,
+            config,
+            dialog,
+            message,
+            actorRepository,
+            itemRepository,
+            logger
+        })
+
         await triggerRuntime.run("preRollDamage", actor, {
             ...triggerContext
         })

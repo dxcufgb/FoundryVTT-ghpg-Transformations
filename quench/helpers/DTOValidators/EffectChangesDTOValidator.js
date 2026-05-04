@@ -5,7 +5,7 @@ export class EffectChangesDTOValidator extends BaseDTOValidator
 {
     static rules = {
         count: resolve(ctx => getChanges(ctx)).count().equals(),
-        changes: resolve(ctx => getChanges(ctx)).equalsArray()
+        changes: resolve(ctx => getChanges(ctx)).deepEquals()
     }
 }
 

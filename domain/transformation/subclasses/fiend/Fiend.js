@@ -126,6 +126,7 @@ export class Fiend extends Transformation {
         if (!itemEffect) return
 
         const description = String(itemEffect.description ?? "")
+        .trim()
         .replaceAll("{immunityType}", immunityType)
         .replaceAll("{resistanceTypes}", resistanceTypes.join(", "))
 

@@ -5,6 +5,7 @@ import { ActivityValidationDTO } from "../activity/ActivityValidationDTO.js"
 import { AdvancementValidationDTO } from "../advancement/AdvancementValidationDTO.js"
 import { DamagePartValidationDTO } from "../damagePart/DamagePartValidationDTO.js"
 import { EffectValidationDTO } from "../effect/EffectValidationDTO.js"
+import { FlagValidationDTO } from "../flag/FlagValidationDTO.js"
 import { RangeValidationDTO } from "../range/RangeValidationDTO.js"
 
 // @ts-check
@@ -16,17 +17,26 @@ export class ItemValidationDTO
     {
         this.itemName = null
         this.expectedItemUuids = []
+        this.img = null
+        this.identifier = null
+        this.descriptionIncludes = null
+        this.descriptionChatIncludes = null
 
         this.type = null
         this.activationType = null
+        this.equipped = null
+        this.proficient = null
+        this.propertiesIncludes = null
         this.usesLeft = null
         this.uses = new ItemUsesValidationDTO()
 
+        this.numberOfAdvancements = null
         this.numberOfActivities = null
         this.damageParts = {}
         this.activities = [] // ActivityValidationDTO[]
         this.effects = []    // EffectValidationDTO[]
         this.advancements = []
+        this.flags = new FlagValidationDTO()
 
         defineLazyDTOProperty(this, "range", () => new RangeValidationDTO())
     }

@@ -72,7 +72,7 @@ export const oozeTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.numberOfConsumptions = 1
                             consumption.addTarget(target => {
-                                target.type = "activity"
+                                target.type = "activityUses"
                                 target.value = 1
                             })
                         })

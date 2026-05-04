@@ -9,12 +9,26 @@ import { SummonDTOValidator } from "./SummonDTOValidator.js"
 export class ActivityDTOValidator extends BaseDTOValidator
 {
     static rules = {
-
+        id: resolve(ctx =>
+            ctx.activity?.id ??
+            ctx.activity?._id ??
+            null
+        ).equals(),
+        type: path("activity.type").equals(),
         activationType: path("activity.activation.type").equals(),
         saveDc: path("activity.save.dc.value").equals(),
+        saveDcFormula: path("activity.save.dc.formula").equals(),
         checkDc: path("activity.check.dc.value").equals(),
         spellUuid: path("activity.spell.uuid").equals(),
         attackBonus: path("activity.attack.bonus").equals(),
+        attackType: path("activity.attack.type.value").equals(),
+        attackFlat: path("activity.attack.flat").equals(),
+        attackMode: path("activity.attackMode").equals(),
+        attackRollPerTarget: path("activity.attackRollPerTarget").equals(),
+        macroName: path("activity.macroData.name").equals(),
+        triggeredActivityRollAs:
+            path("activity.midiProperties.triggeredActivityRollAs").equals(),
+        damageIncludeBase: path("activity.damage.includeBase").equals(),
         usesLeft: resolve(ctx =>
         {
             const uses = ctx.activity?.uses
@@ -109,16 +123,13 @@ export class ActivityDTOValidator extends BaseDTOValidator
                 `[${this.path}.effects[${index}]] Effect not found`
             )
 
-            const effectContext = {
-                effectObject: effect,
-                effectType: "activity"
-            }
+            const effectDocument = effect?.effect ?? effect
 
             new EffectDTOValidator({
                 assert: this.assert,
                 path: `${this.path}.effects[${index}]`,
                 strict: this.strict
-            }).validate(effectContext, effectDTO)
+            }).validate(effectDocument, effectDTO)
         })
     }
 

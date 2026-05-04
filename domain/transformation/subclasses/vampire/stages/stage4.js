@@ -1,23 +1,46 @@
 export const stage4 = {
-    name: "Vampire Stage 4",
     stage: 4,
     grants: {
         items: [
             {
-                name: "Vampire Stage 4 Base Feature",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.xhjdYqMyYbPOLGKc"
             }
-        ]
+        ],
+        actor: {
+            flags: {
+                maximumDaysPerFeed: 1
+            }
+        }
     },
     choices: {
+        count: 2,
         items: [
             {
-                name: "Vampire Stage 4 Choice A",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.v002gdymkyOVGowv",
+                requires: {
+                    items: [
+                        "Compendium.transformations.gh-transformations.Item.JwXmICxuswhNaTxu"
+                    ]
+                }
             },
             {
-                name: "Vampire Stage 4 Choice B",
-                uuid: ""
+                uuid: "Compendium.transformations.gh-transformations.Item.jLyYcsZUVMYntiTI",
+                requires: {
+                    items: [
+                        "Compendium.transformations.gh-transformations.Item.1WKmzJQpwJ3MO0uc"
+                    ]
+                }
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.ZGlWZUaFfDrupEaq",
+                requires: {
+                    items: [
+                        "Compendium.transformations.gh-transformations.Item.HjL4gLx90PsSkSK7"
+                    ]
+                }
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.TKHTXSYMDDTYBVWW"
             }
         ]
     }

@@ -7,7 +7,9 @@ export class RangeValidationDTO
 
     constructor ()
     {
+        this.long = null
         this.override = null
+        this.reach = null
         this.scalar = null
         this.special = null
         this.units = null

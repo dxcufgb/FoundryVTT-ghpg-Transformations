@@ -345,6 +345,125 @@ quench.registerBatch(
                 expect(calls.createdEffects).to.have.length(0)
             })
 
+            it("skips the ability-score dialog when all abilities are locked and applies fixed increases", async function ()
+            {
+                const actor = createActor({}, {}, {}, {
+                    str: 10,
+                    dex: 10,
+                    con: 10,
+                    int: 10,
+                    wis: 10,
+                    cha: 10
+                })
+                const sourceItem = {
+                    img: "asi.png",
+                    name: "Locked Training",
+                    uuid: "Compendium.transformations.gh-transformations.Item.locked-training"
+                }
+                const {calls, handler} = createHandler()
+
+                const result = await handler.chooseAbilityScoreAdvancement({
+                    actor,
+                    advancementConfiguration: {
+                        cap: 1,
+                        fixed: {
+                            str: 1,
+                            dex: 1
+                        },
+                        locked: ["str", "dex", "con", "int", "wis", "cha"],
+                        max: 20,
+                        points: 0
+                    },
+                    sourceItem,
+                    triggeringUserId: "user-1"
+                })
+
+                expect(result).to.equal(true)
+                expect(calls.abilityScoreDialog).to.have.length(0)
+                expect(calls.createdEffects).to.have.length(1)
+                expect(calls.createdEffects[0]).to.deep.equal({
+                    actor,
+                    name: "Ability Score Increase: Strength, Dexterity",
+                    description: "Set ability scores to Strength 11, Dexterity 11.",
+                    source: "transformation",
+                    icon: "asi.png",
+                    origin:
+                        "Compendium.transformations.gh-transformations.Item.locked-training",
+                    changes: [
+                        {
+                            key: "system.abilities.str.value",
+                            mode: UPGRADE_MODE,
+                            value: 11
+                        },
+                        {
+                            key: "system.abilities.dex.value",
+                            mode: UPGRADE_MODE,
+                            value: 11
+                        }
+                    ],
+                    flags: {
+                        dnd5e: {
+                            hidden: true
+                        },
+                        transformations: {
+                            advancementChoiceType: "abilityScore",
+                            advancementChoiceSelection: {
+                                str: 11,
+                                dex: 11
+                            }
+                        }
+                    }
+                })
+            })
+
+            it("applies fully locked ability-score advancements without requiring a dialog factory", async function ()
+            {
+                const calls = {
+                    createdEffects: []
+                }
+                const handler = createAdvancementChoiceHandler({
+                    activeEffectRepository: {
+                        async create(effectData)
+                        {
+                            calls.createdEffects.push(effectData)
+                            return {id: "effect-locked"}
+                        }
+                    },
+                    getDialogFactory: () => null,
+                    logger: createLogger()
+                })
+
+                const result = await handler.chooseAbilityScoreAdvancement({
+                    actor: createActor({}, {}, {}, {
+                        str: 15
+                    }),
+                    advancementConfiguration: {
+                        cap: 1,
+                        fixed: {
+                            str: 1
+                        },
+                        locked: ["str", "dex", "con", "int", "wis", "cha"],
+                        max: 20,
+                        points: 0
+                    },
+                    sourceItem: {
+                        name: "Locked Strength Training",
+                        uuid:
+                            "Compendium.transformations.gh-transformations.Item.locked-strength-training"
+                    }
+                })
+
+                expect(result).to.equal(true)
+                expect(calls.createdEffects).to.have.length(1)
+                expect(calls.createdEffects[0].changes).to.deep.equal([
+                    {
+                        key: "system.abilities.str.value",
+                        mode: UPGRADE_MODE,
+                        value: 16
+                    }
+                ])
+            })
+
             it("normalizes invalid ability-score dialog values against lock, cap, max, and point rules", async function ()
             {
                 const actor = createActor({}, {}, {}, {

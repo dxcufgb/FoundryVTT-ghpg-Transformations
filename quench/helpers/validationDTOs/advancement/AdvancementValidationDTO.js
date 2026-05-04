@@ -8,6 +8,7 @@ export class AdvancementValidationDTO
 
     constructor ()
     {
+        this.type = null
         this.configurations = []
     }
 

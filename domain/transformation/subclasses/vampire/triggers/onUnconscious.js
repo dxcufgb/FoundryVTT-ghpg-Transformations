@@ -1,10 +1,10 @@
 import { createTrueAppearanceSaveActionGroup } from "./trueAppearanceTriggerCommon.js"
 
-export const onConcentration = {
-    name: "concentration",
+export const onUnconscious = {
+    name: "unconscious",
     actionGroups: [
         createTrueAppearanceSaveActionGroup({
-            name: "true-appearance-concentration-save"
+            name: "true-appearance-unconscious-save"
         })
     ]
 }

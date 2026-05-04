@@ -72,7 +72,8 @@ export class RollTableEffect
         if (this.runActiveEffect) {
             await this.activeEffectRepository.create({
                 actor: this.actor,
-                name: this.stringUtils.humanizeClassName(this.constructor.name),
+                name: this.meta?.name ??
+                    this.stringUtils.humanizeClassName(this.constructor.name),
                 description: this.description,
                 icon: this.getIconPath(),
                 changes: this.effects,
