@@ -161,6 +161,8 @@ export function createItemRepository({
             sourceItem,
             createdItem
         })
+
+        await sanitizeCreatedItemDescriptions(createdItem)
     }
 
     async function addItemAttachedToActiveEffect({actor, itemToCreate, parentEffect}) {
@@ -878,8 +880,14 @@ export function createItemRepository({
                     foundry.utils.setProperty(data, path, value)
                 }
 
+                trimDescriptionStrings(data)
+
                 debouncedTracker.pulse("createEmbeddedDocuments")
                 const [created] = await actor.createEmbeddedDocuments("Item", [data])
+
+                if (created) {
+                    await sanitizeCreatedItemDescriptions(created)
+                }
 
                 if (
                     created &&
@@ -894,6 +902,10 @@ export function createItemRepository({
                         created,
                         triggeringUserId
                     )
+                }
+
+                if (created) {
+                    await sanitizeCreatedItemDescriptions(created)
                 }
 
                 return created ?? null
@@ -933,5 +945,146 @@ export function createItemRepository({
         }
 
         return Array.from(collected.values())
+    }
+
+    function trimDescriptionStrings(value)
+    {
+        if (Array.isArray(value)) {
+            for (const entry of value) {
+                trimDescriptionStrings(entry)
+            }
+
+            return value
+        }
+
+        if (!value || typeof value !== "object") {
+            return value
+        }
+
+        if (typeof value.description === "string") {
+            value.description = value.description.trim()
+        } else if (value.description && typeof value.description === "object") {
+            trimDescriptionObject(value.description)
+        }
+
+        if (value.system?.description && typeof value.system.description === "object") {
+            trimDescriptionObject(value.system.description)
+        } else if (typeof value.system?.description === "string") {
+            value.system.description = value.system.description.trim()
+        }
+
+        for (const entry of Object.values(value)) {
+            trimDescriptionStrings(entry)
+        }
+
+        return value
+    }
+
+    function trimDescriptionObject(description)
+    {
+        for (const key of ["value", "chat", "unidentified"]) {
+            if (typeof description?.[key] === "string") {
+                description[key] = description[key].trim()
+            }
+        }
+
+        return description
+    }
+
+    async function sanitizeCreatedItemDescriptions(item)
+    {
+        if (!item) return
+
+        await trimDocumentDescription(item)
+
+        for (const effect of resolveCollection(item.effects)) {
+            await trimDocumentDescription(effect)
+        }
+
+        for (const activity of resolveCollection(item.system?.activities)) {
+            for (const activityEffect of resolveCollection(activity?.effects)) {
+                const effectDocument =
+                    activityEffect?.effect ??
+                    activityEffect?.effectObject?.effect ??
+                    activityEffect?.effectObject ??
+                    activityEffect
+
+                await trimDocumentDescription(effectDocument)
+            }
+        }
+    }
+
+    async function trimDocumentDescription(document)
+    {
+        const update = buildTrimmedDescriptionUpdate(document)
+        if (!update) return
+
+        if (typeof document?.update === "function") {
+            await document.update(update)
+            return
+        }
+
+        for (const [path, value] of Object.entries(update)) {
+            foundry.utils.setProperty(document, path, value)
+        }
+    }
+
+    function buildTrimmedDescriptionUpdate(document)
+    {
+        if (!document || typeof document !== "object") {
+            return null
+        }
+
+        if (typeof document.description === "string") {
+            const trimmed = document.description.trim()
+            if (trimmed !== document.description) {
+                return {
+                    description: trimmed
+                }
+            }
+        }
+
+        if (typeof document.system?.description?.value === "string") {
+            const trimmed = document.system.description.value.trim()
+            if (trimmed !== document.system.description.value) {
+                return {
+                    "system.description.value": trimmed
+                }
+            }
+        }
+
+        if (typeof document.system?.description === "string") {
+            const trimmed = document.system.description.trim()
+            if (trimmed !== document.system.description) {
+                return {
+                    "system.description": trimmed
+                }
+            }
+        }
+
+        return null
+    }
+
+    function resolveCollection(collection)
+    {
+        if (!collection) return []
+
+        if (Array.isArray(collection)) {
+            return collection
+        }
+
+        if (Array.isArray(collection.contents)) {
+            return collection.contents
+        }
+
+        if (typeof collection.values === "function") {
+            return Array.from(collection.values())
+        }
+
+        if (typeof collection[Symbol.iterator] === "function") {
+            return Array.from(collection)
+        }
+
+        return Object.values(collection).filter(Boolean)
     }
 }

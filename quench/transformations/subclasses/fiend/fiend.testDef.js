@@ -813,7 +813,7 @@ export const fiendTestDef = {
                         activity.saveDc = (8 + actorProf + 2)
                         activity.addEffect(effect => {
                             effect.name = "Daemonic Brand Saving Throw Penalty"
-                            effect.description = "The creature takes a –2 penalty on all saving throws."
+                            effect.description = "The creature takes a -2 penalty on all saving throws."
                             effect.duration.duration = 60
                             effect.duration.rounds = 10
                             effect.duration.seconds = 60
@@ -2407,7 +2407,7 @@ export const fiendTestDef = {
             {
                 const actorDto = new ActorValidationDTO(actor)
                 const effectDto = new EffectValidationDTO()
-                effectDto.count = 1
+                effectDto.count = 2
                 effectDto.has.push("Hiding Fiend Appearance")
 
                 actorDto.effects = effectDto
@@ -2468,7 +2468,7 @@ export const fiendTestDef = {
 
                 const actorDto = new ActorValidationDTO(actor)
                 const effectDto = new EffectValidationDTO()
-                effectDto.count = 1
+                effectDto.count = 2
                 effectDto.has.push("Hiding Fiend Appearance")
 
                 actorDto.effects = effectDto
@@ -2529,7 +2529,7 @@ export const fiendTestDef = {
 
                 const actorDto = new ActorValidationDTO(actor)
                 const effectDto = new EffectValidationDTO()
-                effectDto.count = 0
+                effectDto.count = 1
                 effectDto.notHas.push("Hiding Fiend Appearance")
 
                 actorDto.effects = effectDto
@@ -2590,7 +2590,7 @@ export const fiendTestDef = {
 
                 const actorDto = new ActorValidationDTO(actor)
                 const effectDto = new EffectValidationDTO()
-                effectDto.count = 1
+                effectDto.count = 2
                 effectDto.has.push("Hiding Fiend Appearance")
 
                 actorDto.effects = effectDto
@@ -2651,7 +2651,7 @@ export const fiendTestDef = {
 
                 const actorDto = new ActorValidationDTO(actor)
                 const effectDto = new EffectValidationDTO()
-                effectDto.count = 0
+                effectDto.count = 1
                 effectDto.notHas.push("Hiding Fiend Appearance")
 
                 actorDto.effects = effectDto
@@ -2712,7 +2712,7 @@ export const fiendTestDef = {
 
                 const actorDto = new ActorValidationDTO(actor)
                 const effectDto = new EffectValidationDTO()
-                effectDto.count = 1
+                effectDto.count = 2
                 effectDto.has.push("Hiding Fiend Appearance")
 
                 actorDto.effects = effectDto
@@ -2773,7 +2773,7 @@ export const fiendTestDef = {
 
                 const actorDto = new ActorValidationDTO(actor)
                 const effectDto = new EffectValidationDTO()
-                effectDto.count = 0
+                effectDto.count = 1
                 effectDto.notHas.push("Hiding Fiend Appearance")
 
                 actorDto.effects = effectDto

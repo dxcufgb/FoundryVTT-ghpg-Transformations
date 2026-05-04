@@ -123,16 +123,13 @@ export class ActivityDTOValidator extends BaseDTOValidator
                 `[${this.path}.effects[${index}]] Effect not found`
             )
 
-            const effectContext = {
-                effectObject: effect,
-                effectType: "activity"
-            }
+            const effectDocument = effect?.effect ?? effect
 
             new EffectDTOValidator({
                 assert: this.assert,
                 path: `${this.path}.effects[${index}]`,
                 strict: this.strict
-            }).validate(effectContext, effectDTO)
+            }).validate(effectDocument, effectDTO)
         })
     }
 

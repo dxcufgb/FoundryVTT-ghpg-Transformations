@@ -307,6 +307,54 @@ quench.registerBatch(
     {
         describe("createItemRepository", function ()
         {
+            it("trims leading and trailing whitespace from cloned item descriptions", async function ()
+            {
+                const actor = createActor()
+                const restoreFoundry = installFoundryUtils()
+                const {repository} = createRepository()
+
+                try {
+                    const createdItem = await repository.createObjectOnActor(actor, {
+                        uuid: "Item.whitespace-source",
+                        name: "Whitespace Source",
+                        type: "feat",
+                        system: {
+                            description: {
+                                value: "\n  <p>Item description.</p>\n"
+                            },
+                            activities: {
+                                contents: [{
+                                    name: "Whitespace Activity",
+                                    effects: [{
+                                        effect: {
+                                            name: "Activity Effect",
+                                            description: "\n  Activity effect description.\n"
+                                        }
+                                    }]
+                                }]
+                            }
+                        },
+                        effects: [{
+                            name: "Item Effect",
+                            description: "\n  Item effect description.\n"
+                        }]
+                    }, "", {
+                        applyAdvancements: false
+                    })
+
+                    expect(createdItem.system.description.value)
+                    .to.equal("<p>Item description.</p>")
+                    expect(createdItem.effects[0].description)
+                    .to.equal("Item effect description.")
+                    expect(
+                        createdItem.system.activities.contents[0].effects[0].effect.description
+                    )
+                    .to.equal("Activity effect description.")
+                } finally {
+                    restoreFoundry()
+                }
+            })
+
             it("applies spell advancement parameters to directly granted items", async function ()
             {
                 const actor = createActor()

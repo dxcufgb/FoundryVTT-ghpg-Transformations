@@ -432,6 +432,7 @@ export const lichTestDef = {
             ],
             finalAssertions: async ({actor, assert}) =>
             {
+                const soulVessel = getSoulVessel(actor)
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.II56xBIJkjB5OoLV",
@@ -520,7 +521,7 @@ export const lichTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
-                                target.target = "sould-vessel"
+                                target.target = soulVessel._id
                                 target.type = "itemUses"
                                 target.value = 1
                             })
@@ -532,7 +533,7 @@ export const lichTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
-                                target.target = "sould-vessel"
+                                target.target = soulVessel._id
                                 target.type = "itemUses"
                                 target.value = 1
                             })
@@ -553,7 +554,7 @@ export const lichTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
-                                target.target = "sould-vessel"
+                                target.target = soulVessel._id
                                 target.type = "itemUses"
                                 target.value = 1
                             })
@@ -567,7 +568,7 @@ export const lichTestDef = {
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
-                                target.target = "sould-vessel"
+                                target.target = soulVessel._id
                                 target.type = "itemUses"
                                 target.value = 1
                             })
@@ -770,7 +771,7 @@ export const lichTestDef = {
                         activity.saveDc = 14
                         activity.addEffect(effect => {
                             effect.name = "Binding Curse"
-                            effect.description = "This creature cannot move more than 30 feet away from the lich which cast the curse.Whenever the Lich attacks this creature, weapon attacks and unarmed strikes deals an additional 2d6 Necrotic damage"
+                            effect.description = "This creature cannot move more than 30 feet away from the lich which cast the curse. Whenever the Lich attacks this creature, weapon attacks and unarmed strikes deals an additional 2d6 Necrotic damage"
                         })
                     })
                     item.addActivity(activity => {
@@ -1180,6 +1181,7 @@ export const lichTestDef = {
             ],
             finalAssertions: async ({actor, assert}) =>
             {
+                const soulVessel = getSoulVessel(actor)
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.hPjZU5QFb77o2dMP",
@@ -1204,7 +1206,7 @@ export const lichTestDef = {
                             consumption.addTarget(target => {
                                 target.type = "itemUses"
                                 target.value = -1
-                                target.target = "soul-vessel"
+                                target.target = soulVessel._id
                             })
                         })
                     })

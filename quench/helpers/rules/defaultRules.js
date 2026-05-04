@@ -332,11 +332,40 @@ RuleRegistry.register("partialDeepMatch", ({ actual, expected, path }) =>
 
 function normalizeComparableText(value)
 {
-    if (typeof value !== "string") {
+    if (value === null || value === undefined) {
         return value
     }
 
-    return value
+    if (typeof value === "string") {
+        return value
+            .replace(/\s+/gu, " ")
+            .trim()
+    }
+
+    if (Array.isArray(value)) {
+        return normalizeComparableText(value.join(" "))
+    }
+
+    if (typeof value === "object") {
+        if (typeof value.value === "string") {
+            return normalizeComparableText(value.value)
+        }
+
+        if (typeof value.text === "string") {
+            return normalizeComparableText(value.text)
+        }
+
+        const stringValue = value.toString?.()
+
+        if (
+            typeof stringValue === "string" &&
+            stringValue !== "[object Object]"
+        ) {
+            return normalizeComparableText(stringValue)
+        }
+    }
+
+    return String(value)
         .replace(/\s+/gu, " ")
         .trim()
 }

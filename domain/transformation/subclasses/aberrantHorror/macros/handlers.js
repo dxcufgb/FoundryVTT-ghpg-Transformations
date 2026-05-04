@@ -190,9 +190,19 @@ export function createAberrantHorrorMacroHandlers({
         if (currentActorStage < 4) return
         const poisonousMutationsItem = await itemRepository.findEmbeddedByUuidFlag(actor, aberrantMutationConstants.items.poisonousMutations)
         if (!poisonousMutationsItem) return
-        const poisonousMutations = await activeEffectRepository.findByName(actor, "poisonous Mutations")
-        if (poisonousMutations) return
         const poisonousMutationsEffect = poisonousMutationsItem.effects.contents.find(e => e.name == "Poisonous Mutations")
+        if (!poisonousMutationsEffect) return
+
+        if (
+            poisonousMutationsEffect.transfer === true ||
+            activeEffectRepository.hasByName(
+                actor,
+                aberrantMutationConstants.effects.poisonousMutations
+            )
+        ) {
+            return
+        }
+
         await activeEffectRepository.create({
             actor,
             name: poisonousMutationsEffect.name,
@@ -207,7 +217,7 @@ export const aberrantMutationConstants = Object.freeze({
         chitinousShell: "Chitinous Shell",
         slimyForm: "Slimy Form",
         eldritchLimbs: "Eldritch Limbs",
-        poisonousMutations: "Poisonous, Mutations"
+        poisonousMutations: "Poisonous Mutations"
     },
     items: {
         eldritchLimbs: {

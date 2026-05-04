@@ -1227,7 +1227,7 @@ export const feyTestDef = {
             assertions: async ({actor, assert, helpers, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
-                actorDto.effects.count = 1
+                actorDto.effects.count = 0
                 actorDto.addItem(item =>
                 {
                     item.itemName = "Queen's Command"

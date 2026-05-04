@@ -11,6 +11,7 @@ export class ActorStatsDTOValidator extends BaseDTOValidator
         movementBonus: path("actor.system.attributes.movement.bonus").equals(),
         darkvision: path("actor.system.attributes.senses.darkvision").equals(),
         resistances: path("actor.system.traits.dr.value").equalsArray(),
+        resistanceBypasses: path("actor.system.traits.dr.bypasses").equalsArray(),
         immunities: path("actor.system.traits.di.value").equalsArray(),
         vulnerabilities: path("actor.system.traits.dv.value").equalsArray(),
         deathSaveDelta: resolve(ctx =>
@@ -43,7 +44,7 @@ export class ActorStatsDTOValidator extends BaseDTOValidator
 
         //     // structured validations
         //     this.validateHp(actor, dto.hp)
-        //     this.validateMovementSpeed(actor, dto.movementSpeed)
+        this.validateMovementSpeed(actor, dto.movementSpeed)
 
         return true
     }
@@ -73,17 +74,17 @@ export class ActorStatsDTOValidator extends BaseDTOValidator
     // // MOVEMENT SPEED
     // // ------------------------------------------------
 
-    // validateMovementSpeed(actor, movementSpeed)
-    // {
-    //     if (!movementSpeed) return
+    validateMovementSpeed(actor, movementSpeed)
+    {
+        if (!movementSpeed) return
 
-    //     const actual =
-    //         actor.system?.attributes?.movement?.[movementSpeed.type]
+        const actual =
+            actor.system?.attributes?.movement?.[movementSpeed.type]
 
-    //     this.assert.equal(
-    //         actual,
-    //         movementSpeed.value,
-    //         `[${this.path}.movementSpeed] Expected ${movementSpeed.value} but got ${actual}`
-    //     )
-    // }
+        this.assert.equal(
+            actual,
+            movementSpeed.value,
+            `[${this.path}.movementSpeed] Expected ${movementSpeed.value} but got ${actual}`
+        )
+    }
 }

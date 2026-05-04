@@ -1,18 +1,19 @@
 import { Transformation } from "../../Transformation.js"
 import { SangromancySpecialistEnhanceCantripDamage } from "./activities/SangromancySpecialistEnhanceCantripDamage.js"
-import {
-    TRUE_APPEARANCE_EFFECT_NAME,
-    TRUE_APPEARANCE_MANUAL_REVEAL_ACTIVITY_NAMES,
-    TRUE_APPEARANCE_REVEAL_TRIGGER_TYPES,
-    TRUE_APPEARANCE_SAVE_ACTIVITY_NAME,
-    TRUE_APPEARANCE_SAVE_ITEM_UUID,
-    getTrueAppearanceSaveDcForStage
-} from "./triggers/trueAppearanceTriggerCommon.js"
+import { getTrueAppearanceSaveDcForStage, TRUE_APPEARANCE_EFFECT_NAME, TRUE_APPEARANCE_MANUAL_REVEAL_ACTIVITY_NAMES, TRUE_APPEARANCE_REVEAL_TRIGGER_TYPES, TRUE_APPEARANCE_SAVE_ACTIVITY_NAME, TRUE_APPEARANCE_SAVE_ITEM_UUID } from "./triggers/trueAppearanceTriggerCommon.js"
 
 const FANGED_BITE_UUID =
           "Compendium.transformations.gh-transformations.Item.TreKDUe7BregxPRU"
+const FZEG_CLAW_UUID =
+          "Compendium.transformations.gh-transformations.Item.0ZgPuhqfVv3Nk0x4"
 const STRIGOI_BLOODLINE_UUID =
           "Compendium.transformations.gh-transformations.Item.HjL4gLx90PsSkSK7"
+const SOMAN_BLOODLINE_UUID =
+          "Compendium.transformations.gh-transformations.Item.JwXmICxuswhNaTxu"
+const FANGED_BITE_NECROTIC_SAVE_3D8_OVERRIDE_UUID =
+          "Compendium.transformations.gh-transformations.Item.v002gdymkyOVGowv"
+const FZEG_CLAW_MIDI_ATTACK_3D6_OVERRIDE_UUID =
+          "Compendium.transformations.gh-transformations.Item.jLyYcsZUVMYntiTI"
 const SANGROMANCY_ITEM_UUID =
           "Compendium.transformations.gh-transformations.Item.qmepd5HkL0LpxOJv"
 const SANGROMANCY_HIT_DIE_FORMULA = "1d12"
@@ -21,8 +22,14 @@ const SANGROMANCY_FLAG_SCOPE = "transformations"
 const SANGROMANCY_FLAG_KEY = "vampire.sangromancyHitDieMax"
 const FANGED_BITE_MIDI_ATTACK_ACTIVITY_ID = "ddjFKkSGslAQQjB4"
 const FANGED_BITE_MIDI_ATTACK_ACTIVITY_NAME = "Midi Attack"
+const FANGED_BITE_NECROTIC_SAVE_ACTIVITY_NAME = "Necrotic Save"
+const FZEG_CLAW_MIDI_ATTACK_ACTIVITY_NAME = "Midi Attack"
 const FANGED_BITE_STRIGOI_DAMAGE_FORMULA = "2d4"
 const FANGED_BITE_BASE_DAMAGE_FORMULA = "1d6"
+const FANGED_BITE_NECROTIC_SAVE_SOMAN_DAMAGE_FORMULA = "1d8"
+const FANGED_BITE_NECROTIC_SAVE_3D8_OVERRIDE_FORMULA = "3d8"
+const FZEG_CLAW_BASE_DAMAGE_FORMULA = "1d8"
+const FZEG_CLAW_MIDI_ATTACK_3D6_OVERRIDE_FORMULA = "3d6"
 const TRUE_APPEARANCE_SAVE_FLAG_KEY = "saveItemUuid"
 const TRUE_APPEARANCE_MANUAL_REVEAL_ACTIVITY_NAMES_NORMALIZED =
           new Set(
@@ -204,6 +211,35 @@ export class Vampire extends Transformation
         const actorKey = this.resolveActorKey(actor)
         if (!actorKey) return
 
+        if (this.isFangedBiteNecroticSaveDamageContext({
+            item,
+            activity,
+            workflow,
+            config
+        }))
+        {
+            const damageFormula =
+                      this.resolveFangedBiteNecroticSaveDamageFormula(actor)
+
+            if (!damageFormula) {
+                return
+            }
+
+            this.upgradeFangedBiteNecroticSaveDamageRolls(rolls, damageFormula)
+            return
+        }
+
+        if (this.shouldUpgradeFzegClawMidiAttackDamage({
+            actor,
+            item,
+            activity,
+            workflow,
+            config
+        })) {
+            this.upgradeFzegClawMidiAttackDamageRolls(rolls)
+            return
+        }
+
         if (!this.isFangedBiteMidiAttack({item, activity})) {
             return
         }
@@ -252,7 +288,8 @@ export class Vampire extends Transformation
         if (
             message?.flags?.transformations?.vampireActivity ===
             SangromancySpecialistEnhanceCantripDamage.id
-        ) {
+        )
+        {
             SangromancySpecialistEnhanceCantripDamage.bind({
                 actor,
                 message,
@@ -292,7 +329,8 @@ export class Vampire extends Transformation
                 activity,
                 usage
             })
-        ) {
+        )
+        {
             return
         }
 
@@ -322,7 +360,8 @@ export class Vampire extends Transformation
             target,
             damage,
             details
-        })) {
+        }))
+        {
             return
         }
 
@@ -488,6 +527,36 @@ export class Vampire extends Transformation
             this.hasDamageContextAdvantage({workflow, config})
     }
 
+    static resolveFangedBiteNecroticSaveDamageFormula(actor)
+    {
+        if (!this.actorHasItem(actor, SOMAN_BLOODLINE_UUID)) {
+            return null
+        }
+
+        if (this.actorHasItem(actor, FANGED_BITE_NECROTIC_SAVE_3D8_OVERRIDE_UUID)) {
+            return FANGED_BITE_NECROTIC_SAVE_3D8_OVERRIDE_FORMULA
+        }
+
+        return FANGED_BITE_NECROTIC_SAVE_SOMAN_DAMAGE_FORMULA
+    }
+
+    static shouldUpgradeFzegClawMidiAttackDamage({
+        actor,
+        item,
+        activity,
+        workflow = null,
+        config = null
+    } = {})
+    {
+        return this.actorHasItem(actor, FZEG_CLAW_MIDI_ATTACK_3D6_OVERRIDE_UUID) &&
+            this.isFzegClawMidiAttackDamageContext({
+                item,
+                activity,
+                workflow,
+                config
+            })
+    }
+
     static actorHasItem(actor, sourceUuid)
     {
         return actor?.items?.some(item =>
@@ -532,6 +601,42 @@ export class Vampire extends Transformation
                 activityId === FANGED_BITE_MIDI_ATTACK_ACTIVITY_ID ||
                 activityName === FANGED_BITE_MIDI_ATTACK_ACTIVITY_NAME
             )
+    }
+
+    static isFangedBiteNecroticSaveDamageContext({
+        item,
+        activity,
+        workflow = null,
+        config = null
+    } = {})
+    {
+        const itemSourceUuid = item?.flags?.transformations?.sourceUuid ?? null
+        const activityName = this.resolveDamageContextActivityName({
+            activity,
+            workflow,
+            config
+        })
+
+        return itemSourceUuid === FANGED_BITE_UUID &&
+            activityName === FANGED_BITE_NECROTIC_SAVE_ACTIVITY_NAME
+    }
+
+    static isFzegClawMidiAttackDamageContext({
+        item,
+        activity,
+        workflow = null,
+        config = null
+    } = {})
+    {
+        const itemSourceUuid = item?.flags?.transformations?.sourceUuid ?? null
+        const activityName = this.resolveDamageContextActivityName({
+            activity,
+            workflow,
+            config
+        })
+
+        return itemSourceUuid === FZEG_CLAW_UUID &&
+            activityName === FZEG_CLAW_MIDI_ATTACK_ACTIVITY_NAME
     }
 
     static isRollConfigAdvantage(rollConfig = {})
@@ -586,6 +691,18 @@ export class Vampire extends Transformation
             ""
     }
 
+    static resolveDamageContextActivityName({
+        activity,
+        workflow = null,
+        config = null
+    } = {})
+    {
+        return this.resolveActivityName(activity) ||
+            this.resolveActivityName(workflow?.activity) ||
+            this.resolveActivityName(config?.activity) ||
+            this.resolveActivityName(config?.subject)
+    }
+
     static resolveSourceUuid(document)
     {
         return document?.flags?.transformations?.sourceUuid ??
@@ -604,7 +721,8 @@ export class Vampire extends Transformation
             document?.flags?.core?.sourceId,
             document?._stats?.compendiumSource,
             document?.uuid
-        ]) {
+        ])
+        {
             if (typeof candidate !== "string" || candidate.length === 0) {
                 continue
             }
@@ -715,7 +833,7 @@ export class Vampire extends Transformation
 
         const activityName =
                   normalizeWhitespace(this.resolveActivityName(activity))
-                      .toLowerCase()
+                  .toLowerCase()
 
         if (!activityName) {
             return false
@@ -723,7 +841,8 @@ export class Vampire extends Transformation
 
         if (TRUE_APPEARANCE_MANUAL_REVEAL_ACTIVITY_NAMES_NORMALIZED.has(
             activityName
-        )) {
+        ))
+        {
             return true
         }
 
@@ -754,7 +873,8 @@ export class Vampire extends Transformation
         if (!actor || !this.isTrueAppearanceSaveActivity({
             activity,
             usage: usageConfig
-        })) {
+        }))
+        {
             return null
         }
 
@@ -905,7 +1025,8 @@ export class Vampire extends Transformation
         if (
             typeof actor?.deleteEmbeddedDocuments === "function" &&
             effect?.id
-        ) {
+        )
+        {
             await actor.deleteEmbeddedDocuments("ActiveEffect", [effect.id])
             return true
         }
@@ -959,7 +1080,8 @@ export class Vampire extends Transformation
             details?.item?.name,
             details?.midi?.workflow?.activity?.name,
             details?.midi?.workflow?.item?.name
-        ]) {
+        ])
+        {
             if (candidate === true) {
                 return true
             }
@@ -967,7 +1089,8 @@ export class Vampire extends Transformation
             if (
                 typeof candidate === "string" &&
                 candidate.toLowerCase().includes("sunlight")
-            ) {
+            )
+            {
                 return true
             }
         }
@@ -1042,22 +1165,60 @@ export class Vampire extends Transformation
                 continue
             }
 
-            this.replaceBaseFangedBiteDamageFormula(roll, "formula")
-            this.replaceBaseFangedBiteDamageFormula(roll, "_formula")
-
-            if (Array.isArray(roll?.parts)) {
-                roll.parts = roll.parts.map(part =>
-                    this.replaceDamageFormulaText(part)
-                )
-            }
+            this.replaceDamageRollFormulaText(
+                roll,
+                FANGED_BITE_BASE_DAMAGE_FORMULA,
+                FANGED_BITE_STRIGOI_DAMAGE_FORMULA
+            )
         }
     }
 
-    static replaceBaseFangedBiteDamageFormula(roll, key)
+    static upgradeFangedBiteNecroticSaveDamageRolls(
+        rolls = [],
+        damageFormula
+    )
+    {
+        for (const roll of rolls) {
+            this.replaceDamageRollFormulaText(
+                roll,
+                FANGED_BITE_BASE_DAMAGE_FORMULA,
+                damageFormula
+            )
+        }
+    }
+
+    static upgradeFzegClawMidiAttackDamageRolls(rolls = [])
+    {
+        for (const roll of rolls) {
+            this.replaceDamageRollFormulaText(
+                roll,
+                FZEG_CLAW_BASE_DAMAGE_FORMULA,
+                FZEG_CLAW_MIDI_ATTACK_3D6_OVERRIDE_FORMULA
+            )
+        }
+    }
+
+    static replaceDamageRollFormulaText(roll, fromFormula, toFormula)
+    {
+        this.replaceDamageRollFormulaField(roll, "formula", fromFormula, toFormula)
+        this.replaceDamageRollFormulaField(roll, "_formula", fromFormula, toFormula)
+
+        if (Array.isArray(roll?.parts)) {
+            roll.parts = roll.parts.map(part =>
+                this.replaceDamageFormulaText(part, fromFormula, toFormula)
+            )
+        }
+    }
+
+    static replaceDamageRollFormulaField(roll, key, fromFormula, toFormula)
     {
         if (typeof roll?.[key] !== "string") return
 
-        roll[key] = this.replaceDamageFormulaText(roll[key])
+        roll[key] = this.replaceDamageFormulaText(
+            roll[key],
+            fromFormula,
+            toFormula
+        )
     }
 
     static isPiercingDamageRoll(roll)
@@ -1075,13 +1236,17 @@ export class Vampire extends Transformation
         return true
     }
 
-    static replaceDamageFormulaText(text)
+    static replaceDamageFormulaText(
+        text,
+        fromFormula = FANGED_BITE_BASE_DAMAGE_FORMULA,
+        toFormula   = FANGED_BITE_STRIGOI_DAMAGE_FORMULA
+    )
     {
         if (typeof text !== "string") return text
 
         return text.replace(
-            new RegExp(`\\b${FANGED_BITE_BASE_DAMAGE_FORMULA}\\b`, "u"),
-            FANGED_BITE_STRIGOI_DAMAGE_FORMULA
+            new RegExp(`\\b${fromFormula}\\b`, "u"),
+            toFormula
         )
     }
 
@@ -1104,6 +1269,6 @@ export class Vampire extends Transformation
 function normalizeWhitespace(value)
 {
     return String(value ?? "")
-        .replace(/\s+/gu, " ")
-        .trim()
+    .replace(/\s+/gu, " ")
+    .trim()
 }
