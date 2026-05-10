@@ -34,6 +34,11 @@ export function registerSockets({
     )
 
     socketGateway.register(
+        "downgradeStage",
+        handlers.downgradeStage
+    )
+
+    socketGateway.register(
         "clearTransformation",
         handlers.clearTransformation
     )

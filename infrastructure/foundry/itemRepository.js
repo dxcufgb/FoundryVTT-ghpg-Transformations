@@ -41,6 +41,29 @@ export function createItemRepository({
         )
     }
 
+    function getTransformationItemsForStage(actor, {
+        definitionId,
+        stage
+    } = {})
+    {
+        logger.debug("createItemRepository.getTransformationItemsForStage", {
+            actor,
+            definitionId,
+            stage
+        })
+        if (!actor || stage == null) return []
+
+        const numericStage = Number(stage)
+        if (!Number.isFinite(numericStage)) return []
+
+        return actor.items.filter(item =>
+            isTransformationItemForStage(item, {
+                definitionId,
+                stage: numericStage
+            })
+        )
+    }
+
     function findEmbeddedByType(actor, type)
     {
         logger.debug("createItemRepository.findEmbeddedByType", {actor, type})
@@ -189,6 +212,40 @@ export function createItemRepository({
                     "Item",
                     items.map(i => i.id)
                 )
+            })()
+        )
+    }
+
+    async function removeTransformationItemsForStage(actor, {
+        definitionId,
+        stage
+    } = {})
+    {
+        logger.debug("createItemRepository.removeTransformationItemsForStage", {
+            actor,
+            definitionId,
+            stage
+        })
+        if (!actor || stage == null) return []
+
+        const roots = getTransformationItemsForStage(actor, {
+            definitionId,
+            stage
+        })
+        const items = collectItemsAndAwardedDescendants(actor, roots)
+
+        if (!items.length) return []
+
+        return tracker.track(
+            (async () =>
+            {
+                debouncedTracker.pulse("deleteEmbeddedDocuments")
+                await actor.deleteEmbeddedDocuments(
+                    "Item",
+                    items.map(i => i.id)
+                )
+
+                return items
             })()
         )
     }
@@ -464,6 +521,7 @@ export function createItemRepository({
         findEmbeddedByUuidFlag,
         findEmbeddedAwardedByItem,
         getEmbeddedAddedByTransformation,
+        getTransformationItemsForStage,
         findEmbeddedByType,
         findAllEmbeddedByType,
         getRemainingUses,
@@ -475,6 +533,7 @@ export function createItemRepository({
         addItemAttachedToActiveEffect,
         createObjectOnActor,
         removeTransformationItems,
+        removeTransformationItemsForStage,
         createEmbedded,
         deleteEmbedded,
         updateEmbedded,
@@ -829,6 +888,7 @@ export function createItemRepository({
                           setDdbImporterFlag                         = true,
                           applyAdvancements: shouldApplyAdvancements = true,
                           overrides                                  = {},
+                          transformationGrant                        = {},
                           levels                                     = 1,
                           triggeringUserId                           = null,
                           ...propertyOverrides
@@ -847,16 +907,43 @@ export function createItemRepository({
                 }
 
                 if (setTransformationFlags) {
+                    const transformationId =
+                              transformationGrant.transformationId ??
+                              actor.flags?.transformations?.type ??
+                              null
+                    const transformationStage =
+                              transformationGrant.stage ??
+                              actor.flags?.transformations?.stage ??
+                              null
+                    const sourceUuid =
+                              transformationGrant.sourceUuid ??
+                              sourceItem.uuid ??
+                              null
+                    const awardedByItem =
+                              typeof parentItem === "string"
+                                  ? parentItem
+                                  : parentItem?.uuid ?? ""
+                    const grantType =
+                              transformationGrant.grantType ??
+                              (awardedByItem ? "advancement" : "stage")
+
                     data.flags.transformations = {
                         ...(data.flags.transformations ?? {}),
-                        sourceUuid: sourceItem.uuid,
-                        definitionId: actor.flags?.transformations?.type,
-                        stage: actor.flags?.transformations?.stage,
+                        sourceUuid,
+                        definitionId: transformationId,
+                        stage: transformationStage,
                         addedByTransformation: true,
-                        awardedByItem:
-                            typeof parentItem === "string"
-                                ? parentItem
-                                : parentItem?.uuid ?? ""
+                        awardedByItem,
+                        grantedBy: {
+                            ...(data.flags.transformations?.grantedBy ?? {}),
+                            transformationId,
+                            stage: transformationStage,
+                            sourceUuid,
+                            grantType,
+                            replacesUuid:
+                                transformationGrant.replacesUuid ?? null,
+                            awardedByItem
+                        }
                     }
                 }
 
@@ -945,6 +1032,42 @@ export function createItemRepository({
         }
 
         return Array.from(collected.values())
+    }
+
+    function collectItemsAndAwardedDescendants(actor, items = [])
+    {
+        const collected = new Map()
+
+        for (const item of items) {
+            collectItemAndAwardedDescendants(actor, item, collected)
+        }
+
+        return Array.from(collected.values())
+    }
+
+    function isTransformationItemForStage(item, {
+        definitionId,
+        stage
+    } = {})
+    {
+        if (!item?.flags?.transformations) return false
+
+        const flags = item.flags.transformations
+        if (flags.addedByTransformation !== true) return false
+
+        const grantedBy = flags.grantedBy ?? {}
+        const itemStage = Number(grantedBy.stage ?? flags.stage)
+        if (!Number.isFinite(itemStage) || itemStage !== Number(stage)) {
+            return false
+        }
+
+        const itemDefinitionId =
+                  grantedBy.transformationId ??
+                  flags.definitionId ??
+                  null
+
+        return !itemDefinitionId || !definitionId ||
+            itemDefinitionId === definitionId
     }
 
     function trimDescriptionStrings(value)

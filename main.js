@@ -181,6 +181,16 @@ Hooks.once("setup", async () =>
         logger
     })
 
+    registerActorSheetControlsAdapter({
+        game,
+        ActorClass: Actor,
+        debouncedTracker: Registry.dependencies.utils.asyncTrackers.debounced,
+        transformationService: services.transformationService,
+        transformationQueryService: services.transformationQueryService,
+        moduleUi,
+        logger
+    })
+
     if (game.user.isGM) {
         registerGMOnlyDnd5eHooks({
             transformationService: services.transformationService,
@@ -196,7 +206,6 @@ Hooks.once("setup", async () =>
             triggerRuntime: services.triggerRuntime,
             transformationQueryService: services.transformationQueryService,
             actorRepository: infrastructure.actorRepository,
-            registerActorSheetControlsAdapter,
             debouncedTracker: Registry.dependencies.utils.asyncTrackers.debounced,
             constants,
             logger
