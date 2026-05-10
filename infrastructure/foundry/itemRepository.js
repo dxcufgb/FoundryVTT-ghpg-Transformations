@@ -93,6 +93,7 @@ export function createItemRepository({
         actor,
         sourceItem,
         replacesUuid,
+        removeAwardedByReplacedItem = true,
         isPrerequisite,
         postCreateScript = null,
         parentItem = "",
@@ -104,6 +105,7 @@ export function createItemRepository({
             actor,
             sourceItem,
             replacesUuid,
+            removeAwardedByReplacedItem,
             isPrerequisite,
             postCreateScript,
             parentItem,
@@ -137,7 +139,11 @@ export function createItemRepository({
                     const toRemove = findEmbeddedByUuidFlag(actor, replacesUuid)
 
                     if (toRemove) {
-                        await deleteEmbeddedWithAwardedItems(actor, toRemove)
+                        if (removeAwardedByReplacedItem === false) {
+                            await deleteEmbeddedItems(actor, [toRemove])
+                        } else {
+                            await deleteEmbeddedWithAwardedItems(actor, toRemove)
+                        }
                     }
                 }
 
@@ -926,6 +932,22 @@ export function createItemRepository({
                     const grantType =
                               transformationGrant.grantType ??
                               (awardedByItem ? "advancement" : "stage")
+                    const replacementCleanup =
+                              transformationGrant.removeAwardedByReplacedItem
+                    const grantedBy = {
+                        ...(data.flags.transformations?.grantedBy ?? {}),
+                        transformationId,
+                        stage: transformationStage,
+                        sourceUuid,
+                        grantType,
+                        replacesUuid:
+                            transformationGrant.replacesUuid ?? null,
+                        awardedByItem
+                    }
+                    if (replacementCleanup != null) {
+                        grantedBy.removeAwardedByReplacedItem =
+                            replacementCleanup
+                    }
 
                     data.flags.transformations = {
                         ...(data.flags.transformations ?? {}),
@@ -934,16 +956,11 @@ export function createItemRepository({
                         stage: transformationStage,
                         addedByTransformation: true,
                         awardedByItem,
-                        grantedBy: {
-                            ...(data.flags.transformations?.grantedBy ?? {}),
-                            transformationId,
-                            stage: transformationStage,
-                            sourceUuid,
-                            grantType,
-                            replacesUuid:
-                                transformationGrant.replacesUuid ?? null,
-                            awardedByItem
-                        }
+                        grantedBy
+                    }
+                    if (replacementCleanup != null) {
+                        data.flags.transformations.removeAwardedByReplacedItem =
+                            replacementCleanup
                     }
                 }
 
@@ -1016,6 +1033,19 @@ export function createItemRepository({
             "Item",
             itemsToDelete.map(entry => entry.id)
         )
+    }
+
+    async function deleteEmbeddedItems(actor, items = [])
+    {
+        logger.debug("createItemRepository.deleteEmbeddedItems", {
+            actor,
+            items
+        })
+        const itemIds = items.map(entry => entry?.id).filter(Boolean)
+        if (!actor || !itemIds.length) return
+
+        debouncedTracker.pulse("deleteEmbeddedDocuments")
+        await actor.deleteEmbeddedDocuments("Item", itemIds)
     }
 
     function collectItemAndAwardedDescendants(actor, item, collected = new Map())

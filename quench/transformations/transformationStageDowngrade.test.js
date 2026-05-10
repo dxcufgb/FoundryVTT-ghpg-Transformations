@@ -664,6 +664,79 @@ quench.registerBatch(
                 }
             })
 
+            it("does not duplicate preserved lower-stage awarded items when restoring their replaced parent", async function()
+            {
+                const restoreFoundry = installFoundryUtils()
+                const actor = createActor({
+                    stage: 3,
+                    stageChoices: {
+                        "test-transformation": {
+                            1: "stage-1-choice"
+                        }
+                    },
+                    scopedFlags: {}
+                })
+                const definition = createDefinition()
+
+                const replacement = transformationItem(actor, {
+                    id: "stage-3-replacement-id",
+                    sourceUuid: "stage-3-replacement",
+                    stage: 3,
+                    grantType: "replacement",
+                    replacesUuid: "stage-1-item"
+                })
+                replacement.flags.transformations.removeAwardedByReplacedItem =
+                    false
+                replacement.flags.transformations.grantedBy.removeAwardedByReplacedItem = false
+
+                actor.items.push(
+                    replacement,
+                    transformationItem(actor, {
+                        id: "stage-1-awarded-id",
+                        sourceUuid: "stage-1-awarded",
+                        stage: 1,
+                        awardedByItem: "Actor.actor-1.Item.old-stage-1-item"
+                    })
+                )
+
+                const {adapter} = createRepositories(actor, definition, {
+                    compendiumDocuments: {
+                        "stage-1-item": {
+                            uuid: "stage-1-item",
+                            name: "Stage 1 Item",
+                            type: "feat",
+                            system: {
+                                advancement: [{
+                                    configuration: {
+                                        items: ["stage-1-awarded"]
+                                    }
+                                }]
+                            }
+                        }
+                    }
+                })
+
+                try {
+                    await adapter.downgradeStage({
+                        actorId: actor.id,
+                        transformationId: definition.id,
+                        fromStage: 3,
+                        toStage: 2
+                    })
+
+                    expect(actor.items.filter(item =>
+                        item.flags?.transformations?.sourceUuid ===
+                        "stage-1-awarded"
+                    )).to.have.length(1)
+                    expect(actor.items.some(item =>
+                        item.flags?.transformations?.sourceUuid ===
+                        "stage-1-item"
+                    )).to.equal(true)
+                } finally {
+                    restoreFoundry()
+                }
+            })
+
             it("safely fails when the actor has no active transformation", async function()
             {
                 const service = createTransformationService({

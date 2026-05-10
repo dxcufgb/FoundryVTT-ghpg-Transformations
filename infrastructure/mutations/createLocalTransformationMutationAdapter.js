@@ -403,10 +403,17 @@ export function createLocalTransformationMutationAdapter({
                             })
                         }
 
+                        const removeAwardedByReplacedItem =
+                                  normalizedGrant.replacesUuid
+                                      ? normalizedGrant.removeAwardedByReplacedItem
+                                      : undefined
+
                         await itemRepository.addTransformationItem({
                             actor,
                             sourceItem,
                             replacesUuid: normalizedGrant.replacesUuid,
+                            removeAwardedByReplacedItem:
+                                removeAwardedByReplacedItem,
                             postCreateScript: normalizedGrant.postCreateScript,
                             createOptions: {
                                 transformationGrant: {
@@ -415,7 +422,9 @@ export function createLocalTransformationMutationAdapter({
                                     sourceUuid: normalizedGrant.uuid,
                                     grantType: normalizedGrant.grantType,
                                     replacesUuid:
-                                        normalizedGrant.replacesUuid
+                                        normalizedGrant.replacesUuid,
+                                    removeAwardedByReplacedItem:
+                                        removeAwardedByReplacedItem
                                 }
                             },
                             triggeringUserId
@@ -461,8 +470,27 @@ export function createLocalTransformationMutationAdapter({
             grantType:
                 grant.grantType ??
                 (replacesUuid ? "replacement" : "stage"),
+            removeAwardedByReplacedItem:
+                resolveRemoveAwardedByReplacedItem(grant),
             postCreateScript: grant.postCreateScript ?? null
         }
+    }
+
+    function resolveRemoveAwardedByReplacedItem(grant = {})
+    {
+        if (grant.removeAwardedByReplacedItem != null) {
+            return grant.removeAwardedByReplacedItem !== false
+        }
+
+        if (
+            grant.replaces &&
+            typeof grant.replaces === "object" &&
+            grant.replaces.removeAwardedItems != null
+        ) {
+            return grant.replaces.removeAwardedItems !== false
+        }
+
+        return true
     }
 
     function normalizeUuidReference(reference)
@@ -508,7 +536,7 @@ export function createLocalTransformationMutationAdapter({
             targetStage,
             removedItems
         })
-        const replacementUuids = new Set()
+        const replacementEntries = new Map()
         const removedSourceUuids = new Set(
             removedItems
             .map(item => item?.flags?.transformations?.sourceUuid)
@@ -519,7 +547,12 @@ export function createLocalTransformationMutationAdapter({
             const replacesUuid =
                       item?.flags?.transformations?.grantedBy?.replacesUuid
             if (typeof replacesUuid === "string" && replacesUuid.length > 0) {
-                replacementUuids.add(replacesUuid)
+                replacementEntries.set(replacesUuid, {
+                    sourceUuid: replacesUuid,
+                    applyAdvancements:
+                        item?.flags?.transformations?.grantedBy
+                        ?.removeAwardedByReplacedItem !== false
+                })
             }
         }
 
@@ -530,24 +563,29 @@ export function createLocalTransformationMutationAdapter({
         })) {
             if (!removedSourceUuids.has(grant.uuid)) continue
             if (grant.replacesUuid) {
-                replacementUuids.add(grant.replacesUuid)
+                replacementEntries.set(grant.replacesUuid, {
+                    sourceUuid: grant.replacesUuid,
+                    applyAdvancements:
+                        grant.removeAwardedByReplacedItem !== false
+                })
             }
         }
 
-        return [...replacementUuids].flatMap(sourceUuid =>
+        return [...replacementEntries.values()].flatMap(entry =>
         {
             const restoreStage = findRetainedStageForSourceUuid({
                 actor,
                 definition,
-                sourceUuid,
+                sourceUuid: entry.sourceUuid,
                 targetStage
             })
 
             if (restoreStage == null) return []
 
             return [{
-                sourceUuid,
-                stage: restoreStage
+                sourceUuid: entry.sourceUuid,
+                stage: restoreStage,
+                applyAdvancements: entry.applyAdvancements
             }]
         })
     }
@@ -592,7 +630,8 @@ export function createLocalTransformationMutationAdapter({
                         stage: entry.stage,
                         sourceUuid: entry.sourceUuid,
                         grantType: "restored-replacement"
-                    }
+                    },
+                    applyAdvancements: entry.applyAdvancements !== false
                 }
             })
         }

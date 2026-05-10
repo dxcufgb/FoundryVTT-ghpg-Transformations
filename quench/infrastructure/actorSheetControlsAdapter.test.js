@@ -65,7 +65,7 @@ function createGame({
     role = 1,
     setting = 4,
     downgradeSetting = setting,
-    changeSetting = setting
+    changeSetting = 4
 } = {})
 {
     return {
@@ -356,6 +356,48 @@ quench.registerBatch(
 
         describe("change transformation actor sheet control", function()
         {
+            it("defaults the control setting to GM only", function()
+            {
+                const assistantGame = createGame({
+                    isGM: true,
+                    role: 3,
+                    downgradeSetting: 3
+                })
+                const assistantControls = []
+                const assistantHarness = registerHarness({
+                    game: assistantGame,
+                    transformationService: {
+                        async downgradeTransformationStage() {}
+                    }
+                })
+
+                try {
+                    assistantHarness.callback(
+                        createApp(new TestActor()),
+                        assistantControls
+                    )
+                    expect(canUseChangeTransformationControl({
+                        app: createApp(new TestActor()),
+                        game: assistantGame,
+                        ActorClass: TestActor
+                    })).to.equal(false)
+                    expect(assistantControls.some(control =>
+                        control.action === "transformation-GM-config"
+                    )).to.equal(false)
+                } finally {
+                    assistantHarness.restore()
+                }
+
+                expect(canUseChangeTransformationControl({
+                    app: createApp(new TestActor()),
+                    game: createGame({
+                        isGM: true,
+                        role: 4
+                    }),
+                    ActorClass: TestActor
+                })).to.equal(true)
+            })
+
             it("appears only when the user meets the configured role", function()
             {
                 const allowedGame = createGame({

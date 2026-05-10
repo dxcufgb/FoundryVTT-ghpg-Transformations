@@ -61,9 +61,28 @@ export function createStageGrantResolver({
                 (normalizeUuidReference(item.replaces)
                     ? "replacement"
                     : "stage"),
+            removeAwardedByReplacedItem:
+                resolveRemoveAwardedByReplacedItem(item),
             overrides: item.overrides ?? null,
             postCreateScript: item.postCreateScript ?? null
         }))
+    }
+
+    function resolveRemoveAwardedByReplacedItem(item = {})
+    {
+        if (item.removeAwardedByReplacedItem != null) {
+            return item.removeAwardedByReplacedItem !== false
+        }
+
+        if (
+            item.replaces &&
+            typeof item.replaces === "object" &&
+            item.replaces.removeAwardedItems != null
+        ) {
+            return item.replaces.removeAwardedItems !== false
+        }
+
+        return true
     }
 
     function empty()
