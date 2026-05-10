@@ -64,6 +64,58 @@ export function createTransformationService({
         )
     }
 
+    async function downgradeTransformationStage(actor, {
+        triggeringUserId = globalThis.game?.user?.id ?? null
+    } = {})
+    {
+        logger.debug("createTransformationService.downgradeTransformationStage", {
+            actor,
+            triggeringUserId
+        })
+        return tracker.track(
+            (async () =>
+            {
+                assertActor(actor)
+
+                const transformationId =
+                          actorRepository.getActiveTransformationId(actor)
+                if (!transformationId) {
+                    return warnAndFail(
+                        "no-active-transformation",
+                        "Cannot downgrade transformation stage: this actor has no active transformation."
+                    )
+                }
+
+                const currentStage = Number(
+                    actorRepository.getTransformationStage(actor)
+                )
+                if (!Number.isFinite(currentStage) || currentStage <= 1) {
+                    return warnAndFail(
+                        "minimum-stage",
+                        "Cannot downgrade transformation stage: this actor is already at the minimum stage."
+                    )
+                }
+
+                const transformation =
+                          await transformationQueryService.getForActor(actor)
+                if (!transformation?.definition) {
+                    return warnAndFail(
+                        "missing-definition",
+                        `Cannot downgrade transformation stage: no definition was found for '${transformationId}'.`
+                    )
+                }
+
+                return mutationGateway.downgradeStage({
+                    actorId: actor.id,
+                    transformationId,
+                    fromStage: currentStage,
+                    toStage: currentStage - 1,
+                    triggeringUserId
+                })
+            })()
+        )
+    }
+
     async function onActorFlagsUpdated({ actor, diff, userId = null })
     {
         logger.debug("createTransformationService.onActorFlagsUpdated", {
@@ -347,6 +399,7 @@ export function createTransformationService({
         whenIdle: tracker.whenIdle,
         applyTransformation,
         clearTransformation,
+        downgradeTransformationStage,
         onActorFlagsUpdated,
 
         onTrigger
@@ -367,6 +420,20 @@ export function createTransformationService({
             throw new Error(
                 "TransformationService requires a valid transformation"
             )
+        }
+    }
+
+    function warnAndFail(reason, message)
+    {
+        logger.warn(message)
+        if (globalThis.__TRANSFORMATIONS_TEST__ !== true) {
+            globalThis.ui?.notifications?.warn?.(message)
+        }
+
+        return {
+            ok: false,
+            reason,
+            message
         }
     }
 }

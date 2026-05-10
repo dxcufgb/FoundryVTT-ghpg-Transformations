@@ -50,6 +50,17 @@ export function createTransformationMutationGateway({
         )
     }
 
+    async function downgradeStage(payload)
+    {
+        logger.debug("createTransformationMutationGateway.downgradeStage", { payload })
+        return tracker.track(
+            (async () =>
+            {
+                return await execute("downgradeStage", payload)
+            })()
+        )
+    }
+
     async function clearTransformation(payload)
     {
         logger.debug("createTransformationMutationGateway.clearTransformation", { payload })
@@ -151,6 +162,7 @@ export function createTransformationMutationGateway({
         applyTransformation,
         initializeTransformation,
         advanceStage,
+        downgradeStage,
         clearTransformation,
         applyTriggerActions
     })

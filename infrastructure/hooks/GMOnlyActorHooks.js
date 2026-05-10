@@ -8,7 +8,6 @@ export function registerGMOnlyActorHooks({
     triggerRuntime,
     transformationQueryService,
     constants,
-    registerActorSheetControlsAdapter,
     debouncedTracker,
     logger
 })
@@ -21,17 +20,7 @@ export function registerGMOnlyActorHooks({
         triggerRuntime,
         transformationQueryService,
         constants,
-        registerActorSheetControlsAdapter,
         debouncedTracker
-    })
-
-    registerActorSheetControlsAdapter({
-        game,
-        ActorClass,
-        debouncedTracker,
-        transformationQueryService,
-        moduleUi,
-        logger
     })
 
     const previousHpByActorId = new Map()

@@ -13,6 +13,42 @@ import
 } from "../selectors/actorSheet.finders.js"
 import { setupTest, teardownAllTest, tearDownEachTest } from "../testLifecycle.js"
 
+function overrideGameSetting(moduleId, settingKey, value)
+{
+    const settings = game.settings
+    const originalDescriptor = Object.getOwnPropertyDescriptor(settings, "get")
+    const originalGet = settings.get.bind(settings)
+
+    Object.defineProperty(settings, "get", {
+        configurable: true,
+        value(requestedModuleId, requestedSettingKey, ...args)
+        {
+            if (
+                requestedModuleId === moduleId &&
+                requestedSettingKey === settingKey
+            ) {
+                return value
+            }
+
+            return originalGet(requestedModuleId, requestedSettingKey, ...args)
+        }
+    })
+
+    return () =>
+    {
+        if (originalDescriptor) {
+            Object.defineProperty(settings, "get", originalDescriptor)
+            return
+        }
+
+        delete settings.get
+    }
+}
+
+function gmRole()
+{
+    return globalThis.CONST?.USER_ROLES?.GAMEMASTER ?? 4
+}
 
 quench.registerBatch(
     "transformations.ActorSheet",
@@ -112,9 +148,15 @@ quench.registerBatch(
         {
             this.timeout(10_000)
             let sheet
+            let restoreChangeTransformationAllowedRoles
 
             beforeEach(async function()
             {
+                restoreChangeTransformationAllowedRoles = overrideGameSetting(
+                    "transformations",
+                    "changeTransformationAllowedRoles",
+                    gmRole()
+                )
                 ({ actor } = await setupTest({
                     currentTest: this.currentTest,
                     createObjects: {
@@ -126,7 +168,12 @@ quench.registerBatch(
             afterEach(async function()
             {
                 // sheet.close()
-                await tearDownEachTest({ tearDownExtras: { sheet: sheet } })
+                try {
+                    await tearDownEachTest({ tearDownExtras: { sheet: sheet } })
+                } finally {
+                    restoreChangeTransformationAllowedRoles?.()
+                    restoreChangeTransformationAllowedRoles = null
+                }
             })
 
             it("is visible to GMs regardless of transformation state", async function()

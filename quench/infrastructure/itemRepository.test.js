@@ -355,6 +355,67 @@ quench.registerBatch(
                 }
             })
 
+            it("can preserve items awarded by a replaced item when requested", async function ()
+            {
+                const actor = createActor()
+                const restoreFoundry = installFoundryUtils()
+                const {repository} = createRepository()
+
+                try {
+                    const originalItem = await repository.createObjectOnActor(
+                        actor,
+                        {
+                            uuid: "Item.magic-tricks",
+                            name: "Magic Tricks",
+                            type: "feat",
+                            system: {}
+                        },
+                        "",
+                        {
+                            applyAdvancements: false
+                        }
+                    )
+                    const awardedItem = await repository.createObjectOnActor(
+                        actor,
+                        {
+                            uuid: "Item.magic-tricks-spell",
+                            name: "Magic Tricks Spell",
+                            type: "spell",
+                            system: {}
+                        },
+                        originalItem,
+                        {
+                            applyAdvancements: false
+                        }
+                    )
+
+                    await repository.addTransformationItem({
+                        actor,
+                        sourceItem: {
+                            uuid: "Item.greater-magic-tricks",
+                            name: "Greater Magic Tricks",
+                            type: "feat",
+                            system: {}
+                        },
+                        replacesUuid: "Item.magic-tricks",
+                        removeAwardedByReplacedItem: false
+                    })
+
+                    expect(actor.items.some(item =>
+                        item.id === originalItem.id
+                    )).to.equal(false)
+                    expect(actor.items.some(item =>
+                        item.id === awardedItem.id
+                    )).to.equal(true)
+                    expect(actor.items.some(item =>
+                        item.flags?.transformations?.sourceUuid ===
+                        "Item.greater-magic-tricks"
+                    )).to.equal(true)
+                } finally {
+                    restoreFoundry()
+                }
+            })
+
             it("applies spell advancement parameters to directly granted items", async function ()
             {
                 const actor = createActor()

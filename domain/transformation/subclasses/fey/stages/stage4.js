@@ -46,7 +46,8 @@ export const stage4 = {
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.gbC98FWfZURNMRHm",
                 replaces: {
-                    uuid: "Compendium.transformations.gh-transformations.Item.GfXOtsRa8JYaiUeH"
+                    uuid: "Compendium.transformations.gh-transformations.Item.GfXOtsRa8JYaiUeH",
+                    removeAwardedItems: false
                 },
                 requires: {
                     items: [
@@ -58,7 +59,8 @@ export const stage4 = {
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.PhJXnqeDYAzH2RCB",
                 replaces: {
-                    uuid: "Compendium.transformations.gh-transformations.Item.65VksuhlhiIJINcM"
+                    uuid: "Compendium.transformations.gh-transformations.Item.65VksuhlhiIJINcM",
+                    removeAwardedItems: false
                 },
                 requires: {
                     items: [
@@ -70,7 +72,8 @@ export const stage4 = {
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.dDBjm4vBlFRpXKVx",
                 replaces: {
-                    uuid: "Compendium.transformations.gh-transformations.Item.xOebV0euA9zB8qeY"
+                    uuid: "Compendium.transformations.gh-transformations.Item.xOebV0euA9zB8qeY",
+                    removeAwardedItems: false
                 },
                 requires: {
                     items: [
@@ -82,7 +85,8 @@ export const stage4 = {
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.gy5fj1wcUtnAR5yE",
                 replaces: {
-                    uuid: "Compendium.transformations.gh-transformations.Item.H1unaVkxHYemhwF5"
+                    uuid: "Compendium.transformations.gh-transformations.Item.H1unaVkxHYemhwF5",
+                    removeAwardedItems: false
                 },
                 requires: {
                     items: [

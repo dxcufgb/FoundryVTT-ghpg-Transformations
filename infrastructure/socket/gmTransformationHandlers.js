@@ -30,6 +30,14 @@ export function createGMTransformationHandlers({
       return resolvedGateway.advanceStage(payload)
     },
 
+    downgradeStage: payload =>
+    {
+      const resolvedGateway = resolveGateway(gateway)
+      logger.debug("createGMTransformationHandlers.downgradeStage", { payload })
+      assertGatewayMethod(resolvedGateway, "downgradeStage")
+      return resolvedGateway.downgradeStage(payload)
+    },
+
     clearTransformation: payload =>
     {
       const resolvedGateway = resolveGateway(gateway)
