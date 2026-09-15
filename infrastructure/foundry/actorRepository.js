@@ -528,6 +528,10 @@ export function createActorRepository({
                 const current = actor.system.attributes.hp.temp ?? 0
                 await actor.update({
                     "system.attributes.hp.temp": Math.max(current, amount)
+                }, {
+                    transformations: {
+                        temporaryHpGain: amount
+                    }
                 })
             })()
         )
