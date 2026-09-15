@@ -315,7 +315,7 @@ quench.registerBatch(
                 }
             })
 
-            it("includes activity and item data when dispatching pre-roll damage trigger context", async function ()
+            it("keeps circular pre-roll damage workflows out of the mutation runtime", async function ()
             {
                 const actor = createActor()
                 const harness = createHookHarness()
@@ -346,6 +346,7 @@ quench.registerBatch(
                     item,
                     activity
                 }
+                activity.workflow = workflow
 
                 try {
                     const callback = harness.callbacks.get("dnd5e.preRollDamageV2")
@@ -363,16 +364,7 @@ quench.registerBatch(
                                   call.name === "preRollDamage"
                               )
 
-                    expect(preRollDamageCall).to.exist
-                    expect(preRollDamageCall.data?.damage?.current?.item).to.deep.equal({
-                        id: "item-2",
-                        name: "Memori Lichdom",
-                        uuid: "Actor.actor-1.Item.item-2",
-                        sourceUuid
-                    })
-                    expect(preRollDamageCall.data?.damage?.current?.activity).to.equal(activity)
-                    expect(preRollDamageCall.data?.damage?.current?.workflow).to.equal(workflow)
-                    expect(preRollDamageCall.data?.damage?.current?.rolls).to.equal(rolls)
+                    expect(preRollDamageCall).to.be.undefined
                 } finally {
                     harness.restore()
                 }
@@ -1643,6 +1635,8 @@ quench.registerBatch(
 
                         expect(rolls[0].formula).to.equal("1d8 + 3 + 4")
                         expect(rolls[0]._formula).to.equal("1d8 + 3 + 4")
+                        await flushAsyncWork()
+                        expect(harness.calls.triggerRuntime).to.have.length(0)
                     } finally {
                         harness.restore()
                     }
