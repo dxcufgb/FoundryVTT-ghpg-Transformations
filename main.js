@@ -173,6 +173,7 @@ Hooks.once("setup", async () =>
         transformationTypes: transformationSubTypes,
         transformationService: services.transformationService,
         transformationQueryService: services.transformationQueryService,
+        transformationRegistry: services.transformationRegistry,
         game,
         moduleUi,
         renderTemplate: foundry.applications.handlebars.renderTemplate,

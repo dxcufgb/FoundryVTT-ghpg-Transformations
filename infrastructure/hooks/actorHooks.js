@@ -2,6 +2,7 @@ export function registerActorHooks({
     transformationTypes,
     transformationService,
     transformationQueryService,
+    transformationRegistry,
     game,
     moduleUi,
     renderTemplate,
@@ -14,6 +15,7 @@ export function registerActorHooks({
         transformationTypes,
         transformationService,
         transformationQueryService,
+        transformationRegistry,
         game,
         moduleUi,
         debouncedTracker,
@@ -63,6 +65,33 @@ export function registerActorHooks({
             config.editable,
             logger
         )
+    })
+
+    Hooks.on("preUpdateActor", (actor, changed, options, userId) =>
+    {
+        logger.debug("preUpdateActor", actor, changed, options, userId)
+        debouncedTracker.pulse("preUpdateActor")
+
+        const transformation = transformationRegistry?.getEntryForActor?.(actor)
+        const TransformationClass = transformation?.TransformationClass
+
+        if (typeof TransformationClass?.preUpdateActor !== "function") return
+
+        try {
+            TransformationClass.preUpdateActor({
+                actor,
+                changed,
+                options,
+                userId,
+                logger
+            })
+        } catch (err) {
+            logger.error("Error handling preUpdateActor transformation hook", {
+                actor,
+                changed,
+                err
+            })
+        }
     })
 
     Hooks.on("updateActor", (actor, diff, options, userId) =>

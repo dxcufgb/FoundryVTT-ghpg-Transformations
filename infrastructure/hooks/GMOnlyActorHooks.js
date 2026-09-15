@@ -39,6 +39,14 @@ export function registerGMOnlyActorHooks({
         const transformation = await transformationQueryService.getForActor(actor)
         if (!transformation) return
 
+        await dispatchTransformationEffectHook("createActiveEffect", {
+            TransformationClass: transformation.constructor,
+            effect,
+            actor,
+            options,
+            userId
+        })
+
         const effectName = effect.name?.toLowerCase()
 
         switch (effectName) {
@@ -257,6 +265,36 @@ export function registerGMOnlyActorHooks({
         )
 
     })
+
+    async function dispatchTransformationEffectHook(
+        hookName,
+        {
+            TransformationClass,
+            effect,
+            actor,
+            options = {},
+            userId = null
+        }
+    )
+    {
+        if (typeof TransformationClass?.[hookName] !== "function") return
+
+        try {
+            await TransformationClass[hookName]({
+                effect,
+                actor,
+                options,
+                userId,
+                logger
+            })
+        } catch (err) {
+            logger.error(`Error handling ${hookName} transformation hook`, {
+                actor,
+                effect,
+                err
+            })
+        }
+    }
 
     async function dispatchTransformationItemHook(hookName, item, changed, options, userId)
     {
