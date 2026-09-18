@@ -1,5 +1,7 @@
 import "./advancementChoiceHandler.test.js"
 import "./advancementGrantResolver.test.js"
+import "./actorHooks.test.js"
+import "./actorSheetControlsAdapter.test.js"
 import "./dnd5eHooks.test.js"
 import "./GMOnlyActorHooks.test.js"
 import "./itemRepository.test.js"

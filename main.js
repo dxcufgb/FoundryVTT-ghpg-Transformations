@@ -173,11 +173,22 @@ Hooks.once("setup", async () =>
         transformationTypes: transformationSubTypes,
         transformationService: services.transformationService,
         transformationQueryService: services.transformationQueryService,
+        transformationRegistry: services.transformationRegistry,
         game,
         moduleUi,
         renderTemplate: foundry.applications.handlebars.renderTemplate,
         debouncedTracker: Registry.dependencies.utils.asyncTrackers.debounced,
         constants,
+        logger
+    })
+
+    registerActorSheetControlsAdapter({
+        game,
+        ActorClass: Actor,
+        debouncedTracker: Registry.dependencies.utils.asyncTrackers.debounced,
+        transformationService: services.transformationService,
+        transformationQueryService: services.transformationQueryService,
+        moduleUi,
         logger
     })
 
@@ -196,7 +207,6 @@ Hooks.once("setup", async () =>
             triggerRuntime: services.triggerRuntime,
             transformationQueryService: services.transformationQueryService,
             actorRepository: infrastructure.actorRepository,
-            registerActorSheetControlsAdapter,
             debouncedTracker: Registry.dependencies.utils.asyncTrackers.debounced,
             constants,
             logger

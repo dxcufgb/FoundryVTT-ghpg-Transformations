@@ -865,9 +865,6 @@ export function registerDnd5eHooks({
             logger
         })
 
-        await triggerRuntime.run("preRollDamage", actor, {
-            ...triggerContext
-        })
     })()
     })
 

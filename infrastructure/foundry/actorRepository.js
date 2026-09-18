@@ -100,15 +100,89 @@ export function createActorRepository({
         )
     }
 
-    async function setTransformationStage(actor, stage)
+    async function setTransformationStage(actor, stage, {
+        finishedStage = null
+    } = {})
     {
-        logger.debug("createActorRepository.setStage", {actor, stage})
+        logger.debug("createActorRepository.setStage", {
+            actor,
+            stage,
+            finishedStage
+        })
         return tracker.track(
             (async () =>
             {
-                await actor.update({
+                const update = {
                     "flags.transformations.stage": stage
-                })
+                }
+
+                if (finishedStage != null) {
+                    update["flags.transformations.finishedStage"] =
+                        finishedStage
+                }
+
+                await actor.update(update)
+            })()
+        )
+    }
+
+    async function clearTransformationStageChoice(actor, transformationId, stage)
+    {
+        logger.debug("createActorRepository.clearTransformationStageChoice", {
+            actor,
+            transformationId,
+            stage
+        })
+        if (!actor || !transformationId || stage == null) return
+
+        return tracker.track(
+            (async () =>
+            {
+                const stageChoices =
+                    actor.getFlag("transformations", "stageChoices")
+
+                if (!stageChoices || typeof stageChoices !== "object") {
+                    return
+                }
+
+                const nextStageChoices = foundry.utils.deepClone(stageChoices)
+                const transformationChoices =
+                    nextStageChoices?.[transformationId]
+
+                if (
+                    !transformationChoices ||
+                    typeof transformationChoices !== "object"
+                ) {
+                    return
+                }
+
+                delete transformationChoices[stage]
+
+                if (Object.keys(transformationChoices).length === 0) {
+                    delete nextStageChoices[transformationId]
+                }
+
+                if (Object.keys(nextStageChoices).length === 0) {
+                    if (typeof actor.unsetFlag === "function") {
+                        await actor.unsetFlag(
+                            "transformations",
+                            "stageChoices"
+                        )
+                    } else {
+                        await actor.setFlag(
+                            "transformations",
+                            "stageChoices",
+                            {}
+                        )
+                    }
+                    return
+                }
+
+                await actor.setFlag(
+                    "transformations",
+                    "stageChoices",
+                    nextStageChoices
+                )
             })()
         )
     }
@@ -159,6 +233,48 @@ export function createActorRepository({
                     transformationId,
                     nextFlags
                 )
+            })()
+        )
+    }
+
+    async function updateTransformationScopedFlagPaths(actor, transformationId, {
+        set = {},
+        unset = []
+    } = {})
+    {
+        logger.debug("createActorRepository.updateTransformationScopedFlagPaths", {
+            actor,
+            transformationId,
+            set,
+            unset
+        })
+        if (!actor || !transformationId) return
+
+        return tracker.track(
+            (async () =>
+            {
+                const updates = {}
+
+                for (const [path, value] of Object.entries(set ?? {})) {
+                    updates[
+                        `flags.transformations.${transformationId}.${path}`
+                    ] = value
+                }
+
+                for (const path of unset ?? []) {
+                    const unsetPath = buildScopedUnsetPath(
+                        transformationId,
+                        path
+                    )
+                    if (unsetPath) {
+                        updates[unsetPath] = null
+                    }
+                }
+
+                if (Object.keys(updates).length === 0) return
+
+                debouncedTracker.pulse("applyTransformationFlags")
+                await actor.update(updates)
             })()
         )
     }
@@ -412,6 +528,10 @@ export function createActorRepository({
                 const current = actor.system.attributes.hp.temp ?? 0
                 await actor.update({
                     "system.attributes.hp.temp": Math.max(current, amount)
+                }, {
+                    transformations: {
+                        temporaryHpGain: amount
+                    }
                 })
             })()
         )
@@ -623,7 +743,9 @@ export function createActorRepository({
         clearCreatureTypeFlags,
         clearTransformation,
         setTransformationStage,
+        clearTransformationStageChoice,
         mergeTransformationScopedFlags,
+        updateTransformationScopedFlagPaths,
 
         hasMacroExecution,
         setMacroExecution,
@@ -676,5 +798,18 @@ export function createActorRepository({
                 return updates
             })()
         )
+    }
+
+    function buildScopedUnsetPath(transformationId, path)
+    {
+        if (!path || typeof path !== "string") return null
+
+        const parts = path.split(".")
+        const key = parts.pop()
+        const parentPath = parts.length
+            ? `.${parts.join(".")}`
+            : ""
+
+        return `flags.transformations.${transformationId}${parentPath}.-=${key}`
     }
 }

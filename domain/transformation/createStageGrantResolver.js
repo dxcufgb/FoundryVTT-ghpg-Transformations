@@ -24,7 +24,7 @@ export function createStageGrantResolver({
             return empty()
         }
 
-        const validItemGrants = stageDef.grants.items.filter(grant =>
+        const validItemGrants = (stageDef.grants?.items ?? []).filter(grant =>
             checkRequirements({
                 actor,
                 stageDef,
@@ -57,9 +57,32 @@ export function createStageGrantResolver({
             uuid: item.uuid,
             requiresUuids: normalizeRequiredItems(item.requires?.items),
             replacesUuid: normalizeUuidReference(item.replaces),
+            grantType: item.grantType ??
+                (normalizeUuidReference(item.replaces)
+                    ? "replacement"
+                    : "stage"),
+            removeAwardedByReplacedItem:
+                resolveRemoveAwardedByReplacedItem(item),
             overrides: item.overrides ?? null,
             postCreateScript: item.postCreateScript ?? null
         }))
+    }
+
+    function resolveRemoveAwardedByReplacedItem(item = {})
+    {
+        if (item.removeAwardedByReplacedItem != null) {
+            return item.removeAwardedByReplacedItem !== false
+        }
+
+        if (
+            item.replaces &&
+            typeof item.replaces === "object" &&
+            item.replaces.removeAwardedItems != null
+        ) {
+            return item.replaces.removeAwardedItems !== false
+        }
+
+        return true
     }
 
     function empty()
