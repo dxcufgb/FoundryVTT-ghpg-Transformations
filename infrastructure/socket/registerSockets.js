@@ -60,17 +60,39 @@ export function registerSockets({
             const method = dialogFactory?.[methodName]
 
             if (typeof method !== "function") {
-                logger.warn("openDialog requested unknown dialog factory method", {
+                logger.error("openDialog requested unknown dialog factory method", {
                     methodName,
+                    hasDialogFactory: Boolean(dialogFactory),
                     payload
                 })
                 return false
             }
 
-            return method.call(dialogFactory, {
-                ...data,
-                skipUserRouting: true
-            })
+            if (payload?.data?.itemUuid && !data.item) {
+                logger.error("openDialog could not resolve item", {
+                    methodName,
+                    itemUuid: payload.data.itemUuid
+                })
+                return false
+            }
+
+            if (payload?.data?.actorUuid && !data.actor) {
+                logger.error("openDialog could not resolve actor", {
+                    methodName,
+                    actorUuid: payload.data.actorUuid
+                })
+                return false
+            }
+
+            try {
+                return await method.call(dialogFactory, {
+                    ...data,
+                    skipUserRouting: true
+                })
+            } catch (error) {
+                logger.error("openDialog failed", {methodName, error})
+                throw error
+            }
         }
     )
 }

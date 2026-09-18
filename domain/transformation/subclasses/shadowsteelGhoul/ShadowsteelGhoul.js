@@ -1,4 +1,5 @@
 import { Transformation } from "../../Transformation.js"
+import { ShadowsteelCurseRoll } from "./activities/ShadowsteelCurseRoll.js"
 
 /**
  * Domain subclass scaffold.
@@ -10,4 +11,19 @@ export class ShadowsteelGhoul extends Transformation
     static displayName = "Shadowsteel Ghoul"
     static itemId = "shadowsteelGhoul"
     static uuid = "Compendium.transformations.gh-transformations.Item.YPXUBEqZSzM2pkSr"
+
+    static async onRenderChatMessage({
+        message,
+        html,
+        actor,
+        logger
+    } = {})
+    {
+        await ShadowsteelCurseRoll.onRenderChatMessage({
+            message,
+            html,
+            actor,
+            logger
+        })
+    }
 }

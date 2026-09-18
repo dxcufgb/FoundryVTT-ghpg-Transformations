@@ -90,7 +90,7 @@ function setFiendStage1DamageResistanceChoice()
         {
             name: "Fiendish Soul",
             choice: {
-                icon: "modules/transformations/icons/damageTypes/Acid.png",
+                icon: "modules/transformations/Icons/DamageTypes/Acid.png",
                 id: "acid",
                 label: "Acid",
                 raw: "dr:acid",
@@ -1370,7 +1370,7 @@ export const fiendTestDef = {
                     {
                         name: "Fiendish Soul",
                         choice: {
-                            icon: "modules/transformations/icons/damageTypes/Acid.png",
+                            icon: "modules/transformations/Icons/DamageTypes/Acid.png",
                             id: "acid",
                             label: "Acid",
                             raw: "dr:acid",
@@ -1510,7 +1510,7 @@ export const fiendTestDef = {
                     {
                         name: "Fiendish Soul",
                         choice: {
-                            icon: "modules/transformations/icons/damageTypes/Acid.png",
+                            icon: "modules/transformations/Icons/DamageTypes/Acid.png",
                             id: "acid",
                             label: "Acid",
                             raw: "dr:acid",
@@ -1706,7 +1706,7 @@ export const fiendTestDef = {
                     {
                         name: "Fiendish Soul",
                         choice: {
-                            icon: "modules/transformations/icons/damageTypes/Acid.png",
+                            icon: "modules/transformations/Icons/DamageTypes/Acid.png",
                             id: "acid",
                             label: "Acid",
                             raw: "dr:acid",
@@ -1719,7 +1719,7 @@ export const fiendTestDef = {
                             {
                                 id: loopVars.skills[0],
                                 label: loopVars.names[0],
-                                icon: `modules/transformations/icons/skills/${loopVars.icons[0]}.png`,
+                                icon: `modules/transformations/Icons/skills/${loopVars.icons[0]}.png`,
                                 raw: `skills:${loopVars.skills[0]}`,
                                 value: loopVars.skills[0],
                                 mode: "forcedExpertise"
@@ -1727,7 +1727,7 @@ export const fiendTestDef = {
                             {
                                 id: loopVars.skills[1],
                                 label: loopVars.names[1],
-                                icon: `modules/transformations/icons/skills/${loopVars.icons[1]}.png`,
+                                icon: `modules/transformations/Icons/skills/${loopVars.icons[1]}.png`,
                                 raw: `skills:${loopVars.skills[1]}`,
                                 value: loopVars.skills[1],
                                 mode: "forcedExpertise"
@@ -1878,7 +1878,7 @@ export const fiendTestDef = {
                     {
                         name: "Fiendish Soul",
                         choice: {
-                            icon: "modules/transformations/icons/damageTypes/Acid.png",
+                            icon: "modules/transformations/Icons/DamageTypes/Acid.png",
                             id: "acid",
                             label: "Acid",
                             raw: "dr:acid",
@@ -1891,7 +1891,7 @@ export const fiendTestDef = {
                             {
                                 id: loopVars.skills[0],
                                 label: loopVars.names[0],
-                                icon: `modules/transformations/icons/skills/${loopVars.icons[0]}.png`,
+                                icon: `modules/transformations/Icons/skills/${loopVars.icons[0]}.png`,
                                 raw: `skills:${loopVars.skills[0]}`,
                                 value: loopVars.skills[0],
                                 mode: "forcedExpertise"
@@ -1899,7 +1899,7 @@ export const fiendTestDef = {
                             {
                                 id: loopVars.skills[1],
                                 label: loopVars.names[1],
-                                icon: `modules/transformations/icons/skills/${loopVars.icons[1]}.png`,
+                                icon: `modules/transformations/Icons/skills/${loopVars.icons[1]}.png`,
                                 raw: `skills:${loopVars.skills[1]}`,
                                 value: loopVars.skills[1],
                                 mode: "forcedExpertise"
@@ -2002,7 +2002,7 @@ export const fiendTestDef = {
                     {
                         name: "Fiendish Soul",
                         choice: {
-                            icon: "modules/transformations/icons/damageTypes/Acid.png",
+                            icon: "modules/transformations/Icons/DamageTypes/Acid.png",
                             id: "acid",
                             label: "Acid",
                             raw: "dr:acid",
@@ -2015,7 +2015,7 @@ export const fiendTestDef = {
                             {
                                 id: SKILL.ACROBATICS,
                                 label: "Acrobatics",
-                                icon: `modules/transformations/icons/skills/Acrobatics.png`,
+                                icon: `modules/transformations/Icons/skills/Acrobatics.png`,
                                 raw: `skills:${SKILL.ACROBATICS}`,
                                 value: SKILL.ACROBATICS,
                                 mode: "forcedExpertise"
@@ -2023,7 +2023,7 @@ export const fiendTestDef = {
                             {
                                 id: SKILL.ARCANA,
                                 label: "Arcana",
-                                icon: `modules/transformations/icons/skills/Arcana.png`,
+                                icon: `modules/transformations/Icons/skills/Arcana.png`,
                                 raw: `skills:${SKILL.ARCANA}`,
                                 value: SKILL.ARCANA,
                                 mode: "forcedExpertise"
@@ -2120,7 +2120,7 @@ export const fiendTestDef = {
                     {
                         name: "Fiendish Soul",
                         choice: {
-                            icon: "modules/transformations/icons/damageTypes/Acid.png",
+                            icon: "modules/transformations/Icons/DamageTypes/Acid.png",
                             id: "acid",
                             label: "Acid",
                             raw: "dr:acid",
@@ -2249,7 +2249,7 @@ export const fiendTestDef = {
                     {
                         name: "Fiendish Soul",
                         choice: {
-                            icon: "modules/transformations/icons/damageTypes/Acid.png",
+                            icon: "modules/transformations/Icons/DamageTypes/Acid.png",
                             id: "acid",
                             label: "Acid",
                             raw: "dr:acid",
@@ -2800,7 +2800,7 @@ export const fiendTestDef = {
                     {
                         name: "Fiendish Soul",
                         choice: {
-                            icon: "modules/transformations/icons/damageTypes/Acid.png",
+                            icon: "modules/transformations/Icons/DamageTypes/Acid.png",
                             id: "acid",
                             label: "Acid",
                             raw: "dr:acid",
@@ -2874,7 +2874,7 @@ export const fiendTestDef = {
                     {
                         name: "Fiendish Soul",
                         choice: {
-                            icon: "modules/transformations/icons/damageTypes/Acid.png",
+                            icon: "modules/transformations/Icons/DamageTypes/Acid.png",
                             id: "acid",
                             label: "Acid",
                             raw: "dr:acid",

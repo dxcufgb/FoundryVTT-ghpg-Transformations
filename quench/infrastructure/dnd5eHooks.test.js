@@ -1,4 +1,5 @@
 import { registerDnd5eHooks } from "../../infrastructure/hooks/dnd5eHooks.js"
+import { Lich } from "../../domain/transformation/subclasses/lich/Lich.js"
 import { Lycanthrope } from "../../domain/transformation/subclasses/lycanthrope/Lycanthrope.js"
 import { Primordial } from "../../domain/transformation/subclasses/primordial/Primordial.js"
 import { Seraph } from "../../domain/transformation/subclasses/seraph/Seraph.js"
@@ -262,6 +263,121 @@ quench.registerBatch(
                 } finally {
                     harness.restore()
                 }
+            })
+
+            it("dispatches the attacker pre-roll saving throw hook for the workflow actor", async function ()
+            {
+                const target = {...createActor(), uuid: "Actor.target"}
+                const attacker = {...createActor(), uuid: "Actor.attacker"}
+                const attackerCalls = []
+                const harness = createHookHarness({
+                    transformationOverrides: {
+                        TransformationClass: {
+                            async onPreRollSavingThrow() {},
+                            async onPreRollSavingThrowAsAttacker(context, actor, options)
+                            {
+                                attackerCalls.push({context, actor, options})
+                            }
+                        }
+                    }
+                })
+
+                try {
+                    const context = {subject: target, workflow: {actor: attacker}}
+
+                    harness.callbacks.get("dnd5e.preRollSavingThrowV2")(context, {}, {})
+                    await flushAsyncWork()
+
+                    expect(attackerCalls).to.have.length(1)
+                    expect(attackerCalls[0].context).to.equal(context)
+                    expect(attackerCalls[0].actor).to.equal(attacker)
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("does not dispatch the attacker pre-roll saving throw hook when the target is the attacker", async function ()
+            {
+                const actor = {...createActor(), uuid: "Actor.same"}
+                const attackerCalls = []
+                const harness = createHookHarness({
+                    transformationOverrides: {
+                        TransformationClass: {
+                            async onPreRollSavingThrow() {},
+                            async onPreRollSavingThrowAsAttacker()
+                            {
+                                attackerCalls.push(true)
+                            }
+                        }
+                    }
+                })
+
+                try {
+                    harness.callbacks.get("dnd5e.preRollSavingThrowV2")(
+                        {subject: actor, workflow: {actor}},
+                        {},
+                        {}
+                    )
+                    await flushAsyncWork()
+
+                    expect(attackerCalls).to.have.length(0)
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("makes a Lich attacker impose disadvantage and consumes EnforceDisadvantage", async function ()
+            {
+                const removed = []
+                const effect = {
+                    id: "effect-1",
+                    name: "Enforce Disadvantage",
+                    origin: "Compendium.transformations.gh-transformations.Item.abc.ActiveEffect.dQzYsMWKJw6E7rKc"
+                }
+                const attacker = {effects: [effect]}
+                const activeEffectRepository = {
+                    async removeByIds(actor, ids)
+                    {
+                        removed.push({actor, ids})
+                    }
+                }
+                const context = {}
+                const dialog = {options: {defaultButton: "normal"}}
+
+                await Lich.onPreRollSavingThrowAsAttacker(
+                    context,
+                    attacker,
+                    {activeEffectRepository, dialog}
+                )
+
+                expect(context.disadvantage).to.equal(true)
+                expect(dialog.options.defaultButton).to.equal("disadvantage")
+                expect(removed).to.deep.equal([{actor: attacker, ids: ["effect-1"]}])
+
+                const advantageDialog = {options: {defaultButton: "advantage"}}
+                await Lich.onPreRollSavingThrowAsAttacker(
+                    {advantage: true},
+                    {effects: [{...effect, id: "effect-2"}]},
+                    {activeEffectRepository, dialog: advantageDialog}
+                )
+
+                expect(advantageDialog.options.defaultButton).to.equal("normal")
+                removed.pop()
+
+                const untouchedContext = {}
+                await Lich.onPreRollSavingThrowAsAttacker(
+                    untouchedContext,
+                    {
+                        effects: [
+                            {...effect, origin: "Compendium.x.Item.abc.ActiveEffect.other"},
+                            {...effect, name: "Other"}
+                        ]
+                    },
+                    {activeEffectRepository}
+                )
+
+                expect(untouchedContext.disadvantage).to.equal(undefined)
+                expect(removed).to.have.length(1)
             })
 
             it("includes originating item data when dispatching saving throw trigger context", async function ()

@@ -613,6 +613,7 @@ export function createItemRepository({
                         actor,
                         advancementConfiguration,
                         sourceItem: parentItem,
+                        hint: advancement.hint,
                         triggeringUserId
                     })
 
@@ -687,6 +688,7 @@ export function createItemRepository({
                         advancementChoices: choicePool,
                         numberOfChoices: choices?.count ?? 1,
                         sourceItem: parentItem,
+                        hint: advancement.hint,
                         triggeringUserId
                     })
 

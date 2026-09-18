@@ -148,21 +148,21 @@ quench.registerBatch(
                 expect(calls.dialog).to.have.length(1)
                 expect(calls.dialog[0].choices).to.deep.equal([
                     {
-                        icon: "modules/transformations/icons/damageTypes/Acid.png",
+                        icon: "modules/transformations/Icons/DamageTypes/Acid.png",
                         id: "acid",
                         label: "Acid",
                         raw: "dr:acid",
                         value: "acid"
                     },
                     {
-                        icon: "modules/transformations/icons/damageTypes/Cold.png",
+                        icon: "modules/transformations/Icons/DamageTypes/Cold.png",
                         id: "cold",
                         label: "Cold",
                         raw: "dr:cold",
                         value: "cold"
                     },
                     {
-                        icon: "modules/transformations/icons/damageTypes/Fire.png",
+                        icon: "modules/transformations/Icons/DamageTypes/Fire.png",
                         id: "fire",
                         label: "Fire",
                         raw: "dr:fire",
@@ -180,7 +180,7 @@ quench.registerBatch(
                     label: "Acid",
                     description: "Gain resistance to acid damage.",
                     source: "transformation",
-                    icon: "modules/transformations/icons/damageTypes/Acid.png",
+                    icon: "modules/transformations/Icons/DamageTypes/Acid.png",
                     origin: "Actor.actor-1",
                     resistanceIdentifier: "acid",
                     changes: [
@@ -542,7 +542,7 @@ quench.registerBatch(
                 )
                 expect(calls.dialog[0].choices).to.have.length(18)
                 expect(calls.dialog[0].choices[0]).to.deep.equal({
-                    icon: "modules/transformations/icons/skills/Acrobatics.png",
+                    icon: "modules/transformations/Icons/skills/Acrobatics.png",
                     id: "acr",
                     label: "Acrobatics",
                     raw: "skills:acr",
@@ -575,14 +575,14 @@ quench.registerBatch(
                 expect(calls.dialog).to.have.length(1)
                 expect(calls.dialog[0].choices).to.deep.equal([
                     {
-                        icon: "modules/transformations/icons/abilities/Strength.svg",
+                        icon: "modules/transformations/Icons/abilities/Strength.svg",
                         id: "str",
                         label: "Strength",
                         raw: "saves:str",
                         value: "str"
                     },
                     {
-                        icon: "modules/transformations/icons/abilities/Dexterity.svg",
+                        icon: "modules/transformations/Icons/abilities/Dexterity.svg",
                         id: "dex",
                         label: "Dexterity",
                         raw: "saves:dex",
@@ -602,7 +602,7 @@ quench.registerBatch(
                     label: "Strength",
                     description: "Gain proficiency in strength saving throws.",
                     source: "transformation",
-                    icon: "modules/transformations/icons/abilities/Strength.svg",
+                    icon: "modules/transformations/Icons/abilities/Strength.svg",
                     origin: "Actor.actor-1",
                     saveIdentifier: "str",
                     changes: [
@@ -644,7 +644,7 @@ quench.registerBatch(
                 )
                 expect(calls.dialog[0].choices).to.have.length(6)
                 expect(calls.dialog[0].choices[0]).to.deep.equal({
-                    icon: "modules/transformations/icons/abilities/Strength.svg",
+                    icon: "modules/transformations/Icons/abilities/Strength.svg",
                     id: "str",
                     label: "Strength",
                     raw: "saves:str",
@@ -779,7 +779,7 @@ quench.registerBatch(
                                 advancementChoiceType: "damageResistance"
                             }
                         },
-                        icon: "modules/transformations/icons/damageTypes/Acid.png",
+                        icon: "modules/transformations/Icons/DamageTypes/Acid.png",
                         label: "Acid",
                         name: "Damage Resistance: Acid",
                         origin: "Actor.actor-1",
@@ -805,7 +805,7 @@ quench.registerBatch(
                                 advancementChoiceType: "damageResistance"
                             }
                         },
-                        icon: "modules/transformations/icons/damageTypes/Cold.png",
+                        icon: "modules/transformations/Icons/DamageTypes/Cold.png",
                         label: "Cold",
                         name: "Damage Resistance: Cold",
                         origin: "Actor.actor-1",
@@ -846,7 +846,7 @@ quench.registerBatch(
                     label: "Acid",
                     description: "Gain immunity to acid damage.",
                     source: "transformation",
-                    icon: "modules/transformations/icons/damageTypes/Acid.png",
+                    icon: "modules/transformations/Icons/DamageTypes/Acid.png",
                     origin: "Compendium.transformations.gh-transformations.Item.parent",
                     resistanceIdentifier: "acid",
                     changes: [
@@ -909,7 +909,7 @@ quench.registerBatch(
                         label: "Fire",
                         description: "Gain resistance to fire damage.",
                         source: "transformation",
-                        icon: "modules/transformations/icons/damageTypes/Fire.png",
+                        icon: "modules/transformations/Icons/DamageTypes/Fire.png",
                         origin:
                             "Compendium.transformations.gh-transformations.Item.gQZ0xl368qBi0zzP",
                         resistanceIdentifier: "fire",

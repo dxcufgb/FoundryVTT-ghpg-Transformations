@@ -4,21 +4,21 @@ import { ABILITY, ROLL_TYPE } from "../../../../config/constants.js";
 
 const viscousDurabilityChoices = Object.freeze([
     {
-        icon: "modules/transformations/icons/damageTypes/Cold.png",
+        icon: "modules/transformations/Icons/DamageTypes/Cold.png",
         id: "cold",
         label: "Cold",
         raw: "dr:cold",
         value: "cold"
     },
     {
-        icon: "modules/transformations/icons/damageTypes/Fire.png",
+        icon: "modules/transformations/Icons/DamageTypes/Fire.png",
         id: "fire",
         label: "Fire",
         raw: "dr:fire",
         value: "fire"
     },
     {
-        icon: "modules/transformations/icons/damageTypes/Lightning.png",
+        icon: "modules/transformations/Icons/DamageTypes/Lightning.png",
         id: "lightning",
         label: "Lightning",
         raw: "dr:lightning",

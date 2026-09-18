@@ -353,7 +353,7 @@ const stage2Choices = Object.freeze([
     {
         name: "Inhuman Reflexes",
         uuid: "Compendium.transformations.gh-transformations.Item.rviGB0iP3bPoH6dZ",
-        img: "modules/transformations/Icons/Transformations/Vampire/inhuman%20Reflexes.png",
+        img: "modules/transformations/Icons/Transformations/Vampire/Inhuman%20Reflexes.png",
         identifier: "inhuman-reflexes",
         descriptionSnippet: "You have Advantage on Dexterity saving throws",
         advancementCount: 0,
@@ -446,7 +446,7 @@ const stage3Choices = Object.freeze([
         name: BEGUILERS_CHARM_NAME,
         uuid: BEGUILERS_CHARM_UUID,
         img:
-            "modules/transformations/Icons/Transformations/Vampire/Beguiler%E2%80%99s%20Charm.png",
+            "modules/transformations/Icons/Transformations/Vampire/Beguilers%20Charm.png",
         identifier: "beguilers-charm",
         descriptionSnippet:
             "the creature has the Charmed condition for 24 hours",
@@ -508,7 +508,7 @@ const stage3Choices = Object.freeze([
         name: "Mist Form",
         uuid: MIST_FORM_UUID,
         img:
-            "modules/transformations/Icons/Transformations/Vampire/Mist%20Form.ong.png",
+            "modules/transformations/Icons/Transformations/Vampire/Mist%20Form.png",
         identifier: "mist-form",
         descriptionSnippet:
             "You can cast the Gaseous Form spell a number of times equal to your Vampire Transformation Stage",

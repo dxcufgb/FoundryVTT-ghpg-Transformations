@@ -82,7 +82,7 @@ export function registerDialogActionTests({
                     data: {
                         dialogFactoryFunction: "openTransformationGeneralChoiceDialog",
                         choices: [
-                            { icon: "modules/transformations/icons/DamageTypes/Fire.png", id: "fire", label: "Fire" }
+                            { icon: "modules/transformations/Icons/DamageTypes/Fire.png", id: "fire", label: "Fire" }
                         ],
                         description: "Choose one."
                     }

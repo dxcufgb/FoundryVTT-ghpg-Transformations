@@ -64,6 +64,16 @@ export class Transformation
         this.logger?.debug?.("Transformation.onSavingThrow", actor, context, options)
     }
 
+    static async onPreRollSavingThrowAsAttacker(context, attacker, options = {})
+    {
+        this.logger?.debug?.(
+            "Transformation.onPreRollSavingThrowAsAttacker",
+            attacker,
+            context,
+            options
+        )
+    }
+
     static async postCreateScript(actor, scriptName)
     {
         this.logger?.debug?.("Transformation.postCreateScript", actor, scriptName)

@@ -391,6 +391,13 @@ export function createLocalTransformationMutationAdapter({
                             continue
                         }
 
+                        if (globalThis?.__TRANSFORMATIONS_TEST__ === true) {
+                            logger.warn(
+                                "Grant info dialog skipped: test mode is active, reload Foundry to clear it",
+                                itemGrant.uuid
+                            )
+                        }
+
                         if (
                             globalThis?.__TRANSFORMATIONS_TEST__ !== true &&
                             !selectedChoiceUuids.has(sourceItem.uuid)

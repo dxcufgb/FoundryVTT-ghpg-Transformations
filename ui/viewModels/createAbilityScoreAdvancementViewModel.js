@@ -7,13 +7,15 @@ export function createAbilityScoreAdvancementViewModel({
     actor,
     advancementConfiguration = {},
     title = "Allocate Ability Scores",
+    hint = "",
     logger = null
 })
 {
     logger?.debug?.("createAbilityScoreAdvancementViewModel", {
         actor,
         advancementConfiguration,
-        title
+        title,
+        hint
     })
 
     const state = createAbilityScoreAdvancementState({
@@ -30,6 +32,7 @@ export function createAbilityScoreAdvancementViewModel({
 
     return {
         title,
+        hint,
         confirmLabel: "Apply",
         cancelLabel: "Cancel",
         pointsAvailable,
