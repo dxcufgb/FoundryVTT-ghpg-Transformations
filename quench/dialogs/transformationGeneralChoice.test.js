@@ -37,8 +37,8 @@ quench.registerBatch(
             it("maps choices correctly", function()
             {
                 const choices = [
-                    { icon: "modules/transformations/icons/DamageTypes/Fire.png", id: "fire", label: "Fire" },
-                    { icon: "modules/transformations/icons/DamageTypes/Cold.png", id: "cold", label: "Cold" }
+                    { icon: "modules/transformations/Icons/DamageTypes/Fire.png", id: "fire", label: "Fire" },
+                    { icon: "modules/transformations/Icons/DamageTypes/Cold.png", id: "cold", label: "Cold" }
                 ]
 
                 const vm = createTransformationGeneralChoiceViewModel({
@@ -49,7 +49,7 @@ quench.registerBatch(
 
                 expect(vm.choices[0]).to.deep.equal({
                     id: "fire",
-                    icon: "modules/transformations/icons/DamageTypes/Fire.png",
+                    icon: "modules/transformations/Icons/DamageTypes/Fire.png",
                     label: "Fire"
                 })
             })
@@ -87,7 +87,7 @@ quench.registerBatch(
             {
                 const vm = createTransformationGeneralChoiceViewModel({
                     choices: [
-                        { icon: "modules/transformations/icons/DamageTypes/Fire.png", id: "fire", label: "Fire" }
+                        { icon: "modules/transformations/Icons/DamageTypes/Fire.png", id: "fire", label: "Fire" }
                     ],
                     choiceCount: 2
                 })
@@ -150,7 +150,7 @@ quench.registerBatch(
 
                 const viewModel = {
                     choices: [
-                        { id: "fire", label: "Fire", icon: "modules/transformations/icons/DamageTypes/Fire.png" }
+                        { id: "fire", label: "Fire", icon: "modules/transformations/Icons/DamageTypes/Fire.png" }
                     ],
                     description: "Choose wisely.",
                     title: "Custom title"
@@ -186,7 +186,7 @@ quench.registerBatch(
                 const viewModel = {
                     description: "",
                     choices: [
-                        { id: "fire", label: "Fire", icon: "modules/transformations/icons/DamageTypes/Fire.png" }
+                        { id: "fire", label: "Fire", icon: "modules/transformations/Icons/DamageTypes/Fire.png" }
                     ],
                     title: "Custom title"
                 }
@@ -221,8 +221,8 @@ quench.registerBatch(
 
                 const viewModel = {
                     choices: [
-                        { id: "fire", label: "Fire", icon: "modules/transformations/icons/DamageTypes/Fire.png" },
-                        { id: "cold", label: "Cold", icon: "modules/transformations/icons/DamageTypes/Cold.png" }
+                        { id: "fire", label: "Fire", icon: "modules/transformations/Icons/DamageTypes/Fire.png" },
+                        { id: "cold", label: "Cold", icon: "modules/transformations/Icons/DamageTypes/Cold.png" }
                     ],
                     description: "",
                     title: "Custom title"
@@ -260,9 +260,9 @@ quench.registerBatch(
 
                 const viewModel = createTransformationGeneralChoiceViewModel({
                     choices: [
-                        { id: "fire", label: "Fire", icon: "modules/transformations/icons/DamageTypes/Fire.png" },
-                        { id: "cold", label: "Cold", icon: "modules/transformations/icons/DamageTypes/Cold.png" },
-                        { id: "acid", label: "Acid", icon: "modules/transformations/icons/DamageTypes/Acid.png" }
+                        { id: "fire", label: "Fire", icon: "modules/transformations/Icons/DamageTypes/Fire.png" },
+                        { id: "cold", label: "Cold", icon: "modules/transformations/Icons/DamageTypes/Cold.png" },
+                        { id: "acid", label: "Acid", icon: "modules/transformations/Icons/DamageTypes/Acid.png" }
                     ],
                     choiceCount: 2,
                     title: "Choose two"
@@ -300,9 +300,9 @@ quench.registerBatch(
 
                 const viewModel = createTransformationGeneralChoiceViewModel({
                     choices: [
-                        { id: "fire", label: "Fire", icon: "modules/transformations/icons/DamageTypes/Fire.png" },
-                        { id: "cold", label: "Cold", icon: "modules/transformations/icons/DamageTypes/Cold.png" },
-                        { id: "acid", label: "Acid", icon: "modules/transformations/icons/DamageTypes/Acid.png" }
+                        { id: "fire", label: "Fire", icon: "modules/transformations/Icons/DamageTypes/Fire.png" },
+                        { id: "cold", label: "Cold", icon: "modules/transformations/Icons/DamageTypes/Cold.png" },
+                        { id: "acid", label: "Acid", icon: "modules/transformations/Icons/DamageTypes/Acid.png" }
                     ],
                     choiceCount: 2,
                     title: "Choose two"
@@ -353,9 +353,9 @@ quench.registerBatch(
 
                 const viewModel = createTransformationGeneralChoiceViewModel({
                     choices: [
-                        { id: "fire", label: "Fire", icon: "modules/transformations/icons/DamageTypes/Fire.png" },
-                        { id: "cold", label: "Cold", icon: "modules/transformations/icons/DamageTypes/Cold.png" },
-                        { id: "acid", label: "Acid", icon: "modules/transformations/icons/DamageTypes/Acid.png" }
+                        { id: "fire", label: "Fire", icon: "modules/transformations/Icons/DamageTypes/Fire.png" },
+                        { id: "cold", label: "Cold", icon: "modules/transformations/Icons/DamageTypes/Cold.png" },
+                        { id: "acid", label: "Acid", icon: "modules/transformations/Icons/DamageTypes/Acid.png" }
                     ],
                     choiceCount: 2,
                     title: "Choose two"

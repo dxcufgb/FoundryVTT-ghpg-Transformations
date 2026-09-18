@@ -1,11 +1,11 @@
 import { ABILITY, SKILL } from "../../config/constants.js"
 
 const DAMAGE_TYPE_ICON_PATH =
-          "modules/transformations/icons/damageTypes"
+          "modules/transformations/Icons/DamageTypes"
 const SKILL_ICON_PATH =
-          "modules/transformations/icons/skills"
+          "modules/transformations/Icons/skills"
 const ABILITY_ICON_PATH =
-          "modules/transformations/icons/abilities"
+          "modules/transformations/Icons/abilities"
 
 export const DAMAGE_TYPE_CHOICES = Object.freeze({
     acid: Object.freeze({

@@ -809,7 +809,7 @@ export const feyTestDef = {
                         actor,
                         name: "Fey Form Resistance",
                         description: "Your Fey Form grants you resistance to acid",
-                        icon: "modules/transformations/icons/Transformations/Fey/Fey_Form.png",
+                        icon: "modules/transformations/Icons/Transformations/Fey/Fey_Form.png",
                         changes: [
                             {
                                 key: "system.traits.dr.value",
