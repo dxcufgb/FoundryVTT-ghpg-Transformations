@@ -40,6 +40,13 @@ export function createSettingsMenu({
         default: roleValue("GAMEMASTER", 4)
     })
 
+    game.settings.register(MODULE_ID, "welcomeMessageShown", {
+        scope: "world",
+        config: false,
+        type: Boolean,
+        default: false
+    })
+
     game.settings.register(MODULE_ID, "changeTransformationAllowedRoles", {
         name: "Change Transformation Allowed Roles",
         hint: "Players with selected or higher can change their transformation",

@@ -68,6 +68,14 @@ export function registerSockets({
                 return false
             }
 
+            if (payload?.data?.itemUuid && !data.item) {
+                logger.error("openDialog could not resolve item", {
+                    methodName,
+                    itemUuid: payload.data.itemUuid
+                })
+                return false
+            }
+
             if (payload?.data?.actorUuid && !data.actor) {
                 logger.error("openDialog could not resolve actor", {
                     methodName,

@@ -38,6 +38,7 @@ import { TransformationsDebugApplication } from "./ui/applications/transformatio
 import { applyTransformationFlags } from "./flags/applyTransformationFlags.js"
 import { transformationFlagEntries } from "./flags/index.js"
 import { createModuleApi } from "./bootstrap/createModuleApi.js"
+import { sendGmWelcomeMessage } from "./bootstrap/sendGmWelcomeMessage.js"
 
 //hasRun set to false for dev function.
 let hasRun = false
@@ -329,7 +330,12 @@ Hooks.once("ready", async () =>
         await pack.configure({locked: false})
     }
 
-    // CONFIG.debug.hooks = true
+    // TODO: enable the first startup condition once the welcome message is finished.
+    // if (!game.settings.get(constants.MODULE_NAME, "welcomeMessageShown")) {
+    await sendGmWelcomeMessage({game, logger: Registry.logger})
+    //     await game.settings.set(constants.MODULE_NAME, "welcomeMessageShown", true)
+    // }
+    //CONFIG.debug.hooks = true
     // CONFIG.debug.documents = true
     // CONFIG.debug.rollParsing = true
 

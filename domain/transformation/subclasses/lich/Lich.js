@@ -4,9 +4,12 @@ import { LichMagicaRegainSpellSlots } from "./activities/LichMagicaRegainSpellSl
 
 const SOUL_VESSEL_NAME = "Soul Vessel"
 const SOUL_VESSEL_FLAG_PATH = "flags.transformations.lich.soulVesselCharged"
+const ENFORCE_DISADVANTAGE_EFFECT_NAME = "Enforce Disadvantage"
+const ENFORCE_DISADVANTAGE_EFFECT_ORIGIN_SUFFIX =
+          "ActiveEffect.dQzYsMWKJw6E7rKc"
 const ELDRITCH_CONCENTRATION_ITEM_NAME = "Eldritch Concentration"
 const ELDRITCH_CONCENTRATION_ITEM_SOURCE_UUID =
-    "Compendium.transformations.gh-transformations.Item.h0hvoW3lpVwBhbjk"
+          "Compendium.transformations.gh-transformations.Item.h0hvoW3lpVwBhbjk"
 
 function getUpdatedUsesValue(changed)
 {
@@ -133,6 +136,54 @@ export class Lich extends Transformation
         }
     }
 
+    static async onPreRollSavingThrowAsAttacker(context, attacker, data = {})
+    {
+        this.logger?.debug?.("Lich.onPreRollSavingThrowAsAttacker", attacker, context, data)
+
+        const effect = attacker?.effects?.find(effect =>
+            effect.name === ENFORCE_DISADVANTAGE_EFFECT_NAME &&
+            effect.origin?.endsWith(ENFORCE_DISADVANTAGE_EFFECT_ORIGIN_SUFFIX)
+        )
+        if (!effect) return
+
+        const hasAdvantage =
+                  context.advantage === true ||
+                  context.rolls?.some(roll => roll.options?.advantage === true)
+
+        context.disadvantage = true
+        context.rolls?.forEach(roll =>
+        {
+            roll.options ??= {}
+            roll.options.disadvantage = true
+        })
+
+        // The roll dialog highlights its default button from the dialog
+        // options, which are computed before this hook runs.
+        if (data.dialog) {
+            const ADV_MODE = CONFIG.Dice.D20Roll.ADV_MODE
+
+            data.dialog.options ??= {}
+            data.dialog.options.advantageMode = hasAdvantage
+                ? ADV_MODE.NORMAL
+                : ADV_MODE.DISADVANTAGE
+            data.dialog.options.defaultButton = hasAdvantage
+                ? "normal"
+                : "disadvantage"
+        }
+
+        this.logger?.debug?.(
+            "Lich.onPreRollSavingThrowAsAttacker applied disadvantage",
+            context,
+            data.dialog
+        )
+
+        if (data.activeEffectRepository) {
+            await data.activeEffectRepository.removeByIds(attacker, [effect.id])
+        } else {
+            await effect.delete()
+        }
+    }
+
     static async onActivityUse(
         activity,
         usage,
@@ -162,7 +213,8 @@ export class Lich extends Transformation
                 if (
                     itemSourceUuid !== MemoriLichdomNecroticDamage.itemSourceUuid &&
                     itemName !== "Memori Lichdom"
-                ) {
+                )
+                {
                     return
                 }
 
@@ -177,7 +229,8 @@ export class Lich extends Transformation
                 if (
                     itemSourceUuid !== LichMagicaRegainSpellSlots.itemSourceUuid &&
                     itemName !== "Lich Magica"
-                ) {
+                )
+                {
                     return
                 }
 

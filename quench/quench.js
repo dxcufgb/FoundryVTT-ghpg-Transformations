@@ -1,3 +1,4 @@
+import "./helpers/productionState.js"
 import "./helpers/rules/defaultRules.js"
 import "./helpers/helpersTests.js"
 
@@ -7,3 +8,4 @@ import "./chatMessages/chatMessagesTests.js"
 import "./actions/actionTests.js"
 import "./infrastructure/infrastructureTests.js"
 import "./transformations/transformationTests.js"
+import "./domain/shadowsteelCurseRoll.test.js"
