@@ -35,6 +35,32 @@ function resolveActorFromSubject(subject)
     )
 }
 
+function resolveSavingThrowAttacker(context, ...configs)
+{
+    const workflow = context?.workflow
+    const workflowActor = workflow?.actor ?? workflow?.item?.actor ?? null
+    if (workflowActor) return workflowActor
+
+    for (const config of [context, ...configs]) {
+        const messageId =
+                  config?.data?.flags?.dnd5e?.originatingMessage ??
+                  config?.flags?.dnd5e?.originatingMessage ??
+                  null
+        const message = messageId ? game.messages?.get(messageId) : null
+        const speaker = message?.speaker
+
+        if (!speaker) continue
+
+        const speakerActor =
+                  ChatMessage.getSpeakerActor?.(speaker) ??
+                  game.actors?.get(speaker.actor) ??
+                  null
+        if (speakerActor) return speakerActor
+    }
+
+    return null
+}
+
 function resolveDamageTypeMap(actor)
 {
     return actor?.getFlag?.("transformations", "damageTypePerMidiId") ?? {}
@@ -587,7 +613,37 @@ export function registerDnd5eHooks({
             if (!actor) return
 
             const transformation = transformationRegistry.getEntryForActor(actor)
+
+            if (!transformation) return
+
             await transformation.TransformationClass.onPreRollSavingThrow(context, actor, {onceService})
+        })()
+    })
+
+    // Runs after every dnd5e.preRollSavingThrow listener, including the
+    // one midi-qol registers per roll that overwrites config.advantage and
+    // config.disadvantage.
+    Hooks.on("dnd5e.preRollSavingThrowV2", (context, options, data) =>
+    {
+        logger.debug("dnd5e.preRollSavingThrowV2 called", context, options, data)
+        debouncedTracker.pulse("dnd5e.preRollSavingThrowV2");
+        (async () =>
+        {
+            const actor = context?.subject
+            const attacker = resolveSavingThrowAttacker(context, options, data)
+
+            if (!attacker || attacker.uuid === actor?.uuid) return
+
+            const transformation = transformationRegistry.getEntryForActor(attacker)
+
+            if (!transformation) return
+
+            await transformation.TransformationClass
+            .onPreRollSavingThrowAsAttacker?.(
+                context,
+                attacker,
+                {onceService, activeEffectRepository, dialog: options}
+            )
         })()
     })
 
@@ -865,9 +921,6 @@ export function registerDnd5eHooks({
             logger
         })
 
-        await triggerRuntime.run("preRollDamage", actor, {
-            ...triggerContext
-        })
     })()
     })
 
@@ -935,7 +988,8 @@ export function registerDnd5eHooks({
         if (
             activityUseResult?.skipActivityUseTrigger === true ||
             usage?.flags?.transformations?.skipActivityUseTrigger === true
-        ) {
+        )
+        {
             return
         }
 

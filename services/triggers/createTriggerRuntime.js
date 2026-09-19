@@ -14,7 +14,11 @@ export function createTriggerRuntime({
             {
                 logger.debug("TriggerRuntime.run called", triggerName, actor, context)
                 if (!actor) return
-                return transformationService.onTrigger(actor, triggerName, context)
+                return transformationService.onTrigger(actor, triggerName, {
+                    ...context,
+                    triggeringUserId:
+                        context?.triggeringUserId ?? game.user?.id ?? null
+                })
             })()
         )
     }

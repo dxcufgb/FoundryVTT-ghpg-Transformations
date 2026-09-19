@@ -1300,7 +1300,7 @@ export const shadowsteelGhoulTestDef = {
                     {
                         effect.name = SHADOWSTEEL_WEAPON_EFFECT_NAME
                         effect.type = "enchantment"
-                        effect.changes.count = 2
+                        effect.changes.count = 3
                     })
                 })
 

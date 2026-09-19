@@ -85,7 +85,7 @@ quench.registerBatch(
                     label: "Acid",
                     description: "Gain resistance to acid damage.",
                     source: "transformation",
-                    icon: "modules/transformations/icons/damageTypes/Acid.png",
+                    icon: "modules/transformations/Icons/DamageTypes/Acid.png",
                     origin: "Item.item-1",
                     resistanceIdentifier: "acid",
                     changes: [
@@ -127,7 +127,7 @@ quench.registerBatch(
                     label: "Acid",
                     description: "Gain vulnerability to acid damage.",
                     source: "transformation",
-                    icon: "modules/transformations/icons/damageTypes/Acid.png",
+                    icon: "modules/transformations/Icons/DamageTypes/Acid.png",
                     origin: "Item.item-1",
                     changes: [
                         {
@@ -176,7 +176,7 @@ quench.registerBatch(
                     label: "Acid",
                     description: "Gain immunity to acid damage.",
                     source: "transformation",
-                    icon: "modules/transformations/icons/damageTypes/Acid.png",
+                    icon: "modules/transformations/Icons/DamageTypes/Acid.png",
                     origin:
                         "Compendium.transformations.gh-transformations.Item.parent",
                     resistanceIdentifier: "acid",
@@ -217,7 +217,7 @@ quench.registerBatch(
                     label: "Arcana",
                     description: "Gain proficiency in Arcana.",
                     source: "transformation",
-                    icon: "modules/transformations/icons/skills/Arcana.png",
+                    icon: "modules/transformations/Icons/skills/Arcana.png",
                     origin: "Actor.actor-1",
                     skillIdentifier: "arc",
                     changes: [

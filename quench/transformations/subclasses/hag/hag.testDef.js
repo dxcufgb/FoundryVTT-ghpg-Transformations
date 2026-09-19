@@ -1015,7 +1015,7 @@ export const HagTestDef = {
                         choice: {
                             id: "str",
                             label: "Strength",
-                            icon: "modules/transformations/icons/abilities/Strength.svg",
+                            icon: "modules/transformations/Icons/abilities/Strength.svg",
                             raw: "saves:str",
                             value: "str"
                         }
@@ -1096,7 +1096,7 @@ export const HagTestDef = {
                         choice: {
                             id: "str",
                             label: "Strength",
-                            icon: "modules/transformations/icons/abilities/Strength.svg",
+                            icon: "modules/transformations/Icons/abilities/Strength.svg",
                             raw: "saves:str",
                             value: "str"
                         }
@@ -1177,7 +1177,7 @@ export const HagTestDef = {
                         choice: {
                             id: "str",
                             label: "Strength",
-                            icon: "modules/transformations/icons/abilities/Strength.svg",
+                            icon: "modules/transformations/Icons/abilities/Strength.svg",
                             raw: "saves:str",
                             value: "str"
                         }
@@ -1285,7 +1285,7 @@ export const HagTestDef = {
                         choice: {
                             id: "str",
                             label: "Strength",
-                            icon: "modules/transformations/icons/abilities/Strength.svg",
+                            icon: "modules/transformations/Icons/abilities/Strength.svg",
                             raw: "saves:str",
                             value: "str"
                         }
@@ -1477,7 +1477,7 @@ export const HagTestDef = {
                         choice: {
                             id: "str",
                             label: "Strength",
-                            icon: "modules/transformations/icons/abilities/Strength.svg",
+                            icon: "modules/transformations/Icons/abilities/Strength.svg",
                             raw: "saves:str",
                             value: "str"
                         }
@@ -1674,7 +1674,7 @@ export const HagTestDef = {
                         choice: {
                             id: "str",
                             label: "Strength",
-                            icon: "modules/transformations/icons/abilities/Strength.svg",
+                            icon: "modules/transformations/Icons/abilities/Strength.svg",
                             raw: "saves:str",
                             value: "str"
                         }
@@ -1780,7 +1780,7 @@ export const HagTestDef = {
                         choice: {
                             id: "str",
                             label: "Strength",
-                            icon: "modules/transformations/icons/abilities/Strength.svg",
+                            icon: "modules/transformations/Icons/abilities/Strength.svg",
                             raw: "saves:str",
                             value: "str"
                         }

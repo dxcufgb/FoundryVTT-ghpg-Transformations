@@ -630,7 +630,6 @@ export const feyTestDef = {
                     "Compendium.transformations.gh-transformations.Item.Uo86wtOs7PMOFlav",
                     loopVars.servantUuid,
                     loopVars.seasonallyAffectedUuid,
-                    loopVars.magicTricksUuid,
                     loopVars.magicTricksSpells[0].uuid,
                     loopVars.magicTricksSpells[1].uuid,
                     loopVars.magicTricksSpells[2].uuid,
@@ -809,7 +808,7 @@ export const feyTestDef = {
                         actor,
                         name: "Fey Form Resistance",
                         description: "Your Fey Form grants you resistance to acid",
-                        icon: "modules/transformations/icons/Transformations/Fey/Fey_Form.png",
+                        icon: "modules/transformations/Icons/Transformations/Fey/Fey_Form.png",
                         changes: [
                             {
                                 key: "system.traits.dr.value",

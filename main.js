@@ -40,6 +40,7 @@ import { TransformationsDebugApplication } from "./ui/applications/transformatio
 import { applyTransformationFlags } from "./flags/applyTransformationFlags.js"
 import { transformationFlagEntries } from "./flags/index.js"
 import { createModuleApi } from "./bootstrap/createModuleApi.js"
+import { sendGmWelcomeMessage } from "./bootstrap/sendGmWelcomeMessage.js"
 
 //hasRun set to false for dev function.
 let hasRun = false
@@ -186,11 +187,22 @@ Hooks.once("setup", async () =>
         transformationTypes: transformationSubTypes,
         transformationService: services.transformationService,
         transformationQueryService: services.transformationQueryService,
+        transformationRegistry: services.transformationRegistry,
         game,
         moduleUi,
         renderTemplate: foundry.applications.handlebars.renderTemplate,
         debouncedTracker: Registry.dependencies.utils.asyncTrackers.debounced,
         constants,
+        logger
+    })
+
+    registerActorSheetControlsAdapter({
+        game,
+        ActorClass: Actor,
+        debouncedTracker: Registry.dependencies.utils.asyncTrackers.debounced,
+        transformationService: services.transformationService,
+        transformationQueryService: services.transformationQueryService,
+        moduleUi,
         logger
     })
 
@@ -209,7 +221,6 @@ Hooks.once("setup", async () =>
             triggerRuntime: services.triggerRuntime,
             transformationQueryService: services.transformationQueryService,
             actorRepository: infrastructure.actorRepository,
-            registerActorSheetControlsAdapter,
             debouncedTracker: Registry.dependencies.utils.asyncTrackers.debounced,
             constants,
             logger
@@ -332,7 +343,12 @@ Hooks.once("ready", async () =>
         await pack.configure({locked: false})
     }
 
-    // CONFIG.debug.hooks = true
+    // TODO: enable the first startup condition once the welcome message is finished.
+    // if (!game.settings.get(constants.MODULE_NAME, "welcomeMessageShown")) {
+    await sendGmWelcomeMessage({game, logger: Registry.logger})
+    //     await game.settings.set(constants.MODULE_NAME, "welcomeMessageShown", true)
+    // }
+    //CONFIG.debug.hooks = true
     // CONFIG.debug.documents = true
     // CONFIG.debug.rollParsing = true
 

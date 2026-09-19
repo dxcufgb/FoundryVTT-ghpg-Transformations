@@ -1,4 +1,4 @@
-const ABILITY_ICON_PATH = "modules/transformations/icons/abilities"
+const ABILITY_ICON_PATH = "modules/transformations/Icons/abilities"
 
 export const ABILITY_SCORE_ADVANCEMENT_ENTRIES = Object.freeze([
     Object.freeze({

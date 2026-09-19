@@ -247,6 +247,7 @@ export function createDialogFactory({
         actor,
         advancementConfiguration = {},
         title = "Allocate Ability Scores",
+        hint = "",
         triggeringUserId = null,
         skipUserRouting = false
     })
@@ -255,6 +256,7 @@ export function createDialogFactory({
             actor,
             advancementConfiguration,
             title,
+            hint,
             triggeringUserId,
             skipUserRouting
         })
@@ -269,6 +271,7 @@ export function createDialogFactory({
                 actor,
                 advancementConfiguration,
                 title,
+                hint,
                 triggeringUserId,
                 skipUserRouting
             }
@@ -285,6 +288,7 @@ export function createDialogFactory({
                 actor,
                 advancementConfiguration,
                 title,
+                hint,
                 logger
             })
 
@@ -712,20 +716,37 @@ export function createDialogFactory({
         }
 
         if (!socketGateway?.isReady?.() || typeof socketGateway.executeAsUser !== "function") {
-            logger.warn("Dialog routing requested before socket gateway was ready", {
+            logger.error("Dialog routing requested before socket gateway was ready", {
                 methodName,
                 targetUserId
             })
             return false
         }
 
-        return socketGateway.executeAsUser("openDialog", targetUserId, {
-            methodName,
-            data: serializeDialogData({
-                ...data,
-                skipUserRouting: true
+        if (!game.users?.get(targetUserId)?.active) {
+            logger.warn("Dialog routing target user is not connected, opening locally", {
+                methodName,
+                targetUserId
             })
-        })
+            return ROUTE_LOCALLY
+        }
+
+        try {
+            return await socketGateway.executeAsUser("openDialog", targetUserId, {
+                methodName,
+                data: serializeDialogData({
+                    ...data,
+                    skipUserRouting: true
+                })
+            })
+        } catch (error) {
+            logger.error("Dialog routing failed", {
+                methodName,
+                targetUserId,
+                error
+            })
+            return false
+        }
     }
 }
 

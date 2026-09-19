@@ -197,12 +197,13 @@ export function createActiveEffectRepository({
                     ...flags.ddbimporter,
                     ignoreItemImport: true
                 },
-                transformations: {
-                    ...flags.transformations,
-                    addedByTransformation: true,
+                transformations: buildTransformationEffectFlags({
+                    actor,
+                    flags: flags.transformations,
                     source,
-                    context
-                }
+                    context,
+                    origin
+                })
             }
         }
         return tracker.track(
@@ -269,13 +270,17 @@ export function createActiveEffectRepository({
                         ...(flags.ddbimporter ?? {}),
                         ignoreItemImport: true
                     },
-                    transformations: {
-                        ...(effectData.flags.transformations ?? {}),
-                        ...(flags.transformations ?? {}),
-                        addedByTransformation: true,
+                    transformations: buildTransformationEffectFlags({
+                        actor,
+                        flags: {
+                            ...(effectData.flags.transformations ?? {}),
+                            ...(flags.transformations ?? {})
+                        },
                         source,
-                        context
-                    }
+                        context,
+                        origin: effectData.origin || uuid,
+                        sourceUuid: uuid
+                    })
                 }
 
                 debouncedTracker.pulse("createEmbeddedDocuments")
@@ -299,6 +304,34 @@ export function createActiveEffectRepository({
         )
     }
 
+    function getTransformationEffectsForStage(actor, {
+        definitionId,
+        stage,
+        origins = []
+    } = {})
+    {
+        logger.debug("createActiveEffectRepository.getTransformationEffectsForStage", {
+            actor,
+            definitionId,
+            stage,
+            origins
+        })
+        if (!actor || stage == null) return []
+
+        const originSet = new Set(
+            (Array.isArray(origins) ? origins : [origins])
+            .filter(origin => typeof origin === "string" && origin.length > 0)
+        )
+
+        return actor.effects.filter(effect =>
+            isTransformationEffectForStage(effect, {
+                definitionId,
+                stage,
+                origins: originSet
+            })
+        )
+    }
+
     async function clearTransformation(actor)
     {
         logger.debug("createActiveEffectRepository.clearTransformation", { actor })
@@ -313,6 +346,40 @@ export function createActiveEffectRepository({
                     "ActiveEffect",
                     effects.map(effect => effect.id)
                 )
+            })()
+        )
+    }
+
+    async function removeTransformationEffectsForStage(actor, {
+        definitionId,
+        stage,
+        origins = []
+    } = {})
+    {
+        logger.debug("createActiveEffectRepository.removeTransformationEffectsForStage", {
+            actor,
+            definitionId,
+            stage,
+            origins
+        })
+        const effects = getTransformationEffectsForStage(actor, {
+            definitionId,
+            stage,
+            origins
+        })
+
+        if (!effects.length) return []
+
+        return tracker.track(
+            (async () =>
+            {
+                debouncedTracker.pulse("deleteEmbeddedDocuments")
+                await actor.deleteEmbeddedDocuments(
+                    "ActiveEffect",
+                    effects.map(effect => effect.id)
+                )
+
+                return effects
             })()
         )
     }
@@ -383,7 +450,125 @@ export function createActiveEffectRepository({
         create,
         createFromUuid,
         clearTransformation,
+        getTransformationEffectsForStage,
+        removeTransformationEffectsForStage,
         removeEffectsOnLongRest,
         removeByOrigin
     })
+
+    function isTransformationEffectForStage(effect, {
+        definitionId,
+        stage,
+        origins
+    } = {})
+    {
+        if (!effect?.flags?.transformations) return false
+
+        const flags = effect.flags.transformations
+        if (flags.addedByTransformation !== true) return false
+
+        const grantedBy = flags.grantedBy ?? {}
+        const effectDefinitionId =
+                  grantedBy.transformationId ??
+                  flags.definitionId ??
+                  null
+
+        const definitionMatches =
+                  !effectDefinitionId ||
+                  !definitionId ||
+                  effectDefinitionId === definitionId
+
+        if (!definitionMatches) return false
+
+        if (origins?.has?.(effect.origin)) {
+            return true
+        }
+
+        const effectStage = Number(grantedBy.stage ?? flags.stage)
+        if (!Number.isFinite(effectStage) || effectStage !== Number(stage)) {
+            return false
+        }
+
+        return Boolean(
+            grantedBy.grantType ||
+            flags.advancementGrant ||
+            flags.advancementChoice ||
+            flags.advancementChoiceType ||
+            flags.advancementGrantType
+        )
+    }
+
+    function buildTransformationEffectFlags({
+        actor,
+        flags = {},
+        source,
+        context = {},
+        origin = "",
+        sourceUuid = null
+    } = {})
+    {
+        flags ??= {}
+        const originItem = findOriginItem(actor, origin)
+        const originItemFlags = originItem?.flags?.transformations ?? {}
+
+        const transformationId =
+                  flags?.grantedBy?.transformationId ??
+                  flags?.definitionId ??
+                  originItemFlags?.grantedBy?.transformationId ??
+                  originItemFlags?.definitionId ??
+                  actor?.flags?.transformations?.type ??
+                  null
+        const transformationStage =
+                  flags?.grantedBy?.stage ??
+                  flags?.stage ??
+                  originItemFlags?.grantedBy?.stage ??
+                  originItemFlags?.stage ??
+                  actor?.flags?.transformations?.stage ??
+                  null
+        const resolvedSourceUuid =
+                  flags?.grantedBy?.sourceUuid ??
+                  flags?.sourceUuid ??
+                  originItemFlags?.sourceUuid ??
+                  sourceUuid ??
+                  origin ??
+                  null
+        const isAdvancementGrant = Boolean(
+            flags?.advancementGrant ||
+            flags?.advancementChoice ||
+            flags?.advancementChoiceType ||
+            flags?.advancementGrantType ||
+            originItem
+        )
+        const grantType =
+                  flags?.grantedBy?.grantType ??
+                  flags?.grantType ??
+                  (isAdvancementGrant ? "advancement" : null)
+
+        return {
+            ...flags,
+            definitionId: transformationId,
+            stage: transformationStage,
+            addedByTransformation: true,
+            source,
+            context,
+            grantedBy: {
+                ...(flags?.grantedBy ?? {}),
+                transformationId,
+                stage: transformationStage,
+                sourceUuid: resolvedSourceUuid,
+                grantType
+            }
+        }
+    }
+
+    function findOriginItem(actor, origin)
+    {
+        if (!actor || !origin) return null
+
+        return actor.items?.find?.(item =>
+            item?.uuid === origin ||
+            item?.id === origin ||
+            item?.flags?.transformations?.sourceUuid === origin
+        ) ?? null
+    }
 }

@@ -399,6 +399,12 @@
     padding: 0.85rem 0.7rem 0.45rem;
 }
 
+.ability-score-advancement__hint {
+    text-align: center;
+    font-size: 0.9rem;
+    opacity: 0.85;
+}
+
 .ability-score-advancement__summary {
     display: flex;
     flex-wrap: wrap;

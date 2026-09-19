@@ -40,6 +40,7 @@ export function createAdvancementChoiceHandler({
         sourceItem = null,
         title = "Choose advancement",
         description = "",
+        hint = "",
         apply = true,
         triggeringUserId = null
     })
@@ -111,6 +112,7 @@ export function createAdvancementChoiceHandler({
                 choices: resolvedChoices,
                 choiceCount,
                 description:
+                    normalizeHint(hint) ??
                     choicePresentation?.description ??
                     description,
                 title:
@@ -190,6 +192,7 @@ export function createAdvancementChoiceHandler({
         advancementConfiguration = {},
         sourceItem = null,
         title = "Allocate Ability Scores",
+        hint = "",
         apply = true,
         triggeringUserId = null
     })
@@ -234,6 +237,7 @@ export function createAdvancementChoiceHandler({
             abilityState,
             sourceItem,
             title,
+            hint: normalizeHint(hint) ?? "",
             triggeringUserId
         })
 
@@ -934,6 +938,7 @@ export function createAdvancementChoiceHandler({
         abilityState,
         sourceItem,
         title,
+        hint = "",
         triggeringUserId = null
     })
     {
@@ -953,8 +958,16 @@ export function createAdvancementChoiceHandler({
             actor,
             advancementConfiguration: abilityState.advancementConfiguration,
             title,
+            hint,
             triggeringUserId
         })
+    }
+
+    function normalizeHint(hint)
+    {
+        return typeof hint === "string" && hint.trim().length > 0
+            ? hint.trim()
+            : null
     }
 
     function normalizeAbilityScoreSelectionInput(selection)

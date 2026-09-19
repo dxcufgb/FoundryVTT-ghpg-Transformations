@@ -1,4 +1,8 @@
 import { Lich } from "../../domain/transformation/subclasses/lich/Lich.js"
+import {
+    Seraph,
+    SERAPH_CORRUPTION_EFFECT_UUID
+} from "../../domain/transformation/subclasses/seraph/Seraph.js"
 import { registerGMOnlyActorHooks } from "../../infrastructure/hooks/GMOnlyActorHooks.js"
 
 function createLogger()
@@ -80,7 +84,9 @@ function createActor()
     }
 }
 
-function createHarness()
+function createHarness({
+    TransformationClass = Lich
+} = {})
 {
     const originalHooks = globalThis.Hooks
     const originalFoundry = globalThis.foundry
@@ -123,7 +129,7 @@ function createHarness()
         transformationQueryService: {
             async getForActor()
             {
-                return {constructor: Lich}
+                return {constructor: TransformationClass}
             }
         },
         constants: {
@@ -312,6 +318,65 @@ quench.registerBatch(
                         data: undefined
                     })
                 } finally {
+                    harness.restore()
+                }
+            })
+
+            it("posts Seraph Corruption description when the effect is created", async function()
+            {
+                const actor = createActor()
+                const harness = createHarness({
+                    TransformationClass: Seraph
+                })
+                const originalChatMessage = globalThis.ChatMessage
+                const createdMessages = []
+                const effect = {
+                    parent: actor,
+                    name: "Seraph Corruption",
+                    description: "<p>The celestial light turns inward.</p>",
+                    flags: {
+                        transformations: {
+                            grantedBy: {
+                                sourceUuid: SERAPH_CORRUPTION_EFFECT_UUID
+                            }
+                        }
+                    },
+                    getFlag(scope, key)
+                    {
+                        return this.flags?.[scope]?.[key] ?? null
+                    }
+                }
+
+                globalThis.ChatMessage = {
+                    getSpeaker({actor})
+                    {
+                        return {
+                            actor: actor.id
+                        }
+                    },
+                    async create(data)
+                    {
+                        createdMessages.push(data)
+                        return data
+                    }
+                }
+
+                try {
+                    const callback = harness.callbacks.get("createActiveEffect")
+                    expect(callback).to.be.a("function")
+
+                    await callback(effect, {}, "user-1")
+
+                    expect(createdMessages).to.have.length(1)
+                    expect(createdMessages[0].speaker.actor).to.equal(actor.id)
+                    expect(createdMessages[0].content).to.contain(
+                        "Seraph Corruption has been applied."
+                    )
+                    expect(createdMessages[0].content).to.contain(
+                        "The celestial light turns inward."
+                    )
+                } finally {
+                    globalThis.ChatMessage = originalChatMessage
                     harness.restore()
                 }
             })

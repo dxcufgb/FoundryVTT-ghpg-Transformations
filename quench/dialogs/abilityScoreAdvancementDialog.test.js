@@ -29,6 +29,28 @@ quench.registerBatch(
     {
         describe("createAbilityScoreAdvancementViewModel", function ()
         {
+            it("includes the advancement hint and defaults it to an empty string", function ()
+            {
+                const advancementConfiguration = {
+                    cap: 1,
+                    fixed: {},
+                    locked: [],
+                    max: 20,
+                    points: 1
+                }
+
+                expect(createAbilityScoreAdvancementViewModel({
+                    actor: createActor(),
+                    advancementConfiguration,
+                    hint: "Increase one ability score by 1."
+                }).hint).to.equal("Increase one ability score by 1.")
+
+                expect(createAbilityScoreAdvancementViewModel({
+                    actor: createActor(),
+                    advancementConfiguration
+                }).hint).to.equal("")
+            })
+
             it("maps all six abilities with current values and locked states", function ()
             {
                 const viewModel = createAbilityScoreAdvancementViewModel({
