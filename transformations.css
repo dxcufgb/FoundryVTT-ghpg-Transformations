@@ -858,3 +858,33 @@
     line-height: 1.5;
     text-align: center;
 }
+
+/* GM welcome card: green = setting applied, red = not applied */
+[data-transformations-welcome] button.transformations-status-applied,
+[data-transformations-welcome] button.transformations-status-applied:disabled {
+    background: #2e7d32;
+    border-color: #1b5e20;
+    color: #ffffff;
+    opacity: 1;
+}
+
+[data-transformations-welcome] button.transformations-status-not-applied,
+[data-transformations-welcome] button.transformations-status-not-applied:disabled {
+    background: #b71c1c;
+    border-color: #7f0000;
+    color: #ffffff;
+    opacity: 1;
+}
+
+[data-transformations-welcome] button.transformations-status-not-applied:disabled {
+    opacity: 0.85;
+}
+
+[data-transformations-welcome] button[data-transformations-welcome-status] {
+    cursor: default;
+}
+
+[data-transformations-welcome] button.transformations-status-applied:not(:disabled):hover,
+[data-transformations-welcome] button.transformations-status-not-applied:not(:disabled):hover {
+    filter: brightness(1.15);
+}
