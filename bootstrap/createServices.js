@@ -9,6 +9,7 @@ import { createTransformationQueryService } from "../services/transformations/cr
 import { createTransformationRegistry } from "../services/transformations/createTransformationRegistry.js"
 import { createTransformationService } from "../services/transformations/createTransformationServices.js"
 import { createStageUpApprovalService } from "../services/transformations/createStageUpApprovalService.js"
+import { createRecommendedSettingsService } from "../services/settings/createRecommendedSettingsService.js"
 import { createTriggerRuntime } from "../services/triggers/createTriggerRuntime.js"
 import { createRollTableEffectCatalog } from "../services/rollTables/createRollTableEffectCatalog.js"
 import { createTransformationMutationGateway } from "../infrastructure/foundry/TransformationMutationGateway.js"
@@ -177,6 +178,11 @@ export function createServices({
         logger
     })
 
+    const recommendedSettingsService = createRecommendedSettingsService({
+        getGame,
+        logger
+    })
+
     const triggerRuntime = createTriggerRuntime({
         tracker: trackers.services,
         transformationService,
@@ -188,6 +194,7 @@ export function createServices({
         transformationQueryService,
         transformationService,
         stageUpApprovalService,
+        recommendedSettingsService,
         rollTableEffectCatalog,
         rollTableEffectResolver,
         triggerRuntime,
