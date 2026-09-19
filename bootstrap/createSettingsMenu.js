@@ -63,6 +63,16 @@ export function createSettingsMenu({
         default: roleValue("GAMEMASTER", 4)
     })
 
+    game.settings.register(MODULE_ID, "askGmBeforeStageUp", {
+        name: "Ask GM before stage up",
+        hint: "When enabled, a player increasing their transformation stage must first get the GM's approval.",
+        scope: "world",
+        config: canConfigureSettings,
+        restricted: true,
+        type: Boolean,
+        default: false
+    })
+
     if (canConfigureSettings) {
         game.settings.registerMenu(MODULE_ID, "debugMenu", {
             name: "Transformation Debug Menu",

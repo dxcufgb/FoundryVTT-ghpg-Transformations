@@ -677,8 +677,126 @@ export function createDialogFactory({
         })
     }
 
+    const stageUpApprovalDialogs = new Map()
+
+    /**
+     * GM side: asks whether a player may raise a transformation stage.
+     * Resolves true (Yes), false (No) or null (dismissed).
+     */
+    function openStageUpApprovalDialog({
+        requestId = null,
+        requestingUserName,
+        characterName,
+        transformationName,
+        toStage
+    })
+    {
+        logger.debug("createDialogFactory.openStageUpApprovalDialog", {
+            requestId,
+            requestingUserName,
+            characterName,
+            transformationName,
+            toStage
+        })
+        const message =
+                  `${requestingUserName} wants to increase ${characterName}'s transformation ` +
+                  `(${transformationName}) stage to ${toStage}, is this ok?`
+
+        return new Promise(resolve =>
+        {
+            const dialog = new foundry.applications.api.DialogV2({
+                window: { title: "Transformation Stage Up" },
+                content: `<p>${foundry.utils.escapeHTML(message)}</p>`,
+                buttons: [
+                    { action: "yes", label: "Yes", icon: "fa-solid fa-check", callback: () => true },
+                    { action: "no", label: "No", icon: "fa-solid fa-xmark", callback: () => false }
+                ],
+                submit: result => resolve(result)
+            })
+            dialog.addEventListener("close", () =>
+            {
+                if (requestId) stageUpApprovalDialogs.delete(requestId)
+                resolve(null)
+            }, { once: true })
+
+            if (requestId) stageUpApprovalDialogs.set(requestId, dialog)
+            dialog.render({ force: true })
+        })
+    }
+
+    /** GM side: removes the decision dialog again, e.g. because the player aborted. */
+    function closeStageUpApprovalDialog(requestId)
+    {
+        logger.debug("createDialogFactory.closeStageUpApprovalDialog", { requestId })
+        const dialog = stageUpApprovalDialogs.get(requestId)
+        if (!dialog) return false
+        dialog.close()
+        return true
+    }
+
+    /**
+     * Player side: shown while the GM decides. `aborted` resolves when the player presses
+     * Abort (or closes the window); close() removes it without counting as an abort.
+     */
+    function openStageUpWaitingDialog()
+    {
+        logger.debug("createDialogFactory.openStageUpWaitingDialog", {})
+        let finished = false
+        let markAborted
+        const aborted = new Promise(resolve =>
+        {
+            markAborted = resolve
+        })
+
+        const dialog = new foundry.applications.api.DialogV2({
+            window: { title: "Transformation Stage Up" },
+            content: `<p><i class="fa-solid fa-spinner fa-spin-pulse"></i> Awaiting GM's decision...</p>`,
+            buttons: [
+                { action: "abort", label: "Abort", icon: "fa-solid fa-ban", callback: () => true }
+            ],
+            submit: () => {}
+        })
+        dialog.addEventListener("close", () =>
+        {
+            if (!finished) markAborted(true)
+        }, { once: true })
+        dialog.render({ force: true })
+
+        return {
+            aborted,
+            close()
+            {
+                finished = true
+                return dialog.close()
+            }
+        }
+    }
+
+    /** Player side: tells the player the GM said no. OK only closes the dialog. */
+    function openStageUpRejectedDialog({ characterName, transformationName })
+    {
+        logger.debug("createDialogFactory.openStageUpRejectedDialog", {
+            characterName,
+            transformationName
+        })
+        const message =
+                  `Transformation stage up for ${characterName} (${transformationName}) ` +
+                  `was rejected by the GM.`
+
+        return foundry.applications.api.DialogV2.prompt({
+            window: { title: "Transformation Stage Up" },
+            content: `<p>${foundry.utils.escapeHTML(message)}</p>`,
+            ok: { label: "OK", icon: "fa-solid fa-check" },
+            rejectClose: false
+        })
+    }
+
     return Object.freeze({
         openTransformationConfig,
+        openStageUpApprovalDialog,
+        closeStageUpApprovalDialog,
+        openStageUpWaitingDialog,
+        openStageUpRejectedDialog,
         openStageChoiceDialog,
         openTransformationGeneralChoiceDialog,
         openAbilityScoreAdvancementDialog,

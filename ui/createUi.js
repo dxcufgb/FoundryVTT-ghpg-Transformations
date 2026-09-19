@@ -39,6 +39,7 @@ export function createUi({
         transformationService,
         transformationQueryService,
         actorQueryService,
+        stageUpApprovalService,
         applyFiendGiftOfDamnation
     } = services
 
@@ -74,6 +75,7 @@ export function createUi({
 
     const pillController = createTransformationPillController({
         dialogs,
+        stageUpApprovalService,
         logger
     })
 
