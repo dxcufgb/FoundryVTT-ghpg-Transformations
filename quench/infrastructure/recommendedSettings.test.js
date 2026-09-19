@@ -3,7 +3,10 @@ import {
     bindGmWelcomeCard,
     buildGmWelcomeCardContent,
     GM_WELCOME_ACTIONS,
-    GM_WELCOME_CARD_FLAG
+    GM_WELCOME_CARD_FLAG,
+    GM_WELCOME_STATUSES,
+    STATUS_APPLIED_CLASS,
+    STATUS_NOT_APPLIED_CLASS
 } from "../../ui/chatCards/GmWelcomeCard.js"
 
 const logger = { debug() {}, warn() {}, error() {} }
@@ -247,8 +250,9 @@ quench.registerBatch(
                 })
 
                 const button = action => html.querySelector(`[data-transformations-welcome-action="${action}"]`)
+                const status = name => html.querySelector(`[data-transformations-welcome-status="${name}"]`)
                 const settle = () => new Promise(resolve => setTimeout(resolve, 20))
-                return { ...harness, html, notifications, button, settle }
+                return { ...harness, html, notifications, button, status, settle }
             }
 
             it("offers an apply and an open button for each described setting", function()
@@ -328,6 +332,103 @@ quench.registerBatch(
                 button(GM_WELCOME_ACTIONS.APPLY_MIDI).click()
 
                 expect(button(GM_WELCOME_ACTIONS.APPLY_MIDI).textContent).to.contain("Apply this setting")
+            })
+
+            describe("colours and status buttons", function()
+            {
+                it("shows red 'Not applied' apply buttons for a fresh world", function()
+                {
+                    const { button } = renderCard()
+
+                    for (const action of [GM_WELCOME_ACTIONS.APPLY_MIDI, GM_WELCOME_ACTIONS.APPLY_SUMMONING]) {
+                        expect(button(action).classList.contains(STATUS_NOT_APPLIED_CLASS), action).to.equal(true)
+                        expect(button(action).classList.contains(STATUS_APPLIED_CLASS), action).to.equal(false)
+                        expect(button(action).textContent).to.contain("Not applied")
+                    }
+                })
+
+                it("turns the apply buttons green and 'Applied' once the settings are set", function()
+                {
+                    const { button } = renderCard({
+                        midiValue: "applyNoButton",
+                        permissions: { ACTOR_CREATE: [1, 2, 3, 4], TOKEN_CREATE: [1, 2, 3, 4] },
+                        allowSummoning: true
+                    })
+
+                    for (const action of [GM_WELCOME_ACTIONS.APPLY_MIDI, GM_WELCOME_ACTIONS.APPLY_SUMMONING]) {
+                        expect(button(action).classList.contains(STATUS_APPLIED_CLASS), action).to.equal(true)
+                        expect(button(action).classList.contains(STATUS_NOT_APPLIED_CLASS), action).to.equal(false)
+                        expect(button(action).textContent).to.contain("Applied")
+                    }
+                })
+
+                it("changes an apply button from red to green after it is clicked", async function()
+                {
+                    const { button, settle } = renderCard()
+
+                    button(GM_WELCOME_ACTIONS.APPLY_MIDI).click()
+                    await settle()
+
+                    expect(button(GM_WELCOME_ACTIONS.APPLY_MIDI).classList.contains(STATUS_APPLIED_CLASS)).to.equal(true)
+                    expect(button(GM_WELCOME_ACTIONS.APPLY_SUMMONING).classList.contains(STATUS_NOT_APPLIED_CLASS)).to.equal(true)
+                })
+
+                it("gives the permissions and the Allow summoning buttons their own status", function()
+                {
+                    const { status } = renderCard()
+
+                    expect(status(GM_WELCOME_STATUSES.PERMISSIONS)).to.not.equal(null)
+                    expect(status(GM_WELCOME_STATUSES.SUMMONING_SETTING)).to.not.equal(null)
+                })
+
+                it("reports each part of the summoning setup separately", function()
+                {
+                    const { status } = renderCard({
+                        permissions: { ACTOR_CREATE: [1, 2, 3, 4], TOKEN_CREATE: [1, 2, 3, 4] },
+                        allowSummoning: false
+                    })
+
+                    expect(status(GM_WELCOME_STATUSES.PERMISSIONS).classList.contains(STATUS_APPLIED_CLASS)).to.equal(true)
+                    expect(status(GM_WELCOME_STATUSES.SUMMONING_SETTING).classList.contains(STATUS_NOT_APPLIED_CLASS)).to.equal(true)
+                    expect(status(GM_WELCOME_STATUSES.SUMMONING_SETTING).textContent).to.contain("off")
+                })
+
+                it("names what is missing when only some permissions are granted", function()
+                {
+                    const onlyActors = renderCard({ permissions: { ACTOR_CREATE: [1, 2, 3, 4], TOKEN_CREATE: [3, 4] } })
+                    const onlyTokens = renderCard({ permissions: { ACTOR_CREATE: [3, 4], TOKEN_CREATE: [1, 2, 3, 4] } })
+                    const neither = renderCard()
+
+                    expect(onlyActors.status(GM_WELCOME_STATUSES.PERMISSIONS).textContent).to.contain("tokens")
+                    expect(onlyActors.status(GM_WELCOME_STATUSES.PERMISSIONS).textContent).to.not.contain("actors")
+                    expect(onlyTokens.status(GM_WELCOME_STATUSES.PERMISSIONS).textContent).to.contain("actors")
+                    expect(onlyTokens.status(GM_WELCOME_STATUSES.PERMISSIONS).textContent).to.not.contain("tokens")
+                    expect(neither.status(GM_WELCOME_STATUSES.PERMISSIONS).textContent).to.contain("actors or tokens")
+                })
+
+                it("updates the status buttons after the summoning button is clicked", async function()
+                {
+                    const { button, status, settle } = renderCard()
+
+                    button(GM_WELCOME_ACTIONS.APPLY_SUMMONING).click()
+                    await settle()
+
+                    expect(status(GM_WELCOME_STATUSES.PERMISSIONS).classList.contains(STATUS_APPLIED_CLASS)).to.equal(true)
+                    expect(status(GM_WELCOME_STATUSES.SUMMONING_SETTING).classList.contains(STATUS_APPLIED_CLASS)).to.equal(true)
+                })
+
+                it("keeps the status buttons read-only", async function()
+                {
+                    const { status, sets, rendered, settle } = renderCard()
+
+                    status(GM_WELCOME_STATUSES.PERMISSIONS).click()
+                    status(GM_WELCOME_STATUSES.SUMMONING_SETTING).click()
+                    await settle()
+
+                    expect(status(GM_WELCOME_STATUSES.PERMISSIONS).disabled).to.equal(true)
+                    expect(sets).to.have.length(0)
+                    expect(rendered).to.have.length(0)
+                })
             })
 
             it("binds only once when the card is rendered again", async function()
