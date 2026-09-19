@@ -1,8 +1,14 @@
+import {
+    CANCEL_STAGE_UP_APPROVAL_EVENT,
+    REQUEST_STAGE_UP_APPROVAL_EVENT
+} from "../../services/transformations/createStageUpApprovalService.js"
+
 export function registerSockets({
     socketGateway,
     transformationMutationGateway,
     createGMTransformationHandlers,
     getDialogFactory,
+    getStageUpApprovalService,
     logger
 })
 {
@@ -46,6 +52,16 @@ export function registerSockets({
     socketGateway.register(
         "applyTriggerActions",
         handlers.applyTriggerActions
+    )
+
+    socketGateway.register(
+        REQUEST_STAGE_UP_APPROVAL_EVENT,
+        payload => getStageUpApprovalService().handleApprovalRequest(payload)
+    )
+
+    socketGateway.register(
+        CANCEL_STAGE_UP_APPROVAL_EVENT,
+        payload => getStageUpApprovalService().cancelApprovalRequest(payload)
     )
 
     socketGateway.register(

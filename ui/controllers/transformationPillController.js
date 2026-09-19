@@ -1,9 +1,12 @@
 export function createTransformationPillController({
     dialogs,
+    stageUpApprovalService,
     logger
 })
 {
-    logger.debug("createTransformationPillController", { dialogs })
+    logger.debug("createTransformationPillController", { dialogs, stageUpApprovalService })
+
+    const pendingStageUps = new Set()
 
     function bind({
         app,
@@ -53,6 +56,22 @@ export function createTransformationPillController({
                 const currentStage = actor.flags?.transformations?.stage ?? 1
 
                 const nextStage = currentStage + 1
+
+                // A GM prompt can stay open for a while; don't stack a second request meanwhile.
+                if (pendingStageUps.has(actor.id)) return
+                pendingStageUps.add(actor.id)
+                try {
+                    const approved = await stageUpApprovalService.requestApproval({
+                        actor,
+                        toStage: nextStage
+                    })
+                    if (!approved) {
+                        logger.debug("Stage up was not approved", actor.id, nextStage)
+                        return
+                    }
+                } finally {
+                    pendingStageUps.delete(actor.id)
+                }
 
                 logger.debug(
                     "Advancing transformation stage",

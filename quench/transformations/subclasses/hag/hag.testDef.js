@@ -486,9 +486,18 @@ export const HagTestDef = {
                     item.addActivity(activity => {
                         activity.name = "Midi Attack"
                         activity.activationType = "action"
+                        activity.addDamagePart(damagePart => {
+                            damagePart.roll = "1d6"
+                            damagePart.type = "slashing"
+                            damagePart.bonus = "@mod"
+                        })
+                        activity.addDamagePart(damagePart => {
+                            damagePart.roll = "1d6"
+                            damagePart.type = "poison"
+                        })
                     })
                     item.addDamagePart("base", damagePart => {
-                        damagePart.roll = "2d6"
+                        damagePart.roll = "1d6"
                         damagePart.type = "slashing"
                         damagePart.bonus = "@mod"
                     })
@@ -727,7 +736,7 @@ export const HagTestDef = {
                 actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.6rVQqrBxeoqLBp3X",
                     "Compendium.transformations.gh-transformations.Item.Y7lbGMGK76JZzI8h",
-                    "Compendium.transformations.gh-transformations.Item.Gqw92KcRDG2QvOYg"
+                    "Compendium.transformations.gh-transformations.Item.YkZG1b5ZKm5wyZs8"
                 ]
                 actorDto.addItem(item =>
                 {

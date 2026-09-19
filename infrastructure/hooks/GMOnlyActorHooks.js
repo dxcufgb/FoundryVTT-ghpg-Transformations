@@ -25,9 +25,19 @@ export function registerGMOnlyActorHooks({
 
     const previousHpByActorId = new Map()
 
+    // Every connected GM receives these document hooks. Without this guard each of them would
+    // run the same trigger, duplicating chat messages, temp HP, saves and item changes.
+    // preUpdate* hooks only run on the client making the change, and updateActor relies on
+    // the HP captured by that same client, so neither of those is guarded.
+    function isActiveGM()
+    {
+        return Boolean(game?.user?.id) && game.user.id === game.users?.activeGM?.id
+    }
+
     Hooks.on("createActiveEffect", async (effect, options, userId) =>
     {
         logger.debug("GM createActiveEffect", effect, options, userId)
+        if (!isActiveGM()) return
         debouncedTracker.pulse("createActiveEffect")
         const executionContext = effect.parent?.getFlag("transformations", "executionContext")
 
@@ -156,6 +166,7 @@ export function registerGMOnlyActorHooks({
     Hooks.on("applyActiveEffect", async (target, context) =>
     {
         logger.debug("GM applyActiveEffect", target, context)
+        if (!isActiveGM()) return
         debouncedTracker.pulse("applyActiveEffect")
         const actor = actorRepository.resolveActor(target)
         const executionContext = actor?.getFlag("transformations", "executionContext")
@@ -216,6 +227,7 @@ export function registerGMOnlyActorHooks({
     Hooks.on("deleteActiveEffect", async (effect, options, userId) =>
     {
         logger.debug("GM deleteActiveEffect", effect, options, userId)
+        if (!isActiveGM()) return
         debouncedTracker.pulse("deleteActiveEffect")
 
         const actor = actorRepository.resolveActor(effect?.parent)
@@ -339,6 +351,8 @@ export function registerGMOnlyActorHooks({
 
     Hooks.on("updateItem", async (item, changed, options, userId) =>
     {
+        if (!isActiveGM()) return
+
         await dispatchTransformationItemHook(
             "updateItem",
             item,

@@ -84,8 +84,21 @@ function createActor()
     }
 }
 
+function createGame({activeGm = true} = {})
+{
+    const user = {id: "gm-this-client"}
+    return {
+        user,
+        users: {
+            // Which GM Foundry designates as the active one; another connected GM outranks this client.
+            activeGM: activeGm ? user : {id: "gm-other-client"}
+        }
+    }
+}
+
 function createHarness({
-    TransformationClass = Lich
+    TransformationClass = Lich,
+    game = createGame()
 } = {})
 {
     const originalHooks = globalThis.Hooks
@@ -111,7 +124,7 @@ function createHarness({
     }
 
     registerGMOnlyActorHooks({
-        game: {},
+        game,
         ActorClass: {},
         moduleUi: {},
         actorRepository: {
@@ -460,6 +473,158 @@ quench.registerBatch(
                             call.name === "zeroHp"
                         )
                     ).to.have.length(1)
+                } finally {
+                    harness.restore()
+                }
+            })
+        })
+
+        describe("only the active GM handles document hooks", function()
+        {
+            const inactiveGame = () => createGame({activeGm: false})
+
+            it("does not dispatch bloodied for a GM client that is not the active GM", async function()
+            {
+                const actor = createActor()
+                const harness = createHarness({game: inactiveGame()})
+
+                try {
+                    await harness.callbacks.get("createActiveEffect")(
+                        {parent: actor, name: "Bloodied"},
+                        {},
+                        "user-1"
+                    )
+
+                    expect(harness.calls.triggerRuntime).to.have.length(0)
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("runs a bloodied trigger exactly once when two GM clients receive the same hook", async function()
+            {
+                const actor = createActor()
+                const effect = {parent: actor, name: "Bloodied"}
+                const activeClient = createHarness({game: createGame({activeGm: true})})
+                const otherClient = createHarness({game: inactiveGame()})
+
+                try {
+                    await activeClient.callbacks.get("createActiveEffect")(effect, {}, "user-1")
+                    await otherClient.callbacks.get("createActiveEffect")(effect, {}, "user-1")
+
+                    const total = activeClient.calls.triggerRuntime.length + otherClient.calls.triggerRuntime.length
+                    expect(total).to.equal(1)
+                } finally {
+                    otherClient.restore()
+                    activeClient.restore()
+                }
+            })
+
+            it("does not post the Seraph Corruption message from a GM client that is not the active GM", async function()
+            {
+                const actor = createActor()
+                const harness = createHarness({TransformationClass: Seraph, game: inactiveGame()})
+                const originalChatMessage = globalThis.ChatMessage
+                const createdMessages = []
+                globalThis.ChatMessage = {
+                    getSpeaker: ({actor}) => ({actor: actor.id}),
+                    async create(data)
+                    {
+                        createdMessages.push(data)
+                        return data
+                    }
+                }
+
+                try {
+                    await harness.callbacks.get("createActiveEffect")({
+                        parent: actor,
+                        name: "Seraph Corruption",
+                        description: "<p>Light.</p>",
+                        flags: {transformations: {grantedBy: {sourceUuid: SERAPH_CORRUPTION_EFFECT_UUID}}},
+                        getFlag(scope, key)
+                        {
+                            return this.flags?.[scope]?.[key] ?? null
+                        }
+                    }, {}, "user-1")
+
+                    expect(createdMessages).to.have.length(0)
+                } finally {
+                    globalThis.ChatMessage = originalChatMessage
+                    harness.restore()
+                }
+            })
+
+            it("does not dispatch conditionApplied for a GM client that is not the active GM", async function()
+            {
+                const actor = createActor()
+                const harness = createHarness({game: inactiveGame()})
+
+                try {
+                    await harness.callbacks.get("applyActiveEffect")(actor, {effect: {name: "Charmed"}})
+
+                    expect(harness.calls.triggerRuntime).to.have.length(0)
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("does not clean up Fiend gift items from a GM client that is not the active GM", async function()
+            {
+                const actor = createActor()
+                actor.flags.transformations.fiend = {gift1: {effectId: "effect-1", itemIds: ["item-1"]}}
+                actor.items = {get: id => ({id})}
+                let deleted = 0
+                actor.deleteEmbeddedDocuments = async () => { deleted++ }
+                const harness = createHarness({game: inactiveGame()})
+
+                try {
+                    await harness.callbacks.get("deleteActiveEffect")(
+                        {parent: actor, id: "effect-1", getFlag: () => null},
+                        {},
+                        "user-1"
+                    )
+
+                    expect(deleted).to.equal(0)
+                    expect(actor.flags.transformations.fiend).to.have.property("gift1")
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("does not update the Soul Vessel flag from a GM client that is not the active GM", async function()
+            {
+                const actor = createActor()
+                actor.flags.transformations.lich.soulVesselCharged = true
+                const harness = createHarness({game: inactiveGame()})
+                const item = createSoulVessel(actor, {value: 0, spent: 1})
+
+                try {
+                    await harness.callbacks.get("updateItem")(
+                        item,
+                        {system: {uses: {value: 0, spent: 1}}},
+                        {},
+                        "user-1"
+                    )
+
+                    expect(actor.flags.transformations.lich.soulVesselCharged).to.equal(true)
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("still dispatches zeroHp on the GM client that made the change, even when it is not the active GM", async function()
+            {
+                // updateActor uses the HP captured by this client's own preUpdateActor, so it must not be guarded.
+                const actor = createActor()
+                const harness = createHarness({game: inactiveGame()})
+                const changed = {system: {attributes: {hp: {value: 0}}}}
+
+                try {
+                    await harness.callbacks.get("preUpdateActor")(actor, changed, {}, "user-1")
+                    actor.system.attributes.hp.value = 0
+                    await harness.callbacks.get("updateActor")(actor, changed, {}, "user-1")
+
+                    expect(harness.calls.triggerRuntime.map(call => call.name)).to.deep.equal(["zeroHp"])
                 } finally {
                     harness.restore()
                 }
