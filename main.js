@@ -4,7 +4,7 @@ import { finalizeRegistry, Registry, setRegistryDependencies, setRegistryInfrast
 import { createDependencies } from "./bootstrap/createDependencies.js"
 import { createInfrastructure } from "./bootstrap/createInfrastructure.js"
 import { createServices } from "./bootstrap/createServices.js"
-import { registerTransformationMacros } from "./bootstrap/registerTransformtaionsMacros.js"
+import { registerTransformationMacros } from "./bootstrap/registerTransformationsMacros.js"
 import { createSettingsMenu } from "./bootstrap/createSettingsMenu.js"
 // constants
 import * as constants from "./config/constants.js"

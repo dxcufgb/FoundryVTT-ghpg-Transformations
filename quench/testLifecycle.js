@@ -1,4 +1,4 @@
-import { registerTransformationMacros } from "../bootstrap/registerTransformtaionsMacros.js"
+import { registerTransformationMacros } from "../bootstrap/registerTransformationsMacros.js"
 import { createActionExecutor } from "../infrastructure/actions/createActionExecutor.js"
 import { createFakeTracker } from "./fakes/fakeTracker.js"
 import { createTestActor } from "./helpers/actors.js"
