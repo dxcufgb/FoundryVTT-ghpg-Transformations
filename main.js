@@ -41,6 +41,7 @@ import { applyTransformationFlags } from "./flags/applyTransformationFlags.js"
 import { transformationFlagEntries } from "./flags/index.js"
 import { createModuleApi } from "./bootstrap/createModuleApi.js"
 import { sendGmWelcomeMessage } from "./bootstrap/sendGmWelcomeMessage.js"
+import { registerGmWelcomeCard } from "./ui/chatCards/GmWelcomeCard.js"
 
 //hasRun set to false for dev function.
 let hasRun = false
@@ -207,6 +208,12 @@ Hooks.once("setup", async () =>
     })
 
     if (game.user.isGM) {
+        registerGmWelcomeCard({
+            settingsService: services.recommendedSettingsService,
+            notifier: infrastructure.notifier,
+            logger
+        })
+
         registerGMOnlyDnd5eHooks({
             transformationService: services.transformationService,
             transformationQueryService: services.transformationQueryService,
