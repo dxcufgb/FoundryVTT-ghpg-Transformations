@@ -3,6 +3,7 @@ export async function preloadTemplates(logger = null) {
     const templates = [
         "modules/transformations/scripts/templates/components/context-menu.hbs",
         "modules/transformations/scripts/templates/components/transformation-pill.hbs",
+        "modules/transformations/scripts/templates/components/transformation-features-pill.hbs",
         "modules/transformations/scripts/templates/dialogs/fiend-gift-of-damnation-dialog.hbs",
         "modules/transformations/scripts/templates/dialogs/fey-exhaustion-recovery-dialog.hbs",
         "modules/transformations/scripts/templates/dialogs/transformations-spell-slot-recovery-dialog.hbs",

@@ -17,6 +17,8 @@ import { registerGMOnlyDnd5eHooks } from "./infrastructure/hooks/GMOnlyDnd5eHook
 import { registerGMOnlyActorHooks } from "./infrastructure/hooks/GMOnlyActorHooks.js"
 import { registerDnd5eHooks } from "./infrastructure/hooks/dnd5eHooks.js"
 import { registerActorHooks } from "./infrastructure/hooks/actorHooks.js"
+import { registerTransformationFeaturesSection } from "./infrastructure/sheets/registerTransformationFeaturesSection.js"
+import { registerTransformationFeaturesPill } from "./infrastructure/sheets/registerTransformationFeaturesPill.js"
 import { createGMTransformationHandlers } from "./infrastructure/socket/gmTransformationHandlers.js"
 import { registerSockets } from "./infrastructure/socket/registerSockets.js"
 
@@ -169,6 +171,17 @@ Hooks.once("setup", async () =>
             entry.TransformationClass.displayName
         return acc
     }, {})
+
+    registerTransformationFeaturesSection({
+        transformationTypes: transformationSubTypes,
+        logger
+    })
+
+    registerTransformationFeaturesPill({
+        transformationQueryService: services.transformationQueryService,
+        renderTemplate: foundry.applications.handlebars.renderTemplate,
+        logger
+    })
 
     registerActorHooks({
         transformationTypes: transformationSubTypes,
