@@ -16,6 +16,7 @@ import { preloadTemplates } from "./infrastructure/templates/preloadTemplates.js
 import { registerGMOnlyDnd5eHooks } from "./infrastructure/hooks/GMOnlyDnd5eHooks.js"
 import { registerGMOnlyActorHooks } from "./infrastructure/hooks/GMOnlyActorHooks.js"
 import { registerDnd5eHooks } from "./infrastructure/hooks/dnd5eHooks.js"
+import { registerAttackAbilityChoiceHooks } from "./infrastructure/hooks/attackAbilityChoiceHooks.js"
 import { registerActorHooks } from "./infrastructure/hooks/actorHooks.js"
 import { registerTransformationFeaturesSection } from "./infrastructure/sheets/registerTransformationFeaturesSection.js"
 import { registerTransformationFeaturesPill } from "./infrastructure/sheets/registerTransformationFeaturesPill.js"
@@ -163,6 +164,10 @@ Hooks.once("setup", async () =>
         RollService: services.RollService,
         tracker: Registry.dependencies.utils.asyncTrackers.get("mutations"),
         debouncedTracker: Registry.dependencies.utils.asyncTrackers.debounced,
+        logger
+    })
+
+    registerAttackAbilityChoiceHooks({
         logger
     })
 
