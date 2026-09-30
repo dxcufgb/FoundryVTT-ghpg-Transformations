@@ -1,0 +1,100 @@
+[
+    {
+        "id": "2-medium-ooze-F21-ooze-form-blindsight-add",
+        "pack": "gh-transformations",
+        "key": "!items.effects!iLqzf9SpukItqJLJ.a5eokEKQWi6tGF0r",
+        "op": "set",
+        "path": "changes.0.mode",
+        "value": 2,
+        "expect": 4
+    },
+    {
+        "id": "2-medium-ooze-F21-slimy-mien-blindsight-add",
+        "pack": "gh-transformations",
+        "key": "!items.effects!WYCAz3AuTqko3Z8Q.YaOVwEzqVnsPcbq7",
+        "op": "set",
+        "path": "changes.1.mode",
+        "value": 2,
+        "expect": 4
+    },
+    {
+        "id": "2-medium-ooze-F22-manifested-ooze-form-duration-expression",
+        "pack": "gh-transformations",
+        "key": "!items.effects!iLqzf9SpukItqJLJ.jXLdJSFZbGz3wXH3",
+        "op": "set",
+        "path": "flags.dae.durationExpression",
+        "value": "60 + 540 * clamp(@flags.transformations.stage - 2, 0, 1) + 85800 * clamp(@flags.transformations.stage - 3, 0, 1)",
+        "expect": ""
+    },
+    {
+        "id": "2-medium-ooze-F22-manifested-ooze-form-ends-on-rest",
+        "pack": "gh-transformations",
+        "key": "!items.effects!iLqzf9SpukItqJLJ.jXLdJSFZbGz3wXH3",
+        "op": "set",
+        "path": "flags.dae.specialDuration",
+        "value": ["shortRest", "longRest"],
+        "expect": []
+    },
+    {
+        "id": "2-medium-ooze-F24-engulfed-restrained",
+        "pack": "gh-transformations",
+        "key": "!items.effects!w6Hkdr61lzK706NY.JLhw4XYlL1IF1w1u",
+        "op": "set",
+        "path": "statuses",
+        "value": ["coverTotal", "suffocation", "restrained"],
+        "expect": ["coverTotal", "suffocation"]
+    },
+    {
+        "id": "2-medium-ooze-F24-engulfed-overtime",
+        "pack": "gh-transformations",
+        "key": "!items.effects!w6Hkdr61lzK706NY.JLhw4XYlL1IF1w1u",
+        "op": "set",
+        "path": "changes",
+        "value": [
+            {
+                "key": "flags.midi-qol.OverTime",
+                "mode": 0,
+                "value": "turn=start, damageRoll=4d6, damageType=acid, label=Engulfed (Acid)",
+                "priority": 20
+            },
+            {
+                "key": "flags.midi-qol.OverTime",
+                "mode": 0,
+                "value": "turn=end, saveAbility=str, saveDC=10 + @abilities.str.mod + @flags.transformations.stage, label=Engulfed",
+                "priority": 20
+            }
+        ],
+        "expect": []
+    },
+    {
+        "id": "2-medium-ooze-F26-melted-appearance-no-blinded-status",
+        "pack": "gh-transformations",
+        "key": "!items.effects!6Y1K0QKDjMZPyX8s.j4DbdSrspRwnvU6x",
+        "op": "set",
+        "path": "statuses",
+        "value": [],
+        "expect": ["blinded"]
+    },
+    {
+        "id": "2-medium-ooze-F26-melted-appearance-blind-beyond-blindsight",
+        "pack": "gh-transformations",
+        "key": "!items.effects!6Y1K0QKDjMZPyX8s.j4DbdSrspRwnvU6x",
+        "op": "set",
+        "path": "changes",
+        "value": [
+            {
+                "key": "flags.midi-qol.disadvantage.attack.all",
+                "mode": 0,
+                "value": "!!workflow?.token && computeDistance(workflow.token, workflow.targets?.first()) > (workflow.token.actor?.system?.attributes?.senses?.blindsight ?? 0)",
+                "priority": 20
+            },
+            {
+                "key": "flags.midi-qol.grants.advantage.attack.all",
+                "mode": 0,
+                "value": "!!workflow?.token && computeDistance(workflow.token, workflow.targets?.first()) > (workflow.targets?.first()?.actor?.system?.attributes?.senses?.blindsight ?? 0)",
+                "priority": 20
+            }
+        ],
+        "expect": []
+    }
+]

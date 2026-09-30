@@ -5,12 +5,14 @@ export const onLongRest = {
         {
             name: "remove-aberrant-effects",
             actions: [
+                // Runs first: it reads the Unstable Form exhaustion marker before the
+                // general cleanup deletes every removeOnLongRest effect.
                 {
                     type: "MACRO",
                     data: {
                         trigger: "transformations.onLongRest",
-                        transformationType: "General",
-                        action: "removeOnLongRest",
+                        transformationType: "aberrantHorror",
+                        action: "removeAberrantMutationEffects",
                         args: {}
                     }
                 },
@@ -18,8 +20,8 @@ export const onLongRest = {
                     type: "MACRO",
                     data: {
                         trigger: "transformations.onLongRest",
-                        transformationType: "aberrantHorror",
-                        action: "removeAberrantMutationEffects",
+                        transformationType: "General",
+                        action: "removeOnLongRest",
                         args: {}
                     }
                 },

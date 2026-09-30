@@ -40,6 +40,7 @@ export class ElementalImbalance
         details,
         damageType = null,
         rawDamage = null,
+        appliedDamage = null,
         logger
     } = {})
     {
@@ -53,7 +54,8 @@ export class ElementalImbalance
             damage,
             details,
             damageType,
-            rawDamage
+            rawDamage,
+            appliedDamage
         })
         if (!triggerDamage) return
 
@@ -228,7 +230,8 @@ export class ElementalImbalance
         damage,
         details,
         damageType: instanceDamageType = null,
-        rawDamage = null
+        rawDamage = null,
+        appliedDamage = null
     } = {})
     {
         const map = actor.getFlag("transformations", "damageTypePerMidiId") ?? {};
@@ -245,7 +248,16 @@ export class ElementalImbalance
                 ) ??
                 this.resolveDamageType(details)
             )
-        const appliedAmount = this.resolveDamageAmount(damage)
+        // The post-mitigation amount of the triggering type alone, when
+        // known, is exact; the application total also counts other types.
+        const typeAppliedAmount = appliedDamage == null
+            ? NaN
+            : Number(appliedDamage)
+        const hasTypeAppliedAmount =
+                  Number.isFinite(typeAppliedAmount) && typeAppliedAmount >= 0
+        const appliedAmount = hasTypeAppliedAmount
+            ? Math.floor(typeAppliedAmount)
+            : this.resolveDamageAmount(damage)
         const rawAmount = rawDamage == null
             ? NaN
             : Number(rawDamage)
@@ -267,7 +279,7 @@ export class ElementalImbalance
                 amount: hasRawAmount
                     ? rawAmount
                     : appliedAmount,
-                vulnerabilityDamage: hasRawAmount
+                vulnerabilityDamage: hasRawAmount && !hasTypeAppliedAmount
                     ? Math.min(appliedAmount, rawAmount)
                     : appliedAmount
             }
@@ -283,6 +295,34 @@ export class ElementalImbalance
             amount: rawAmount,
             vulnerabilityDamage: rawAmount * 2
         }
+    }
+
+    /**
+     * Sums the post-mitigation values of one damage type in a dnd5e
+     * DamageSummary (the damages passed to dnd5e.calculateDamage).
+     * Returns null when the type is not an Elemental Imbalance type or is
+     * not part of the damage.
+     */
+    static resolveAppliedDamageForType(damages, damageType)
+    {
+        const type = this.normalizeDamageType(damageType)
+        if (!type || !Array.isArray(damages)) return null
+
+        let found = false
+        const total = damages.reduce((sum, entry) =>
+        {
+            if (entry?.type !== type) return sum
+
+            const value = Number(entry?.value)
+            if (!Number.isFinite(value)) return sum
+
+            found = true
+            return sum + value
+        }, 0)
+
+        return found
+            ? Math.max(0, Math.floor(total))
+            : null
     }
 
     static resolveDamageType(node)

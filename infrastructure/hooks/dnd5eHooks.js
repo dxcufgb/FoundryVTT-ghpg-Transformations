@@ -1,6 +1,7 @@
 import { conditionsMet } from "../../domain/actions/conditionSchema.js"
 import { applyRollModifierAction } from "../../services/actions/handlers/rollModifier.js"
 import { applySilverSensitivity } from "./silverSensitivity.js"
+import { ElementalImbalance } from "../../domain/transformation/subclasses/primordial/Feats/ElementalImbalance.js"
 
 function getPrimaryRoll(rolls)
 {
@@ -67,9 +68,18 @@ function resolveDamageTypeMap(actor)
     return actor?.getFlag?.("transformations", "damageTypePerMidiId") ?? {}
 }
 
-function resolveDamageTypeFromDetails(damageDetails)
+function resolveDamageTypeFromDetails(damageDetails, {preferElemental = false} = {})
 {
     if (Array.isArray(damageDetails)) {
+        // A mixed hit such as slashing + fire must still report the fire part
+        // for Elemental Imbalance, so its types win when the target has the feat.
+        const elementalType = preferElemental
+            ? damageDetails.find(detail =>
+                ElementalImbalance.normalizeDamageType(detail?.type)
+            )?.type ?? null
+            : null
+        if (elementalType) return elementalType
+
         return damageDetails.find(detail =>
             typeof detail?.type === "string" && detail.type.length > 0
         )?.type ?? null
@@ -77,6 +87,27 @@ function resolveDamageTypeFromDetails(damageDetails)
 
     return typeof damageDetails?.type === "string" && damageDetails.type.length > 0
         ? damageDetails.type
+        : null
+}
+
+function resolveAppliedDamageForType(damages, damageType)
+{
+    if (!Array.isArray(damages)) return null
+
+    let found = false
+    const total = damages.reduce((sum, entry) =>
+    {
+        if (entry?.type !== damageType) return sum
+
+        const value = Number(entry?.value)
+        if (!Number.isFinite(value)) return sum
+
+        found = true
+        return sum + value
+    }, 0)
+
+    return found
+        ? Math.max(0, Math.floor(total))
         : null
 }
 
@@ -393,6 +424,12 @@ function buildActivityUseTriggerContext(activity, usage)
               activity?.parent?.parent ??
               activity?.parent ??
               null
+    // A spell cast through a Cast activity is a cached copy; its type lives on
+    // the item that owns the Cast activity (e.g. Divine Clemency).
+    const typeSource =
+              item?.type === "spell"
+                  ? item?.system?.linkedActivity?.item ?? item
+                  : item
 
     return {
         activities: {
@@ -405,8 +442,8 @@ function buildActivityUseTriggerContext(activity, usage)
                 item: {
                     ...normalizeTriggerItem(item),
                     type: item?.type ?? "",
-                    systemType: item?.system?.type?.value ?? "",
-                    systemSubType: item?.system?.type?.subtype ?? ""
+                    systemType: typeSource?.system?.type?.value ?? "",
+                    systemSubType: typeSource?.system?.type?.subtype ?? ""
                 }
             }
         }
@@ -611,6 +648,14 @@ export function registerDnd5eHooks({
             applySilverSensitivity(actor, damages)
         } catch (error) {
             logger.warn("Silver Sensitivity damage adjustment failed", error)
+        }
+
+        // Post-mitigation amount of the pending instance type, forwarded to
+        // onPreCalculateDamage through the shared options object.
+        const pendingType = options?.transformations?.damageType
+        if (pendingType) {
+            options.transformations.appliedDamage =
+                resolveAppliedDamageForType(damages, pendingType)
         }
     })
 
@@ -1098,7 +1143,9 @@ export function registerDnd5eHooks({
         if (!actor) return
 
         const midiId = details?.midi?.sourceActorUuid ?? null
-        const damageType = resolveDamageTypeFromDetails(damageDetails)
+        const damageType = resolveDamageTypeFromDetails(damageDetails, {
+            preferElemental: ElementalImbalance.actorHasFeat(actor)
+        })
 
         // dnd5e passes the same options object on to dnd5e.applyDamage, so
         // the pre-mitigation amount of this instance travels with it. It is
@@ -1141,6 +1188,7 @@ export function registerDnd5eHooks({
                 details,
                 damageType: pendingInstance?.damageType ?? null,
                 rawDamage: pendingInstance?.rawDamage ?? null,
+                appliedDamage: pendingInstance?.appliedDamage ?? null,
                 actorRepository,
                 itemRepository,
                 activeEffectRepository,

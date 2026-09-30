@@ -118,10 +118,22 @@ export const oozeTestDef = {
                         effect.changes = [
                             {
                                 key: "system.attributes.senses.blindsight",
-                                mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
                                 value: 30
                             }
                         ]
+                    })
+                    item.addEffect(effect => {
+                        // 1 minute at Stages 1-2, 10 minutes at Stage 3, until a rest at Stage 4
+                        effect.name = "Manifested Ooze Form"
+                        effect.flags.match.push({
+                            path: "dae.durationExpression",
+                            expected: "60 + 540 * clamp(@flags.transformations.stage - 2, 0, 1) + 85800 * clamp(@flags.transformations.stage - 3, 0, 1)"
+                        })
+                        effect.flags.match.push({
+                            path: "dae.specialDuration",
+                            expected: ["shortRest", "longRest"]
+                        })
                     })
                 })
                 actorDto.addItem(item =>
@@ -218,7 +230,7 @@ export const oozeTestDef = {
                             {
                                 key: "system.attributes.senses.blindsight",
                                 value: 30,
-                                mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD
                             }
                         ]
                         effect.flags = {
@@ -293,8 +305,8 @@ export const oozeTestDef = {
                     item.numberOfEffects = 1
                     item.addEffect(effect => {
                         effect.name = "Melted Appearance"
-                        effect.statuses = ["blinded"]
-                        effect.changes.count = 0
+                        effect.statuses = []
+                        effect.changes.count = 2
                     })
                 })
                 validate(actorDto, {assert})
@@ -401,8 +413,8 @@ export const oozeTestDef = {
                     item.numberOfEffects = 1
                     item.addEffect(effect => {
                         effect.name = "Melted Appearance"
-                        effect.statuses = ["blinded"]
-                        effect.changes.count = 0
+                        effect.statuses = []
+                        effect.changes.count = 2
                     })
                 })
                 validate(actorDto, {assert})
@@ -596,8 +608,8 @@ export const oozeTestDef = {
                         activity.target.affects.count = "1"
                         activity.addEffect(effect => {
                             effect.name = "Engulfed"
-                            effect.statuses = ["coverTotal", "suffocation"]
-                            effect.changes.count = 0
+                            effect.statuses = ["coverTotal", "suffocation", "restrained"]
+                            effect.changes.count = 2
                         })
                     })
                     item.addActivity(activity => {
@@ -616,8 +628,8 @@ export const oozeTestDef = {
                     })
                     item.addEffect(effect => {
                         effect.name = "Engulfed"
-                        effect.statuses = ["coverTotal", "suffocation"]
-                        effect.changes.count = 0
+                        effect.statuses = ["coverTotal", "suffocation", "restrained"]
+                        effect.changes.count = 2
                     })
                 })
                 validate(actorDto, {assert})

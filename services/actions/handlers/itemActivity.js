@@ -1,3 +1,5 @@
+import { activityMatchesName } from "../../../utils/activityNames.js"
+
 function resolveSourceUuid(document)
 {
     return (
@@ -78,7 +80,12 @@ function resolveActivity(item, {
         }
 
         return false
-    }) ?? null
+    }) ?? (
+        // "Midi Save" and "Save" name the same activity, depending on midi-qol's prefix setting.
+        activityName
+            ? activities.find(activity => activityMatchesName(activity, activityName)) ?? null
+            : null
+    )
 }
 
 function resolveItem(actor, itemRepository, {

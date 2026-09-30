@@ -1,0 +1,35 @@
+[
+    {
+        "id": "medium-aberrantHorror-eldritch-aberration-method-spell",
+        "pack": "gh-transformations",
+        "key": "!items!Q0c1NafrnW9C7tDz",
+        "op": "set",
+        "path": "system.method",
+        "value": "spell",
+        "expect": "innate"
+    },
+    {
+        "id": "medium-aberrantHorror-eldritch-aberration-activation-special",
+        "pack": "gh-transformations",
+        "key": "!items!Q0c1NafrnW9C7tDz",
+        "op": "set",
+        "path": "system.activation",
+        "value": {
+            "type": "special",
+            "condition": "Once per turn, when you hit a creature with an attack using your eldritch limbs."
+        },
+        "expect": {
+            "type": "",
+            "condition": ""
+        }
+    },
+    {
+        "id": "medium-aberrantHorror-efficient-killer-hurled-barb-name",
+        "pack": "gh-transformations",
+        "key": "!items!naciCscJgzP21JiY",
+        "op": "set",
+        "path": "name",
+        "value": "Eldritch Limbs (Hurled Barb)",
+        "expect": "Eldritch Limbs (Piercing)"
+    }
+]

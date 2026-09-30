@@ -26,6 +26,7 @@ export class ItemValidationDTO
         this.activationType = null
         this.equipped = null
         this.proficient = null
+        this.method = null
         this.propertiesIncludes = null
         this.usesLeft = null
         this.uses = new ItemUsesValidationDTO()

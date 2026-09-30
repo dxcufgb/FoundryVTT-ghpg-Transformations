@@ -872,6 +872,54 @@ quench.registerBatch(
                 }
             )
 
+            it("takes the item type of a spell cast through a Cast activity from the casting item", async function ()
+            {
+                const actor = createActor()
+                const harness = createHookHarness()
+                const castingItem = {
+                    id: "item-4",
+                    type: "feat",
+                    system: {
+                        type: {
+                            value: "transformation",
+                            subtype: "seraph"
+                        }
+                    }
+                }
+                const spell = {
+                    id: "spell-1",
+                    name: "Healing Word",
+                    uuid: "Actor.actor-1.Item.spell-1",
+                    type: "spell",
+                    system: {
+                        linkedActivity: {item: castingItem}
+                    },
+                    flags: {}
+                }
+
+                try {
+                    await harness.callbacks.get("dnd5e.postUseActivity")(
+                        {id: "activity-2", name: "Healing", type: "heal"},
+                        {workflow: {actor, item: spell}},
+                        {message: {id: "message-2"}}
+                    )
+
+                    const activityUseCall =
+                              harness.calls.triggerRuntime.find(call =>
+                                  call.name === "activityUse"
+                              )
+
+                    expect(activityUseCall).to.exist
+                    expect(activityUseCall.data?.activities?.current?.item?.type).to.equal("spell")
+                    expect(activityUseCall.data?.activities?.current?.item?.systemType)
+                    .to.equal("transformation")
+                    expect(activityUseCall.data?.activities?.current?.item?.systemSubType)
+                    .to.equal("seraph")
+                } finally {
+                    harness.restore()
+                }
+            })
+
             it("skips activityUse trigger dispatch for the Roiling Elements self-save activity", async function ()
             {
                 const actor = createActor()
@@ -2067,6 +2115,76 @@ quench.registerBatch(
                         expect(receivedArgs.damageType).to.equal("fire")
                         expect(receivedArgs.rawDamage).to.equal(12)
                         expect(details.transformations).to.equal(undefined)
+                    } finally {
+                        harness.restore()
+                    }
+                }
+            )
+
+            it(
+                "prefers the elemental part of a mixed hit and forwards its post-mitigation amount",
+                async function ()
+                {
+                    let receivedArgs = null
+                    const actor = {
+                        id: "actor-1",
+                        flags: {transformations: {}},
+                        items: [
+                            {
+                                name: "Elemental Imbalance",
+                                flags: {}
+                            }
+                        ],
+                        getFlag(scope, key)
+                        {
+                            return this.flags?.[scope]?.[key] ?? null
+                        },
+                        async setFlag() {},
+                        async update() {}
+                    }
+                    const harness = createHookHarness({
+                        transformationOverrides: {
+                            TransformationClass: {
+                                onPreRollHitDie() {},
+                                async onPreRollSavingThrow() {},
+                                async onRoll() {},
+                                async onPreCalculateDamage(args)
+                                {
+                                    receivedArgs = args
+                                }
+                            }
+                        }
+                    })
+                    const details = {
+                        midi: {sourceActorUuid: "midi-source-1"}
+                    }
+
+                    try {
+                        harness.callbacks.get("dnd5e.preCalculateDamage")(
+                            {actor},
+                            [
+                                {type: "slashing", value: 7},
+                                {type: "fire", value: 10}
+                            ],
+                            details
+                        )
+                        // Resistant to fire: half of the fire part is applied.
+                        harness.callbacks.get("dnd5e.calculateDamage")(
+                            actor,
+                            [
+                                {type: "slashing", value: 7},
+                                {type: "fire", value: 5}
+                            ],
+                            details
+                        )
+                        harness.callbacks.get("dnd5e.applyDamage")({actor}, 12, details)
+
+                        await flushAsyncWork()
+
+                        expect(receivedArgs).to.exist
+                        expect(receivedArgs.damageType).to.equal("fire")
+                        expect(receivedArgs.rawDamage).to.equal(10)
+                        expect(receivedArgs.appliedDamage).to.equal(5)
                     } finally {
                         harness.restore()
                     }

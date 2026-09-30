@@ -1,9 +1,16 @@
 import { Transformation } from "../../Transformation.js"
 import { MemoriLichdomNecroticDamage } from "./activities/memoriLichdomNecroticDamage.js"
 import { LichMagicaRegainSpellSlots } from "./activities/LichMagicaRegainSpellSlots.js"
+import {
+    SOUL_VESSEL_FLAG_PATH,
+    SOUL_VESSEL_NAME,
+    findSoulVessel,
+    isSoulVesselCharged
+} from "./soulVessel.js"
 
-const SOUL_VESSEL_NAME = "Soul Vessel"
-const SOUL_VESSEL_FLAG_PATH = "flags.transformations.lich.soulVesselCharged"
+const INITIALISE_SOUL_VESSEL_SCRIPT = "initialiseSoulVessel"
+const CONCENTRATION_LIMIT_KEY = "system.attributes.concentration.limit"
+const ELDRITCH_CONCENTRATION_SECOND_FLAG = "eldritchConcentrationSecondUuid"
 const ENFORCE_DISADVANTAGE_EFFECT_NAME = "Enforce Disadvantage"
 const ENFORCE_DISADVANTAGE_EFFECT_ORIGIN_SUFFIX =
           "ActiveEffect.dQzYsMWKJw6E7rKc"
@@ -85,6 +92,42 @@ function setCachedSoulVesselChargedState(options, isCharged)
 function getCachedSoulVesselChargedState(options)
 {
     return options?.transformations?.lich?.soulVesselCharged
+}
+
+function getConcentratingStatus()
+{
+    return globalThis.CONFIG?.specialStatusEffects?.CONCENTRATING ?? "concentrating"
+}
+
+function isConcentrationEffect(effect)
+{
+    return effect?.statuses?.has?.(getConcentratingStatus()) === true
+}
+
+function isEldritchConcentrationEffect(effect)
+{
+    return (
+        effect?.name === ELDRITCH_CONCENTRATION_ITEM_NAME &&
+        (effect.changes ?? []).some(change => change?.key === CONCENTRATION_LIMIT_KEY)
+    )
+}
+
+function getActorEffects(actor)
+{
+    const effects = actor?.effects
+    if (!effects) return []
+
+    return Array.isArray(effects) ? effects : Array.from(effects)
+}
+
+function findEldritchConcentrationEffect(actor)
+{
+    return getActorEffects(actor).find(isEldritchConcentrationEffect) ?? null
+}
+
+function getDependentOn(effect)
+{
+    return effect?.flags?.dnd5e?.dependentOn ?? null
 }
 
 /**
@@ -251,6 +294,123 @@ export class Lich extends Transformation
                 })
                 break
         }
+    }
+
+    static async postCreateScript(actor, scriptName, context = {})
+    {
+        this.logger?.debug?.("Lich.postCreateScript", actor, scriptName, context)
+
+        switch (scriptName) {
+            case INITIALISE_SOUL_VESSEL_SCRIPT:
+                await this.initialiseSoulVesselChargedFlag(actor)
+                break
+        }
+    }
+
+    /**
+     * Writes the charged flag from the vessel's current uses, so effects keyed on
+     * the flag (Necromantic Dystrophia) never read a stale value from an earlier vessel.
+     */
+    static async initialiseSoulVesselChargedFlag(actor)
+    {
+        this.logger?.debug?.("Lich.initialiseSoulVesselChargedFlag", actor)
+        if (!actor || !findSoulVessel(actor)) return
+
+        const isCharged = isSoulVesselCharged(actor)
+        const currentState = actor.flags?.transformations?.lich?.soulVesselCharged
+        if (currentState === isCharged) return
+
+        await actor.update({
+            [SOUL_VESSEL_FLAG_PATH]: isCharged
+        })
+    }
+
+    /**
+     * Eldritch Concentration: the extra concentration slot lasts only while both
+     * spells are held. The Eldritch Concentration effect depends on the original
+     * concentration, and the second concentration depends on the Eldritch effect,
+     * so ending the original ends both. Ending the second is handled in
+     * deleteActiveEffect.
+     */
+    static async createActiveEffect({
+        effect,
+        actor,
+        logger
+    } = {})
+    {
+        logger?.debug?.("Lich.createActiveEffect", {effect, actor})
+
+        const resolvedActor = actor ?? effect?.parent ?? null
+        if (!resolvedActor || !effect) return
+
+        if (isEldritchConcentrationEffect(effect)) {
+            if (getDependentOn(effect)) return
+
+            const original = getActorEffects(resolvedActor).find(isConcentrationEffect)
+            if (!original) return
+
+            await effect.setFlag("dnd5e", "dependentOn", original.uuid)
+            return
+        }
+
+        if (!isConcentrationEffect(effect)) return
+
+        const eldritchEffect = findEldritchConcentrationEffect(resolvedActor)
+        if (!eldritchEffect) return
+
+        const anchorUuid = getDependentOn(eldritchEffect)
+        if (!anchorUuid) {
+            await eldritchEffect.setFlag("dnd5e", "dependentOn", effect.uuid)
+            return
+        }
+
+        if (anchorUuid === effect.uuid) return
+        if (eldritchEffect.flags?.transformations?.[ELDRITCH_CONCENTRATION_SECOND_FLAG]) return
+        if (getDependentOn(effect)) return
+
+        await eldritchEffect.setFlag(
+            "transformations",
+            ELDRITCH_CONCENTRATION_SECOND_FLAG,
+            effect.uuid
+        )
+        await effect.setFlag("dnd5e", "dependentOn", eldritchEffect.uuid)
+    }
+
+    static async deleteActiveEffect({
+        effect,
+        actor,
+        logger
+    } = {})
+    {
+        logger?.debug?.("Lich.deleteActiveEffect", {effect, actor})
+
+        const resolvedActor = actor ?? effect?.parent ?? null
+        if (!resolvedActor || !isConcentrationEffect(effect)) return
+
+        const eldritchEffect = findEldritchConcentrationEffect(resolvedActor)
+        if (!eldritchEffect) return
+
+        const secondUuid =
+                  eldritchEffect.flags?.transformations?.[ELDRITCH_CONCENTRATION_SECOND_FLAG]
+        if (!secondUuid || secondUuid !== effect.uuid) return
+
+        // Losing the second spell loses the original too; ending the original
+        // removes the Eldritch Concentration effect through its dependency.
+        const anchorUuid = getDependentOn(eldritchEffect)
+        const original = getActorEffects(resolvedActor).find(entry =>
+            entry.uuid === anchorUuid
+        )
+
+        if (original) {
+            if (typeof resolvedActor.endConcentration === "function") {
+                await resolvedActor.endConcentration(original)
+            } else {
+                await original.delete()
+            }
+            return
+        }
+
+        await eldritchEffect.delete()
     }
 
     static async preUpdateItem({

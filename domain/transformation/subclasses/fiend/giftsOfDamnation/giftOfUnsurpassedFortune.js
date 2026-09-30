@@ -59,7 +59,8 @@ export class GiftOfUnsurpassedFortune
             })
 
             if (success) {
-                await GiftClass.restoreItemUse(message)
+                // Only the Reaction is regained; the gift itself stays
+                // spent until the next Long Rest.
                 await GiftClass.complete(message, ChatMessagePartInjector, {
                     actor,
                     presentedRolls
@@ -213,29 +214,6 @@ export class GiftOfUnsurpassedFortune
         })
 
         await message.update(updates)
-    }
-
-    static async restoreItemUse(message) {
-        const itemUuid = message.flags?.dnd5e?.item?.uuid
-        if (!itemUuid) return
-
-        const item = await fromUuid(itemUuid)
-        if (!item) return
-
-        const uses = item.system?.uses
-        if (!uses) return
-
-        const currentValue = Number(uses.value) || 0
-        const currentSpent = Number(uses.spent) || 0
-        const maxUses = Number(uses.max)
-
-        await item.update({
-            "system.uses.value":
-                Number.isFinite(maxUses)
-                    ? Math.min(currentValue + 1, maxUses)
-                    : currentValue + 1,
-            "system.uses.spent": Math.max(currentSpent - 1, 0)
-        })
     }
 
     static async renderCard({

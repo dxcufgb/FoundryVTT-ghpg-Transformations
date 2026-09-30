@@ -21,6 +21,21 @@ export class AberrantEffect extends RollTableEffect
     {
         await super.beforeApply()
         this.logger?.debug?.("AberrantEffect.beforeApply", {})
+        const previous = this.activeEffectRepository.findByOrigin(this.actor, this.origin)
+        await this.revertAddedExhaustion(previous)
         await this.activeEffectRepository.removeByOrigin(this.actor, this.origin)
+    }
+
+    /**
+     * Unstable Form results last until the next Long Rest, so exhaustion levels an
+     * earlier result added are taken back when that result is replaced.
+     */
+    async revertAddedExhaustion(effect)
+    {
+        this.logger?.debug?.("AberrantEffect.revertAddedExhaustion", { effect })
+        const added = Number(effect?.flags?.transformations?.exhaustionAdded) || 0
+        if (added <= 0) return
+
+        await this.actorRepository.removeExhaustion(this.actor, added)
     }
 }

@@ -2,8 +2,15 @@ import {
     CANCEL_STAGE_UP_APPROVAL_EVENT,
     REQUEST_STAGE_UP_APPROVAL_EVENT
 } from "../../services/transformations/createStageUpApprovalService.js"
-import { EXECUTE_MACRO_EVENT } from "../../macros/createMacroExecutor.js"
+import {
+    EXECUTE_MACRO_EVENT,
+    USE_ACTIVITY_EVENT
+} from "../../macros/createMacroExecutor.js"
 import { validateMacroPayload } from "../macros/validateMacroPayload.js"
+import {
+    ROLL_SAVING_THROW_EVENT,
+    rollSavingThrowForSocket
+} from "../../services/actions/handlers/save.js"
 
 export function registerSockets({
     socketGateway,
@@ -86,6 +93,36 @@ export function registerSockets({
     socketGateway.register(
         CANCEL_STAGE_UP_APPROVAL_EVENT,
         payload => getStageUpApprovalService().cancelApprovalRequest(payload)
+    )
+
+    socketGateway.register(
+        ROLL_SAVING_THROW_EVENT,
+        async payload =>
+        {
+            logger.debug("registerSockets.rollSavingThrow", {payload})
+            return rollSavingThrowForSocket(payload)
+        }
+    )
+
+    // Uses an activity on this (the target user's) client, so its usage dialogs appear here.
+    socketGateway.register(
+        USE_ACTIVITY_EVENT,
+        async ({activityUuid} = {}) =>
+        {
+            logger.debug("registerSockets.useActivity", {activityUuid})
+
+            const activity = activityUuid
+                ? await fromUuid(activityUuid).catch(() => null)
+                : null
+            if (typeof activity?.use !== "function") return false
+            if (activity.actor && !activity.actor.isOwner) {
+                logger.warn("useActivity requested for an actor this user does not own", {activityUuid})
+                return false
+            }
+
+            await activity.use({actor: activity.actor})
+            return true
+        }
     )
 
     socketGateway.register(

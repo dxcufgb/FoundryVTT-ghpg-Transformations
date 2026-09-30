@@ -2,6 +2,7 @@ import { Transformation } from "../../Transformation.js"
 import { renderDevilishContractor } from "./activities/DevilishContractor.js"
 import { giftsOfDamnation } from "./giftsOfDamnation/index.js";
 import { ChatCardActionBinder } from "../../../../ui/chatCards/ChatCardActionBinder.js";
+import { findActivityByName } from "../../../../utils/activityNames.js"
 
 const PULL_OF_THE_NETHERWORLD_ACTIVITY_ID = "GkER88EWbz2oElES"
 
@@ -236,8 +237,11 @@ export class Fiend extends Transformation {
 
         const activity =
                   pullOfTheNetherworld.system.activities.get?.(PULL_OF_THE_NETHERWORLD_ACTIVITY_ID) ??
-                  pullOfTheNetherworld.system.activities.find(a => a.name == "Midi Damage")
-        if (!activity) return
+                  findActivityByName(pullOfTheNetherworld, "Midi Damage")
+        if (!activity) {
+            console.warn("Transformations | Pull of the Netherworld: damage activity not found")
+            return
+        }
 
         await activity.use()
     }

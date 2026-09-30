@@ -1,0 +1,202 @@
+[
+  {
+    "id": "medium-fey-F37-spring-overtime",
+    "pack": "gh-transformations",
+    "key": "!items.effects!K62U8AeluSIM9oeI.cH2Pg0Mf0fAJOutp",
+    "op": "set",
+    "path": "changes",
+    "value": [
+      {
+        "key": "flags.midi-qol.OverTime",
+        "mode": 0,
+        "value": "turn=end, saveAbility=con, saveDC=8 + @abilities.cha.mod + @flags.transformations.stage, allowIncapacitated=true, label=Two-Faced (Spring)",
+        "priority": 20
+      }
+    ],
+    "expect": []
+  },
+  {
+    "id": "medium-fey-F37-spring-isdamaged",
+    "pack": "gh-transformations",
+    "key": "!items.effects!K62U8AeluSIM9oeI.cH2Pg0Mf0fAJOutp",
+    "op": "set",
+    "path": "flags.dae.specialDuration",
+    "value": [
+      "isDamaged"
+    ],
+    "expect": []
+  },
+  {
+    "id": "medium-fey-F37-summer-isdamaged",
+    "pack": "gh-transformations",
+    "key": "!items.effects!WH4ZBcfktnkAZhhp.cH2Pg0Mf0fAJOutp",
+    "op": "set",
+    "path": "flags.dae.specialDuration",
+    "value": [
+      "isDamaged"
+    ],
+    "expect": []
+  },
+  {
+    "id": "medium-fey-F37-autumn-overtime",
+    "pack": "gh-transformations",
+    "key": "!items.effects!I1PqqMLyPa6jPagx.cH2Pg0Mf0fAJOutp",
+    "op": "set",
+    "path": "changes",
+    "value": [
+      {
+        "key": "flags.midi-qol.OverTime",
+        "mode": 0,
+        "value": "turn=end, saveAbility=con, saveDC=8 + @abilities.cha.mod + @flags.transformations.stage, allowIncapacitated=true, label=Two-Faced (Autumn)",
+        "priority": 20
+      }
+    ],
+    "expect": []
+  },
+  {
+    "id": "medium-fey-F38-dn-overtime",
+    "pack": "gh-transformations",
+    "key": "!items.effects!y7AmSHJfn7aMCUUs.HKeyjZarDxkWPXew",
+    "op": "set",
+    "path": "changes",
+    "value": [
+      {
+        "key": "flags.midi-qol.OverTime",
+        "mode": 0,
+        "value": "turn=end, saveAbility=con, saveDC=8 + @prof + @flags.transformations.stage, allowIncapacitated=true, label=Dreams and Nightmares",
+        "priority": 20
+      }
+    ],
+    "expect": []
+  },
+  {
+    "id": "medium-fey-F38-dn-rounds",
+    "pack": "gh-transformations",
+    "key": "!items.effects!y7AmSHJfn7aMCUUs.HKeyjZarDxkWPXew",
+    "op": "set",
+    "path": "duration.rounds",
+    "value": 10,
+    "expect": null
+  },
+  {
+    "id": "medium-fey-F38-dn-turns",
+    "pack": "gh-transformations",
+    "key": "!items.effects!y7AmSHJfn7aMCUUs.HKeyjZarDxkWPXew",
+    "op": "set",
+    "path": "duration.turns",
+    "value": null,
+    "expect": 10
+  },
+  {
+    "id": "medium-fey-F38-dn-save-on-damage-flag",
+    "pack": "gh-transformations",
+    "key": "!items.effects!y7AmSHJfn7aMCUUs.HKeyjZarDxkWPXew",
+    "op": "set",
+    "path": "flags.transformations.repeatSaveOnDamage",
+    "value": {
+      "ability": "con",
+      "disadvantage": false
+    }
+  },
+  {
+    "id": "medium-fey-F38-dn-concentration-effect",
+    "pack": "gh-transformations",
+    "key": "!items.effects!y7AmSHJfn7aMCUUs.dnConcEffect0001",
+    "op": "create",
+    "doc": {
+      "name": "Dream or Nightmare (Concentration)",
+      "img": "modules/transformations/Icons/Transformations/Fey/Dreams_and_Nightmares.png",
+      "origin": "Compendium.transformations.gh-transformations.Item.y7AmSHJfn7aMCUUs",
+      "transfer": false,
+      "_id": "dnConcEffect0001",
+      "type": "base",
+      "system": {},
+      "changes": [
+        {
+          "key": "flags.midi-qol.OverTime",
+          "mode": 0,
+          "value": "turn=end, saveAbility=con, saveDC=8 + @prof + @flags.transformations.stage, allowIncapacitated=true, label=Dreams and Nightmares",
+          "priority": 20
+        },
+        {
+          "key": "flags.midi-qol.disadvantage.save.con",
+          "mode": 0,
+          "value": "1",
+          "priority": 20
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null,
+        "combat": null,
+        "seconds": 60,
+        "rounds": 10,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null
+      },
+      "description": "<p>You are stuck in a blissful dream or a terrifying nightmare. The condition lasts for 1 minute. The target can attempt the Constitution saving throw at the end of each of its turns and each time it takes damage. While the Fey concentrates on this effect, the target has Disadvantage on these saving throws.</p>",
+      "tint": "#ffffff",
+      "statuses": [
+        "paralyzed"
+      ],
+      "sort": 0,
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "statuses": []
+          }
+        },
+        "dae": {
+          "enableCondition": "",
+          "disableCondition": "",
+          "stackable": "noneName",
+          "showIcon": false,
+          "disableIncapacitated": false,
+          "selfTarget": false,
+          "selfTargetAlways": false,
+          "dontApply": false,
+          "durationExpression": "",
+          "specialDuration": []
+        },
+        "core": {
+          "overlay": false
+        },
+        "transformations": {
+          "repeatSaveOnDamage": {
+            "ability": "con",
+            "disadvantage": true
+          }
+        }
+      },
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "dnd5e",
+        "systemVersion": "5.2.5",
+        "createdTime": null,
+        "modifiedTime": null,
+        "lastModifiedBy": null
+      }
+    }
+  },
+  {
+    "id": "medium-fey-F38-dn-concentration-effect-link",
+    "pack": "gh-transformations",
+    "key": "!items!y7AmSHJfn7aMCUUs",
+    "op": "arrayAdd",
+    "path": "effects",
+    "value": "dnConcEffect0001"
+  },
+  {
+    "id": "medium-fey-F38-dn-concentration-activity-effect",
+    "pack": "gh-transformations",
+    "key": "!items!y7AmSHJfn7aMCUUs",
+    "op": "set",
+    "path": "system.activities.o6FzAazAi33Wbs4r.effects.0._id",
+    "value": "dnConcEffect0001",
+    "expect": "HKeyjZarDxkWPXew"
+  }
+]

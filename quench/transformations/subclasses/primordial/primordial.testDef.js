@@ -1528,6 +1528,8 @@ const primordialChaosBehaviorTests = [
     }
 ]
 
+const PRIMORDIAL_FORM_CON_CHANGE_VALUE = "max(0, min(1, 20 - @abilities.con.value))"
+
 export const primordialTestDef = {
     id: "primordial",
     name: "Primordial",
@@ -1650,7 +1652,7 @@ export const primordialTestDef = {
                             {
                                 key: "system.abilities.con.value",
                                 mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-                                value: 1
+                                value: PRIMORDIAL_FORM_CON_CHANGE_VALUE
                             }
                         ]
                     })
@@ -1669,6 +1671,53 @@ export const primordialTestDef = {
                     })
                 })
                 validate(actorDto, {assert})
+            }
+        },
+        {
+            name: "stage 1 does not raise Constitution above 20",
+            setup: async ({actor, staticVars}) =>
+            {
+                await actor.update({"system.abilities.con.value": 20})
+                staticVars.initialCon = actor.system.abilities.con.value
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Elemental Affinity",
+                        choice: ELEMENTAL_AFFINITY_CHOICE_UUID
+                    }
+                ]
+            },
+            steps: [
+                {
+                    stage: 1,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(
+                            runtime,
+                            actor,
+                            waiters.waitForCondition,
+                            1
+                        )
+                    }
+                }
+            ],
+            finalAwait: async ({runtime, actor, waiters}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await waiters.waitForCondition(() =>
+                    actor.items.some(item =>
+                        item.flags?.transformations?.sourceUuid ===
+                        PRIMORDIAL_FORM_UUID
+                    )
+                )
+            },
+            finalAssertions: async ({actor, assert, staticVars}) =>
+            {
+                assert.equal(staticVars.initialCon, 20)
+                assert.equal(actor._source.system.abilities.con.value, 20)
+                assert.equal(actor.system.abilities.con.value, 20)
             }
         },
         {

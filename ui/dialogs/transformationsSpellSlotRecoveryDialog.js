@@ -186,7 +186,7 @@ export class TransformationsSpellSlotRecoveryDialog
                     const groupCost = getGroupCost(group)
                     const otherSelectedCost =
                         getSelectedCost() -
-                        (changedInput.checked ? groupCost : 0)
+                        (groupInputs.filter(input => input.checked).length * groupCost)
                     const budget = Math.max(
                         Number(this.viewModel.maxRecoverableCost ?? 0),
                         0

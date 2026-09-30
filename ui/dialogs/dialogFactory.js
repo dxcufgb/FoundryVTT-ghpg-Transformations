@@ -75,7 +75,7 @@ export function createDialogFactory({
             return routingResult
         }
 
-        closeExistingDialog(TransformationConfigDialog)
+        await closeExistingDialog(TransformationConfigDialog, `transformation-config-${actor.id}`)
 
         const viewModel = viewModels.createTransformationConfigViewModel({
             actor,
@@ -141,7 +141,10 @@ export function createDialogFactory({
             return routingResult
         }
 
-        closeExistingDialog(TransformationChoiceDialog)
+        await closeExistingDialog(
+            TransformationChoiceDialog,
+            `transformation-choice-dialog-${actor.id}-stage-${stage}`
+        )
 
         return new Promise(async resolve =>
         {
@@ -210,7 +213,7 @@ export function createDialogFactory({
             return routingResult
         }
 
-        closeExistingDialog(TransformationGeneralChoiceDialog)
+        await closeExistingDialog(TransformationGeneralChoiceDialog, `transformation-general-choice-${actor.id}`)
 
         return new Promise(async resolve =>
         {
@@ -280,7 +283,7 @@ export function createDialogFactory({
             return routingResult
         }
 
-        closeExistingDialog(AbilityScoreAdvancementDialog)
+        await closeExistingDialog(AbilityScoreAdvancementDialog, `ability-score-advancement-${actor.id}`)
 
         return new Promise(resolve =>
         {
@@ -808,12 +811,22 @@ export function createDialogFactory({
         openHagSpellRecovery
     })
 
-    function closeExistingDialog(dialog)
+    // Closes an open dialog that would share the new dialog's fixed id. Rendering a second
+    // ApplicationV2 with the same id swaps the old element out without closing it, so the old
+    // dialog's promise would never settle. Dialogs without a fixed id cannot collide.
+    async function closeExistingDialog(dialog, id = null)
     {
-        logger.debug("createDialogFactory.closeExistingDialog", {dialog})
-        for (const app of Object.values(ui.windows)) {
-            if (app instanceof dialog) {
-                app.close({force: true})
+        logger.debug("createDialogFactory.closeExistingDialog", {dialog, id})
+        if (!id) return
+
+        // ApplicationV2 instances are tracked in foundry.applications.instances, not ui.windows.
+        const apps = new Set([
+            ...(foundry.applications?.instances?.values?.() ?? []),
+            ...Object.values(ui.windows ?? {})
+        ])
+        for (const app of apps) {
+            if (app instanceof dialog && app.id === id) {
+                await app.close({force: true, animate: false})
             }
         }
     }

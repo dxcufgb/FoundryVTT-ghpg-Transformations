@@ -82,13 +82,24 @@ export class GrantWaterBreathing
                 message
             })
 
-            await this.rollDuration({
-                actor,
-                message,
-                actorRepository,
-                ChatMessagePartInjector,
-                RollService
-            })
+            // A second click while the roll runs would roll and spend twice.
+            if (button.dataset.transformationsBusy === "true") return
+            button.dataset.transformationsBusy = "true"
+            const wasDisabled = button.disabled === true
+            button.disabled = true
+
+            try {
+                await this.rollDuration({
+                    actor,
+                    message,
+                    actorRepository,
+                    ChatMessagePartInjector,
+                    RollService
+                })
+            } finally {
+                delete button.dataset.transformationsBusy
+                button.disabled = wasDisabled
+            }
         })
     }
 

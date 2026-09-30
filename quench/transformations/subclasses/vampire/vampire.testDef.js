@@ -694,6 +694,11 @@ const stage4Choices = Object.freeze([
                 recovery.period = "lr"
                 recovery.type = "recoverAll"
             })
+            item.uses.addRecovery(recovery =>
+            {
+                recovery.period = "sr"
+                recovery.type = "recoverAll"
+            })
             item.addAdvancement(advancement =>
             {
                 advancement.type = "AbilityScoreImprovement"
@@ -1057,7 +1062,7 @@ const sangromancyResourceBehaviorCases = Object.freeze([
         ],
         charges: 2,
         rollButtonText: "Roll 2 Dice",
-        expectedFormula: "2d6",
+        expectedFormula: "2d12",
         expectedUsesSpent: 2,
         expectedClassStates: [
             {
@@ -1074,7 +1079,7 @@ const sangromancyResourceBehaviorCases = Object.freeze([
         ]
     },
     {
-        name: "Sangromancy Specialist item charges roll using the actor's highest class hit die denomination",
+        name: "Sangromancy Specialist charges roll as d12 regardless of class hit die denomination",
         classDefinitions: [
             {
                 className: "Wizard",
@@ -1089,7 +1094,7 @@ const sangromancyResourceBehaviorCases = Object.freeze([
         ],
         charges: 2,
         rollButtonText: "Roll 2 Dice",
-        expectedFormula: "2d10",
+        expectedFormula: "2d12",
         expectedUsesSpent: 2,
         expectedClassStates: [
             {
@@ -1156,7 +1161,7 @@ const sangromancyResourceBehaviorCases = Object.freeze([
         ],
         charges: 1,
         rollButtonText: "Roll 1 Die",
-        expectedFormula: "1d6",
+        expectedFormula: "1d12",
         expectedUsesSpent: 1,
         expectedClassStates: [
             {
@@ -1837,7 +1842,7 @@ function addFangedBiteValidation(actorDto, {
             path: "midi-qol",
             expected: {
                 onUseMacroName:
-                    "[preAttackRollConfig]ItemMacro"
+                    "[preAttackRollConfig]ItemMacro,[postActiveEffects]ActivityMacro-ddjFKkSGslAQQjB4"
             }
         })
         item.flags.match.push({

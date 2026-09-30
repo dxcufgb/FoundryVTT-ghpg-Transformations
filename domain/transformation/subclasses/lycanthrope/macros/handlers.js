@@ -8,6 +8,7 @@ import {
     LYCANTHROPE_TRANSFORM_ACTIVITY_NAME,
     LYCANTHROPE_ULTIMATE_PREDATOR_EFFECT_NAME
 } from "../constants.js"
+import { activityMatchesName } from "../../../../../utils/activityNames.js"
 
 // DAE item macro triggers that must not force a transformation (effect removal / repeats).
 const IGNORED_DAE_TRIGGERS = Object.freeze(["off", "each", "startEveryTurn", "endEveryTurn"])
@@ -15,6 +16,8 @@ const IGNORED_DAE_TRIGGERS = Object.freeze(["off", "each", "startEveryTurn", "en
 export function createLycanthropeMacroHandlers({
     activeEffectRepository = null,
     itemRepository,
+    useActivityAsUser = null,
+    getGame = () => globalThis.game,
     tracker,
     logger
 })
@@ -22,6 +25,7 @@ export function createLycanthropeMacroHandlers({
     logger.debug("createLycanthropeMacroHandlers", {
         activeEffectRepository,
         itemRepository,
+        useActivityAsUser,
         tracker
     })
 
@@ -33,11 +37,11 @@ export function createLycanthropeMacroHandlers({
          * Called by the bloodied trigger (trigger "bloodied") and by the Ultimate Predator
          * DAE item macro (trigger "on"/"off").
          */
-        async triggerBloodiedHybridTransform({ actor, trigger })
+        async triggerBloodiedHybridTransform({ actor, trigger, triggeringUserId = null })
         {
             logger.debug(
                 "createLycanthropeMacroHandlers.triggerBloodiedHybridTransform",
-                { actor, trigger }
+                { actor, trigger, triggeringUserId }
             )
 
             return tracker.track(
@@ -82,7 +86,7 @@ export function createLycanthropeMacroHandlers({
                         // Apply the hybrid stats, attacks and hybridForm flag before the
                         // token swap so they are kept by the transformation ("effects: all").
                         if (typeof activities.effectActivity?.use === "function") {
-                            await activities.effectActivity.use({ actor })
+                            await useActivity(activities.effectActivity, actor, triggeringUserId)
                         }
                         else {
                             logger.warn(
@@ -95,7 +99,7 @@ export function createLycanthropeMacroHandlers({
                     await applyFeralMarker(actor)
 
                     if (transformActivity) {
-                        await transformActivity.use({ actor })
+                        await useActivity(transformActivity, actor, triggeringUserId)
                     }
 
                     return true
@@ -103,6 +107,74 @@ export function createLycanthropeMacroHandlers({
             )
         }
     })
+
+    /**
+     * Uses an activity on the lycanthrope player's client when this handler runs elsewhere
+     * (e.g. on the GM after socket routing), so its usage/transform dialogs reach that player.
+     * Falls back to a local use when no router is wired or no other active owner is found,
+     * and keeps transform activities local when that player may not transform (dnd5e
+     * "allowPolymorphing" off or no ACTOR_CREATE permission), as dnd5e would refuse them there.
+     */
+    async function useActivity(activity, actor, triggeringUserId)
+    {
+        logger.debug("createLycanthropeMacroHandlers.useActivity", {
+            activity,
+            actor,
+            triggeringUserId
+        })
+        const userId = resolveActivityUserId(actor, triggeringUserId, activity)
+
+        if (userId && typeof useActivityAsUser === "function" && activity?.uuid) {
+            return useActivityAsUser({
+                activityUuid: activity.uuid,
+                actorUuid: actor?.uuid ?? null,
+                userId
+            })
+        }
+
+        return activity.use({ actor })
+    }
+
+    function resolveActivityUserId(actor, triggeringUserId, activity = null)
+    {
+        logger.debug("createLycanthropeMacroHandlers.resolveActivityUserId", {
+            actor,
+            triggeringUserId,
+            activity
+        })
+        const game = getGame?.()
+        const users = game?.users
+        if (!users || typeof actor?.testUserPermission !== "function") return null
+
+        const isActiveOwner = user =>
+            Boolean(user?.active) &&
+            !user.isGM &&
+            actor.testUserPermission(user, "OWNER")
+
+        const triggeringUser = triggeringUserId ? users.get?.(triggeringUserId) : null
+        const target = isActiveOwner(triggeringUser)
+            ? triggeringUser
+            : users.find?.(isActiveOwner) ?? null
+
+        if (!target || target.id === game.user?.id) return null
+        if (activity?.type === "transform" && !canUserTransform(game, target)) return null
+
+        return target.id
+    }
+
+    function canUserTransform(game, user)
+    {
+        logger.debug("createLycanthropeMacroHandlers.canUserTransform", { user })
+        let allowPolymorphing = false
+        try {
+            allowPolymorphing = Boolean(game?.settings?.get?.("dnd5e", "allowPolymorphing"))
+        }
+        catch {
+            allowPolymorphing = false
+        }
+
+        return allowPolymorphing && user?.can?.("ACTOR_CREATE") === true
+    }
 
     function findHybridFormItem(actor)
     {
@@ -180,7 +252,7 @@ export function findHybridFormActivities(item)
     const transformActivity =
               (knownIds ? byId(knownIds.transform) : null) ??
               activities.find(activity =>
-                  activity?.name === LYCANTHROPE_TRANSFORM_ACTIVITY_NAME
+                  activityMatchesName(activity, LYCANTHROPE_TRANSFORM_ACTIVITY_NAME)
               ) ??
               activities.find(activity =>
                   activity?.type === "transform" &&

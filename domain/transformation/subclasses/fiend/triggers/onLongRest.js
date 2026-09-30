@@ -5,7 +5,7 @@ export const onLongRest = {
         {
             name: "tempHitDieMax",
             type: "formula",
-            value: "Math.floor(@highestAvailableHitDiceMax / 2)"
+            value: "@highestAvailableHitDiceMax - Math.floor(@highestAvailableHitDiceMax / 2)"
         }
     ],
     
@@ -33,6 +33,17 @@ export const onLongRest = {
                         mode: "set",
                         path: "flags.transformations.fiend.giftOfProdigiousTalent.longRestsLeftUntilFullHitDieRestoration",
                         expression: "@currentValue -1"
+                    }
+                },
+                {
+                    // Only keep the cap while Long Rests remain; the
+                    // dice return once the second Long Rest is finished.
+                    type: "ACTOR_FLAG",
+                    data: {
+                        mode: "check",
+                        path: "flags.transformations.fiend.giftOfProdigiousTalent.longRestsLeftUntilFullHitDieRestoration",
+                        expression: "@currentValue > 0",
+                        blocker: true
                     }
                 },
                 {

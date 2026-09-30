@@ -46,30 +46,41 @@ export class ChatCardActionBinder {
                 return
             }
 
-            const actor = await resolveActor({
-                message,
-                button,
-                actorRepository
-            })
-            if (!actor) return
+            // Actions spend resources (uses, Hit Dice) before the card is replaced, so a second
+            // click while one is running would spend twice.
+            if (button.dataset.transformationsBusy === "true") return
+            button.dataset.transformationsBusy = "true"
+            const wasDisabled = button.disabled === true
+            button.disabled = true
 
-            logger?.debug?.("Gift action triggered", {
-                giftId,
-                action
-            })
+            try {
+                const actor = await resolveActor({
+                    message,
+                    button,
+                    actorRepository
+                })
+                if (!actor) return
 
-            await GiftClass.actions[action]({
-                actor,
-                message,
-                element: button,
-                actorRepository,
-                dialogFactory,
-                GiftClass,
-                ChatMessagePartInjector,
-                RollService,
-                logger
-            })
+                logger?.debug?.("Gift action triggered", {
+                    giftId,
+                    action
+                })
 
+                await GiftClass.actions[action]({
+                    actor,
+                    message,
+                    element: button,
+                    actorRepository,
+                    dialogFactory,
+                    GiftClass,
+                    ChatMessagePartInjector,
+                    RollService,
+                    logger
+                })
+            } finally {
+                delete button.dataset.transformationsBusy
+                button.disabled = wasDisabled
+            }
         })
     }
 }

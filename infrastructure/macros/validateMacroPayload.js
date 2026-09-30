@@ -25,9 +25,10 @@ export function validateMacroPayload(payload, { logger }) {
         return false;
     }
 
-    if (typeof args.tokenUuid !== "string") {
+    // No handler needs a token, and an actor without a scene token must still be handled.
+    if (args.tokenUuid != null && typeof args.tokenUuid !== "string") {
         logger.warn(
-            "Invalid macro payload: tokenUuid missing or invalid",
+            "Invalid macro payload: tokenUuid invalid",
             payload
         );
         return false;

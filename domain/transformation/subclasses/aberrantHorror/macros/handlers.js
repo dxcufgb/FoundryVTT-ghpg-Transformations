@@ -15,12 +15,16 @@ export function createAberrantHorrorMacroHandlers({
     return Object.freeze({
         whenIdle: tracker.whenIdle,
 
-        async chitinousShell({ actor, trigger })
+        async chitinousShell({ actor, trigger, effect = null })
         {
-            logger.debug("createAberrantHorrorMacroHandlers.chitinousShell", { actor, trigger })
+            logger.debug("createAberrantHorrorMacroHandlers.chitinousShell", { actor, trigger, effect })
             return tracker.track(
                 (async () =>
                 {
+                    if (trigger === "off") {
+                        await endMutation({ actor, effect })
+                        return
+                    }
                     if (trigger !== "on") return
 
                     const effectNames = Object.values(aberrantMutationConstants.effects).filter(
@@ -34,17 +38,27 @@ export function createAberrantHorrorMacroHandlers({
                         effectIds.map(e => e.id)
                     )
                     await removeEldritchLimbsItem(actor)
-                    await poisonousMutations({ actor, trigger })
+                    await removeChitinousShellAcBonusInHeavyArmor(actor)
+                    await poisonousMutations({ actor, active: true })
                 })()
             )
         },
 
-        async eldritchLimbs({ actor, trigger, triggeringUserId = null })
+        async eldritchLimbs({ actor, trigger, effect = null, triggeringUserId = null })
         {
-            logger.debug("createAberrantHorrorMacroHandlers.eldritchLimbs", { actor, trigger, triggeringUserId })
+            logger.debug("createAberrantHorrorMacroHandlers.eldritchLimbs", { actor, trigger, effect, triggeringUserId })
             return tracker.track(
                 (async () =>
                 {
+                    if (trigger === "off") {
+                        // The limbs last as long as the mutation (1 minute). Keep the weapon when the
+                        // Eldritch Limbs mutation was manifested again and is still active.
+                        if (!hasActiveMutation(actor, effect, [aberrantMutationConstants.effects.eldritchLimbs])) {
+                            await removeEldritchLimbsItem(actor)
+                        }
+                        await endMutation({ actor, effect })
+                        return
+                    }
                     if (trigger !== "on") return
 
                     const effectNames = Object.values(aberrantMutationConstants.effects).filter(
@@ -58,19 +72,25 @@ export function createAberrantHorrorMacroHandlers({
                         effectIds.map(e => e.id)
                     )
 
+                    // Manifesting again chooses the damage type again, so drop the previous limbs first.
+                    await removeEldritchLimbsItem(actor)
                     const damageType = await chooseEldritchLimbsDamageType(actor, triggeringUserId)
                     await addEldritchLimbsItem(actor, damageType)
-                    await poisonousMutations({ actor, trigger })
+                    await poisonousMutations({ actor, active: true })
                 })()
             )
         },
 
-        async slimyForm({ actor, trigger })
+        async slimyForm({ actor, trigger, effect = null })
         {
-            logger.debug("createAberrantHorrorMacroHandlers.slimyForm", { actor, trigger })
+            logger.debug("createAberrantHorrorMacroHandlers.slimyForm", { actor, trigger, effect })
             return tracker.track(
                 (async () =>
                 {
+                    if (trigger === "off") {
+                        await endMutation({ actor, effect })
+                        return
+                    }
                     if (trigger !== "on") return
 
                     const effectNames = Object.values(aberrantMutationConstants.effects).filter(
@@ -84,7 +104,7 @@ export function createAberrantHorrorMacroHandlers({
                         effectIds.map(e => e.id)
                     )
                     await removeEldritchLimbsItem(actor)
-                    await poisonousMutations({ actor, trigger })
+                    await poisonousMutations({ actor, active: true })
                 })()
             )
         },
@@ -97,6 +117,9 @@ export function createAberrantHorrorMacroHandlers({
                 {
                     if (trigger !== "longRest") return
 
+                    // Runs before the general removeOnLongRest cleanup deletes the marker effect.
+                    await removeUnstableFormExhaustion(actor)
+
                     const effectIds = activeEffectRepository.findAllByName(
                         actor,
                         Object.values(aberrantMutationConstants.effects)
@@ -107,10 +130,81 @@ export function createAberrantHorrorMacroHandlers({
                         effectIds.map(e => e.id)
                     )
                     await removeEldritchLimbsItem(actor)
+                    await poisonousMutations({ actor, active: false })
                 })()
             )
         }
     })
+
+    function hasActiveMutation(actor, endingEffect = null, names = aberrantMutationConstants.mutationEffects)
+    {
+        logger.debug("createAberrantHorrorMacroHandlers.hasActiveMutation", { actor, endingEffect, names })
+        const endingId = endingEffect?._id ?? endingEffect?.id ?? null
+
+        return Array.from(actor?.effects ?? []).some(e =>
+            names.includes(e.name) &&
+            (!endingId || e.id !== endingId)
+        )
+    }
+
+    async function endMutation({ actor, effect = null })
+    {
+        logger.debug("createAberrantHorrorMacroHandlers.endMutation", { actor, effect })
+        // When switching mutations the new one is already active while the old one is removed.
+        if (hasActiveMutation(actor, effect)) return
+
+        await poisonousMutations({ actor, active: false })
+    }
+
+    async function removeChitinousShellAcBonusInHeavyArmor(actor)
+    {
+        logger.debug("createAberrantHorrorMacroHandlers.removeChitinousShellAcBonusInHeavyArmor", { actor })
+        // Donning or doffing heavy armor takes longer than the 1 minute the shell lasts,
+        // so the armor worn when the shell is manifested decides the AC bonus.
+        if (!actorWearsHeavyArmor(actor)) return
+
+        const shell = Array.from(actor?.effects ?? []).find(
+            e => e.name === aberrantMutationConstants.effects.chitinousShell
+        )
+        if (!shell) return
+
+        const currentChanges = Array.from(shell.changes ?? [])
+        const changes = currentChanges.filter(
+            c => c.key !== aberrantMutationConstants.chitinousShellAcKey
+        )
+        if (changes.length === currentChanges.length) return
+
+        await shell.update({ changes })
+    }
+
+    function actorWearsHeavyArmor(actor)
+    {
+        logger.debug("createAberrantHorrorMacroHandlers.actorWearsHeavyArmor", { actor })
+        return Array.from(actor?.items ?? []).some(item =>
+            item.type === "equipment" &&
+            item.system?.equipped === true &&
+            item.system?.type?.value === "heavy"
+        )
+    }
+
+    async function removeUnstableFormExhaustion(actor)
+    {
+        logger.debug("createAberrantHorrorMacroHandlers.removeUnstableFormExhaustion", { actor })
+        const marker = Array.from(actor?.effects ?? []).find(
+            e => e.name === aberrantMutationConstants.aberrantExhaustionEffect
+        )
+        const added = Number(marker?.flags?.transformations?.exhaustionAdded) || 0
+        if (added <= 0) return
+
+        const current = Number(actor.system?.attributes?.exhaustion) || 0
+        const next = Math.max(current - added, 0)
+
+        // Clear the counter so the levels are only taken back once.
+        await marker.update({ "flags.transformations.exhaustionAdded": 0 })
+        if (next === current) return
+
+        await actor.update({ "system.attributes.exhaustion": next })
+    }
 
     async function chooseEldritchLimbsDamageType(actor, triggeringUserId)
     {
@@ -158,30 +252,38 @@ export function createAberrantHorrorMacroHandlers({
                             actor,
                             uuid,
                             flags: {
-                                removeOnLongRest: true,
-                                removeOnShortRest: true
+                                removeOnLongRest: true
                             }
                         })
                     }
-                } else {
 
-                    const uuid = aberrantMutationConstants.items.eldritchLimbs.normal
-
-                    const created = await itemRepository.addItemFromUuid({
-                        actor,
-                        uuid,
-                        flags: {
-                            removeOnLongRest: true,
-                            removeOnShortRest: true
-                        }
-                    })
-
-                    if (created && damageType) {
-                        await applyEldritchLimbsDamageType(created, damageType)
+                    // The hurled barb only replaces some limb attacks; the melee limb stays available.
+                    if (damageType === "piercing") {
+                        await addNormalEldritchLimbsItem(actor, damageType)
                     }
+                } else {
+                    await addNormalEldritchLimbsItem(actor, damageType)
                 }
             })()
         )
+    }
+
+    async function addNormalEldritchLimbsItem(actor, damageType = null)
+    {
+        logger.debug("createAberrantHorrorMacroHandlers.addNormalEldritchLimbsItem", { actor, damageType })
+        const uuid = aberrantMutationConstants.items.eldritchLimbs.normal
+
+        const created = await itemRepository.addItemFromUuid({
+            actor,
+            uuid,
+            flags: {
+                removeOnLongRest: true
+            }
+        })
+
+        if (created && damageType) {
+            await applyEldritchLimbsDamageType(created, damageType)
+        }
     }
 
     async function applyEldritchLimbsDamageType(item, damageType)
@@ -214,23 +316,17 @@ export function createAberrantHorrorMacroHandlers({
         return tracker.track(
             (async () =>
             {
-                if (actorHasEfficientKiller(actor)) {
-                    for (const uuid of Object.values(aberrantMutationConstants.items.eldritchLimbs.withEfficientKiller)) {
-                        const eldritchLimbs = await itemRepository.findEmbeddedByUuidFlag(actor, uuid)
+                // Efficient Killer (Piercing) grants the normal limb next to the hurled barb,
+                // so every limb item is removed whichever Stage 2 boon was chosen.
+                const uuids = [
+                    aberrantMutationConstants.items.eldritchLimbs.normal,
+                    ...Object.values(aberrantMutationConstants.items.eldritchLimbs.withEfficientKiller)
+                ]
 
-                        if (!eldritchLimbs) continue
-                        const id = eldritchLimbs.id
-
-                        await itemRepository.deleteEmbedded(actor, [id])
-                    }
-                } else {
-                    const uuid = aberrantMutationConstants.items.eldritchLimbs.normal
-
-                    if (!uuid) return
-
+                for (const uuid of uuids) {
                     const eldritchLimbs = await itemRepository.findEmbeddedByUuidFlag(actor, uuid)
 
-                    if (!eldritchLimbs) return
+                    if (!eldritchLimbs) continue
                     const id = eldritchLimbs.id
 
                     await itemRepository.deleteEmbedded(actor, [id])
@@ -254,24 +350,40 @@ export function createAberrantHorrorMacroHandlers({
         )
     }
 
-    async function poisonousMutations({ actor, trigger })
+    async function poisonousMutations({ actor, active })
     {
+        logger.debug("createAberrantHorrorMacroHandlers.poisonousMutations", { actor, active })
         const currentActorStage = await actor.getFlag("transformations", "stage")
         if (currentActorStage < 4) return
         const poisonousMutationsItem = await itemRepository.findEmbeddedByUuidFlag(actor, aberrantMutationConstants.items.poisonousMutations)
         if (!poisonousMutationsItem) return
-        const poisonousMutationsEffect = poisonousMutationsItem.effects.contents.find(e => e.name == "Poisonous Mutations")
+        const poisonousMutationsEffect = poisonousMutationsItem.effects.contents.find(
+            e => e.name == aberrantMutationConstants.effects.poisonousMutations
+        )
         if (!poisonousMutationsEffect) return
 
-        if (
-            poisonousMutationsEffect.transfer === true ||
-            activeEffectRepository.hasByName(
-                actor,
-                aberrantMutationConstants.effects.poisonousMutations
-            )
-        ) {
+        // The item's aura effect transfers to the actor and is only switched on while a mutation is active.
+        if (poisonousMutationsEffect.transfer === true) {
+            if (poisonousMutationsEffect.disabled === !active) return
+            await poisonousMutationsEffect.update({ disabled: !active })
             return
         }
+
+        const hasActorEffect = activeEffectRepository.hasByName(
+            actor,
+            aberrantMutationConstants.effects.poisonousMutations
+        )
+
+        if (!active) {
+            if (!hasActorEffect) return
+            await activeEffectRepository.removeByIds(
+                actor,
+                activeEffectRepository.getIdsByName(actor, aberrantMutationConstants.effects.poisonousMutations)
+            )
+            return
+        }
+
+        if (hasActorEffect) return
 
         await activeEffectRepository.create({
             actor,
@@ -289,6 +401,9 @@ export const aberrantMutationConstants = Object.freeze({
         eldritchLimbs: "Eldritch Limbs",
         poisonousMutations: "Poisonous Mutations"
     },
+    mutationEffects: ["Chitinous Shell", "Slimy Form", "Eldritch Limbs"],
+    aberrantExhaustionEffect: "Aberrant Exhaustion",
+    chitinousShellAcKey: "system.attributes.ac.bonus",
     eldritchLimbsDamageTypes: ["bludgeoning", "piercing", "slashing"],
     eldritchLimbsIcon: "modules/transformations/Icons/Transformations/Aberrant%20Horror/Eldritch_Limbs.png",
     items: {

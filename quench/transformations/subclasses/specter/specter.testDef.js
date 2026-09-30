@@ -203,12 +203,25 @@ function addIncorporealMovementAssertions(actorDto, {
         item.systemType = "transformation"
         item.systemSubType = "specter"
         item.usesLeft = actorProf
-        item.numberOfActivities = 1
+        item.numberOfActivities = 2
         item.numberOfEffects = 1
         item.addActivity(activity =>
         {
             activity.name = "Incorporeal form"
             activity.activationType = "action"
+            activity.range.units = "self"
+            activity.target.affects.type = "self"
+            activity.target.prompt = false
+            activity.addEffect(effect =>
+            {
+                effect.name = "Incorporeal Form"
+            })
+        })
+        // Draining Flight lets Incorporeal Movement be used as a Bonus Action
+        item.addActivity(activity =>
+        {
+            activity.name = "Incorporeal form (Bonus Action)"
+            activity.activationType = "bonus"
             activity.range.units = "self"
             activity.target.affects.type = "self"
             activity.target.prompt = false
@@ -489,6 +502,11 @@ function addDrainingFlightAssertions(actorDto, {
         {
             effect.name = "Frightened"
             effect.statuses = ["frightened"]
+            // Frightened lasts until the end of the Specter's next turn
+            effect.flags.match.push({
+                path: "dae.specialDuration",
+                expected: ["turnEndSource"]
+            })
         })
     })
 }
@@ -597,6 +615,8 @@ function addPossessionAssertions(actorDto)
         item.addEffect(effect =>
         {
             effect.name = "Possessed"
+            // The possessed target is Incapacitated; the body the Specter controls keeps
+            // the Specter's Charmed/Frightened immunities
             effect.changes.count = 2
             effect.changes = [
                 {
@@ -612,6 +632,11 @@ function addPossessionAssertions(actorDto)
                     priority: 20
                 }
             ]
+            effect.statuses = ["incapacitated"]
+            effect.flags.match.push({
+                path: "dae.disableIncapacitated",
+                expected: false
+            })
             effect.duration.seconds = 3600
         })
     })

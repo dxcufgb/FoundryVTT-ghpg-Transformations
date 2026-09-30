@@ -5,7 +5,7 @@ export const onSkillCheck = {
         {
             name: "tempHitDieMax",
             type: "formula",
-            value: "Math.floor(@highestAvailableHitDiceMax / 2)"
+            value: "@highestAvailableHitDiceMax - Math.floor(@highestAvailableHitDiceMax / 2)"
         }
     ],
 

@@ -456,6 +456,7 @@ export const lichTestDef = {
                     item.addActivity(activity => {
                         activity.name = "Capture Soul"
                         activity.activationType = "action"
+                        // 2 captures per Transformation Stage (2 * @flags.transformations.stage)
                         activity.uses.max = 2
                         activity.uses.spent = 0
                         activity.range.value = 60
@@ -960,6 +961,14 @@ export const lichTestDef = {
                                 }
                             ]
                         })
+                    })
+                })
+                actorDto.addItem(item => {
+                    item.itemName = "Soul Vessel"
+                    item.addActivity(activity => {
+                        activity.name = "Capture Soul"
+                        // 2 captures per Transformation Stage: stage 3 gives 6
+                        activity.uses.max = 6
                     })
                 })
                 validate(actorDto, {assert})
@@ -1667,6 +1676,11 @@ export const lichTestDef = {
                     if (!unarmedStrike) {
                         throw new Error("Unarmed Strike item not present on actor")
                     }
+
+                    // Memori Lichdom only works while the soul vessel is charged.
+                    await updateSoulVesselUses(actor, {
+                        "system.uses.spent": 0
+                    })
 
                     staticVars.initialMessageIds = new Set(
                         game.messages.contents.map(message => message.id)

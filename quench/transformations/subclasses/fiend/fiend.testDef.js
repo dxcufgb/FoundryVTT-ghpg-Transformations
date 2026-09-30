@@ -1687,16 +1687,13 @@ export const fiendTestDef = {
             ],
             setup: async ({actor, helpers, loopVars}) =>
             {
-                const foundCharacterClass = await helpers.getCharacterClass("Wizard")
-                await helpers.createActorItemAndWait(
+                await createCharacterClassWithHitDice({
                     actor,
-                    foundCharacterClass,
-                    {
-                        setTransformationFlags: false,
-                        setDdbImporterFlag: false,
-                        applyAdvancements: false
-                    }
-                )
+                    helpers,
+                    className: "Wizard",
+                    hitDiceValue: 5,
+                    levels: 5
+                })
                 await ChatMessage.deleteDocuments(
                     game.messages.contents.map(m => m.id)
                 )
@@ -1801,8 +1798,8 @@ export const fiendTestDef = {
                         longRestsLeftUntilFullHitDieRestoration: 2
                     }
                 })
-                actorDto.stats.hitDices.max = 1
-                actorDto.stats.hitDices.value = 0
+                actorDto.stats.hitDices.max = 5
+                actorDto.stats.hitDices.value = 3   // keeps 5 - floor(5 / 2)
                 validate(actorDto, {assert})
             }
         },
@@ -1983,16 +1980,13 @@ export const fiendTestDef = {
             name: `Gift of Prodigiuos Talent long rest subtracts one from longRestsLeftUntilFullHitDieRestoration`,
             setup: async ({actor, helpers, loopVars}) =>
             {
-                const foundCharacterClass = await helpers.getCharacterClass("Wizard")
-                await helpers.createActorItemAndWait(
+                await createCharacterClassWithHitDice({
                     actor,
-                    foundCharacterClass,
-                    {
-                        setTransformationFlags: false,
-                        setDdbImporterFlag: false,
-                        applyAdvancements: false
-                    }
-                )
+                    helpers,
+                    className: "Wizard",
+                    hitDiceValue: 5,
+                    levels: 5
+                })
                 await ChatMessage.deleteDocuments(
                     game.messages.contents.map(m => m.id)
                 )
@@ -2101,14 +2095,131 @@ export const fiendTestDef = {
                         longRestsLeftUntilFullHitDieRestoration: 1
                     }
                 })
-                actorDto.stats.hitDices.max = 1
-                actorDto.stats.hitDices.value = 0
+                actorDto.stats.hitDices.max = 5
+                actorDto.stats.hitDices.value = 3   // keeps 5 - floor(5 / 2)
                 validate(actorDto, {assert})
             }
         },
 
         {
-            name: `Gift of Unsurpassed Fortune no uses used on success`,
+            name: `Gift of Prodigious Talent restores hit dice after the second long rest`,
+            setup: async ({actor, helpers, loopVars}) =>
+            {
+                await createCharacterClassWithHitDice({
+                    actor,
+                    helpers,
+                    className: "Wizard",
+                    hitDiceValue: 5,
+                    levels: 5
+                })
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf"
+                        }
+                    }
+                })
+                globalThis.___TransformationTestEnvironment___.choosenAdvancement = [
+                    {
+                        name: "Fiendish Soul",
+                        choice: {
+                            icon: "modules/transformations/Icons/DamageTypes/Acid.png",
+                            id: "acid",
+                            label: "Acid",
+                            raw: "dr:acid",
+                            value: "acid"
+                        }
+                    },
+                    {
+                        name: "Gift of Prodigious Talent",
+                        choice: [
+                            {
+                                id: SKILL.ACROBATICS,
+                                label: "Acrobatics",
+                                icon: `modules/transformations/Icons/skills/Acrobatics.png`,
+                                raw: `skills:${SKILL.ACROBATICS}`,
+                                value: SKILL.ACROBATICS,
+                                mode: "forcedExpertise"
+                            },
+                            {
+                                id: SKILL.ARCANA,
+                                label: "Arcana",
+                                icon: `modules/transformations/Icons/skills/Arcana.png`,
+                                raw: `skills:${SKILL.ARCANA}`,
+                                value: SKILL.ARCANA,
+                                mode: "forcedExpertise"
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, waiters}) =>
+                {
+                    const gift = giftsOfDamnation.find(entry => entry.id === "giftOfProdigiousTalent")
+                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+
+                    await waiters.waitForDomainStability({
+                        actor,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                    })
+                    await waiters.waitForCondition(() =>
+                        actor.items.some(i => i.name === "Gift of Prodigious Talent")
+                    )
+
+                    // One Long Rest already finished; hit dice are back to full
+                    await actor.setFlag(
+                        "transformations",
+                        "fiend.giftOfProdigiousTalent.longRestsLeftUntilFullHitDieRestoration",
+                        1
+                    )
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                }
+            ],
+
+            await: async ({
+                actor,
+                runtime,
+                waiters
+            }) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await waiters.waitForCondition(() =>
+                    actor.flags?.transformations?.fiend?.giftOfProdigiousTalent?.longRestsLeftUntilFullHitDieRestoration === 0
+                )
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.flags.match.push({
+                    path: "transformations.fiend.giftOfProdigiousTalent",
+                    expected: {
+                        skills: [SKILL.ACROBATICS, SKILL.ARCANA],
+                        longRestsLeftUntilFullHitDieRestoration: 0
+                    }
+                })
+                actorDto.stats.hitDices.max = 5
+                actorDto.stats.hitDices.value = 5
+                validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: `Gift of Unsurpassed Fortune use stays spent on success`,
             setup: async ({actor, helpers, loopVars}) =>
             {
                 await ChatMessage.deleteDocuments(
@@ -2223,10 +2334,11 @@ export const fiendTestDef = {
                     const presentedRolls = await chatCardHelper.waitForPresentedRolls({count: 1})
                     expect(presentedRolls[0]?.total).to.equal(6)
 
+                    // A success regains the Reaction, not the gift's Long Rest use.
                     const actorDto = new ActorValidationDTO(actor)
                     actorDto.addItem(item => {
                         item.itemName = "Gift of Unsurpassed Fortune"
-                        item.usesLeft = 1
+                        item.usesLeft = 0
                         item.uses = 1
                     })
                     validate(actorDto, {assert})
@@ -3715,7 +3827,8 @@ export const fiendTestDef = {
                     actor,
                     helpers,
                     className: "Fighter",
-                    hitDiceValue: 4
+                    hitDiceValue: 5,
+                    levels: 5
                 })
                 staticVars.initialHitDice =
                     actor.items.get(staticVars.classItem.id)?.system?.hd?.value
@@ -3814,8 +3927,11 @@ export const fiendTestDef = {
                     })).to.equal(false)
 
                     await chatCardHelper.waitForButton({
-                        text: "Roll Damage"
+                        text: "Hit: Roll Force Damage"
                     })
+                    chatCardHelper.assertButtonExists({
+                        text: "Miss: Take Psychic Damage"
+                    }, expect)
 
                     rollHelper.queueRoll({
                         formula: "3d10",
@@ -3824,7 +3940,7 @@ export const fiendTestDef = {
                     })
 
                     await chatCardHelper.clickButton({
-                        text: "Roll Damage"
+                        text: "Hit: Roll Force Damage"
                     })
 
                     await waiters.waitForCondition(() =>
@@ -3851,7 +3967,10 @@ export const fiendTestDef = {
                     expect(attackRoll?.total).to.equal(18)
                     expect(damageRoll?.total).to.equal(21)
                     expect(chatCardHelper.hasButton({
-                        text: "Roll Damage"
+                        text: "Hit: Roll Force Damage"
+                    })).to.equal(false)
+                    expect(chatCardHelper.hasButton({
+                        text: "Miss: Take Psychic Damage"
                     })).to.equal(false)
 
                     allowMockRollMessageUpdates(chatCardHelper.getMessage())
@@ -3872,9 +3991,15 @@ export const fiendTestDef = {
                             roll?.formula === "3d10"
                         )?.total
                     ).to.equal(21)
+                    // The reroll spends 3 Hit Dice, and a hit locks the gift until a Long Rest
                     expect(
                         actor.items.get(staticVars.classItem.id)?.system?.hd?.value
-                    ).to.equal(staticVars.initialHitDice)
+                    ).to.equal(staticVars.initialHitDice - 3)
+
+                    const giftItem = actor.items.find(i => i.name === "Gift of Martial Prowess")
+                    expect(Number(giftItem?.system?.uses?.spent)).to.equal(
+                        Number.parseInt(giftItem?.system?.uses?.max)
+                    )
                 } finally {
                     rollHelper.restore()
                 }
@@ -3894,7 +4019,8 @@ export const fiendTestDef = {
                     actor,
                     helpers,
                     className: "Fighter",
-                    hitDiceValue: 4
+                    hitDiceValue: 5,
+                    levels: 5
                 })
             },
 
@@ -3967,11 +4093,181 @@ export const fiendTestDef = {
                     expect(presentedRolls[0]?.formula).to.equal("1d20")
                     expect(presentedRolls[0]?.total).to.equal(11)
                     await chatCardHelper.waitForButton({
-                        text: "Roll Damage"
+                        text: "Hit: Roll Force Damage"
                     })
                 } finally {
                     rollHelper.restore()
                 }
+            }
+        },
+
+        {
+            name: `Gift of Martial Prowess miss spends hit dice and deals psychic damage without spending the gift`,
+
+            setup: async ({actor, helpers, staticVars}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await setFiendStage3GiftChoices(actor)
+                staticVars.classItem = await createCharacterClassWithHitDice({
+                    actor,
+                    helpers,
+                    className: "Fighter",
+                    hitDiceValue: 5,
+                    levels: 5
+                })
+                staticVars.initialHitDice =
+                    actor.items.get(staticVars.classItem.id)?.system?.hd?.value
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                },
+                {
+                    stage: 4,
+                    choose: FIEND_STAGE_4_CHOICE_UUID
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars}) =>
+                {
+                    await prepareFiendGiftChatCard({
+                        actor,
+                        runtime,
+                        helpers,
+                        waiters,
+                        staticVars,
+                        giftId: "giftOfMartialProwess",
+                        itemName: "Gift of Martial Prowess"
+                    })
+                }
+            ],
+
+            await: async ({staticVars}) =>
+            {
+                await staticVars.chatCardHelper.waitForCard()
+                await staticVars.chatCardHelper.waitForButton({
+                    text: "Attack"
+                })
+            },
+
+            assertions: async ({actor, expect, waiters, helpers, staticVars}) =>
+            {
+                const {chatCardHelper} = staticVars
+                const rollHelper = helpers.createDeterministicRollHelper()
+
+                try {
+                    rollHelper.queueRoll({
+                        total: 4,
+                        diceResults: [4]
+                    })
+                    await chatCardHelper.clickButton({
+                        text: "Attack"
+                    })
+                    await chatCardHelper.waitForButton({
+                        text: "Miss: Take Psychic Damage"
+                    })
+
+                    const hpBefore = actor.system.attributes.hp.value
+
+                    rollHelper.queueRoll({
+                        formula: "3d10",
+                        total: 3,
+                        diceResults: [1, 1, 1]
+                    })
+                    await chatCardHelper.clickButton({
+                        text: "Miss: Take Psychic Damage"
+                    })
+                    await waiters.waitForCondition(() =>
+                        actor.items.get(staticVars.classItem.id)?.system?.hd?.value ===
+                        staticVars.initialHitDice - 3
+                    )
+                    await waiters.waitForCondition(() =>
+                        actor.system.attributes.hp.value === Math.max(hpBefore - 3, 0)
+                    )
+
+                    const giftItem = actor.items.find(i => i.name === "Gift of Martial Prowess")
+                    expect(Number(giftItem?.system?.uses?.spent ?? 0)).to.equal(0)
+                    expect(chatCardHelper.hasButton({
+                        text: "Hit: Roll Force Damage"
+                    })).to.equal(false)
+                } finally {
+                    rollHelper.restore()
+                }
+            }
+        },
+
+        {
+            name: `Gift of Martial Prowess does not render a card with fewer than three available hit dice`,
+
+            setup: async ({actor, helpers, staticVars}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                await setFiendStage3GiftChoices(actor)
+                staticVars.classItem = await createCharacterClassWithHitDice({
+                    actor,
+                    helpers,
+                    className: "Fighter",
+                    hitDiceValue: 2,
+                    levels: 2
+                })
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                },
+                {
+                    stage: 3
+                },
+                {
+                    stage: 4,
+                    choose: FIEND_STAGE_4_CHOICE_UUID
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, helpers, waiters, staticVars}) =>
+                {
+                    await prepareFiendGiftChatCard({
+                        actor,
+                        runtime,
+                        helpers,
+                        waiters,
+                        staticVars,
+                        giftId: "giftOfMartialProwess",
+                        itemName: "Gift of Martial Prowess"
+                    })
+                }
+            ],
+
+            assertions: async ({actor, expect, staticVars}) =>
+            {
+                const {chatCardHelper, message} = staticVars
+
+                expect(message).to.exist
+                expect(chatCardHelper.getCardElement()).to.equal(null)
+                expect(chatCardHelper.hasButton({
+                    text: "Attack"
+                })).to.equal(false)
+                expect(message.flags?.transformations?.gift).to.equal(undefined)
+                expect(
+                    actor.items.get(staticVars.classItem.id)?.system?.hd?.value
+                ).to.equal(2)
             }
         },
 

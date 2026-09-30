@@ -1,6 +1,8 @@
 import { waitForFlagUpdate } from "../helpers/actors.js"
 import { renderActorSheet, withGM } from "../helpers/index.js"
 import { wait } from "../helpers/wait.js"
+import { waitFor } from "../helpers/waitFor.js"
+import { createTransformationCardController } from "../../ui/controllers/transformationCard.controller.js"
 import { findEditModeSlider, findTransformationCardInSpecialTraitsTab } from "../selectors/actorSheet.finders.js"
 import { findTransformationStageSelect, findTransformationTypeSelect } from "../selectors/transformationCardFinders.js"
 import { setupTest, teardownAllTest, tearDownEachTest } from "../testLifecycle.js"
@@ -172,7 +174,7 @@ quench.registerBatch(
                 })
             })
 
-            it("updates transformation stage when GM changes the stage select", async function()
+            it("does not change the stage flag when the actor has no transformation", async function()
             {
                 await withGM(true, async () =>
                 {
@@ -186,22 +188,82 @@ quench.registerBatch(
 
                     const card = await findTransformationCardInSpecialTraitsTab(sheet)
                     const stageSelect = await findTransformationStageSelect(card)
+                    const before = actor.getFlag("transformations", "stage")
 
-                    stageSelect.value = stageSelect.options[1].value
+                    stageSelect.value = stageSelect.options[3].value
                     stageSelect.dispatchEvent(
                         new Event("change", { bubbles: true })
                     )
 
-                    await waitForFlagUpdate({
-                        actor,
-                        scope: "transformations",
-                        key: "stage",
-                        expected: Number(stageSelect.value)
-                    })
+                    await wait(200)
+                    await runtime.services.transformationService.whenIdle()
 
                     expect(
                         actor.getFlag("transformations", "stage")
-                    ).to.equal(Number(stageSelect.value))
+                    ).to.equal(before)
+                })
+            })
+
+            it("routes stage changes through the transformation service one stage at a time", async function()
+            {
+                const calls = []
+                const service = runtime.services.transformationService
+                const controller = createTransformationCardController({
+                    transformationService: {
+                        ...service,
+                        changeTransformationStage: async (target, stage) =>
+                        {
+                            calls.push({ target, stage })
+                            return { ok: true, stage }
+                        }
+                    },
+                    debouncedTracker: { pulse: () => {} },
+                    logger: { debug: () => {} }
+                })
+
+                const card = $(`<div><select data-action="change-stage"><option value="0">0</option><option value="3">3</option></select></div>`)
+                controller.activateTransformationCardListeners(card, actor)
+
+                const stageSelect = card.find("select")[0]
+                stageSelect.value = "3"
+                stageSelect.dispatchEvent(new Event("change", { bubbles: true }))
+                await wait(20)
+
+                expect(calls).to.have.length(1)
+                expect(calls[0].target).to.equal(actor)
+                expect(calls[0].stage).to.equal(3)
+                expect(actor.getFlag("transformations", "stage")).to.not.equal(3)
+            })
+
+            it("clears the transformation when GM selects None in the type select", async function()
+            {
+                await actor.setFlag("transformations", "type", "aberrant-horror")
+                await runtime.services.transformationService.whenIdle()
+
+                await withGM(true, async () =>
+                {
+                    sheet = await renderActorSheet(actor)
+
+                    const editModeButton = await findEditModeSlider(sheet)
+                    expect(editModeButton).to.exists
+                    editModeButton.click()
+
+                    await sheet.render(true)
+
+                    const card = await findTransformationCardInSpecialTraitsTab(sheet)
+                    const typeSelect = await findTransformationTypeSelect(card)
+
+                    typeSelect.value = ""
+                    typeSelect.dispatchEvent(
+                        new Event("change", { bubbles: true })
+                    )
+
+                    await waitFor({
+                        predicate: () => !actor.getFlag("transformations", "type"),
+                        errorMessage: "Timed out waiting for the transformation type to be cleared"
+                    })
+
+                    expect(actor.getFlag("transformations", "type")).to.not.be.ok
                 })
             })
             it("renders disabled type and stage selects for non-GMs (edit mode is disabled)", async function()

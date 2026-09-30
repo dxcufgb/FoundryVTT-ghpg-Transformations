@@ -7,6 +7,7 @@ import {
     resolveHtmlRoot,
     resolveSyntheticCardItem
 } from "../../../../../ui/chatCards/SyntheticMidiActivityCard.js"
+import { isSoulVesselCharged } from "../soulVessel.js"
 
 const CARD_TITLE = "Memori Lichdom"
 const DAMAGE_TYPE = "Necrotic"
@@ -25,6 +26,13 @@ export class MemoriLichdomNecroticDamage
     })
     {
         if (!actor || !message || !actorRepository || !ChatMessagePartInjector) return
+
+        if (!isSoulVesselCharged(actor)) {
+            globalThis.ui?.notifications?.warn?.(
+                "Memori Lichdom only works while your soul vessel is charged."
+            )
+            return
+        }
 
         const hitDie = getHighestAvailableHitDieDenomination(actor, actorRepository)
         if (!hitDie) return
@@ -119,6 +127,14 @@ export class MemoriLichdomNecroticDamage
         const availableHitDice = actorRepository?.getAvailableHitDice?.(actor) ?? 0
         if (availableHitDice <= 0) return
 
+        const target = this.resolveTarget(actor)
+        if (!target) {
+            globalThis.ui?.notifications?.warn?.(
+                "Target the creature damaged by the triggering attack before rolling the Necrotic damage."
+            )
+            return
+        }
+
         const rollFormula =
             message.flags?.transformations?.rollFormula ??
             `1${hitDie}[necrotic]`
@@ -133,11 +149,20 @@ export class MemoriLichdomNecroticDamage
 
         await actorRepository.consumeHitDie(actor, 1)
 
+        const applied = await this.applyDamage({
+            actor,
+            target,
+            total: roll.total
+        })
+
         await message.update({
             "flags.transformations.state": "rolled",
             "flags.transformations.presentedRoll": {
                 total: roll.total
-            }
+            },
+            "flags.transformations.targetName": applied
+                ? (target.name ?? target.actor?.name ?? null)
+                : null
         })
 
         void ChatMessagePartInjector
@@ -152,6 +177,45 @@ export class MemoriLichdomNecroticDamage
             }),
             selector: CARD_SELECTOR
         })
+    }
+
+    static resolveTarget(actor)
+    {
+        const targets = Array.from(globalThis.game?.user?.targets ?? [])
+
+        return targets.find(token => token?.actor && token.actor !== actor) ?? null
+    }
+
+    static async applyDamage({
+        actor,
+        target,
+        total
+    })
+    {
+        const amount = Number(total)
+        if (!target?.actor || !Number.isFinite(amount) || amount <= 0) return false
+
+        const applyTokenDamage = globalThis.MidiQOL?.applyTokenDamage
+        if (typeof applyTokenDamage !== "function") return false
+
+        const item =
+                  actor?.items?.find?.(entry =>
+                      entry?.flags?.transformations?.sourceUuid === this.itemSourceUuid
+                  ) ??
+                  actor?.items?.find?.(entry => entry?.name === CARD_TITLE) ??
+                  null
+
+        // midi-qol routes the damage through the GM when the target is not owned.
+        await applyTokenDamage(
+            [{value: amount, type: "necrotic"}],
+            amount,
+            new Set([target]),
+            item,
+            new Set(),
+            {forceApply: false}
+        )
+
+        return true
     }
 
     static async renderCard({
@@ -185,7 +249,8 @@ export class MemoriLichdomNecroticDamage
             supplements: this.buildSupplements({
                 state,
                 roll,
-                rollFormula
+                rollFormula,
+                targetName: message?.flags?.transformations?.targetName ?? null
             }),
             buttons: this.buildButtons({state}),
             roll,
@@ -234,13 +299,18 @@ export class MemoriLichdomNecroticDamage
     static buildSupplements({
         state,
         roll,
-        rollFormula
+        rollFormula,
+        targetName = null
     } = {})
     {
         if (state === "rolled" && roll) {
-            return [
+            const supplements = [
                 `${DAMAGE_TYPE} damage rolled: <strong>${roll.total}</strong>.`
             ]
+            if (targetName) {
+                supplements.push(`Applied to ${foundry.utils.escapeHTML?.(targetName) ?? targetName}.`)
+            }
+            return supplements
         }
 
         return [

@@ -200,8 +200,8 @@ function getMagickTrickItem(actor, itemUuid, awardedByItemUuid, spellLevel, save
     const transformationStage = actor.flags.transformations.stage
     item.expectedItemUuids = [itemUuid]
     item.awardedByItem = awardedByItemUuid
-    item.prepared = 2
-    item.level
+    // Magic Tricks spells are cast without a spell slot
+    item.method = "atwill"
     if (spellLevel > 0) {
         item.uses.max = 1
         item.uses.value = 1
@@ -967,9 +967,8 @@ export const feyTestDef = {
                 }
             ],
 
-            assertions: async ({actor, assert, runtime, helpers}) =>
+            assertions: async ({actor, assert, helpers, waiters}) =>
             {
-                const transformation = runtime.services.transformationRegistry.getEntryForActor(actor)
                 const context = helpers.getPreRollSavingThrowContext({
                     ability: "dex",
                     originType: "spell"
@@ -980,11 +979,12 @@ export const feyTestDef = {
                 context.subject = actor
                 context.rolls = [{options: {}}]
 
-                // Same argument order as the dnd5e.preRollSavingThrow hook
-                await transformation.TransformationClass.onPreRollSavingThrow(
-                    context,
-                    actor,
-                    {onceService: runtime.infrastructure.onceService}
+                // Drive it through the real hook (config first, then dialog/actor),
+                // so the module's dnd5e.preRollSavingThrow listener is exercised
+                Hooks.call("dnd5e.preRollSavingThrow", context, actor)
+                await waiters.waitForCondition(() =>
+                    context.rolls[0].options.disadvantage === true &&
+                    actor.flags?.transformations?.once?.["fey-plannar-binding-disadvantage"]?.executed === true
                 )
 
                 const contextDto = new ContextValidationDTO(context)
@@ -1569,7 +1569,7 @@ export const feyTestDef = {
                 {
                     item.itemName = "Dreams and Nightmares"
                     item.type = "feat"
-                    item.numberOfEffects = 1
+                    item.numberOfEffects = 2
                     item.uses.max = actorProf
                     item.uses.addRecovery(recovery =>
                     {
@@ -1579,8 +1579,17 @@ export const feyTestDef = {
                     item.addEffect(effect =>
                     {
                         effect.name = "Dream or Nightmare"
-                        effect.duration.turns = 10
+                        effect.duration.rounds = 10
                         effect.statuses = ["paralyzed"]
+                        effect.changes.count = 1
+                    })
+                    // Concentration variant: Disadvantage on the repeat saves
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Dream or Nightmare (Concentration)"
+                        effect.duration.rounds = 10
+                        effect.statuses = ["paralyzed"]
+                        effect.changes.count = 2
                     })
                     item.numberOfActivities = 2
                     item.addActivity(activity =>
@@ -1637,6 +1646,82 @@ export const feyTestDef = {
 
                 })
                 validate(actorDto, {assert})
+
+                // Repeat Con save at the end of each turn, and on damage
+                const dreams = actor.items.find(i => i.name === "Dreams and Nightmares")
+                const plain = dreams.effects.find(e => e.name === "Dream or Nightmare")
+                const concentration = dreams.effects.find(e => e.name === "Dream or Nightmare (Concentration)")
+                for (const effect of [plain, concentration]) {
+                    const overTime = effect.changes.find(c => c.key === "flags.midi-qol.OverTime")
+                    assert.include(overTime?.value ?? "", "turn=end", `${effect.name} saves at the end of the turn`)
+                    assert.include(overTime?.value ?? "", "saveAbility=con", `${effect.name} repeats a Con save`)
+                    assert.include(overTime?.value ?? "", "allowIncapacitated=true", `${effect.name} saves while Paralyzed`)
+                    assert.equal(effect.flags?.transformations?.repeatSaveOnDamage?.ability, "con")
+                }
+                assert.isFalse(plain.flags.transformations.repeatSaveOnDamage.disadvantage)
+                assert.isTrue(concentration.flags.transformations.repeatSaveOnDamage.disadvantage)
+                assert.isTrue(
+                    concentration.changes.some(c => c.key === "flags.midi-qol.disadvantage.save.con"),
+                    "Concentration variant gives Disadvantage on the Con save"
+                )
+                const concentrationActivity = dreams.system.activities.find(a => a.name === "Manipulate Mind (with concentration)")
+                assert.deepEqual(
+                    concentrationActivity.effects.map(e => e._id),
+                    [concentration.id],
+                    "Concentration activity applies the concentration variant"
+                )
+            }
+        },
+
+        {
+            name: "Two-Faced conditions end on repeat saves or when harmed",
+
+            requiredPath: [
+                {
+                    stage: 1,
+                    choose: seasons.spring.servantUuid,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 1)
+                    }
+                },
+                {
+                    stage: 2,
+                    choose: seasons.spring.twoFacedUuid,
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
+                    }
+                }
+            ],
+
+            await: async ({actor, waiters}) =>
+            {
+                await waiters.waitForCondition(() =>
+                    actor.items.find(i => i.name === "Two-Faced")
+                )
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                // Spring: Stunned, Con save at the end of each turn, ends when harmed
+                const twoFaced = actor.items.find(i => i.name === "Two-Faced")
+                const stunned = twoFaced.effects.find(e => e.name === "Stunned")
+                const overTime = stunned.changes.find(c => c.key === "flags.midi-qol.OverTime")
+                assert.include(overTime?.value ?? "", "turn=end")
+                assert.include(overTime?.value ?? "", "saveAbility=con")
+                assert.include(overTime?.value ?? "", "allowIncapacitated=true")
+                assert.include(stunned.flags?.dae?.specialDuration ?? [], "isDamaged")
+
+                // The other courts come straight from the compendium
+                const charmed = (await fromUuid(seasons.summer.twoFacedUuid)).effects.find(e => e.name === "Charmed")
+                assert.include(charmed.flags?.dae?.specialDuration ?? [], "isDamaged")
+                assert.isUndefined(charmed.changes.find(c => c.key === "flags.midi-qol.OverTime"))
+
+                const poisoned = (await fromUuid(seasons.autumn.twoFacedUuid)).effects.find(e => e.name === "Poisoned")
+                const poisonedOverTime = poisoned.changes.find(c => c.key === "flags.midi-qol.OverTime")
+                assert.include(poisonedOverTime?.value ?? "", "saveAbility=con")
+                assert.notInclude(poisoned.flags?.dae?.specialDuration ?? [], "isDamaged")
             }
         },
 

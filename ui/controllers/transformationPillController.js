@@ -1,6 +1,9 @@
+import { isChangeTransformationAllowedForUser } from "../adapters/actorSheetControlsAdapter.js"
+
 export function createTransformationPillController({
     dialogs,
     stageUpApprovalService,
+    getGame = () => globalThis.game,
     logger
 })
 {
@@ -25,7 +28,13 @@ export function createTransformationPillController({
         })
         if (!pillElement) return
 
-        if (viewModel.mode === "add") {
+        // Same gate as the "Change Transformation" header control: an editable sheet and a role
+        // allowed by the changeTransformationAllowedRoles setting.
+        if (
+            viewModel.mode === "add" &&
+            viewModel.editable &&
+            isChangeTransformationAllowedForUser({game: getGame()})
+        ) {
             pillElement.addEventListener("click", event =>
             {
                 event.preventDefault()
@@ -34,7 +43,7 @@ export function createTransformationPillController({
                 dialogs.openTransformationConfig({
                     actor: app.actor,
                     transformations,
-                    triggeringUserId: game.user?.id ?? null
+                    triggeringUserId: getGame()?.user?.id ?? null
                 })
             })
         }

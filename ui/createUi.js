@@ -80,6 +80,7 @@ export function createUi({
     })
 
     const cardController = createTransformationCardController({
+        transformationService,
         debouncedTracker,
         logger
     })

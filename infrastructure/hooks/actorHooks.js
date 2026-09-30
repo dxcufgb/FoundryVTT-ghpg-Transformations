@@ -34,7 +34,8 @@ export function registerActorHooks({
         const viewModel = moduleUi.viewModels.createTransformationPillViewModel({
             actor,
             transformation,
-            editable: (config.editable && transformationStage <= 3)
+            // Without a transformation there is no stage yet; the "add" pill only needs an editable sheet.
+            editable: Boolean(config.editable && (!transformation || transformationStage <= 3))
         })
 
         const pillHtml = await moduleUi.renderers.pillRenderer.render(viewModel)

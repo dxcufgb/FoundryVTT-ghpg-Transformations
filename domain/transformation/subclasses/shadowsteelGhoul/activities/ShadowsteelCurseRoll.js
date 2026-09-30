@@ -11,6 +11,11 @@ export const SHADOWSTEEL_CURSES_TABLE_UUID =
 
 const MIDI_BUTTONS_SELECTOR = ".midi-buttons"
 const BUTTON_MARKER = "data-transformations-shadowsteel-curse-roll"
+const MODULE_FLAG_SCOPE = "transformations"
+export const CURSE_ROLLED_FLAG = "shadowsteelCurseRolled"
+
+// Messages whose curse has been drawn on this client, so a second click can't draw again before the flag syncs.
+const rolledMessages = new WeakSet()
 
 export class ShadowsteelCurseRoll
 {
@@ -23,6 +28,7 @@ export class ShadowsteelCurseRoll
     {
         if (!actor?.isOwner) return
         if (!this.isCurseActivityMessage(message)) return
+        if (this.isCurseRolled(message)) return
 
         const container = resolveHtmlRoot(html)?.querySelector(MIDI_BUTTONS_SELECTOR)
         if (!container) return
@@ -42,13 +48,45 @@ export class ShadowsteelCurseRoll
             event.preventDefault()
             event.stopPropagation()
 
+            if (button.disabled || this.isCurseRolled(message)) return
+
             button.disabled = true
+            rolledMessages.add(message)
+            let result = null
             try {
-                await this.rollCurse({logger})
-            } finally {
-                button.disabled = false
+                result = await this.rollCurse({logger})
+            } catch (error) {
+                logger?.warn?.("Rolling the Shadowsteel Curse failed", error)
             }
+            if (result === null) {
+                rolledMessages.delete(message)
+                button.disabled = false
+                return
+            }
+
+            await this.markCurseRolled(message, {logger})
         })
+    }
+
+    static isCurseRolled(message)
+    {
+        if (!message || typeof message !== "object") return false
+        if (rolledMessages.has(message)) return true
+
+        return Boolean(message.flags?.[MODULE_FLAG_SCOPE]?.[CURSE_ROLLED_FLAG])
+    }
+
+    static async markCurseRolled(message, {logger} = {})
+    {
+        logger?.debug?.("ShadowsteelCurseRoll.markCurseRolled", {message})
+        if (typeof message?.setFlag !== "function") return
+        if (message.isOwner === false) return
+
+        try {
+            await message.setFlag(MODULE_FLAG_SCOPE, CURSE_ROLLED_FLAG, true)
+        } catch (error) {
+            logger?.warn?.("Could not mark the Shadowsteel Curse as rolled on the chat message", error)
+        }
     }
 
     static isCurseActivityMessage(message)

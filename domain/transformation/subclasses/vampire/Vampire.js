@@ -1,5 +1,6 @@
 import { Transformation } from "../../Transformation.js"
 import { SangromancySpecialistEnhanceCantripDamage } from "./activities/SangromancySpecialistEnhanceCantripDamage.js"
+import { normalizeActivityName } from "../../../../utils/activityNames.js"
 import { getTrueAppearanceSaveDcForStage, TRUE_APPEARANCE_EFFECT_NAME, TRUE_APPEARANCE_MANUAL_REVEAL_ACTIVITY_NAMES, TRUE_APPEARANCE_REVEAL_TRIGGER_TYPES, TRUE_APPEARANCE_SAVE_ACTIVITY_ID, TRUE_APPEARANCE_SAVE_ACTIVITY_NAME, TRUE_APPEARANCE_SAVE_ITEM_UUID } from "./triggers/trueAppearanceTriggerCommon.js"
 
 const FANGED_BITE_UUID =
@@ -600,7 +601,7 @@ export class Vampire extends Transformation
         return itemSourceUuid === FANGED_BITE_UUID &&
             (
                 activityId === FANGED_BITE_MIDI_ATTACK_ACTIVITY_ID ||
-                activityName === FANGED_BITE_MIDI_ATTACK_ACTIVITY_NAME
+                this.activityNameMatches(activityName, FANGED_BITE_MIDI_ATTACK_ACTIVITY_NAME)
             )
     }
 
@@ -619,7 +620,7 @@ export class Vampire extends Transformation
         })
 
         return itemSourceUuid === FANGED_BITE_UUID &&
-            activityName === FANGED_BITE_NECROTIC_SAVE_ACTIVITY_NAME
+            this.activityNameMatches(activityName, FANGED_BITE_NECROTIC_SAVE_ACTIVITY_NAME)
     }
 
     static isFzegClawMidiAttackDamageContext({
@@ -646,7 +647,7 @@ export class Vampire extends Transformation
         return itemSourceUuid === FZEG_CLAW_UUID &&
             (
                 activityIds.includes(FZEG_CLAW_MIDI_ATTACK_ACTIVITY_ID) ||
-                activityName === FZEG_CLAW_MIDI_ATTACK_ACTIVITY_NAME
+                this.activityNameMatches(activityName, FZEG_CLAW_MIDI_ATTACK_ACTIVITY_NAME)
             )
     }
 
@@ -693,6 +694,15 @@ export class Vampire extends Transformation
         return activity?.id ??
             activity?._id ??
             null
+    }
+
+    // Matches "Midi Save" and "Save" alike: midi-qol only adds the prefix while its
+    // activityNamePrefix setting is on.
+    static activityNameMatches(activityName, expectedName)
+    {
+        const normalized = normalizeActivityName(activityName)
+        return normalized !== "" &&
+            normalized === normalizeActivityName(expectedName)
     }
 
     static resolveActivityName(activity)
@@ -789,7 +799,7 @@ export class Vampire extends Transformation
             this.resolveActivityId(activity) === TRUE_APPEARANCE_SAVE_ACTIVITY_ID
         ) ??
             activities.find(activity =>
-                this.resolveActivityName(activity) === TRUE_APPEARANCE_SAVE_ACTIVITY_NAME
+                this.activityNameMatches(this.resolveActivityName(activity), TRUE_APPEARANCE_SAVE_ACTIVITY_NAME)
             ) ??
             null
     }
@@ -836,7 +846,7 @@ export class Vampire extends Transformation
         return this.isTrueAppearanceSaveItem(item) &&
             (
                 this.resolveActivityId(activity) === TRUE_APPEARANCE_SAVE_ACTIVITY_ID ||
-                this.resolveActivityName(activity) === TRUE_APPEARANCE_SAVE_ACTIVITY_NAME
+                this.activityNameMatches(this.resolveActivityName(activity), TRUE_APPEARANCE_SAVE_ACTIVITY_NAME)
             )
     }
 

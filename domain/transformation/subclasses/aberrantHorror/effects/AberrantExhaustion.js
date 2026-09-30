@@ -20,8 +20,13 @@ export class AberrantExhaustion extends AberrantEffect {
 
     async beforeApply() {
         this.logger?.debug?.("AberrantExhaustion.beforeApply", {})
-        this.actorRepository.addExhaustionLevels(this.actor, 2);
-        this.runActiveEffect = false;
+        await super.beforeApply();
+        // The levels last until the next Long Rest: record how many were actually added
+        // (exhaustion caps at 6) on the marker effect so the long-rest cleanup can take them back.
+        const current = Number(this.actor.system?.attributes?.exhaustion) || 0;
+        const added = Math.min(2, Math.max(6 - current, 0));
+        await this.actorRepository.addExhaustionLevels(this.actor, 2);
+        this.addFlag("exhaustionAdded", added);
     }
 }
 

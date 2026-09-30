@@ -177,6 +177,60 @@ quench.registerBatch(
 
                 expect(actionCount).to.equal(1)
             })
+
+            it("disables the button while an action runs so a double click only spends once", async function()
+            {
+                let actionCount = 0
+                let finishAction
+                let disabledDuringAction = null
+
+                game.actors.get = () => ({ id: "actor-1" })
+
+                const html = document.createElement("div")
+                html.innerHTML = `
+                    <div data-transformations-card data-gift="giftOfJoyousLife">
+                        <button type="button" data-transformations-action="rollHitDie">Roll Hit Die</button>
+                    </div>
+                `
+                const button = html.querySelector("[data-transformations-action='rollHitDie']")
+
+                ChatCardActionBinder.bind({
+                    message: { speaker: { actor: "actor-1" } },
+                    html,
+                    giftsOfDamnation: [
+                        {
+                            id: "giftOfJoyousLife",
+                            GiftClass: {
+                                actions: {
+                                    async rollHitDie()
+                                    {
+                                        actionCount++
+                                        disabledDuringAction = button.disabled
+                                        await new Promise(resolve => { finishAction = resolve })
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    actorRepository: {},
+                    ChatMessagePartInjector: {},
+                    RollService: {},
+                    logger: { debug() {}, warn() {} }
+                })
+
+                button.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }))
+                await nextTick()
+                button.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }))
+                await nextTick()
+
+                expect(actionCount).to.equal(1)
+                expect(disabledDuringAction).to.equal(true)
+
+                finishAction()
+                await nextTick()
+
+                expect(button.disabled).to.equal(false)
+            })
         })
     }
 )

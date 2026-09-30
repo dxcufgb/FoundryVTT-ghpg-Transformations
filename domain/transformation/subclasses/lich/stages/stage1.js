@@ -4,7 +4,8 @@ export const stage1 = {
     grants: {
         items: [
             {
-                uuid: "Compendium.transformations.gh-transformations.Item.rluvw9sNdr3JO93n"
+                uuid: "Compendium.transformations.gh-transformations.Item.rluvw9sNdr3JO93n",
+                postCreateScript: "initialiseSoulVessel"
             },
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.II56xBIJkjB5OoLV"

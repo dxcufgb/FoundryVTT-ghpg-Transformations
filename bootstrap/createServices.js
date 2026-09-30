@@ -118,6 +118,7 @@ export function createServices({
         itemRepository,
         rollTableService,
         rollTableEffectResolver,
+        socketGateway,
         logger
     })
 

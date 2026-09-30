@@ -1,0 +1,103 @@
+[
+    {
+        "id": "2-medium-fiend-brand-damaged-vitality-no-healing",
+        "pack": "gh-transformations",
+        "key": "!items.effects!WEFrREhcN84F6ehL.BeA1a46c9kH8J1g6",
+        "op": "arrayAdd",
+        "path": "changes",
+        "value": { "key": "system.traits.di.value", "mode": 2, "value": "healing", "priority": 20 }
+    },
+    {
+        "id": "2-medium-fiend-true-name-charmed",
+        "pack": "gh-transformations",
+        "key": "!items.effects!9Ptls1PSiuOtg7cY.UhsYkw4ogPRXvsNi",
+        "op": "arrayAdd",
+        "path": "statuses",
+        "value": "charmed"
+    },
+    {
+        "id": "2-medium-fiend-true-name-duration-seconds",
+        "pack": "gh-transformations",
+        "key": "!items.effects!9Ptls1PSiuOtg7cY.UhsYkw4ogPRXvsNi",
+        "op": "set",
+        "path": "duration.seconds",
+        "value": 60,
+        "expect": null
+    },
+    {
+        "id": "2-medium-fiend-true-name-duration-rounds",
+        "pack": "gh-transformations",
+        "key": "!items.effects!9Ptls1PSiuOtg7cY.UhsYkw4ogPRXvsNi",
+        "op": "set",
+        "path": "duration.rounds",
+        "value": 10,
+        "expect": null
+    },
+    {
+        "id": "2-medium-fiend-true-name-attackers-advantage",
+        "pack": "gh-transformations",
+        "key": "!items.effects!9Ptls1PSiuOtg7cY.UhsYkw4ogPRXvsNi",
+        "op": "arrayAdd",
+        "path": "changes",
+        "value": { "key": "flags.midi-qol.grants.advantage.attack.all", "mode": 2, "value": "1", "priority": 20 }
+    },
+    {
+        "id": "2-medium-fiend-true-name-no-healing",
+        "pack": "gh-transformations",
+        "key": "!items.effects!9Ptls1PSiuOtg7cY.UhsYkw4ogPRXvsNi",
+        "op": "arrayAdd",
+        "path": "changes",
+        "value": { "key": "system.traits.di.value", "mode": 2, "value": "healing", "priority": 20 }
+    },
+    {
+        "id": "2-medium-fiend-true-name-no-temp-hp",
+        "pack": "gh-transformations",
+        "key": "!items.effects!9Ptls1PSiuOtg7cY.UhsYkw4ogPRXvsNi",
+        "op": "arrayAdd",
+        "path": "changes",
+        "value": { "key": "system.traits.di.value", "mode": 2, "value": "temphp", "priority": 20 }
+    },
+    {
+        "id": "2-medium-fiend-true-name-lose-temp-hp",
+        "pack": "gh-transformations",
+        "key": "!items.effects!9Ptls1PSiuOtg7cY.UhsYkw4ogPRXvsNi",
+        "op": "arrayAdd",
+        "path": "changes",
+        "value": { "key": "system.attributes.hp.temp", "mode": 5, "value": "0", "priority": 20 }
+    },
+    {
+        "id": "2-medium-fiend-true-name-repeat-save",
+        "pack": "gh-transformations",
+        "key": "!items.effects!9Ptls1PSiuOtg7cY.UhsYkw4ogPRXvsNi",
+        "op": "arrayAdd",
+        "path": "changes",
+        "value": { "key": "flags.midi-qol.OverTime", "mode": 0, "value": "turn=end, saveAbility=cha, saveDC=20, label=True Name", "priority": 20 }
+    },
+    {
+        "id": "2-medium-fiend-martial-prowess-type",
+        "pack": "gh-transformations",
+        "key": "!items!dZI20tO77HzlsSiP",
+        "op": "set",
+        "path": "system.type",
+        "value": { "value": "transformation", "subtype": "fiend" },
+        "expect": { "value": "", "subtype": "" }
+    },
+    {
+        "id": "2-medium-fiend-martial-prowess-uses-max",
+        "pack": "gh-transformations",
+        "key": "!items!dZI20tO77HzlsSiP",
+        "op": "set",
+        "path": "system.uses.max",
+        "value": "1",
+        "expect": ""
+    },
+    {
+        "id": "2-medium-fiend-martial-prowess-uses-recovery",
+        "pack": "gh-transformations",
+        "key": "!items!dZI20tO77HzlsSiP",
+        "op": "set",
+        "path": "system.uses.recovery",
+        "value": [{ "period": "lr", "type": "recoverAll" }],
+        "expect": []
+    }
+]

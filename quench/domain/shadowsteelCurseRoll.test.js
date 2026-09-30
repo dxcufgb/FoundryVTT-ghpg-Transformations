@@ -1,4 +1,5 @@
 import {
+    CURSE_ROLLED_FLAG,
     ShadowsteelCurseRoll,
     SHADOWSTEEL_CURSE_ACTIVITY_ID,
     SHADOWSTEEL_CURSES_TABLE_UUID
@@ -89,6 +90,56 @@ quench.registerBatch(
                 } finally {
                     globalThis.fromUuid = originalFromUuid
                 }
+            })
+
+            it("draws only once when the button is clicked twice", async function ()
+            {
+                const originalFromUuid = globalThis.fromUuid
+                let draws = 0
+                globalThis.fromUuid = async () => ({
+                    documentName: "RollTable",
+                    async draw()
+                    {
+                        draws++
+                    }
+                })
+
+                try {
+                    const html = createHtml()
+                    await ShadowsteelCurseRoll.onRenderChatMessage({
+                        message: createMessage(),
+                        html,
+                        actor: {isOwner: true}
+                    })
+
+                    const button = html.querySelector("[data-transformations-shadowsteel-curse-roll] button")
+                    button.click()
+                    await new Promise(resolve => setTimeout(resolve, 0))
+                    button.click()
+                    await new Promise(resolve => setTimeout(resolve, 0))
+
+                    expect(draws).to.equal(1)
+                    expect(button.disabled).to.equal(true)
+                } finally {
+                    globalThis.fromUuid = originalFromUuid
+                }
+            })
+
+            it("injects no button once the curse has been rolled for the message", async function ()
+            {
+                const html = createHtml()
+                await ShadowsteelCurseRoll.onRenderChatMessage({
+                    message: {
+                        flags: {
+                            dnd5e: {activity: {id: SHADOWSTEEL_CURSE_ACTIVITY_ID}},
+                            transformations: {[CURSE_ROLLED_FLAG]: true}
+                        }
+                    },
+                    html,
+                    actor: {isOwner: true}
+                })
+
+                expect(html.querySelector("[data-transformations-shadowsteel-curse-roll]")).to.equal(null)
             })
         })
     }

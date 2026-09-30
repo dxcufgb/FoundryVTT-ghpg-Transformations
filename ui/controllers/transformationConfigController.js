@@ -56,6 +56,11 @@ export function createTransformationConfigController({
                     return
                 }
 
+                // Switching type: remove the old transformation's items, effects and flags first.
+                if (actor.flags?.transformations?.type) {
+                    await transformationService.clearTransformation(actor)
+                }
+
                 await transformationService.applyTransformation(
                     actor,
                     { definition }

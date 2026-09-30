@@ -17,6 +17,7 @@ const SANGROMANCY_ITEM_UUID =
 const SANGROMANCY_FLAG_SCOPE = "transformations"
 const SANGROMANCY_FLAG_KEY = "vampire.sangromancyHitDieMax"
 const MAX_ROLLABLE_DICE = 2
+const SANGROMANCY_DIE_DENOMINATION = "d12"
 
 export class SangromancySpecialistEnhanceCantripDamage
 {
@@ -344,9 +345,7 @@ export class SangromancySpecialistEnhanceCantripDamage
                   getHighestClassHitDieDenomination(actor) ??
                   actorRepository?.getHighestAvailableHitDice?.(actor)?.denomination ??
                   null
-        const usableItemCharges = highestClassHitDie
-            ? itemChargesAvailable
-            : 0
+        const usableItemCharges = itemChargesAvailable
         const totalAvailableDice = usableItemCharges + classHitDiceAvailable
         const maxDice = Math.min(totalAvailableDice, MAX_ROLLABLE_DICE)
 
@@ -390,7 +389,7 @@ export class SangromancySpecialistEnhanceCantripDamage
         const rolledDenominations = [
             ...Array.from({
                 length: itemChargesSpent
-            }, () => resourceState.highestClassHitDie),
+            }, () => SANGROMANCY_DIE_DENOMINATION),
             ...consumeClassHitDicePreview(
                 resourceState.availableClassHitDice,
                 classHitDiceSpent
@@ -398,13 +397,7 @@ export class SangromancySpecialistEnhanceCantripDamage
         ]
         .filter(Boolean)
 
-        if (
-            rolledDenominations.length !== normalizedDiceCount ||
-            (
-                itemChargesSpent > 0 &&
-                !resourceState.highestClassHitDie
-            )
-        ) {
+        if (rolledDenominations.length !== normalizedDiceCount) {
             return null
         }
 
@@ -624,11 +617,9 @@ export class SangromancySpecialistEnhanceCantripDamage
             `Class Hit Dice available: <strong>${resourceState.classHitDiceAvailable}</strong>.`
         ]
 
-        if (resourceState.highestClassHitDie) {
-            supplements.push(
-                `Item charges roll as <strong>${resourceState.highestClassHitDie}</strong>.`
-            )
-        }
+        supplements.push(
+            `Sangromancy charges roll as <strong>${SANGROMANCY_DIE_DENOMINATION}</strong>.`
+        )
 
         if (state === "rolled" && roll) {
             supplements.push(

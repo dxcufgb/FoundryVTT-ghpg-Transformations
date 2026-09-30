@@ -89,6 +89,7 @@ export class Primordial extends Transformation
         details,
         damageType = null,
         rawDamage = null,
+        appliedDamage = null,
         logger
     } = {})
     {
@@ -100,6 +101,7 @@ export class Primordial extends Transformation
             details,
             damageType,
             rawDamage,
+            appliedDamage,
             logger
         })
     }

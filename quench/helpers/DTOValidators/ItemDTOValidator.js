@@ -28,6 +28,7 @@ export class ItemDTOValidator extends BaseDTOValidator
         ).equals(),
         equipped: path("item.system.equipped").equals(),
         proficient: path("item.system.proficient").equals(),
+        method: path("item.system.method").equals(),
         propertiesIncludes: resolve(ctx =>
             Array.from(ctx.item.system?.properties ?? [])
         ).includesAll(),

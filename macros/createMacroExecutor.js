@@ -3,6 +3,7 @@ import { validateMacroPayload } from "../infrastructure/macros/validateMacroPayl
 import { withMacroExecutionLock } from "../infrastructure/macros/withMacroExecutionLock.js"
 
 export const EXECUTE_MACRO_EVENT = "executeMacro"
+export const USE_ACTIVITY_EVENT = "useActivity"
 
 export function createMacroExecutor({
     actorRepository,
@@ -71,12 +72,15 @@ export function createMacroExecutor({
                 }
 
                 const actor = await actorRepository.getByUuid(payload.args.actorUuid)
-                const token = await tokenRepository.getByUuid(payload.args.tokenUuid)
+                // The token is optional: the actor may have no token on the current scene.
+                const token = payload.args.tokenUuid
+                    ? await tokenRepository.getByUuid(payload.args.tokenUuid)
+                    : null
                 const effect = payload.args.efData
 
-                if (!actor || !token) {
+                if (!actor) {
                     logger.warn(
-                        "Macro execution failed: actor or token missing",
+                        "Macro execution failed: actor missing",
                         payload
                     )
                     return
@@ -95,6 +99,9 @@ export function createMacroExecutor({
                     activeEffectRepository,
                     itemRepository,
                     getDialogFactory,
+                    // Runs an activity on another user's client so its dialogs appear there.
+                    useActivityAsUser: ({ activityUuid, userId }) =>
+                        socketGateway.executeAsUser(USE_ACTIVITY_EVENT, userId, { activityUuid }),
                     tracker
                 })
 
@@ -107,9 +114,9 @@ export function createMacroExecutor({
                     return
                 }
 
-                const context = macroContextFactory.createFromToken(token)
-
-                if (!context) return
+                const context = token
+                    ? macroContextFactory.createFromToken(token)
+                    : null
 
                 await withMacroExecutionLock(
                     {

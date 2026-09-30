@@ -1,0 +1,34 @@
+[
+  {
+    "id": "2-medium-primordial-F127-fire-mastery-damage-type",
+    "pack": "gh-transformations",
+    "key": "!items!ZNeHpSQXylLEUtN0",
+    "op": "set",
+    "path": "system.activities.bpcaabfmchqSE8HB.damage.parts.0.types",
+    "value": ["fire"],
+    "expect": []
+  },
+  {
+    "id": "2-medium-primordial-F130-con-cap-20",
+    "pack": "gh-transformations",
+    "key": "!items.effects!sdlQQx2dFDGz90JS.Ksf1Nz0v4ezV9Mb9",
+    "op": "set",
+    "path": "changes",
+    "value": [
+      {
+        "key": "system.abilities.con.value",
+        "mode": 2,
+        "value": "max(0, min(1, 20 - @abilities.con.value))",
+        "priority": 20
+      }
+    ],
+    "expect": [
+      {
+        "key": "system.abilities.con.value",
+        "mode": 2,
+        "value": "1",
+        "priority": 20
+      }
+    ]
+  }
+]

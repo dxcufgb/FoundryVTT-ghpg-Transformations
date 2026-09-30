@@ -61,8 +61,16 @@ export class FiendGiftOfDamnationDialog
         {
             const value = select?.value ?? ""
             if (!value) return
+            // Applying the gift is not idempotent; ignore clicks while it is running.
+            if (confirmBtn.disabled) return
 
-            await this.controller.confirm(value)
+            confirmBtn.disabled = true
+            try {
+                await this.controller.confirm(value)
+            } catch (err) {
+                confirmBtn.disabled = false
+                throw err
+            }
             this.close()
         })
         select.addEventListener("change", () => {

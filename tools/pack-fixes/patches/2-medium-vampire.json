@@ -1,0 +1,43 @@
+[
+    {
+        "id": "2-medium-vampire-F99-fanged-bite-onuse",
+        "pack": "gh-transformations",
+        "key": "!items!TreKDUe7BregxPRU",
+        "op": "set",
+        "path": "flags.midi-qol.onUseMacroName",
+        "value": "[preAttackRollConfig]ItemMacro,[postActiveEffects]ActivityMacro-ddjFKkSGslAQQjB4",
+        "expect": "[preAttackRollConfig]ItemMacro"
+    },
+    {
+        "id": "2-medium-vampire-F99-fanged-bite-heal-macro",
+        "pack": "gh-transformations",
+        "key": "!items!TreKDUe7BregxPRU",
+        "op": "set",
+        "path": "system.activities.ddjFKkSGslAQQjB4.macroData.command",
+        "value": "// Fanged Bite: you regain Hit Points equal to the Necrotic damage dealt by the Necrotic Save\n// (the attack's other activity). Sangromancy Specialist also regains one spent Sangromancy Die.\nconst SANGROMANCY_SOURCE_UUID = \"Compendium.transformations.gh-transformations.Item.qmepd5HkL0LpxOJv\"\nconst { workflow } = args[0] ?? {}\nconst actor = workflow?.actor\nif (!actor) return\nlet necrotic = 0\nfor (const entry of workflow.damageList ?? []) {\n    for (const damage of entry?.damageDetails?.otherDamage ?? []) {\n        const value = Number(damage?.value ?? 0)\n        if (damage?.type === \"necrotic\" && value > 0) necrotic += value\n    }\n}\nnecrotic = Math.floor(necrotic)\nif (necrotic <= 0) return\nawait actor.applyDamage([{ value: necrotic, type: \"healing\" }])\nconst sangromancy = actor.items.find(item => item.getFlag(\"transformations\", \"sourceUuid\") === SANGROMANCY_SOURCE_UUID)\nconst spent = Number(sangromancy?.system?.uses?.spent ?? 0)\nif (sangromancy && spent > 0) await sangromancy.update({ \"system.uses.spent\": spent - 1 })",
+        "expect": ""
+    },
+    {
+        "id": "2-medium-vampire-F100-final-strigoi-sr-recovery",
+        "pack": "gh-transformations",
+        "key": "!items!ZGlWZUaFfDrupEaq",
+        "op": "set",
+        "path": "system.uses.recovery",
+        "value": [
+            {
+                "period": "lr",
+                "type": "recoverAll"
+            },
+            {
+                "period": "sr",
+                "type": "recoverAll"
+            }
+        ],
+        "expect": [
+            {
+                "period": "lr",
+                "type": "recoverAll"
+            }
+        ]
+    }
+]

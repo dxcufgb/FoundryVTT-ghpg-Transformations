@@ -200,6 +200,57 @@ export function registerItemActivityActionTests({ describe, it, expect })
             expect(calls[0].fn).to.equal("activity.use")
         })
 
+        it("resolves 'Midi Save' when midi-qol's activity name prefix is turned off", async function()
+        {
+            const makeActivity = (id, name, type, sourceName) => ({
+                id,
+                name,
+                type,
+                _source: {name: sourceName},
+                async use(config)
+                {
+                    calls.push({fn: `${id}.use`, config})
+                }
+            })
+            const item = {
+                id: "item-no-prefix",
+                uuid: "Actor.actor-1.Item.item-no-prefix",
+                flags: {
+                    transformations: {
+                        sourceUuid:
+                            "Compendium.transformations.test.Item.item-no-prefix"
+                    }
+                },
+                system: {
+                    activities: {
+                        contents: [
+                            makeActivity("named-save", "Resist", "save", "Resist"),
+                            makeActivity("unnamed-save", "Save", "save", "")
+                        ]
+                    }
+                }
+            }
+
+            fakeRepo.__itemsByUuid.set(
+                "Compendium.transformations.test.Item.item-no-prefix",
+                item
+            )
+
+            const result = await handler({
+                actor,
+                action: {
+                    data: {
+                        itemUuid:
+                            "Compendium.transformations.test.Item.item-no-prefix",
+                        activityName: "Midi Save"
+                    }
+                }
+            })
+
+            expect(result).to.equal(true)
+            expect(calls.map(call => call.fn)).to.deep.equal(["unnamed-save.use"])
+        })
+
         it("falls back to the only activity when the item has no direct use method", async function()
         {
             const activity = {

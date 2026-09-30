@@ -116,6 +116,112 @@ export function createTransformationService({
         )
     }
 
+    async function changeTransformationType(actor, transformationId)
+    {
+        logger.debug("createTransformationService.changeTransformationType", {
+            actor,
+            transformationId
+        })
+        assertActor(actor)
+
+        const currentId = actorRepository.getActiveTransformationId(actor) ?? null
+        const targetId = transformationId || null
+        if (targetId === currentId) {
+            return { ok: true, unchanged: true }
+        }
+
+        let definition = null
+        if (targetId) {
+            definition = await transformationQueryService.getDefinitionById(targetId)
+            if (!definition) {
+                return warnAndFail(
+                    "missing-definition",
+                    `Cannot change transformation: no definition was found for '${targetId}'.`
+                )
+            }
+        }
+
+        // Remove the old transformation's items, effects and flags before applying a new one.
+        if (currentId) {
+            await clearTransformation(actor)
+        }
+
+        if (definition) {
+            await applyTransformation(actor, { definition })
+        }
+
+        return { ok: true, transformationId: targetId }
+    }
+
+    // Moves the stage one step at a time so every stage in between applies (or removes) its
+    // grants and choices. Deliberately not wrapped in tracker.track: each step waits for the
+    // tracker to go idle, which would never happen while this promise was itself tracked.
+    async function changeTransformationStage(actor, targetStage, {
+        triggeringUserId = globalThis.game?.user?.id ?? null
+    } = {})
+    {
+        logger.debug("createTransformationService.changeTransformationStage", {
+            actor,
+            targetStage,
+            triggeringUserId
+        })
+        assertActor(actor)
+
+        if (!actorRepository.getActiveTransformationId(actor)) {
+            return warnAndFail(
+                "no-active-transformation",
+                "Cannot change transformation stage: this actor has no active transformation."
+            )
+        }
+
+        const target = Number(targetStage)
+        if (!Number.isInteger(target) || target < 0) {
+            return warnAndFail(
+                "invalid-stage",
+                `Cannot change transformation stage: '${targetStage}' is not a valid stage.`
+            )
+        }
+
+        await tracker.whenIdle()
+
+        let current = Number(actor.flags?.transformations?.stage ?? 0)
+        if (!Number.isFinite(current)) current = 0
+
+        while (current < target) {
+            const next = current + 1
+            await actor.update({ "flags.transformations.stage": next })
+            await tracker.whenIdle()
+
+            const reached = Number(actor.flags?.transformations?.stage ?? 0)
+            if (reached !== next) {
+                // A stage choice was cancelled (or the stage was rolled back); stop here.
+                return { ok: false, reason: "stage-not-applied", stage: reached }
+            }
+            current = next
+        }
+
+        while (current > target) {
+            if (current <= 1) {
+                return warnAndFail(
+                    "minimum-stage",
+                    "Cannot change transformation stage: a transformation cannot be downgraded below stage 1. Remove the transformation instead."
+                )
+            }
+
+            const result = await downgradeTransformationStage(actor, { triggeringUserId })
+            await tracker.whenIdle()
+            if (result?.ok === false) return result
+
+            const reached = Number(actor.flags?.transformations?.stage ?? 0)
+            if (reached >= current) {
+                return { ok: false, reason: "stage-not-downgraded", stage: reached }
+            }
+            current = reached
+        }
+
+        return { ok: true, stage: current }
+    }
+
     async function onActorFlagsUpdated({ actor, diff, userId = null })
     {
         logger.debug("createTransformationService.onActorFlagsUpdated", {
@@ -400,6 +506,8 @@ export function createTransformationService({
         applyTransformation,
         clearTransformation,
         downgradeTransformationStage,
+        changeTransformationType,
+        changeTransformationStage,
         onActorFlagsUpdated,
 
         onTrigger

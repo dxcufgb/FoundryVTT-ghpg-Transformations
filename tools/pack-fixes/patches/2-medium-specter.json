@@ -1,0 +1,172 @@
+[
+    {
+        "id": "2-medium-specter-draining-flight-frightened-duration",
+        "pack": "gh-transformations",
+        "key": "!items.effects!reDuZAA1Mv6KFiz1.MkcjIAOUnG3qvq8a",
+        "op": "set",
+        "path": "flags.dae.specialDuration",
+        "value": [
+            "turnEndSource"
+        ],
+        "expect": []
+    },
+    {
+        "id": "2-medium-specter-incorporeal-bonus-action-activity",
+        "pack": "gh-transformations",
+        "key": "!items!c22yc2mUwC93M0Ey",
+        "op": "set",
+        "path": "system.activities.sPcTrBnsIncMv0v1",
+        "value": {
+            "type": "utility",
+            "name": "Incorporeal form (Bonus Action)",
+            "_id": "sPcTrBnsIncMv0v1",
+            "sort": 1,
+            "activation": {
+                "type": "bonus",
+                "override": false,
+                "condition": "Requires Draining Flight"
+            },
+            "consumption": {
+                "scaling": {
+                    "allowed": false
+                },
+                "spellSlot": true,
+                "targets": [
+                    {
+                        "type": "itemUses",
+                        "value": "1",
+                        "target": ""
+                    }
+                ]
+            },
+            "description": {
+                "chatFlavor": ""
+            },
+            "duration": {
+                "units": "inst",
+                "concentration": false,
+                "override": false
+            },
+            "effects": [
+                {
+                    "_id": "YqBLnhmhCJTasXwN"
+                }
+            ],
+            "flags": {},
+            "range": {
+                "units": "self",
+                "override": false,
+                "special": ""
+            },
+            "target": {
+                "template": {
+                    "contiguous": false,
+                    "units": "ft",
+                    "type": ""
+                },
+                "affects": {
+                    "choice": false,
+                    "type": "self"
+                },
+                "override": false,
+                "prompt": false
+            },
+            "uses": {
+                "spent": 0,
+                "recovery": [],
+                "max": ""
+            },
+            "visibility": {
+                "level": {
+                    "min": null,
+                    "max": null
+                },
+                "requireAttunement": false,
+                "requireIdentification": false,
+                "requireMagic": false,
+                "identifier": ""
+            },
+            "roll": {
+                "prompt": false,
+                "visible": false,
+                "name": "",
+                "formula": ""
+            },
+            "useConditionText": "items.some(i => i.identifier === \"draining-flight\" || i.name === \"Draining Flight\")",
+            "useConditionReason": "Requires Draining Flight.",
+            "effectConditionText": "",
+            "macroData": {
+                "name": "",
+                "command": ""
+            },
+            "ignoreTraits": {
+                "idi": false,
+                "idr": false,
+                "idv": false,
+                "ida": false,
+                "idm": false
+            },
+            "midiProperties": {
+                "ignoreTraits": [],
+                "triggeredActivityId": "none",
+                "triggeredActivityConditionText": "",
+                "triggeredActivityTargets": "targets",
+                "triggeredActivityRollAs": "self",
+                "triggeredActivityConsume": true,
+                "triggeredActivityConfigure": true,
+                "autoConsume": false,
+                "forceConsumeDialog": "default",
+                "forceRollDialog": "default",
+                "forceDamageDialog": "default",
+                "confirmTargets": "default",
+                "autoTargetType": "any",
+                "autoTargetAction": "default",
+                "automationOnly": false,
+                "otherActivityCompatible": true,
+                "otherActivityAsParentType": true,
+                "identifier": "",
+                "displayActivityName": false,
+                "rollMode": "default",
+                "chooseEffects": false,
+                "toggleEffect": false,
+                "ignoreFullCover": false,
+                "removeChatButtons": "default",
+                "magicEffect": false,
+                "magicDamage": false,
+                "noConcentrationCheck": false,
+                "skipConcentrationCheck": false,
+                "autoCEEffects": "default"
+            },
+            "isOverTimeFlag": false,
+            "overTimeProperties": {
+                "saveRemoves": true,
+                "rollAs": "target",
+                "preRemoveConditionText": "",
+                "postRemoveConditionText": ""
+            },
+            "otherActivityId": "none",
+            "otherActivityAsParentType": true,
+            "img": ""
+        }
+    },
+    {
+        "id": "2-medium-specter-possessed-incapacitated",
+        "pack": "gh-transformations",
+        "key": "!items.effects!vy4upM1CoHNJ07zW.b7LHXQCuY6hJtmou",
+        "op": "set",
+        "path": "statuses",
+        "value": [
+            "incapacitated"
+        ],
+        "expect": []
+    },
+    {
+        "id": "2-medium-specter-possessed-no-disable-incapacitated",
+        "pack": "gh-transformations",
+        "key": "!items.effects!vy4upM1CoHNJ07zW.b7LHXQCuY6hJtmou",
+        "op": "set",
+        "path": "flags.dae.disableIncapacitated",
+        "value": false,
+        "expect": true
+    }
+]

@@ -1544,7 +1544,7 @@ export const AberrantHorrorTestDef = {
                         damageRoll: "2d8"
                     },
                     {
-                        name: "Eldritch Limbs (Piercing)",
+                        name: "Eldritch Limbs (Hurled Barb)",
                         damageTypes: ["piercing"],
                         damageRoll: "2d6"
                     },
@@ -2464,6 +2464,10 @@ export const AberrantHorrorTestDef = {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectsDto
                 validate(actorDto, {assert})
+                // The Poisonous Mutations aura is switched on while a mutation is active.
+                const aura = actor.items.find(i => i.name === "Poisonous Mutations")
+                    ?.effects.find(e => e.name === "Poisonous Mutations")
+                assert.equal(aura?.disabled, false)
             }
         },
 
@@ -2517,6 +2521,10 @@ export const AberrantHorrorTestDef = {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectsDto
                 validate(actorDto, {assert})
+                // The Poisonous Mutations aura is switched on while a mutation is active.
+                const aura = actor.items.find(i => i.name === "Poisonous Mutations")
+                    ?.effects.find(e => e.name === "Poisonous Mutations")
+                assert.equal(aura?.disabled, false)
             }
         },
 
@@ -2570,6 +2578,10 @@ export const AberrantHorrorTestDef = {
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.effects = effectsDto
                 validate(actorDto, {assert})
+                // The Poisonous Mutations aura is switched on while a mutation is active.
+                const aura = actor.items.find(i => i.name === "Poisonous Mutations")
+                    ?.effects.find(e => e.name === "Poisonous Mutations")
+                assert.equal(aura?.disabled, false)
             }
         },
 
@@ -3035,11 +3047,16 @@ export const AberrantHorrorTestDef = {
         {
             name: "Aberrant Exhaustion",
             key: "AberrantExhaustion",
-            assertion: async ({origin, actor, assert, validators}) =>
+            assertion: async ({name, origin, actor, assert, validators}) =>
             {
                 const dto = new ActorValidationDTO(actor)
                 dto.effects.notHas.push(origin)
+                // The marker effect records the added levels so the next Long Rest can take them back.
+                dto.effects.has.push(name)
                 validate(dto, {assert})
+                assert.equal(actor.system.attributes.exhaustion, 2)
+                const marker = actor.effects.find(e => e.name === name)
+                assert.equal(marker?.getFlag("transformations", "exhaustionAdded"), 2)
             }
         },
 

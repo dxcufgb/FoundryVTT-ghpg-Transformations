@@ -42,6 +42,9 @@ const BOW_OF_CELESTIAL_DOMINATION_UUID =
 const SERAPH_STAGE_FOUR_DEFAULT_CHOICE_UUID =
           AURA_OF_HOLY_PURGE_UUID
 const HIDING_CELESTIAL_FORM_EFFECT_NAME = "Hiding Celestial Form"
+const EVIL_CREATURE_CONDITION =
+          "(target?.details?.alignment ?? \"\").toLowerCase().includes(\"evil\")"
+const BOW_DOMINATION_FLAG = "@flags.transformations.seraph.bowDomination"
 
 async function waitForSeraphStage1State({
     runtime,
@@ -456,6 +459,8 @@ function addDivineClemencyItemAssertions(actorDto, {
         item.expectedItemUuids = [DIVINE_CLEMENCY_UUID]
         item.itemName = "Divine Clemency"
         item.type = "feat"
+        item.systemType = "transformation"
+        item.systemSubType = "seraph"
         item.numberOfActivities = 1
         item.numberOfEffects = 0
         item.addActivity(activity =>
@@ -527,29 +532,35 @@ function addBeaconToDarknessItemAssertions(actorDto)
         item.type = "feat"
         item.systemType = "transformation"
         item.systemSubType = "seraph"
-        item.numberOfActivities = 0
+        item.numberOfActivities = 1
         item.numberOfEffects = 1
+        item.addActivity(activity =>
+        {
+            activity.name = "Become Corrupted"
+            activity.activationType = "special"
+            activity.range.units = "self"
+            activity.target.affects.type = "self"
+            activity.target.prompt = false
+            activity.addEffect(effect =>
+            {
+                effect.name = "Beacon to Darkness"
+            })
+        })
         item.addEffect(effect =>
         {
             effect.name = "Beacon to Darkness"
-            effect.changes.count = 3
+            effect.changes.count = 2
             effect.changes = [
                 {
                     key: "flags.midi-qol.disadvantage.attack.all",
-                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-                    value: "1",
-                    priority: 20
-                },
-                {
-                    key: "flags.midi-qol.disadvantage.attack.save",
-                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-                    value: "1",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: EVIL_CREATURE_CONDITION,
                     priority: 20
                 },
                 {
                     key: "flags.midi-qol.disadvantage.save.all",
-                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-                    value: "1",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: EVIL_CREATURE_CONDITION,
                     priority: 20
                 }
             ]
@@ -571,6 +582,7 @@ function addCleanseAfflictionItemAssertions(actorDto)
         item.addEffect(effect =>
         {
             effect.name = "Roll Advantage"
+            effect.duration.seconds = 60
             effect.changes.count = 1
             effect.changes = [
                 {
@@ -666,7 +678,7 @@ function addBowOfCelestialJudgementItemAssertions(actorDto, {
             effect.name = "Bow of Celestial Judgement"
             effect.duration.seconds = 60
             effect.duration.turns = 10
-            effect.changes.count = 3
+            effect.changes.count = 5
             effect.changes = [
                 {
                     key: "macro.createItem",
@@ -684,6 +696,18 @@ function addBowOfCelestialJudgementItemAssertions(actorDto, {
                     key: "flags.transformations.seraph.bowManifested",
                     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
                     value: "1",
+                    priority: 20
+                },
+                {
+                    key: "flags.transformations.seraph.bowDomination",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: "0",
+                    priority: 20
+                },
+                {
+                    key: "flags.midi-qol.OverTime",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: `turn=start, label=Bow of Celestial Judgement, damageRoll=5 + 10 * ${BOW_DOMINATION_FLAG}, damageType=temphp`,
                     priority: 20
                 }
             ]
@@ -722,7 +746,33 @@ function addSeraphCorruptionItemAssertions(actorDto)
             effect.name = "Seraph Corruption"
             effect.duration.seconds = 60
             effect.duration.turns = 10
-            effect.changes.count = 0
+            effect.changes.count = 4
+            effect.changes = [
+                {
+                    key: "flags.midi-qol.ActivityOverTime",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: `${SERAPH_STAGE_FOUR_ITEM_UUID}.Activity.xrW6YMeSuLJyr9ba`,
+                    priority: 20
+                },
+                {
+                    key: "system.traits.di.value",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: "healing",
+                    priority: 20
+                },
+                {
+                    key: "system.traits.di.value",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: "temphp",
+                    priority: 20
+                },
+                {
+                    key: "flags.midi-qol.disadvantage.attack.all",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: "(flags?.transformations?.seraph?.corruptionAttackRound ?? -1) !== (combatRound ?? 0)",
+                    priority: 20
+                }
+            ]
         })
     })
 }
@@ -741,7 +791,12 @@ function addAuraOfHolyPurgeItemAssertions(actorDto)
         item.addEffect(effect =>
         {
             effect.name = "Aura of Holy Purge"
-            effect.changes.count = 0
+            effect.type = "auraeffects.aura"
+            effect.distanceFormula = "20"
+            effect.collisionTypes = ["move"]
+            // The aura does not apply to the Seraph, so auraeffects stashes
+            // its changes (the midi-qol optional critical for allies) out of
+            // the prepared effect on the Seraph's own item.
             effect.flags.match.push({
                 path: "dae",
                 expected: {
@@ -751,10 +806,7 @@ function addAuraOfHolyPurgeItemAssertions(actorDto)
             effect.flags.match.push({
                 path: "ActiveAuras",
                 expected: {
-                    isAura: true,
-                    aura: "Allies",
-                    radius: "20",
-                    ignoreSelf: true
+                    isAura: false
                 }
             })
         })
@@ -775,6 +827,9 @@ function addAuraOfRighteousMercyItemAssertions(actorDto)
         item.addEffect(effect =>
         {
             effect.name = "Aura of Righteous Mercy"
+            effect.type = "auraeffects.aura"
+            effect.distanceFormula = "20"
+            effect.collisionTypes = ["move"]
             effect.changes.count = 0
             effect.flags.match.push({
                 path: "dae",
@@ -785,10 +840,7 @@ function addAuraOfRighteousMercyItemAssertions(actorDto)
             effect.flags.match.push({
                 path: "ActiveAuras",
                 expected: {
-                    isAura: true,
-                    aura: "Allies",
-                    radius: "20",
-                    ignoreSelf: true
+                    isAura: false
                 }
             })
         })
@@ -809,12 +861,18 @@ function addBowOfCelestialDominationItemAssertions(actorDto)
         item.addEffect(effect =>
         {
             effect.name = "Bow of Celestial Domination"
-            effect.changes.count = 1
+            effect.changes.count = 2
             effect.changes = [
                 {
                     key: "system.traits.di.value",
                     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
                     value: "necrotic",
+                    priority: 20
+                },
+                {
+                    key: "flags.transformations.seraph.bowDomination",
+                    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                    value: "1",
                     priority: 20
                 }
             ]

@@ -14,7 +14,7 @@ import { createLogger } from "./infrastructure/logging/logger.js"
 import { createDnd5eConfig } from "./infrastructure/config/createDnd5eConfig.js"
 import { preloadTemplates } from "./infrastructure/templates/preloadTemplates.js"
 import { registerGMOnlyDnd5eHooks } from "./infrastructure/hooks/GMOnlyDnd5eHooks.js"
-import { registerGMOnlyActorHooks } from "./infrastructure/hooks/GMOnlyActorHooks.js"
+import { registerActorPreUpdateHooks, registerGMOnlyActorHooks } from "./infrastructure/hooks/GMOnlyActorHooks.js"
 import { registerDnd5eHooks } from "./infrastructure/hooks/dnd5eHooks.js"
 import { registerActorHooks } from "./infrastructure/hooks/actorHooks.js"
 import { registerTransformationFeaturesSection } from "./infrastructure/sheets/registerTransformationFeaturesSection.js"
@@ -207,6 +207,13 @@ Hooks.once("setup", async () =>
         transformationService: services.transformationService,
         transformationQueryService: services.transformationQueryService,
         moduleUi,
+        logger
+    })
+
+    // preUpdate* hooks run only on the client requesting the update, so every client needs them.
+    registerActorPreUpdateHooks({
+        actorRepository: infrastructure.actorRepository,
+        transformationQueryService: services.transformationQueryService,
         logger
     })
 

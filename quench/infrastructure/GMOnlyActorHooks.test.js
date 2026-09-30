@@ -3,7 +3,10 @@ import {
     Seraph,
     SERAPH_CORRUPTION_EFFECT_UUID
 } from "../../domain/transformation/subclasses/seraph/Seraph.js"
-import { registerGMOnlyActorHooks } from "../../infrastructure/hooks/GMOnlyActorHooks.js"
+import {
+    registerActorPreUpdateHooks,
+    registerGMOnlyActorHooks
+} from "../../infrastructure/hooks/GMOnlyActorHooks.js"
 
 function createLogger()
 {
@@ -98,7 +101,8 @@ function createGame({activeGm = true} = {})
 
 function createHarness({
     TransformationClass = Lich,
-    game = createGame()
+    game = createGame(),
+    registerGmHooks = true
 } = {})
 {
     const originalHooks = globalThis.Hooks
@@ -123,28 +127,38 @@ function createHarness({
         }
     }
 
-    registerGMOnlyActorHooks({
+    const actorRepository = {
+        resolveActor(parent)
+        {
+            return parent ?? null
+        }
+    }
+    const transformationQueryService = {
+        async getForActor()
+        {
+            return {constructor: TransformationClass}
+        }
+    }
+
+    // Every client (players included) registers the preUpdate* hooks.
+    registerActorPreUpdateHooks({
+        actorRepository,
+        transformationQueryService,
+        logger: createLogger()
+    })
+
+    if (registerGmHooks) registerGMOnlyActorHooks({
         game,
         ActorClass: {},
         moduleUi: {},
-        actorRepository: {
-            resolveActor(parent)
-            {
-                return parent ?? null
-            }
-        },
+        actorRepository,
         triggerRuntime: {
             async run(name, actor, data)
             {
                 calls.triggerRuntime.push({name, actor, data})
             }
         },
-        transformationQueryService: {
-            async getForActor()
-            {
-                return {constructor: TransformationClass}
-            }
-        },
+        transformationQueryService,
         constants: {
             CONDITION: {
                 BLOODIED: "bloodied",
@@ -277,22 +291,48 @@ quench.registerBatch(
                 }
             })
 
-            it("dispatches conditionApplied when charmed is applied", async function()
+            it("does not listen to applyActiveEffect, which fires on every data preparation", async function()
+            {
+                const harness = createHarness()
+
+                try {
+                    expect(harness.callbacks.has("applyActiveEffect")).to.equal(false)
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("dispatches conditionApplied when charmed is created", async function()
             {
                 const actor = createActor()
                 const harness = createHarness()
-                const target = actor
-                const context = {
-                    effect: {
-                        name: "Charmed"
-                    }
-                }
 
                 try {
-                    const callback = harness.callbacks.get("applyActiveEffect")
+                    await harness.callbacks.get("createActiveEffect")(
+                        {parent: actor, name: "Charmed"},
+                        {},
+                        "user-1"
+                    )
+
+                    expect(harness.calls.triggerRuntime.map(call => call.name)).to.deep.equal(["conditionApplied"])
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("dispatches conditionApplied when a charmed effect is re-enabled", async function()
+            {
+                const actor = createActor()
+                const harness = createHarness()
+
+                try {
+                    const callback = harness.callbacks.get("updateActiveEffect")
                     expect(callback).to.be.a("function")
 
-                    await callback(target, context)
+                    await callback({parent: actor, name: "Charmed"}, {name: "Charmed"}, {}, "user-1")
+                    expect(harness.calls.triggerRuntime).to.have.length(0)
+
+                    await callback({parent: actor, name: "Charmed"}, {disabled: false}, {}, "user-1")
 
                     expect(harness.calls.triggerRuntime).to.deep.include({
                         name: "conditionApplied",
@@ -415,9 +455,10 @@ quench.registerBatch(
                         }
                     }
 
-                    await preUpdateCallback(actor, changed, {}, "user-1")
+                    const options = {}
+                    await preUpdateCallback(actor, changed, options, "user-1")
                     actor.system.attributes.hp.value = 0
-                    await updateCallback(actor, changed, {}, "user-1")
+                    await updateCallback(actor, changed, options, "user-1")
 
                     expect(harness.calls.triggerRuntime).to.deep.include({
                         name: "zeroHp",
@@ -450,9 +491,10 @@ quench.registerBatch(
                         }
                     }
 
-                    await preUpdateCallback(actor, firstChange, {}, "user-1")
+                    const firstOptions = {}
+                    await preUpdateCallback(actor, firstChange, firstOptions, "user-1")
                     actor.system.attributes.hp.value = 0
-                    await updateCallback(actor, firstChange, {}, "user-1")
+                    await updateCallback(actor, firstChange, firstOptions, "user-1")
 
                     const secondChange = {
                         system: {
@@ -464,9 +506,10 @@ quench.registerBatch(
                         }
                     }
 
-                    await preUpdateCallback(actor, secondChange, {}, "user-1")
+                    const secondOptions = {}
+                    await preUpdateCallback(actor, secondChange, secondOptions, "user-1")
                     actor.system.attributes.hp.value = 0
-                    await updateCallback(actor, secondChange, {}, "user-1")
+                    await updateCallback(actor, secondChange, secondOptions, "user-1")
 
                     expect(
                         harness.calls.triggerRuntime.filter(call =>
@@ -560,7 +603,12 @@ quench.registerBatch(
                 const harness = createHarness({game: inactiveGame()})
 
                 try {
-                    await harness.callbacks.get("applyActiveEffect")(actor, {effect: {name: "Charmed"}})
+                    await harness.callbacks.get("updateActiveEffect")(
+                        {parent: actor, name: "Charmed"},
+                        {disabled: false},
+                        {},
+                        "user-1"
+                    )
 
                     expect(harness.calls.triggerRuntime).to.have.length(0)
                 } finally {
@@ -612,19 +660,120 @@ quench.registerBatch(
                 }
             })
 
-            it("still dispatches zeroHp on the GM client that made the change, even when it is not the active GM", async function()
+            it("does not dispatch zeroHp from a GM client that is not the active GM", async function()
             {
-                // updateActor uses the HP captured by this client's own preUpdateActor, so it must not be guarded.
                 const actor = createActor()
                 const harness = createHarness({game: inactiveGame()})
                 const changed = {system: {attributes: {hp: {value: 0}}}}
+                const options = {}
 
                 try {
-                    await harness.callbacks.get("preUpdateActor")(actor, changed, {}, "user-1")
+                    await harness.callbacks.get("preUpdateActor")(actor, changed, options, "user-1")
                     actor.system.attributes.hp.value = 0
-                    await harness.callbacks.get("updateActor")(actor, changed, {}, "user-1")
+                    await harness.callbacks.get("updateActor")(actor, changed, options, "user-1")
 
-                    expect(harness.calls.triggerRuntime.map(call => call.name)).to.deep.equal(["zeroHp"])
+                    expect(harness.calls.triggerRuntime).to.have.length(0)
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("dispatches zeroHp on the active GM when a player client made the HP change", async function()
+            {
+                // The player client runs preUpdateActor; the previous HP reaches the GM in the update options.
+                const actor = createActor()
+                const changed = {system: {attributes: {hp: {value: 0}}}}
+                const options = {}
+                const playerClient = createHarness({registerGmHooks: false})
+
+                try {
+                    expect(playerClient.callbacks.has("updateActor")).to.equal(false)
+                    await playerClient.callbacks.get("preUpdateActor")(actor, changed, options, "player-1")
+                } finally {
+                    playerClient.restore()
+                }
+
+                const gmClient = createHarness()
+                try {
+                    actor.system.attributes.hp.value = 0
+                    await gmClient.callbacks.get("updateActor")(actor, changed, options, "player-1")
+
+                    expect(gmClient.calls.triggerRuntime.map(call => call.name)).to.deep.equal(["zeroHp"])
+                } finally {
+                    gmClient.restore()
+                }
+            })
+
+            it("repeats the save of a repeatSaveOnDamage effect when the actor loses HP", async function()
+            {
+                const actor = createActor()
+                const rolls = []
+                const deleted = []
+                const createEffect = (id, disadvantage) => ({
+                    id,
+                    disabled: false,
+                    changes: [{
+                        key: "flags.midi-qol.OverTime",
+                        value: "turn=end, saveAbility=con, saveDC=8 + 3 + 2, label=Dreams and Nightmares"
+                    }],
+                    getFlag(scope, key)
+                    {
+                        return scope === "transformations" && key === "repeatSaveOnDamage"
+                            ? {ability: "con", disadvantage}
+                            : null
+                    },
+                    async delete()
+                    {
+                        deleted.push(id)
+                    }
+                })
+                const effects = [createEffect("dream", false), createEffect("dream-conc", true)]
+                actor.effects = Object.assign(effects, {get: id => effects.find(e => e.id === id)})
+                actor.rollSavingThrow = async config =>
+                {
+                    rolls.push(config)
+                    // First save succeeds, second fails
+                    return [{total: rolls.length === 1 ? 13 : 12, isSuccess: rolls.length === 1}]
+                }
+                const harness = createHarness()
+                const changed = {system: {attributes: {hp: {value: 6}}}}
+                const options = {}
+
+                try {
+                    await harness.callbacks.get("preUpdateActor")(actor, changed, options, "user-1")
+                    actor.system.attributes.hp.value = 6
+                    await harness.callbacks.get("updateActor")(actor, changed, options, "user-1")
+
+                    expect(rolls).to.deep.equal([
+                        {ability: "con", target: 13, disadvantage: false},
+                        {ability: "con", target: 13, disadvantage: true}
+                    ])
+                    expect(deleted).to.deep.equal(["dream"])
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("dispatches deleteActiveEffect to the transformation class", async function()
+            {
+                const actor = createActor()
+                const received = []
+                const harness = createHarness({
+                    TransformationClass: {
+                        async deleteActiveEffect(args)
+                        {
+                            received.push(args)
+                        }
+                    }
+                })
+                const effect = {parent: actor, id: "effect-9", getFlag: () => null}
+
+                try {
+                    await harness.callbacks.get("deleteActiveEffect")(effect, {}, "user-1")
+
+                    expect(received).to.have.length(1)
+                    expect(received[0].effect).to.equal(effect)
+                    expect(received[0].actor).to.equal(actor)
                 } finally {
                     harness.restore()
                 }

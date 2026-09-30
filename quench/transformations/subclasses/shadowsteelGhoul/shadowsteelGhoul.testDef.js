@@ -689,6 +689,13 @@ function assertShadowsteelExplosionStructure(actor, assert)
     assert.strictEqual(activity.target?.affects?.type, "any")
     assert.strictEqual(activity.target?.template?.type, "radius")
     assert.strictEqual(activity.damage?.onSave, "half")
+    const stunEffect = item.effects?.find?.(effect => effect.statuses?.has?.("stunned"))
+    assert.isOk(stunEffect, "Shadowsteel Explosion should carry a Stunned effect")
+    assert.deepEqual(
+        stunEffect.flags?.dae?.specialDuration,
+        ["turnEnd"],
+        "Shadowsteel Explosion Stunned should end at the end of the affected creature's turn"
+    )
 }
 
 function assertShadowsteelArcaneVesselStructure(actor, assert)
@@ -711,7 +718,18 @@ function assertShadowsteelFuryStructure(actor, assert)
     assert.isOk(activity, "Shadowsteel Fury should expose a save activity")
     assert.strictEqual(
         activity.save?.dc?.formula,
-        "8 + @mod + @flags.transformations.stage"
+        "8 + max(@abilities.str.mod, @abilities.dex.mod) + @flags.transformations.stage"
+    )
+    const exhaustionEffectId = activity.effects?.[0]?._id
+    assert.isOk(exhaustionEffectId, "Shadowsteel Fury should apply an exhaustion effect on a failed save")
+    assert.strictEqual(activity.effects[0].onSave, false)
+    const exhaustionEffect = item.effects?.get?.(exhaustionEffectId)
+    assert.isOk(exhaustionEffect, "Shadowsteel Fury exhaustion effect should exist on the item")
+    assert.isOk(
+        exhaustionEffect.changes?.some(change =>
+            change.key === "macro.actorUpdate" &&
+            String(change.value).includes("system.attributes.exhaustion")),
+        "Shadowsteel Fury exhaustion effect should add an Exhaustion level"
     )
     assert.strictEqual(activity.target?.affects?.type, "creature")
     assert.strictEqual(activity.target?.prompt, true)

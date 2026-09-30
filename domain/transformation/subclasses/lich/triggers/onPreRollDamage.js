@@ -13,7 +13,17 @@ export const onPreRollDamage = {
                     damage: {
                         current: {
                             itemDocument: {
-                                type: ["weapon"]
+                                type: ["weapon"],
+                                // Memori Lichdom only works while the soul vessel is charged.
+                                actor: {
+                                    flags: {
+                                        transformations: {
+                                            lich: {
+                                                soulVesselCharged: true
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

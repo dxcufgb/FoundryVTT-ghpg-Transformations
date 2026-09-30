@@ -2,6 +2,7 @@ import { Transformation } from "../../Transformation.js"
 import { createHagsEye } from "./Activities/CreateHagsEye.js"
 import { GrantWaterBreathing } from "./Activities/GrantWaterBreathing.js"
 import { hagSpellRecovery } from "./Activities/HagSpellRecovery.js"
+import { activityMatchesName } from "../../../../utils/activityNames.js"
 
 /**
  * Domain subclass.
@@ -80,7 +81,10 @@ export class Hag extends Transformation
         triggeringUserId = null
     )
     {
-        const activityName = activity.name
+        // "Midi Use" is called "Use" when midi-qol's activity name prefix is off
+        const activityName = activityMatchesName(activity, "Midi Use")
+            ? "Midi Use"
+            : activity.name
         const itemName = activity?.parent?.parent?.name ?? activity?.parent?.name ?? usage?.workflow?.item?.name
         switch (activityName) {
             case "Midi Use":

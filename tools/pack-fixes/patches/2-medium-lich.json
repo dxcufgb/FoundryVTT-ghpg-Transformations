@@ -1,0 +1,11 @@
+[
+    {
+        "id": "2-medium-lich-soul-vessel-capture-per-stage",
+        "pack": "gh-transformations",
+        "key": "!items!rluvw9sNdr3JO93n",
+        "op": "set",
+        "path": "system.activities.cnVLVnthdgQ2B1Kv.uses.max",
+        "value": "2 * @flags.transformations.stage",
+        "expect": "2"
+    }
+]

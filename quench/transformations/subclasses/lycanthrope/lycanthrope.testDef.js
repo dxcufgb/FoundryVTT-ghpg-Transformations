@@ -133,12 +133,12 @@ const LycanthropeForms = [
                 {
                     key: "macro.createItem",
                     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                    value: "Compendium.transformations.gh-transformations.Item.eVUH5GeBkB61uMbg"
+                    value: "Compendium.transformations.gh-transformations.Item.rTbT3kHq8WnY2pLs"
                 },
                 {
                     key: "macro.createItem",
                     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                    value: "Compendium.transformations.gh-transformations.Item.4XwffwdkK1n7ehJj"
+                    value: "Compendium.transformations.gh-transformations.Item.rTcL7vMx4QzK9dNe"
                 },
                 {
                     key: "macro.createItem",
@@ -389,7 +389,7 @@ export const lycanthropeTestDef = {
                         ]
                         effect.flags = {
                             dae: {
-                                enableCondition: "@flags.transformations.lycanthrope.hybridForm == 1"
+                                disableCondition: "@flags.transformations.lycanthrope.hybridForm != 1"
                             }
                         }
                     })
@@ -503,6 +503,7 @@ export const lycanthropeTestDef = {
                         activity.activationType = "turnStart"
                         activity.healing.formula = "5"
                         activity.healing.type = "temp"
+                        activity.duration.concentration = false
                     })
                 })
                 validate(actorDto, {assert})
@@ -560,6 +561,11 @@ export const lycanthropeTestDef = {
                                 value: "charmed"
                             }
                         ]
+                        effect.flags = {
+                            dae: {
+                                disableCondition: "@flags.transformations.lycanthrope.hybridForm != 1"
+                            }
+                        }
                     })
                 })
                 validate(actorDto, {assert})

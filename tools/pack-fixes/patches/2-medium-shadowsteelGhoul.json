@@ -1,0 +1,149 @@
+[
+  {
+    "id": "2-medium-shadowsteelGhoul-F133-explosion-stun-turnEnd",
+    "pack": "gh-transformations",
+    "key": "!items.effects!chksYSoa3648qwfi.kEJn3ERc7Z81qobU",
+    "op": "set",
+    "path": "flags.dae.specialDuration",
+    "value": [
+      "turnEnd"
+    ],
+    "expect": [
+      "turnEndSource"
+    ]
+  },
+  {
+    "id": "2-medium-shadowsteelGhoul-F134-fury-dc-formula",
+    "pack": "gh-transformations",
+    "key": "!items!ZQsAVpvhSsifyrTQ",
+    "op": "set",
+    "path": "system.activities.y4zaeEbYZLfjmGXs.save.dc.formula",
+    "value": "8 + max(@abilities.str.mod, @abilities.dex.mod) + @flags.transformations.stage",
+    "expect": "8 + @mod + @flags.transformations.stage"
+  },
+  {
+    "id": "2-medium-shadowsteelGhoul-F134-fury-exhaustion-effect-create",
+    "pack": "gh-transformations",
+    "key": "!items.effects!ZQsAVpvhSsifyrTQ.sSgFuryExhaust01",
+    "op": "create",
+    "doc": {
+      "name": "Shadowsteel Fury: Exhaustion",
+      "img": "modules/transformations/Icons/Transformations/Shadowsteel%20Ghoul/Shadowsteel%20Fury.png",
+      "origin": "Compendium.transformations.gh-transformations.Item.ZQsAVpvhSsifyrTQ",
+      "transfer": false,
+      "_id": "sSgFuryExhaust01",
+      "type": "base",
+      "system": {},
+      "changes": [
+        {
+          "key": "macro.actorUpdate",
+          "mode": 0,
+          "value": "@targetUuid number '+1' system.attributes.exhaustion false",
+          "priority": 20
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null,
+        "combat": null,
+        "seconds": null,
+        "rounds": null,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null
+      },
+      "description": "<p>You failed the Constitution saving throw against Shadowsteel Fury and gain 1 Exhaustion level.</p>",
+      "tint": "#ffffff",
+      "statuses": [],
+      "sort": 0,
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "statuses": []
+          }
+        },
+        "dae": {
+          "enableCondition": "",
+          "disableCondition": "",
+          "stackable": "multi",
+          "showIcon": false,
+          "disableIncapacitated": false,
+          "selfTarget": false,
+          "selfTargetAlways": false,
+          "dontApply": false,
+          "durationExpression": "",
+          "macroRepeat": "none",
+          "specialDuration": [
+            "turnStart"
+          ]
+        },
+        "core": {
+          "overlay": false
+        },
+        "ActiveAuras": {
+          "isAura": false,
+          "aura": "All",
+          "nameOverride": "",
+          "radius": "",
+          "alignment": "",
+          "type": "",
+          "customCheck": "",
+          "ignoreSelf": false,
+          "height": false,
+          "hidden": false,
+          "displayTemp": false,
+          "hostile": false,
+          "onlyOnce": false,
+          "wallsBlock": "system",
+          "statuses": []
+        }
+      },
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "dnd5e",
+        "systemVersion": "5.2.5",
+        "createdTime": 1790788751164,
+        "modifiedTime": 1790788751164,
+        "lastModifiedBy": "4NBnmpBapEI7Q4zD"
+      }
+    }
+  },
+  {
+    "id": "2-medium-shadowsteelGhoul-F134-fury-exhaustion-effect-link-item",
+    "pack": "gh-transformations",
+    "key": "!items!ZQsAVpvhSsifyrTQ",
+    "op": "arrayAdd",
+    "path": "effects",
+    "value": "sSgFuryExhaust01"
+  },
+  {
+    "id": "2-medium-shadowsteelGhoul-F134-fury-exhaustion-effect-link-activity",
+    "pack": "gh-transformations",
+    "key": "!items!ZQsAVpvhSsifyrTQ",
+    "op": "set",
+    "path": "system.activities.y4zaeEbYZLfjmGXs.effects",
+    "value": [
+      {
+        "_id": "sSgFuryExhaust01",
+        "onSave": false,
+        "level": {
+          "min": null,
+          "max": null
+        }
+      }
+    ],
+    "expect": []
+  },
+  {
+    "id": "2-medium-shadowsteelGhoul-F134-fury-no-damage-onsave",
+    "pack": "gh-transformations",
+    "key": "!items!ZQsAVpvhSsifyrTQ",
+    "op": "set",
+    "path": "system.activities.y4zaeEbYZLfjmGXs.damage.onSave",
+    "value": "none",
+    "expect": "half"
+  }
+]

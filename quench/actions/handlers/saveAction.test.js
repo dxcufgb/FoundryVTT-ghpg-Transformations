@@ -1,6 +1,7 @@
 // test/actions/saveAction.test.js
 
 import { setupTest, tearDownEachTest } from "../../testLifecycle.js"
+import { resolveSaveUserId } from "../../../services/actions/handlers/save.js"
 
 export function registerSaveActionTests({ describe, it, expect })
 {
@@ -233,5 +234,44 @@ export function registerSaveActionTests({ describe, it, expect })
             expect(flavorHtml).to.contain("Hold on to yourself.")
         })
 
+    })
+
+    describe("Save Action user routing", function()
+    {
+        const makeUser = (id, {isGM = false, active = true, character = null} = {}) => ({id, isGM, active, character})
+        const makeGame = users => ({
+            users: {
+                get: id => users.find(user => user.id === id),
+                find: predicate => users.find(predicate)
+            }
+        })
+        const makeActor = ownerIds => ({
+            id: "actor-1",
+            testUserPermission: (user, level) => level === "OWNER" && ownerIds.includes(user.id)
+        })
+
+        it("rolls for the owning player even when a GM triggered the save", function()
+        {
+            const game = makeGame([makeUser("gm", {isGM: true}), makeUser("player")])
+            const actor = makeActor(["gm", "player"])
+
+            expect(resolveSaveUserId(actor, {triggeringUserId: "gm"}, game)).to.equal("player")
+        })
+
+        it("prefers the triggering player when that player owns the actor", function()
+        {
+            const game = makeGame([makeUser("p1"), makeUser("p2")])
+            const actor = makeActor(["p1", "p2"])
+
+            expect(resolveSaveUserId(actor, {triggeringUserId: "p2"}, game)).to.equal("p2")
+        })
+
+        it("stays local when no owning player is connected", function()
+        {
+            const game = makeGame([makeUser("gm", {isGM: true}), makeUser("player", {active: false})])
+            const actor = makeActor(["gm", "player"])
+
+            expect(resolveSaveUserId(actor, {triggeringUserId: "gm"}, game)).to.equal(null)
+        })
     })
 }

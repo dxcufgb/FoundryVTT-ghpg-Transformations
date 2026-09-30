@@ -21,6 +21,7 @@ export function createActionHandlers({
     activeEffectRepository,
     rollTableService,
     rollTableEffectResolver,
+    socketGateway = null,
     logger
 })
 {
@@ -96,6 +97,8 @@ export function createActionHandlers({
         }),
         SAVE: createSaveAction({
             tracker: trackers.ui,
+            getGame,
+            socketGateway,
             logger
         }),
     })

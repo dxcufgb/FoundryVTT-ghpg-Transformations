@@ -1,0 +1,37 @@
+[
+    {
+        "id": "2-medium-hag-F46-darkvision-upgrade-9uBH",
+        "pack": "gh-transformations",
+        "key": "!items.effects!9uBHDM8XzGoUek8Y.3pn2NM0cHfgZRWNZ",
+        "op": "set",
+        "path": "changes.0.mode",
+        "value": 4,
+        "expect": 5
+    },
+    {
+        "id": "2-medium-hag-F46-darkvision-upgrade-zOGF",
+        "pack": "gh-transformations",
+        "key": "!items.effects!zOGFmHYkrM4ZKbEU.VzDX99hRb3Dl9Nen",
+        "op": "set",
+        "path": "changes.0.mode",
+        "value": 4,
+        "expect": 5
+    },
+    {
+        "id": "2-medium-hag-F46-darkvision-upgrade-TIKm",
+        "pack": "gh-transformations",
+        "key": "!items.effects!TIKmev4FNvD6wfqU.CcJkHJlfDttrSX8v",
+        "op": "set",
+        "path": "changes.0.mode",
+        "value": 4,
+        "expect": 5
+    },
+    {
+        "id": "2-medium-hag-F181-gasdra-beak-finesse",
+        "pack": "creatures",
+        "key": "!actors.items!5XBo0sQcXvwwbHDQ.Klu1M7refwRZSejo",
+        "op": "arrayAdd",
+        "path": "system.properties",
+        "value": "fin"
+    }
+]

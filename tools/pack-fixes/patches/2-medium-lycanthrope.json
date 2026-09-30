@@ -1,0 +1,938 @@
+[
+    {
+        "id": "medium-lycanthrope-F117-bite-onuse-itemmacro",
+        "pack": "gh-transformations",
+        "key": "!items!eVUH5GeBkB61uMbg",
+        "op": "set",
+        "path": "flags.midi-qol.onUseMacroName",
+        "value": "[preTargeting]ItemMacro"
+    },
+    {
+        "id": "medium-lycanthrope-F117-savagery-hybrid-only",
+        "pack": "gh-transformations",
+        "key": "!items.effects!9bwCUcoYrRhHL9Mh.KtAeMlY0Q0HTXy36",
+        "op": "set",
+        "path": "flags.dae.disableCondition",
+        "value": "@flags.transformations.lycanthrope.hybridForm != 1",
+        "expect": ""
+    },
+    {
+        "id": "medium-lycanthrope-F117-iron-pelt-hybrid-only",
+        "pack": "gh-transformations",
+        "key": "!items.effects!G5LNiZBdQu2AYuSC.DsI6rA3SSuPCKG9u",
+        "op": "set",
+        "path": "flags.dae.disableCondition",
+        "value": "@flags.transformations.lycanthrope.hybridForm != 1",
+        "expect": ""
+    },
+    {
+        "id": "medium-lycanthrope-F117-iron-pelt-drop-enable-condition",
+        "pack": "gh-transformations",
+        "key": "!items.effects!G5LNiZBdQu2AYuSC.DsI6rA3SSuPCKG9u",
+        "op": "unset",
+        "path": "flags.dae.enableCondition"
+    },
+    {
+        "id": "medium-lycanthrope-F113-create-rat-bite",
+        "pack": "gh-transformations",
+        "key": "!items!rTbT3kHq8WnY2pLs",
+        "op": "create",
+        "doc": {
+            "name": "Bite",
+            "type": "weapon",
+            "system": {
+                "description": {
+                    "value": "",
+                    "chat": ""
+                },
+                "source": {
+                    "custom": "Grim Hollow (Adapted)",
+                    "book": "GHPG",
+                    "page": "Chapter 6 Transformation Lycanthrope Stage 1 (Hybrid Rat Form)",
+                    "license": "",
+                    "rules": "2024",
+                    "revision": 1
+                },
+                "quantity": 1,
+                "weight": {
+                    "value": 0,
+                    "units": "lb"
+                },
+                "price": {
+                    "value": 0,
+                    "denomination": "gp"
+                },
+                "attunement": "",
+                "rarity": "",
+                "identified": true,
+                "cover": null,
+                "range": {
+                    "value": 5,
+                    "long": null,
+                    "units": "ft",
+                    "reach": null
+                },
+                "uses": {
+                    "max": "",
+                    "spent": 0,
+                    "recovery": []
+                },
+                "damage": {
+                    "versatile": {
+                        "number": null,
+                        "denomination": 6,
+                        "bonus": "",
+                        "types": [],
+                        "custom": {
+                            "enabled": false,
+                            "formula": ""
+                        },
+                        "scaling": {
+                            "mode": "",
+                            "number": null,
+                            "formula": ""
+                        }
+                    },
+                    "base": {
+                        "number": 1,
+                        "denomination": 6,
+                        "types": [
+                            "slashing"
+                        ],
+                        "custom": {
+                            "enabled": false
+                        },
+                        "scaling": {
+                            "number": 1
+                        },
+                        "bonus": "@mod"
+                    }
+                },
+                "armor": {
+                    "value": 10
+                },
+                "hp": {
+                    "value": 0,
+                    "max": 0,
+                    "dt": null,
+                    "conditions": ""
+                },
+                "properties": [
+                    "fin"
+                ],
+                "proficient": 1,
+                "unidentified": {
+                    "description": ""
+                },
+                "type": {
+                    "value": "natural",
+                    "baseItem": ""
+                },
+                "activities": {
+                    "LL3fnYXElb0RgP7W": {
+                        "_id": "LL3fnYXElb0RgP7W",
+                        "type": "attack",
+                        "sort": 0,
+                        "activation": {
+                            "type": "action",
+                            "value": null,
+                            "override": false,
+                            "condition": ""
+                        },
+                        "consumption": {
+                            "scaling": {
+                                "allowed": false
+                            },
+                            "spellSlot": true,
+                            "targets": []
+                        },
+                        "description": {
+                            "chatFlavor": ""
+                        },
+                        "duration": {
+                            "units": "inst",
+                            "concentration": false,
+                            "override": false
+                        },
+                        "effects": [],
+                        "range": {
+                            "override": false,
+                            "units": "self"
+                        },
+                        "target": {
+                            "template": {
+                                "contiguous": false,
+                                "units": "ft",
+                                "type": ""
+                            },
+                            "affects": {
+                                "choice": false,
+                                "type": ""
+                            },
+                            "override": false,
+                            "prompt": false
+                        },
+                        "uses": {
+                            "spent": 0,
+                            "recovery": [],
+                            "max": ""
+                        },
+                        "attack": {
+                            "critical": {
+                                "threshold": null
+                            },
+                            "flat": false,
+                            "type": {
+                                "value": "melee",
+                                "classification": ""
+                            },
+                            "ability": "",
+                            "bonus": ""
+                        },
+                        "damage": {
+                            "critical": {
+                                "bonus": ""
+                            },
+                            "includeBase": true,
+                            "parts": []
+                        },
+                        "flags": {},
+                        "visibility": {
+                            "level": {
+                                "min": null,
+                                "max": null
+                            },
+                            "requireAttunement": false,
+                            "requireIdentification": false,
+                            "requireMagic": false,
+                            "identifier": ""
+                        },
+                        "useConditionText": "",
+                        "useConditionReason": "",
+                        "effectConditionText": "",
+                        "macroData": {
+                            "name": "",
+                            "command": ""
+                        },
+                        "ignoreTraits": {
+                            "idi": false,
+                            "idr": false,
+                            "idv": false,
+                            "ida": false,
+                            "idm": false
+                        },
+                        "midiProperties": {
+                            "ignoreTraits": [],
+                            "triggeredActivityId": "none",
+                            "triggeredActivityConditionText": "",
+                            "triggeredActivityTargets": "targets",
+                            "triggeredActivityRollAs": "self",
+                            "autoConsume": false,
+                            "forceConsumeDialog": "default",
+                            "forceRollDialog": "default",
+                            "forceDamageDialog": "default",
+                            "confirmTargets": "default",
+                            "autoTargetType": "any",
+                            "autoTargetAction": "default",
+                            "automationOnly": false,
+                            "otherActivityCompatible": true,
+                            "otherActivityAsParentType": true,
+                            "identifier": "",
+                            "displayActivityName": false,
+                            "rollMode": "default",
+                            "chooseEffects": false,
+                            "toggleEffect": false,
+                            "ignoreFullCover": false,
+                            "removeChatButtons": "default",
+                            "magicEffect": false,
+                            "magicDamage": false,
+                            "noConcentrationCheck": false,
+                            "skipConcentrationCheck": false,
+                            "autoCEEffects": "default"
+                        },
+                        "isOverTimeFlag": false,
+                        "overTimeProperties": {
+                            "saveRemoves": true,
+                            "preRemoveConditionText": "",
+                            "postRemoveConditionText": ""
+                        },
+                        "otherActivityId": "damage",
+                        "otherActivityAsParentType": true,
+                        "attackMode": "oneHanded",
+                        "ammunition": "",
+                        "otherActivityUuid": "",
+                        "attackRollPerTarget": "default",
+                        "fumbleThreshold": 1,
+                        "name": "",
+                        "img": ""
+                    },
+                    "6Lb0crHclXOGShnw": {
+                        "type": "damage",
+                        "sort": 0,
+                        "activation": {
+                            "type": "",
+                            "override": false,
+                            "condition": ""
+                        },
+                        "consumption": {
+                            "scaling": {
+                                "allowed": false
+                            },
+                            "spellSlot": true,
+                            "targets": []
+                        },
+                        "description": {
+                            "chatFlavor": ""
+                        },
+                        "duration": {
+                            "units": "inst",
+                            "concentration": false,
+                            "override": false
+                        },
+                        "effects": [],
+                        "flags": {},
+                        "range": {
+                            "units": "self",
+                            "override": false
+                        },
+                        "target": {
+                            "template": {
+                                "contiguous": false,
+                                "units": "ft",
+                                "type": ""
+                            },
+                            "affects": {
+                                "choice": false,
+                                "type": ""
+                            },
+                            "override": false,
+                            "prompt": true
+                        },
+                        "uses": {
+                            "spent": 0,
+                            "recovery": [],
+                            "max": ""
+                        },
+                        "visibility": {
+                            "level": {
+                                "min": null,
+                                "max": null
+                            },
+                            "requireAttunement": false,
+                            "requireIdentification": false,
+                            "requireMagic": false,
+                            "identifier": ""
+                        },
+                        "damage": {
+                            "critical": {
+                                "allow": true,
+                                "bonus": ""
+                            },
+                            "parts": [
+                                {
+                                    "custom": {
+                                        "enabled": false,
+                                        "formula": ""
+                                    },
+                                    "number": 1,
+                                    "denomination": 8,
+                                    "bonus": "",
+                                    "types": [
+                                        "slashing"
+                                    ],
+                                    "scaling": {
+                                        "number": 1
+                                    }
+                                }
+                            ]
+                        },
+                        "useConditionText": "",
+                        "useConditionReason": "",
+                        "effectConditionText": "",
+                        "macroData": {
+                            "name": "",
+                            "command": ""
+                        },
+                        "ignoreTraits": {
+                            "idi": false,
+                            "idr": false,
+                            "idv": false,
+                            "ida": false,
+                            "idm": false
+                        },
+                        "midiProperties": {
+                            "ignoreTraits": [],
+                            "triggeredActivityId": "none",
+                            "triggeredActivityConditionText": "",
+                            "triggeredActivityTargets": "targets",
+                            "triggeredActivityRollAs": "self",
+                            "triggeredActivityConsume": true,
+                            "triggeredActivityConfigure": true,
+                            "autoConsume": false,
+                            "forceConsumeDialog": "default",
+                            "forceRollDialog": "default",
+                            "forceDamageDialog": "default",
+                            "confirmTargets": "default",
+                            "autoTargetType": "any",
+                            "autoTargetAction": "default",
+                            "automationOnly": true,
+                            "otherActivityCompatible": true,
+                            "otherActivityAsParentType": true,
+                            "identifier": "",
+                            "displayActivityName": false,
+                            "rollMode": "default",
+                            "chooseEffects": false,
+                            "toggleEffect": false,
+                            "ignoreFullCover": false,
+                            "removeChatButtons": "default",
+                            "magicEffect": false,
+                            "magicDamage": false,
+                            "noConcentrationCheck": false,
+                            "skipConcentrationCheck": false,
+                            "autoCEEffects": "default"
+                        },
+                        "isOverTimeFlag": false,
+                        "overTimeProperties": {
+                            "saveRemoves": true,
+                            "rollAs": "target",
+                            "preRemoveConditionText": "",
+                            "postRemoveConditionText": ""
+                        },
+                        "name": "",
+                        "_id": "6Lb0crHclXOGShnw"
+                    }
+                },
+                "container": null,
+                "ammunition": {},
+                "magicalBonus": null,
+                "identifier": "bite",
+                "crew": {
+                    "value": []
+                },
+                "attuned": false,
+                "equipped": true,
+                "mastery": ""
+            },
+            "flags": {
+                "dae": {
+                    "macro": {
+                        "name": "Bite",
+                        "img": "modules/transformations/Icons/Transformations/Lycanthrope/bite.webp",
+                        "type": "script",
+                        "scope": "global",
+                        "command": "if(args[0].workflow.activity.name == \"Midi Damage\"){\n  if (!args[0].actor.items.find(e => e.name === \"Shapeshifter’s Savagery\")){\n    return false;\n  }\n}",
+                        "author": "4NBnmpBapEI7Q4zD",
+                        "ownership": {
+                            "default": 3
+                        },
+                        "_id": null,
+                        "folder": null,
+                        "sort": 0,
+                        "flags": {},
+                        "_stats": {
+                            "coreVersion": "13.351",
+                            "systemId": "dnd5e",
+                            "systemVersion": "5.2.5",
+                            "lastModifiedBy": null,
+                            "compendiumSource": null,
+                            "duplicateSource": null,
+                            "exportSource": null
+                        }
+                    }
+                },
+                "dnd5e": {
+                    "riders": {
+                        "activity": []
+                    }
+                },
+                "midi-qol": {
+                    "onUseMacroName": "[preTargeting]ItemMacro"
+                }
+            },
+            "img": "modules/transformations/Icons/Transformations/Lycanthrope/bite.webp",
+            "effects": [],
+            "folder": "LONuJEhI8sudquTP",
+            "_stats": {
+                "compendiumSource": null,
+                "duplicateSource": null,
+                "exportSource": null,
+                "coreVersion": "13.351",
+                "systemId": "dnd5e",
+                "systemVersion": "5.2.5",
+                "createdTime": 1775576551436,
+                "modifiedTime": 1775858369284,
+                "lastModifiedBy": "4NBnmpBapEI7Q4zD"
+            },
+            "ownership": {
+                "default": 0,
+                "4NBnmpBapEI7Q4zD": 3
+            },
+            "_id": "rTbT3kHq8WnY2pLs",
+            "sort": 150000
+        }
+    },
+    {
+        "id": "medium-lycanthrope-F113-create-rat-claw",
+        "pack": "gh-transformations",
+        "key": "!items!rTcL7vMx4QzK9dNe",
+        "op": "create",
+        "doc": {
+            "name": "Claw",
+            "type": "weapon",
+            "system": {
+                "description": {
+                    "value": "",
+                    "chat": ""
+                },
+                "source": {
+                    "custom": "Grim Hollow (Adapted)",
+                    "book": "GHPG",
+                    "page": "Chapter 6 Transformation Lycanthrope Stage 1 (Hybrid Rat Form)",
+                    "license": "CC-BY-4.0",
+                    "rules": "2014",
+                    "revision": 1
+                },
+                "quantity": 1,
+                "weight": {
+                    "value": 0,
+                    "units": "lb"
+                },
+                "price": {
+                    "value": 0,
+                    "denomination": "gp"
+                },
+                "attunement": "",
+                "rarity": "",
+                "identified": true,
+                "cover": null,
+                "range": {
+                    "value": 5,
+                    "long": null,
+                    "units": "ft",
+                    "reach": null
+                },
+                "uses": {
+                    "max": "",
+                    "spent": 0,
+                    "recovery": []
+                },
+                "damage": {
+                    "versatile": {
+                        "number": null,
+                        "denomination": 6,
+                        "bonus": "",
+                        "types": [],
+                        "custom": {
+                            "enabled": false,
+                            "formula": ""
+                        },
+                        "scaling": {
+                            "mode": "",
+                            "number": null,
+                            "formula": ""
+                        }
+                    },
+                    "base": {
+                        "number": 1,
+                        "denomination": 6,
+                        "types": [
+                            "slashing"
+                        ],
+                        "custom": {
+                            "enabled": false
+                        },
+                        "scaling": {
+                            "number": 1
+                        },
+                        "bonus": "@mod"
+                    }
+                },
+                "armor": {
+                    "value": 10
+                },
+                "hp": {
+                    "value": 0,
+                    "max": 0,
+                    "dt": null,
+                    "conditions": ""
+                },
+                "properties": [
+                    "fin"
+                ],
+                "proficient": 1,
+                "unidentified": {
+                    "description": ""
+                },
+                "type": {
+                    "value": "natural",
+                    "baseItem": ""
+                },
+                "activities": {
+                    "LL3fnYXElb0RgP7W": {
+                        "_id": "LL3fnYXElb0RgP7W",
+                        "type": "attack",
+                        "sort": 0,
+                        "activation": {
+                            "type": "action",
+                            "value": null,
+                            "override": false,
+                            "condition": ""
+                        },
+                        "consumption": {
+                            "scaling": {
+                                "allowed": false
+                            },
+                            "spellSlot": true,
+                            "targets": []
+                        },
+                        "description": {
+                            "chatFlavor": ""
+                        },
+                        "duration": {
+                            "units": "inst",
+                            "concentration": false,
+                            "override": false
+                        },
+                        "effects": [],
+                        "range": {
+                            "override": false,
+                            "units": "self"
+                        },
+                        "target": {
+                            "template": {
+                                "contiguous": false,
+                                "units": "ft",
+                                "type": ""
+                            },
+                            "affects": {
+                                "choice": false,
+                                "type": ""
+                            },
+                            "override": false,
+                            "prompt": false
+                        },
+                        "uses": {
+                            "spent": 0,
+                            "recovery": [],
+                            "max": ""
+                        },
+                        "attack": {
+                            "critical": {
+                                "threshold": null
+                            },
+                            "flat": false,
+                            "type": {
+                                "value": "melee",
+                                "classification": ""
+                            },
+                            "ability": "",
+                            "bonus": ""
+                        },
+                        "damage": {
+                            "critical": {
+                                "bonus": ""
+                            },
+                            "includeBase": true,
+                            "parts": []
+                        },
+                        "flags": {},
+                        "visibility": {
+                            "level": {
+                                "min": null,
+                                "max": null
+                            },
+                            "requireAttunement": false,
+                            "requireIdentification": false,
+                            "requireMagic": false,
+                            "identifier": ""
+                        },
+                        "useConditionText": "",
+                        "useConditionReason": "",
+                        "effectConditionText": "",
+                        "macroData": {
+                            "name": "",
+                            "command": ""
+                        },
+                        "ignoreTraits": {
+                            "idi": false,
+                            "idr": false,
+                            "idv": false,
+                            "ida": false,
+                            "idm": false
+                        },
+                        "midiProperties": {
+                            "ignoreTraits": [],
+                            "triggeredActivityId": "none",
+                            "triggeredActivityConditionText": "",
+                            "triggeredActivityTargets": "targets",
+                            "triggeredActivityRollAs": "self",
+                            "autoConsume": false,
+                            "forceConsumeDialog": "default",
+                            "forceRollDialog": "default",
+                            "forceDamageDialog": "default",
+                            "confirmTargets": "default",
+                            "autoTargetType": "any",
+                            "autoTargetAction": "default",
+                            "automationOnly": false,
+                            "otherActivityCompatible": true,
+                            "otherActivityAsParentType": true,
+                            "identifier": "",
+                            "displayActivityName": false,
+                            "rollMode": "default",
+                            "chooseEffects": false,
+                            "toggleEffect": false,
+                            "ignoreFullCover": false,
+                            "removeChatButtons": "default",
+                            "magicEffect": false,
+                            "magicDamage": false,
+                            "noConcentrationCheck": false,
+                            "skipConcentrationCheck": false,
+                            "autoCEEffects": "default"
+                        },
+                        "isOverTimeFlag": false,
+                        "overTimeProperties": {
+                            "saveRemoves": true,
+                            "preRemoveConditionText": "",
+                            "postRemoveConditionText": ""
+                        },
+                        "otherActivityId": "damage",
+                        "otherActivityAsParentType": true,
+                        "attackMode": "oneHanded",
+                        "ammunition": "",
+                        "otherActivityUuid": "",
+                        "attackRollPerTarget": "default",
+                        "fumbleThreshold": 1,
+                        "name": "",
+                        "img": ""
+                    },
+                    "jynNzTU3I5AUlZs1": {
+                        "type": "damage",
+                        "_id": "jynNzTU3I5AUlZs1",
+                        "sort": 0,
+                        "activation": {
+                            "type": "",
+                            "override": false,
+                            "condition": ""
+                        },
+                        "consumption": {
+                            "scaling": {
+                                "allowed": false
+                            },
+                            "spellSlot": true,
+                            "targets": []
+                        },
+                        "description": {
+                            "chatFlavor": ""
+                        },
+                        "duration": {
+                            "units": "inst",
+                            "concentration": false,
+                            "override": false
+                        },
+                        "effects": [],
+                        "flags": {},
+                        "range": {
+                            "units": "self",
+                            "override": false
+                        },
+                        "target": {
+                            "template": {
+                                "contiguous": false,
+                                "units": "ft",
+                                "type": ""
+                            },
+                            "affects": {
+                                "choice": false,
+                                "type": ""
+                            },
+                            "override": false,
+                            "prompt": true
+                        },
+                        "uses": {
+                            "spent": 0,
+                            "recovery": [],
+                            "max": ""
+                        },
+                        "visibility": {
+                            "level": {
+                                "min": null,
+                                "max": null
+                            },
+                            "requireAttunement": false,
+                            "requireIdentification": false,
+                            "requireMagic": false,
+                            "identifier": ""
+                        },
+                        "damage": {
+                            "critical": {
+                                "allow": true,
+                                "bonus": ""
+                            },
+                            "parts": [
+                                {
+                                    "custom": {
+                                        "enabled": false,
+                                        "formula": ""
+                                    },
+                                    "number": 1,
+                                    "denomination": 8,
+                                    "bonus": "",
+                                    "types": [
+                                        "slashing"
+                                    ]
+                                }
+                            ]
+                        },
+                        "useConditionText": "",
+                        "useConditionReason": "",
+                        "effectConditionText": "",
+                        "macroData": {
+                            "name": "",
+                            "command": ""
+                        },
+                        "ignoreTraits": {
+                            "idi": false,
+                            "idr": false,
+                            "idv": false,
+                            "ida": false,
+                            "idm": false
+                        },
+                        "midiProperties": {
+                            "ignoreTraits": [],
+                            "triggeredActivityId": "none",
+                            "triggeredActivityConditionText": "",
+                            "triggeredActivityTargets": "targets",
+                            "triggeredActivityRollAs": "self",
+                            "triggeredActivityConsume": true,
+                            "triggeredActivityConfigure": true,
+                            "autoConsume": false,
+                            "forceConsumeDialog": "default",
+                            "forceRollDialog": "default",
+                            "forceDamageDialog": "default",
+                            "confirmTargets": "default",
+                            "autoTargetType": "any",
+                            "autoTargetAction": "default",
+                            "automationOnly": true,
+                            "otherActivityCompatible": true,
+                            "otherActivityAsParentType": true,
+                            "identifier": "",
+                            "displayActivityName": false,
+                            "rollMode": "default",
+                            "chooseEffects": false,
+                            "toggleEffect": false,
+                            "ignoreFullCover": false,
+                            "removeChatButtons": "default",
+                            "magicEffect": false,
+                            "magicDamage": false,
+                            "noConcentrationCheck": false,
+                            "skipConcentrationCheck": false,
+                            "autoCEEffects": "default"
+                        },
+                        "isOverTimeFlag": false,
+                        "overTimeProperties": {
+                            "saveRemoves": true,
+                            "rollAs": "target",
+                            "preRemoveConditionText": "",
+                            "postRemoveConditionText": ""
+                        },
+                        "name": "",
+                        "img": ""
+                    }
+                },
+                "container": null,
+                "ammunition": {},
+                "magicalBonus": null,
+                "identifier": "bite",
+                "crew": {
+                    "value": []
+                },
+                "mastery": "",
+                "attuned": false,
+                "equipped": true
+            },
+            "flags": {
+                "dnd5e": {
+                    "riders": {
+                        "activity": []
+                    }
+                },
+                "dae": {
+                    "macro": {
+                        "name": "Claw",
+                        "img": "modules/transformations/Icons/Transformations/Lycanthrope/claw.webp",
+                        "type": "script",
+                        "scope": "global",
+                        "command": "if(args[0].workflow.activity.name == \"Midi Damage\"){\n  if (!args[0].actor.items.find(e => e.name === \"Shapeshifter’s Savagery\")){\n    return false;\n  }\n}",
+                        "author": "4NBnmpBapEI7Q4zD",
+                        "ownership": {
+                            "default": 3
+                        },
+                        "_id": null,
+                        "folder": null,
+                        "sort": 0,
+                        "flags": {},
+                        "_stats": {
+                            "coreVersion": "13.351",
+                            "systemId": "dnd5e",
+                            "systemVersion": "5.2.5",
+                            "lastModifiedBy": null,
+                            "compendiumSource": null,
+                            "duplicateSource": null,
+                            "exportSource": null
+                        }
+                    }
+                },
+                "midi-qol": {
+                    "onUseMacroName": "[preTargeting]ItemMacro"
+                }
+            },
+            "img": "modules/transformations/Icons/Transformations/Lycanthrope/claw.webp",
+            "effects": [],
+            "folder": "LONuJEhI8sudquTP",
+            "_stats": {
+                "compendiumSource": null,
+                "duplicateSource": null,
+                "exportSource": null,
+                "coreVersion": "13.351",
+                "systemId": "dnd5e",
+                "systemVersion": "5.2.5",
+                "createdTime": 1775576554316,
+                "modifiedTime": 1775858345383,
+                "lastModifiedBy": "4NBnmpBapEI7Q4zD"
+            },
+            "ownership": {
+                "default": 0,
+                "4NBnmpBapEI7Q4zD": 3
+            },
+            "_id": "rTcL7vMx4QzK9dNe",
+            "sort": 160000
+        }
+    },
+    {
+        "id": "medium-lycanthrope-F113-rat-effect-bite",
+        "pack": "gh-transformations",
+        "key": "!items.effects!Wk2EIMS6AcMFoaSv.zr3smD1G37qZMMB7",
+        "op": "set",
+        "path": "changes.1.value",
+        "value": "Compendium.transformations.gh-transformations.Item.rTbT3kHq8WnY2pLs",
+        "expect": "Compendium.transformations.gh-transformations.Item.eVUH5GeBkB61uMbg"
+    },
+    {
+        "id": "medium-lycanthrope-F113-rat-effect-claw",
+        "pack": "gh-transformations",
+        "key": "!items.effects!Wk2EIMS6AcMFoaSv.zr3smD1G37qZMMB7",
+        "op": "set",
+        "path": "changes.2.value",
+        "value": "Compendium.transformations.gh-transformations.Item.rTcL7vMx4QzK9dNe",
+        "expect": "Compendium.transformations.gh-transformations.Item.4XwffwdkK1n7ehJj"
+    },
+    {
+        "id": "medium-lycanthrope-F118-bestial-vigor-no-concentration",
+        "pack": "gh-transformations",
+        "key": "!items!ML93ufjDC9nIprs6",
+        "op": "set",
+        "path": "system.activities.66C1fanlEJR3zuk5.duration.concentration",
+        "value": false,
+        "expect": true
+    }
+]

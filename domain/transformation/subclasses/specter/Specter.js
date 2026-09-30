@@ -1,4 +1,5 @@
 import { Transformation } from "../../Transformation.js"
+import { activityMatchesName } from "../../../../utils/activityNames.js"
 
 const FRAYING_REALITY_DAMAGE_ITEM_UUID =
     "Compendium.transformations.gh-transformations.Item.gIZ5Gzc4nCAkiUQ6"
@@ -38,9 +39,10 @@ function resolveItemActivities(item)
 
 function resolveItemActivityByName(item, activityName)
 {
-    return resolveItemActivities(item).find(activity =>
-        activity?.name === activityName
-    ) ?? null
+    const activities = resolveItemActivities(item)
+    return activities.find(activity => activity?.name === activityName) ??
+        activities.find(activity => activityMatchesName(activity, activityName)) ??
+        null
 }
 
 /**

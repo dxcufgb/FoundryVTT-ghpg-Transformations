@@ -1,0 +1,113 @@
+[
+  {
+    "id": "2-medium-general-hideous-appearance-remove-onuse",
+    "pack": "gh-transformations",
+    "key": "!items!xmCGLWU5p3RjVmRV",
+    "op": "unset",
+    "path": "flags.midi-qol.onUseMacroName",
+    "expect": "[postNoAction]ItemMacro"
+  },
+  {
+    "id": "2-medium-general-hideous-appearance-remove-dae-macro",
+    "pack": "gh-transformations",
+    "key": "!items!xmCGLWU5p3RjVmRV",
+    "op": "unset",
+    "path": "flags.dae.macro",
+    "expect": {
+      "name": "Hideous Appearance",
+      "img": "modules/transformations/Icons/Transformations/Aberrant%20Horror/Hideous_Appearance.png",
+      "type": "script",
+      "scope": "global",
+      "command": "(async () => {\n    await game.transformations.executeMacro({\n        trigger: \"manual\",\n        transformationType: \"aberrantHorror\",\n        action: \"hideousAppearance\",\n        args: args[0]\n    });\n})();",
+      "author": "4NBnmpBapEI7Q4zD",
+      "ownership": {
+        "default": 3
+      },
+      "_id": null,
+      "folder": null,
+      "sort": 0,
+      "flags": {},
+      "_stats": {
+        "coreVersion": "13.351",
+        "systemId": "dnd5e",
+        "systemVersion": "5.2.5",
+        "lastModifiedBy": null,
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null
+      }
+    }
+  },
+  {
+    "id": "2-medium-general-hideous-appearance-remove-itemacro",
+    "pack": "gh-transformations",
+    "key": "!items!xmCGLWU5p3RjVmRV",
+    "op": "unset",
+    "path": "flags.itemacro",
+    "expect": {
+      "macro": {
+        "command": "(async () => {\n    await game.transformations.executeMacro({\n        trigger: args[0],\n        transformationType: args[1],\n        action: \"hideousAppearance\",\n        args: args[3]\n    });\n})();",
+        "name": "Hideous Appearance",
+        "img": "modules/transformations/Icons/Transformations/Aberrant%20Horror/Hideous_Appearance.png",
+        "type": "script",
+        "scope": "global",
+        "author": "D4dX911H6Fx22cdm",
+        "ownership": {
+          "default": 3
+        },
+        "_id": null,
+        "folder": null,
+        "sort": 0,
+        "flags": {},
+        "_stats": {
+          "coreVersion": "13.351",
+          "systemId": "dnd5e",
+          "systemVersion": "5.2.4",
+          "lastModifiedBy": null,
+          "compendiumSource": null,
+          "duplicateSource": null,
+          "exportSource": null
+        }
+      }
+    }
+  },
+  {
+    "id": "2-medium-general-fiend-form-remove-onuse",
+    "pack": "gh-transformations",
+    "key": "!items!nCsHUZkM8p26at19",
+    "op": "unset",
+    "path": "flags.midi-qol.onUseMacroName",
+    "expect": "[preNoAction]ItemMacro"
+  },
+  {
+    "id": "2-medium-general-fiend-form-remove-dae-macro",
+    "pack": "gh-transformations",
+    "key": "!items!nCsHUZkM8p26at19",
+    "op": "unset",
+    "path": "flags.dae.macro",
+    "expect": {
+      "name": "Fiend Form",
+      "img": "modules/transformations/Icons/Transformations/Fiend/Fiend_Form.png",
+      "type": "script",
+      "scope": "global",
+      "command": "(async () => {\n    await game.transformations.executeMacro({\n        trigger: \"manual\",\n        transformationType: \"fiend\",\n        action: \"fiendForm\",\n        args: args[0]\n    });\n})();",
+      "author": "4NBnmpBapEI7Q4zD",
+      "ownership": {
+        "default": 3
+      },
+      "_id": null,
+      "folder": null,
+      "sort": 0,
+      "flags": {},
+      "_stats": {
+        "coreVersion": "13.351",
+        "systemId": "dnd5e",
+        "systemVersion": "5.2.5",
+        "lastModifiedBy": null,
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null
+      }
+    }
+  }
+]

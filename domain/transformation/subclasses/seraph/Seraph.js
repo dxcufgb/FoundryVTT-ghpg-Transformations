@@ -1,11 +1,21 @@
 import { Transformation } from "../../Transformation.js"
 import { BlindingRadiance } from "./Feats/BlindingRadiance.js"
+import { CleanseAffliction } from "./Feats/CleanseAffliction.js"
+import {
+    SERAPH_CORRUPTION_EFFECT_UUID,
+    SeraphCorruption
+} from "./Feats/SeraphCorruption.js"
 import { renderSyntheticMidiActivityCard } from "../../../../ui/chatCards/SyntheticMidiActivityCard.js"
 
-export const SERAPH_CORRUPTION_EFFECT_UUID =
-          "Compendium.transformations.gh-transformations.Item.nbEepKdcM50RJvbI.ActiveEffect.jtTKgErRNcmd9Ewh"
+export { SERAPH_CORRUPTION_EFFECT_UUID }
 
-const SERAPH_CORRUPTION_EFFECT_NAME = "seraph corruption"
+// Flaws are not Seraph powers: using their activities (the GM applying
+// Beacon to Darkness, the Seraph Corruption over-time damage) must not call
+// for a Blinding Radiance save.
+export const SERAPH_FLAW_ITEM_IDENTIFIERS = Object.freeze([
+    "beacon-to-darkness",
+    "seraph-corruption"
+])
 
 /**
  * Domain subclass scaffold.
@@ -37,9 +47,24 @@ export class Seraph extends Transformation
 
     static async onActivityUse(
         activity,
-        usage
+        usage,
+        message,
+        actorRepository,
+        ChatMessagePartInjector,
+        itemRepository,
+        dialogFactory,
+        triggeringUserId
     )
     {
+        CleanseAffliction.onActivityUse({
+            activity,
+            usage,
+            actor: usage?.workflow?.actor ?? activity?.actor ?? null,
+            dialogFactory,
+            triggeringUserId,
+            logger: this.logger
+        })
+
         if (!shouldSkipSeraphActivityUseTrigger({activity, usage})) {
             return {
                 skipActivityUseTrigger: false
@@ -87,19 +112,37 @@ export class Seraph extends Transformation
             effect
         })
 
-        return ChatMessage.create({
+        const message = await ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ actor: resolvedActor }),
             content
         })
+
+        try {
+            await SeraphCorruption.onCorruptionApplied(resolvedActor)
+        } catch (error) {
+            logger?.warn?.("Seraph Corruption start-up cleanup failed", error)
+        }
+
+        return message
+    }
+
+    static async onPreRollAttack({
+        actor
+    } = {})
+    {
+        this.logger?.debug?.("Seraph.onPreRollAttack", {actor})
+        await SeraphCorruption.recordAttack(actor)
+    }
+
+    static async onPreRollSavingThrowAsAttacker(context, attacker, data = {})
+    {
+        this.logger?.debug?.("Seraph.onPreRollSavingThrowAsAttacker", attacker, context, data)
+        SeraphCorruption.applySpellSaveAdvantage(context, attacker, data)
     }
 
     static isSeraphCorruptionEffect(effect)
     {
-        if (!effect) return false
-
-        return resolveEffectSourceUuids(effect).has(SERAPH_CORRUPTION_EFFECT_UUID) ||
-            String(effect?.name ?? "").trim().toLowerCase() ===
-            SERAPH_CORRUPTION_EFFECT_NAME
+        return SeraphCorruption.isCorruptionEffect(effect)
     }
 }
 
@@ -108,7 +151,23 @@ function shouldSkipSeraphActivityUseTrigger({
     usage
 } = {})
 {
-    return BlindingRadiance.isSaveActivity({activity, usage})
+    return BlindingRadiance.isSaveActivity({activity, usage}) ||
+        isSeraphFlawActivity({activity, usage})
+}
+
+function isSeraphFlawActivity({
+    activity,
+    usage
+} = {})
+{
+    const item =
+              usage?.workflow?.item ??
+              activity?.item ??
+              activity?.parent?.parent ??
+              null
+    const identifier = item?.system?.identifier ?? ""
+
+    return SERAPH_FLAW_ITEM_IDENTIFIERS.includes(identifier)
 }
 
 async function buildSeraphCorruptionAppliedMessage(effect, actor)
@@ -169,28 +228,6 @@ function normalizeDescriptionHtml(description)
     .filter(Boolean)
     .map(paragraph => `<p>${escapeHtml(paragraph)}</p>`)
     .join("")
-}
-
-function resolveEffectSourceUuids(effect)
-{
-    const sourceUuids = new Set()
-
-    for (const candidate of [
-        effect?.flags?.transformations?.sourceUuid,
-        effect?.getFlag?.("transformations", "sourceUuid"),
-        effect?.flags?.transformations?.grantedBy?.sourceUuid,
-        effect?.getFlag?.("transformations", "grantedBy")?.sourceUuid,
-        effect?.flags?.core?.sourceId,
-        effect?._stats?.compendiumSource,
-        effect?.origin,
-        effect?.uuid
-    ]) {
-        if (typeof candidate === "string" && candidate.length > 0) {
-            sourceUuids.add(candidate)
-        }
-    }
-
-    return sourceUuids
 }
 
 function escapeHtml(value)

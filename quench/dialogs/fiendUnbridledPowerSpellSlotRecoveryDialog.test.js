@@ -332,6 +332,47 @@ quench.registerBatch(
                 }
             })
 
+            it("extends a partly checked row up to the full budget", async function()
+            {
+                const dialog = new TransformationsSpellSlotRecoveryDialog({
+                    viewModel:
+                        createFiendUnbridledPowerSpellSlotRecoveryViewModel({
+                            actor: createActorWithSpellSlots({
+                                spell1: {
+                                    value: 0,
+                                    override: 3
+                                }
+                            }),
+                            amount: 3
+                        }),
+                    controller: {
+                        confirm: async () => {},
+                        cancel: () => {}
+                    },
+                    logger: null
+                })
+
+                await dialog.render(true)
+
+                const checkboxes = getCheckboxes(findGroupByLevel(dialog, 1))
+                const remaining =
+                    dialog.element.querySelector("[data-selection-summary]")
+
+                checkboxes[1].click()
+                await nextTick()
+
+                expect(checkboxes.map(checkbox => checkbox.checked))
+                .to.deep.equal([true, true, false])
+
+                checkboxes[2].click()
+                await nextTick()
+
+                expect(checkboxes.every(checkbox => checkbox.checked)).to.equal(true)
+                expect(remaining.textContent.trim()).to.equal("0")
+
+                await dialog.close({force: true})
+            })
+
             it("calls controller.cancel when closed without confirming", async function()
             {
                 let cancelled = false

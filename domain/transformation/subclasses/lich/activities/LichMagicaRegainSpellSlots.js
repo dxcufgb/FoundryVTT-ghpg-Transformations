@@ -86,12 +86,17 @@ export class LichMagicaRegainSpellSlots
                 message
             })
 
-            await this.recoverSpellSlot({
+            const completed = await this.recoverSpellSlot({
                 actor,
                 message,
                 dialogFactory,
                 ChatMessagePartInjector
             })
+
+            // Closing the dialog without choosing a slot keeps the card open for a retry.
+            if (!completed) {
+                button.disabled = false
+            }
         })
     }
 
@@ -102,7 +107,7 @@ export class LichMagicaRegainSpellSlots
         ChatMessagePartInjector
     })
     {
-        if (!actor || !message || !ChatMessagePartInjector) return
+        if (!actor || !message || !ChatMessagePartInjector) return false
 
         const transformationStage = getTransformationStage(actor)
         const selectedSpellSlot =
@@ -120,6 +125,8 @@ export class LichMagicaRegainSpellSlots
                       triggeringUserId: game.user?.id ?? null
                   })
 
+        if (!selectedSpellSlot?.slotKey) return false
+
         const restored = await restoreSpellSlot(actor, selectedSpellSlot)
         const resultMessage = restored
             ? `Recovered ${getSpellSlotLabel(selectedSpellSlot)}.`
@@ -131,6 +138,8 @@ export class LichMagicaRegainSpellSlots
             resultMessage,
             ChatMessagePartInjector
         })
+
+        return true
     }
 
     static async complete({

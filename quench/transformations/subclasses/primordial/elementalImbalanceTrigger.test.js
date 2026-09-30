@@ -110,6 +110,64 @@ quench.registerBatch(
 
                 expect(trigger).to.equal(null)
             })
+
+            it("uses the triggering type's own applied amount when other damage types were applied too", function()
+            {
+                const trigger = ElementalImbalance.resolveTriggerDamage({
+                    actor: createActor(),
+                    damage: 15,
+                    details: {},
+                    damageType: "fire",
+                    rawDamage: 10,
+                    appliedDamage: 5
+                })
+
+                expect(trigger).to.deep.include({
+                    type: "fire",
+                    amount: 10,
+                    vulnerabilityDamage: 5
+                })
+            })
+
+            it("triggers on the raw amount when only the triggering type was negated by Immunity", function()
+            {
+                const trigger = ElementalImbalance.resolveTriggerDamage({
+                    actor: createActor(),
+                    damage: 8,
+                    details: {},
+                    damageType: "fire",
+                    rawDamage: 6,
+                    appliedDamage: 0
+                })
+
+                expect(trigger).to.deep.include({
+                    type: "fire",
+                    amount: 6,
+                    vulnerabilityDamage: 12
+                })
+            })
+        })
+
+        describe("ElementalImbalance.resolveAppliedDamageForType", function()
+        {
+            it("sums the post-mitigation values of the given type only", function()
+            {
+                const amount = ElementalImbalance.resolveAppliedDamageForType([
+                    {type: "slashing", value: 9},
+                    {type: "fire", value: 3.5},
+                    {type: "fire", value: 2}
+                ], "fire")
+
+                expect(amount).to.equal(5)
+            })
+
+            it("returns null when the type is absent or not elemental", function()
+            {
+                const damages = [{type: "slashing", value: 9}]
+
+                expect(ElementalImbalance.resolveAppliedDamageForType(damages, "fire")).to.equal(null)
+                expect(ElementalImbalance.resolveAppliedDamageForType(damages, "slashing")).to.equal(null)
+            })
         })
     }
 )

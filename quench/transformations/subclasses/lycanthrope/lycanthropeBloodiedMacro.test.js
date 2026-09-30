@@ -118,6 +118,86 @@ quench.registerBatch(
                     .to.equal(LYCANTHROPE_FERAL_HYBRID_EFFECT_NAME)
             })
 
+            function createRoutingFixture({ allowPolymorphing })
+            {
+                const useLog = []
+                const routed = []
+                const player = { id: "player", active: true, isGM: false, can: () => true }
+                const gm = { id: "gm", active: true, isGM: true, can: () => true }
+                const userList = [gm, player]
+                const actor = {
+                    name: "Test Lycanthrope",
+                    uuid: "Actor.lycan",
+                    flags: {},
+                    testUserPermission: user => user === player
+                }
+                const item = createWolfFormItem(useLog)
+                for (const activity of item.system.activities) {
+                    activity.uuid = `Actor.lycan.Item.wolf.Activity.${activity.id}`
+                }
+                const handlers = createLycanthropeMacroHandlers({
+                    activeEffectRepository: createActiveEffectRepository(),
+                    itemRepository: {
+                        findEmbeddedByUuidFlag: (_actor, uuid) =>
+                            uuid === WOLF_FORM_UUID ? item : null
+                    },
+                    useActivityAsUser: async data => routed.push(data),
+                    getGame: () => ({
+                        user: gm,
+                        users: {
+                            get: id => userList.find(user => user.id === id),
+                            find: predicate => userList.find(predicate)
+                        },
+                        settings: {
+                            get: (scope, key) =>
+                                scope === "dnd5e" && key === "allowPolymorphing" ? allowPolymorphing : null
+                        }
+                    }),
+                    tracker: createTracker(),
+                    logger: console
+                })
+
+                return { actor, handlers, routed, useLog }
+            }
+
+            it("uses the hybrid form activities on the triggering player's client when run on the GM", async function()
+            {
+                const { actor, handlers, routed, useLog } = createRoutingFixture({ allowPolymorphing: true })
+
+                const result =
+                    await handlers[lycanthropeMacros.triggerBloodiedHybridTransform]({
+                        actor,
+                        trigger: "on",
+                        triggeringUserId: "player"
+                    })
+
+                expect(result).to.equal(true)
+                expect(useLog).to.deep.equal([])
+                expect(routed.map(data => data.activityUuid)).to.deep.equal([
+                    "Actor.lycan.Item.wolf.Activity.1NQ5cRcOCj5yWTmh",
+                    "Actor.lycan.Item.wolf.Activity.fNITPIQWquZlNt8o"
+                ])
+                expect(routed.every(data => data.userId === "player")).to.equal(true)
+            })
+
+            it("keeps the transform activity on the GM when players may not transform", async function()
+            {
+                const { actor, handlers, routed, useLog } = createRoutingFixture({ allowPolymorphing: false })
+
+                const result =
+                    await handlers[lycanthropeMacros.triggerBloodiedHybridTransform]({
+                        actor,
+                        trigger: "on",
+                        triggeringUserId: "player"
+                    })
+
+                expect(result).to.equal(true)
+                expect(routed.map(data => data.activityUuid)).to.deep.equal([
+                    "Actor.lycan.Item.wolf.Activity.1NQ5cRcOCj5yWTmh"
+                ])
+                expect(useLog).to.deep.equal(["transform"])
+            })
+
             it("falls back to the transform activity by name for items without known activity ids", async function()
             {
                 const activityCalls = []
