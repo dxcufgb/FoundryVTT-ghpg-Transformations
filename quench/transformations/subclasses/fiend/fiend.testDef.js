@@ -5,6 +5,53 @@ import { giftsOfDamnation } from "../../../../domain/transformation/subclasses/f
 import { findTransformationGeneralChoiceButtonById, findTransformationGeneralChoiceDialog, getTransformationGeneralChoiceDialogWindowTitle } from "../../../selectors/transformationGeneralChoiceDialog.finders.js"
 import { SKILL } from "../../../../config/constants.js";
 import { RollService } from "../../../../services/rolls/RollService.js"
+import { evaluateGiftSwitch, getContractState, recordGiftGained, signNewContract } from "../../../../domain/transformation/subclasses/fiend/giftsOfDamnation/giftContracts.js"
+import { DaemonicBrand, DAEMONIC_BRAND_ATTACK_VULNERABILITY_CONDITION } from "../../../../domain/transformation/subclasses/fiend/daemonicBrand/DaemonicBrand.js"
+
+const DAEMONIC_BRAND_UUID = "Compendium.transformations.gh-transformations.Item.WEFrREhcN84F6ehL"
+const DAEMONIC_BRAND_ATTACK_VULNERABILITY_EFFECT_ID = "b7cflkfAKqLxGjDG"
+
+// Gifts in these tests are gained through a newly signed contract
+// (Devilish Contractor), which may replace an active gift at any time.
+async function applyGiftUnderNewContract(runtime, {
+    actor,
+    gift,
+    ...options
+})
+{
+    await signNewContract(actor)
+    return runtime.services.applyFiendGiftOfDamnation({
+        actor,
+        gift,
+        ...options
+    })
+}
+
+async function applyGiftAndWait({
+    actor,
+    runtime,
+    waiters,
+    gift,
+    signContract = true
+})
+{
+    if (signContract) {
+        await applyGiftUnderNewContract(runtime, {actor, gift})
+    } else {
+        await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+    }
+
+    await waiters.waitForDomainStability({
+        actor,
+        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+    })
+    await waiters.waitForNextFrame()
+    await waiters.waitForCondition(() =>
+        actor.effects.some(effect =>
+            effect.flags?.transformations?.giftOfDamnationId === gift.id
+        )
+    )
+}
 
 function allowMockRollMessageUpdates(message)
 {
@@ -131,7 +178,7 @@ async function applyGiftOfUnfetteredGloryAndTriggerHitDie({
     }
 
     const gift = giftsOfDamnation.find(entry => entry.id === "giftOfUnfetteredGlory")
-    await runtime.services.applyFiendGiftOfDamnation({
+    await applyGiftUnderNewContract(runtime, {
         actor,
         gift
     })
@@ -230,7 +277,7 @@ async function prepareFiendGiftChatCard({
         )
 
     const gift = giftsOfDamnation.find(entry => entry.id === giftId)
-    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+    await applyGiftUnderNewContract(runtime, {actor, gift})
 
     await waiters.waitForDomainStability({
         actor,
@@ -443,7 +490,7 @@ async function prepareFiendGiftClassChatCard({
 })
 {
     const gift = giftsOfDamnation.find(entry => entry.id === giftId)
-    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+    await applyGiftUnderNewContract(runtime, {actor, gift})
 
     await waiters.waitForDomainStability({
         actor,
@@ -480,7 +527,7 @@ async function prepareFiendUnbridledPowerClassChatCard({
         entry.id === "giftOfUnbridledPower"
     )
 
-    await runtime.services.applyFiendGiftOfDamnation({
+    await applyGiftUnderNewContract(runtime, {
         actor,
         gift
     })
@@ -1428,7 +1475,7 @@ export const fiendTestDef = {
                     staticVars.initialHp = actor.system.attributes.hp.value
 
                     const gift = giftsOfDamnation.find(entry => entry.id === "giftOfJoyousLife")
-                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+                    await applyGiftUnderNewContract(runtime, {actor, gift})
 
                     await waiters.waitForDomainStability({
                         actor,
@@ -1568,7 +1615,7 @@ export const fiendTestDef = {
                     staticVars.initialHp = actor.system.attributes.hp.value
 
                     const gift = giftsOfDamnation.find(entry => entry.id === "giftOfJoyousLife")
-                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+                    await applyGiftUnderNewContract(runtime, {actor, gift})
 
                     await waiters.waitForDomainStability({
                         actor,
@@ -1776,7 +1823,7 @@ export const fiendTestDef = {
                 async ({actor, runtime, helpers, waiters, staticVars, loopVars}) =>
                 {
                     const gift = giftsOfDamnation.find(entry => entry.id === "giftOfProdigiousTalent")
-                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+                    await applyGiftUnderNewContract(runtime, {actor, gift})
 
                     await waiters.waitForDomainStability({
                         actor,
@@ -1948,7 +1995,7 @@ export const fiendTestDef = {
                 async ({actor, runtime, helpers, waiters, staticVars, loopVars}) =>
                 {
                     const gift = giftsOfDamnation.find(entry => entry.id === "giftOfProdigiousTalent")
-                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+                    await applyGiftUnderNewContract(runtime, {actor, gift})
 
                     await waiters.waitForDomainStability({
                         actor,
@@ -2069,7 +2116,7 @@ export const fiendTestDef = {
                 async ({actor, runtime, helpers, waiters, staticVars, loopVars}) =>
                 {
                     const gift = giftsOfDamnation.find(entry => entry.id === "giftOfProdigiousTalent")
-                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+                    await applyGiftUnderNewContract(runtime, {actor, gift})
 
                     await waiters.waitForDomainStability({
                         actor,
@@ -2194,7 +2241,7 @@ export const fiendTestDef = {
                 async ({actor, runtime, waiters}) =>
                 {
                     const gift = giftsOfDamnation.find(entry => entry.id === "giftOfProdigiousTalent")
-                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+                    await applyGiftUnderNewContract(runtime, {actor, gift})
 
                     await waiters.waitForDomainStability({
                         actor,
@@ -2289,7 +2336,7 @@ export const fiendTestDef = {
                     staticVars.initialHp = actor.system.attributes.hp.value
 
                     const gift = giftsOfDamnation.find(entry => entry.id === "giftOfUnsurpassedFortune")
-                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+                    await applyGiftUnderNewContract(runtime, {actor, gift})
 
                     await waiters.waitForDomainStability({
                         actor,
@@ -2419,7 +2466,7 @@ export const fiendTestDef = {
                     staticVars.initialHp = actor.system.attributes.hp.value
 
                     const gift = giftsOfDamnation.find(entry => entry.id === "giftOfUnsurpassedFortune")
-                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+                    await applyGiftUnderNewContract(runtime, {actor, gift})
 
                     await waiters.waitForDomainStability({
                         actor,
@@ -2968,9 +3015,9 @@ export const fiendTestDef = {
                 {
                     // The first gift is not a switch; only replacing it grants temp HP.
                     const firstGift = giftsOfDamnation.find(entry => entry.id === "giftOfJoyousLife")
-                    await runtime.services.applyFiendGiftOfDamnation({actor, gift: firstGift})
+                    await applyGiftUnderNewContract(runtime, {actor, gift: firstGift})
                     const gift = giftsOfDamnation.find(entry => entry.id === "giftOfUnsurpassedFortune")
-                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+                    await applyGiftUnderNewContract(runtime, {actor, gift})
                 }
             ],
 
@@ -3044,7 +3091,7 @@ export const fiendTestDef = {
                 async ({actor, runtime}) =>
                 {
                     const gift = giftsOfDamnation.find(entry => entry.id === "giftOfUnsurpassedFortune")
-                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+                    await applyGiftUnderNewContract(runtime, {actor, gift})
                 }
             ],
 
@@ -3064,12 +3111,12 @@ export const fiendTestDef = {
                 )
                 // First switch spends the Enhanced Contract use.
                 const switchedGift = giftsOfDamnation.find(entry => entry.id === "giftOfJoyousLife")
-                await runtime.services.applyFiendGiftOfDamnation({actor, gift: switchedGift})
+                await applyGiftUnderNewContract(runtime, {actor, gift: switchedGift})
                 await actor.update({
                     "system.attributes.hp.temp": 0
                 })
                 const gift = giftsOfDamnation.find(entry => entry.id === "giftOfUnsurpassedFortune")
-                await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+                await applyGiftUnderNewContract(runtime, {actor, gift})
             },
 
             assertions: async ({actor, assert}) =>
@@ -3226,9 +3273,9 @@ export const fiendTestDef = {
                 async ({actor, runtime, waiters, staticVars}) =>
                 {
                     const gift = giftsOfDamnation.find(entry => entry.id === "giftOfUnsurpassedFortune")
-                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+                    await applyGiftUnderNewContract(runtime, {actor, gift})
                     const gift2 = giftsOfDamnation.find(entry => entry.id === "giftOfJoyousLife")
-                    await runtime.services.applyFiendGiftOfDamnation({actor, gift2})
+                    await applyGiftUnderNewContract(runtime, {actor, gift: gift2})
                 }
             ],
 
@@ -3276,10 +3323,10 @@ export const fiendTestDef = {
                 async ({actor, runtime, waiters, staticVars}) =>
                 {
                     const gift = giftsOfDamnation.find(entry => entry.id === "giftOfUnsurpassedFortune")
-                    await runtime.services.applyFiendGiftOfDamnation({actor, gift})
+                    await applyGiftUnderNewContract(runtime, {actor, gift})
 
                     const gift2 = giftsOfDamnation.find(entry => entry.id === "giftOfJoyousLife")
-                    await runtime.services.applyFiendGiftOfDamnation({actor, gift: gift2})
+                    await applyGiftUnderNewContract(runtime, {actor, gift: gift2})
 
                     await waiters.waitForDomainStability({
                         actor,
@@ -3301,7 +3348,7 @@ export const fiendTestDef = {
                     )
 
                     const gift3 = giftsOfDamnation.find(entry => entry.id === "giftOfUnfetteredGlory")
-                    const applyGiftPromise = runtime.services.applyFiendGiftOfDamnation({
+                    const applyGiftPromise = applyGiftUnderNewContract(runtime, {
                         actor,
                         gift: gift3
                     })
@@ -4735,6 +4782,256 @@ export const fiendTestDef = {
                 } finally {
                     rollHelper.restore()
                 }
+            }
+        },
+
+        {
+            name: `Devilish Contractor: gifts can only be switched to a signed contract after a Long Rest`,
+
+            setup: async ({actor}) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf"
+                        }
+                    }
+                })
+                setFiendStage1DamageResistanceChoice()
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, waiters, staticVars}) =>
+                {
+                    const joyousLife = giftsOfDamnation.find(entry => entry.id === "giftOfJoyousLife")
+                    const fortune = giftsOfDamnation.find(entry => entry.id === "giftOfUnsurpassedFortune")
+
+                    staticVars.withoutContract = evaluateGiftSwitch(actor, joyousLife.id)
+
+                    await applyGiftAndWait({actor, runtime, waiters, gift: joyousLife})
+                    await applyGiftAndWait({actor, runtime, waiters, gift: fortune})
+
+                    staticVars.unsignedGift = evaluateGiftSwitch(actor, "giftOfProdigiousTalent", {replacing: true})
+                    staticVars.beforeRest = evaluateGiftSwitch(actor, joyousLife.id, {replacing: true})
+
+                    // A Short Rest only allows switching with Enhanced Contract.
+                    await runtime.services.triggerRuntime.run("shortRest", actor)
+                    await waiters.waitForDomainStability({
+                        actor,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                    })
+                    staticVars.afterShortRest = evaluateGiftSwitch(actor, joyousLife.id, {replacing: true})
+
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                    await waiters.waitForDomainStability({
+                        actor,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                    })
+                    await waiters.waitForCondition(() =>
+                        getContractState(actor).switchAvailable === true
+                    )
+                    staticVars.afterLongRest = evaluateGiftSwitch(actor, joyousLife.id, {replacing: true})
+
+                    // Switching back to the signed gift uses up the rest's switch.
+                    await applyGiftAndWait({actor, runtime, waiters, gift: joyousLife, signContract: false})
+                    staticVars.afterSwitch = evaluateGiftSwitch(actor, fortune.id, {replacing: true})
+                    staticVars.contractState = getContractState(actor)
+                }
+            ],
+
+            assertions: async ({expect, staticVars}) =>
+            {
+                expect(staticVars.withoutContract.allowed).to.equal(false)
+                expect(staticVars.unsignedGift.allowed).to.equal(false)
+                expect(staticVars.beforeRest.allowed).to.equal(false)
+                expect(staticVars.afterShortRest.allowed).to.equal(false)
+                expect(staticVars.afterLongRest.allowed).to.equal(true)
+                expect(staticVars.afterLongRest.consumes).to.equal("rest")
+                expect(staticVars.afterSwitch.allowed).to.equal(false)
+                expect(staticVars.contractState.signed).to.include.members([
+                    "giftOfJoyousLife",
+                    "giftOfUnsurpassedFortune"
+                ])
+                expect(staticVars.contractState.pendingContract).to.equal(false)
+                expect(staticVars.contractState.switchAvailable).to.equal(false)
+            }
+        },
+
+        {
+            name: `Enhanced Contract: a Short Rest allows switching to a signed gift of damnation`,
+
+            setup: async ({actor}) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf",
+                            2: "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM"
+                        }
+                    }
+                })
+                setFiendStage1DamageResistanceChoice()
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                },
+                {
+                    stage: 2
+                }
+            ],
+
+            steps: [
+                async ({actor, runtime, waiters, staticVars}) =>
+                {
+                    const joyousLife = giftsOfDamnation.find(entry => entry.id === "giftOfJoyousLife")
+                    const fortune = giftsOfDamnation.find(entry => entry.id === "giftOfUnsurpassedFortune")
+
+                    await applyGiftAndWait({actor, runtime, waiters, gift: joyousLife})
+                    await applyGiftAndWait({actor, runtime, waiters, gift: fortune})
+
+                    staticVars.beforeRest = evaluateGiftSwitch(actor, joyousLife.id, {replacing: true})
+
+                    await runtime.services.triggerRuntime.run("shortRest", actor)
+                    await waiters.waitForDomainStability({
+                        actor,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                    })
+                    await waiters.waitForCondition(() =>
+                        getContractState(actor).switchAvailable === true
+                    )
+                    staticVars.afterShortRest = evaluateGiftSwitch(actor, joyousLife.id, {replacing: true})
+                }
+            ],
+
+            assertions: async ({expect, staticVars}) =>
+            {
+                expect(staticVars.beforeRest.allowed).to.equal(false)
+                expect(staticVars.afterShortRest.allowed).to.equal(true)
+                expect(staticVars.afterShortRest.consumes).to.equal("rest")
+            }
+        },
+
+        {
+            name: `Devilish Contractor: one chat card signs only one contract`,
+
+            setup: async ({actor}) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf"
+                        }
+                    }
+                })
+                setFiendStage1DamageResistanceChoice()
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                }
+            ],
+
+            steps: [
+                async ({actor, staticVars}) =>
+                {
+                    staticVars.firstSign = await signNewContract(actor, {messageId: "contractCard0001"})
+                    staticVars.pendingAfterSign = getContractState(actor).pendingContract
+
+                    await recordGiftGained(actor, "giftOfJoyousLife")
+                    staticVars.pendingAfterGift = getContractState(actor).pendingContract
+
+                    staticVars.secondSign = await signNewContract(actor, {messageId: "contractCard0001"})
+                    staticVars.pendingAfterResign = getContractState(actor).pendingContract
+
+                    staticVars.newCardSign = await signNewContract(actor, {messageId: "contractCard0002"})
+                    staticVars.pendingAfterNewCard = getContractState(actor).pendingContract
+                }
+            ],
+
+            assertions: async ({expect, staticVars}) =>
+            {
+                expect(staticVars.firstSign).to.equal(true)
+                expect(staticVars.pendingAfterSign).to.equal(true)
+                expect(staticVars.pendingAfterGift).to.equal(false)
+                expect(staticVars.secondSign).to.equal(false)
+                expect(staticVars.pendingAfterResign).to.equal(false)
+                expect(staticVars.newCardSign).to.equal(true)
+                expect(staticVars.pendingAfterNewCard).to.equal(true)
+            }
+        },
+
+        {
+            name: `Daemonic Brand Attack Vulnerability grants Advantage only on the first attack each turn`,
+
+            setup: async ({actor}) =>
+            {
+                await actor.update({
+                    "flags.transformations.stageChoices": {
+                        "fiend": {
+                            1: "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf"
+                        }
+                    }
+                })
+                setFiendStage1DamageResistanceChoice()
+            },
+
+            requiredPath: [
+                {
+                    stage: 1
+                }
+            ],
+
+            steps: [
+                async ({actor, waiters, staticVars}) =>
+                {
+                    const brandItem = await fromUuid(DAEMONIC_BRAND_UUID)
+                    const brandEffect = brandItem.effects.get(DAEMONIC_BRAND_ATTACK_VULNERABILITY_EFFECT_ID)
+                    staticVars.grantsChange = brandEffect.changes.find(change =>
+                        change.key === "flags.midi-qol.grants.advantage.attack.all"
+                    )
+
+                    const combat = {id: "brandTestCombat", round: 2, turn: 0, started: true}
+                    const nextTurn = {...combat, turn: 1}
+
+                    staticVars.recordedWithoutBrand = await DaemonicBrand.recordAttack(actor, {combat})
+
+                    // The test actor stands in for the branded creature.
+                    const effectData = brandEffect.toObject()
+                    delete effectData._id
+                    await actor.createEmbeddedDocuments("ActiveEffect", [effectData])
+                    await waiters.waitForCondition(() =>
+                        DaemonicBrand.hasAttackVulnerability(actor)
+                    )
+
+                    staticVars.outsideCombat = DaemonicBrand.grantsAttackAdvantage(actor, null)
+                    staticVars.firstAttack = DaemonicBrand.grantsAttackAdvantage(actor, combat)
+                    staticVars.recorded = await DaemonicBrand.recordAttack(actor, {combat})
+                    await waiters.waitForCondition(() =>
+                        DaemonicBrand.getAttackedTurn(actor) === DaemonicBrand.getTurnKey(combat)
+                    )
+                    staticVars.secondAttack = DaemonicBrand.grantsAttackAdvantage(actor, combat)
+                    staticVars.nextTurnAttack = DaemonicBrand.grantsAttackAdvantage(actor, nextTurn)
+                }
+            ],
+
+            assertions: async ({expect, staticVars}) =>
+            {
+                expect(staticVars.grantsChange?.value).to.equal(DAEMONIC_BRAND_ATTACK_VULNERABILITY_CONDITION)
+                expect(staticVars.recordedWithoutBrand).to.equal(false)
+                expect(staticVars.outsideCombat).to.equal(true)
+                expect(staticVars.firstAttack).to.equal(true)
+                expect(staticVars.recorded).to.equal(true)
+                expect(staticVars.secondAttack).to.equal(false)
+                expect(staticVars.nextTurnAttack).to.equal(true)
             }
         }
     ]

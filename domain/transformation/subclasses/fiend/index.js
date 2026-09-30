@@ -1,5 +1,6 @@
 import { Fiend as FiendClass } from "./Fiend.js"
 import { FiendDefinition } from "./FiendDefinition.js"
+import { createFiendMacroHandlers } from "./macros/handlers.js"
 import { fiendStages } from "./stages/fiendStages.js"
 import { fiendTriggers } from "./triggers/fiendTriggers.js"
 
@@ -10,5 +11,8 @@ export const Fiend = Object.freeze({
     Triggers: fiendTriggers,
     Effects: {},
     Macros: {},
-    handlers: {}
+    handlers: {
+        type: FiendClass.type,
+        createMacroHandlers: createFiendMacroHandlers
+    }
 })

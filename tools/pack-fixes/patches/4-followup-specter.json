@@ -1,0 +1,36 @@
+[
+    {
+        "id": "4-followup-specter-fraying-reality-confusion-overtime-save",
+        "pack": "gh-transformations",
+        "key": "!items.effects!daxJPuEvp9ATh0Lq.K54ioe0AYQbj5BLb",
+        "op": "set",
+        "path": "changes",
+        "value": [
+            {
+                "key": "flags.midi-qol.OverTime",
+                "mode": 0,
+                "value": "turn=end, saveAbility=wis, saveDC=15, saveRemoves=true, allowIncapacitated=true, label=Confusion (Fraying Reality)",
+                "priority": 20
+            }
+        ],
+        "expect": []
+    },
+    {
+        "id": "4-followup-specter-fraying-reality-confusion-description",
+        "pack": "gh-transformations",
+        "key": "!items.effects!daxJPuEvp9ATh0Lq.K54ioe0AYQbj5BLb",
+        "op": "set",
+        "path": "description",
+        "value": "<p>Fraying Reality: you act as though under the effects of a Confusion spell for 1 minute.</p><p>You can’t take Bonus Actions or Reactions and must roll 1d10 at the start of each of your turns to determine your behavior for that turn, consulting the table below.</p><p>@Embed[Compendium.dnd5e.tables24.RollTable.phbsplConfusionB rollable cite=false classes=\"caption-top\"]{Behavior for the Turn}</p><p>At the end of each of your turns, you repeat the [[/save ability=wis dc=15]] saving throw, ending the effect on yourself on a success (rolled automatically by Midi-QOL).</p>",
+        "expect": "<p>The target can’t take Bonus Actions or Reactions and must roll 1d10 at the start of each of its turns to determine its behavior for that turn, consulting the table below.</p><p>@Embed[Compendium.dnd5e.tables24.RollTable.phbsplConfusionB rollable cite=false classes=\"caption-top\"]{Behavior for the Turn}</p><p>At the end of each of its turns, an affected target repeats the [[/save ability=wis]] save, ending the spell on itself on a success.</p>"
+    },
+    {
+        "id": "4-followup-specter-mark-of-unmaking-description",
+        "pack": "gh-transformations",
+        "key": "!items.effects!PdRY64cTjNWgaL30.0K7ZHkDe80Fx6iAK",
+        "op": "set",
+        "path": "description",
+        "value": "<p>You take an additional 1d6 Necrotic damage whenever you take damage (rolled and applied automatically).</p>",
+        "expect": "<p>You take an additional 1d6 Necrotic damage whenever you take damage.</p>"
+    }
+]

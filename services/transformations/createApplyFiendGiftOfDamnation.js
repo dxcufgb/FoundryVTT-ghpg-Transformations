@@ -1,3 +1,5 @@
+import { evaluateGiftSwitch } from "../../domain/transformation/subclasses/fiend/giftsOfDamnation/giftContracts.js"
+
 const SECOND_GIFT_OF_DAMNATION_SLOT_SOURCE_UUID =
     "Compendium.transformations.gh-transformations.Item.1DPOphqvUFg1Yzfm"
 
@@ -49,6 +51,18 @@ export function createApplyFiendGiftOfDamnation({
                 )
                     ? 2
                     : 1
+
+                const decision = evaluateGiftSwitch(actor, gift.id, {
+                    replacing: existingEffects.length >= maxActiveEffects,
+                    label: gift.label
+                })
+                if (!decision.allowed) {
+                    if (globalThis.__TRANSFORMATIONS_TEST__ !== true) {
+                        globalThis.ui?.notifications?.warn?.(decision.reason)
+                    }
+                    logger?.debug?.("Gift of Damnation switch blocked", decision)
+                    return null
+                }
 
                 let replacedGift = false
                 if (existingEffects.length >= maxActiveEffects) {

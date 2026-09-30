@@ -74,7 +74,7 @@ export function registerGMOnlyActorHooks({
 
         const previousHp = getPreviousHpFromOptions(actor, options)
 
-        if (previousHp != null && didLoseHp(actor, previousHp)) {
+        if (didTakeDamage(actor, options, previousHp)) {
             await repeatSavesOnDamage(actor)
         }
 
@@ -327,6 +327,25 @@ export function registerGMOnlyActorHooks({
         }
     }
 
+    // Damage fully absorbed by temporary HP still counts as taking damage, but temporary HP only
+    // counts when the update came from damage being applied (see dnd5e.preApplyDamage below):
+    // temp HP that is replaced, removed by an effect or cleared manually is not damage.
+    function didTakeDamage(actor, options, previousHp)
+    {
+        if (options?.isRest) return false
+        if (previousHp != null && didLoseHp(actor, previousHp)) return true
+        if (!isDamageUpdate(actor, options)) return false
+
+        const previousTempHp = getPreviousTempHpFromOptions(actor, options)
+        const currentTempHp = Number(actor?.system?.attributes?.hp?.temp ?? NaN)
+
+        if (previousTempHp == null || !Number.isFinite(currentTempHp)) {
+            return false
+        }
+
+        return currentTempHp < previousTempHp
+    }
+
     function didLoseHp(actor, previousHp)
     {
         const currentHp = Number(actor?.system?.attributes?.hp?.value ?? NaN)
@@ -366,20 +385,69 @@ export function registerActorPreUpdateHooks({
         transformationRegistry
     })
 
+    // Damage applied through Actor5e#applyDamage (chat damage buttons, token HP bar, midi-qol),
+    // keyed by actor. The update it sends right after is marked as damage in preUpdateActor.
+    const pendingDamage = new Map()
+
+    Hooks.on("dnd5e.preApplyDamage", (actor, amount, updates) =>
+    {
+        logger.debug("dnd5e.preApplyDamage (pending damage)", actor, amount, updates)
+        const actorKey = getActorKey(actor)
+        if (!actorKey) return
+
+        if (Number(amount) > 0) {
+            pendingDamage.set(actorKey, updates)
+        } else {
+            pendingDamage.delete(actorKey)
+        }
+    })
+
+    Hooks.on("dnd5e.applyDamage", (actor) =>
+    {
+        logger.debug("dnd5e.applyDamage (clear pending damage)", actor)
+        const actorKey = getActorKey(actor)
+        if (actorKey) pendingDamage.delete(actorKey)
+    })
+
     Hooks.on("preUpdateActor", (actor, changed, options, userId) =>
     {
         logger.debug("preUpdateActor (previous HP)", actor, changed, options, userId)
 
+        const actorKey = getActorKey(actor)
+        if (!actorKey || !options) return
+
         const nextHpValue = getUpdatedHpValue(changed)
+        const nextTempHp = getUpdatedTempHp(changed)
+        const pending = pendingDamage.get(actorKey)
+
+        if (pending) {
+            pendingDamage.delete(actorKey)
+            // A damage application cancelled by another hook leaves a stale entry behind; only
+            // the update carrying the HP value applyDamage computed is the damage update.
+            const pendingHpValue = pending["system.attributes.hp.value"]
+            if (nextHpValue == null || pendingHpValue == null || Number(nextHpValue) === Number(pendingHpValue)) {
+                options.transformations ??= {}
+                options.transformations.damage ??= {}
+                options.transformations.damage[actorKey] = true
+            }
+        }
+
+        if (nextTempHp != null) {
+            const previousTempHp = Number(actor?.system?.attributes?.hp?.temp ?? 0)
+            if (Number.isFinite(previousTempHp)) {
+                options.transformations ??= {}
+                options.transformations.previousTempHp ??= {}
+                options.transformations.previousTempHp[actorKey] = previousTempHp
+            }
+        }
 
         if (nextHpValue == null) {
             return
         }
 
         const previousHp = Number(actor?.system?.attributes?.hp?.value ?? NaN)
-        const actorKey = getActorKey(actor)
 
-        if (!Number.isFinite(previousHp) || !actorKey || !options) {
+        if (!Number.isFinite(previousHp)) {
             return
         }
 
@@ -483,6 +551,14 @@ function getUpdatedHpValue(changed)
     )
 }
 
+function getUpdatedTempHp(changed)
+{
+    return foundry.utils.getProperty(
+        changed,
+        "system.attributes.hp.temp"
+    )
+}
+
 function getActorKey(actor)
 {
     return actor?.uuid ?? actor?.id ?? null
@@ -495,4 +571,21 @@ function getPreviousHpFromOptions(actor, options)
 
     const previousHp = options?.transformations?.previousHp?.[actorKey]
     return previousHp == null ? undefined : Number(previousHp)
+}
+
+function getPreviousTempHpFromOptions(actor, options)
+{
+    const actorKey = getActorKey(actor)
+    if (!actorKey) return undefined
+
+    const previousTempHp = options?.transformations?.previousTempHp?.[actorKey]
+    return previousTempHp == null ? undefined : Number(previousTempHp)
+}
+
+function isDamageUpdate(actor, options)
+{
+    const actorKey = getActorKey(actor)
+    if (!actorKey) return false
+
+    return options?.transformations?.damage?.[actorKey] === true
 }

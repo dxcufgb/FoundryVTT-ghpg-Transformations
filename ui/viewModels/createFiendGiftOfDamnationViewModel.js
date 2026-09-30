@@ -1,4 +1,8 @@
 import { giftsOfDamnation } from "../../domain/transformation/subclasses/fiend/giftsOfDamnation/index.js"
+import {
+    evaluateGiftSwitch,
+    getContractState
+} from "../../domain/transformation/subclasses/fiend/giftsOfDamnation/giftContracts.js"
 
 export function createFiendGiftOfDamnationViewModel({
     actor,
@@ -21,6 +25,8 @@ export function createFiendGiftOfDamnationViewModel({
     const currentGiftId =
         activeGiftEffect?.flags?.transformations?.giftOfDamnationId ?? null
 
+    const signedGiftIds = actor ? getContractState(actor).signed : []
+
     return {
         stage,
         currentGiftName: activeGiftEffect?.name ?? "None",
@@ -29,7 +35,9 @@ export function createFiendGiftOfDamnationViewModel({
             value: gift.id,
             label: gift.label,
             description: gift.GiftClass.description,
-            selected: gift.id === currentGiftId
+            selected: gift.id === currentGiftId,
+            signed: signedGiftIds.includes(gift.id),
+            allowed: evaluateGiftSwitch(actor, gift.id, {replacing: true}).allowed
         }))
     }
 }

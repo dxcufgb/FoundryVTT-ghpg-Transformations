@@ -11,6 +11,28 @@ export const onLongRest = {
     
     actionGroups: [
         {
+            // Devilish Contractor: finishing a Long Rest allows swapping one
+            // active Gift of Damnation for another gift of a signed contract.
+            name: "devilish-contractor-gift-switch",
+            when: {
+                items: {
+                    has: [
+                        "Compendium.transformations.gh-transformations.Item.fF8Z7O4xTaVtiuFf"
+                    ]
+                }
+            },
+            actions: [
+                {
+                    type: "ACTOR_FLAG",
+                    data: {
+                        mode: "set",
+                        path: "flags.transformations.fiendContracts.switchAvailable",
+                        value: true
+                    }
+                }
+            ]
+        },
+        {
             name: "prodigious-talent-check",
             when: {
                 actor: {

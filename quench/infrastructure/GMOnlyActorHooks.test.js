@@ -87,6 +87,63 @@ function createActor()
     }
 }
 
+// Actor with a Fey Dreams and Nightmares style effect that repeats its save on damage.
+function createRepeatSaveActor({hp = 10, temp = 0} = {})
+{
+    const actor = createActor()
+    actor.system.attributes.hp.value = hp
+    actor.system.attributes.hp.temp = temp
+    const rolls = []
+    const effect = {
+        id: "dream",
+        disabled: false,
+        changes: [{
+            key: "flags.midi-qol.OverTime",
+            value: "turn=end, saveAbility=con, saveDC=13, label=Dreams and Nightmares"
+        }],
+        getFlag(scope, key)
+        {
+            return scope === "transformations" && key === "repeatSaveOnDamage"
+                ? {ability: "con", disadvantage: false}
+                : null
+        },
+        async delete() {}
+    }
+    const effects = [effect]
+    actor.effects = Object.assign(effects, {get: id => effects.find(e => e.id === id)})
+    actor.rollSavingThrow = async config =>
+    {
+        rolls.push(config)
+        return [{total: 5, isSuccess: false}]
+    }
+
+    return {actor, rolls}
+}
+
+// Runs an HP update through the preUpdateActor/updateActor hooks, optionally as damage applied
+// through Actor5e#applyDamage (which fires dnd5e.preApplyDamage first).
+async function runHpUpdate(harness, actor, {value, temp, damage = null, options = {}})
+{
+    const updates = {}
+    if (value !== undefined) updates["system.attributes.hp.value"] = value
+    if (temp !== undefined) updates["system.attributes.hp.temp"] = temp
+
+    if (damage != null) {
+        await harness.callbacks.get("dnd5e.preApplyDamage")(actor, damage, updates, {})
+    }
+
+    const changed = {}
+    for (const [path, next] of Object.entries(updates)) setProperty(changed, path, next)
+
+    await harness.callbacks.get("preUpdateActor")(actor, changed, options, "user-1")
+    for (const [path, next] of Object.entries(updates)) setProperty(actor, path, next)
+    await harness.callbacks.get("updateActor")(actor, changed, options, "user-1")
+
+    if (damage != null) {
+        await harness.callbacks.get("dnd5e.applyDamage")(actor, damage, {})
+    }
+}
+
 function createGame({activeGm = true} = {})
 {
     const user = {id: "gm-this-client"}
@@ -783,6 +840,101 @@ quench.registerBatch(
                         {ability: "con", target: 13, disadvantage: true}
                     ])
                     expect(deleted).to.deep.equal(["dream"])
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("repeats the save when damage is fully absorbed by temporary HP", async function()
+            {
+                const {actor, rolls} = createRepeatSaveActor({hp: 10, temp: 8})
+                const harness = createHarness()
+
+                try {
+                    await runHpUpdate(harness, actor, {value: 10, temp: 3, damage: 5})
+
+                    expect(rolls).to.deep.equal([{ability: "con", target: 13, disadvantage: false}])
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("marks the damage on a player client so the GM repeats the save", async function()
+            {
+                const {actor, rolls} = createRepeatSaveActor({hp: 10, temp: 8})
+                const options = {}
+                const playerClient = createHarness({registerGmHooks: false})
+                const changed = {system: {attributes: {hp: {value: 10, temp: 3}}}}
+
+                try {
+                    const updates = {"system.attributes.hp.value": 10, "system.attributes.hp.temp": 3}
+                    await playerClient.callbacks.get("dnd5e.preApplyDamage")(actor, 5, updates, {})
+                    await playerClient.callbacks.get("preUpdateActor")(actor, changed, options, "player-1")
+                } finally {
+                    playerClient.restore()
+                }
+
+                const gmClient = createHarness()
+                try {
+                    actor.system.attributes.hp.temp = 3
+                    await gmClient.callbacks.get("updateActor")(actor, changed, options, "player-1")
+
+                    expect(rolls).to.have.length(1)
+                } finally {
+                    gmClient.restore()
+                }
+            })
+
+            it("does not repeat the save when temporary HP is removed without damage", async function()
+            {
+                // e.g. an effect clearing temporary HP, or a GM editing it on the sheet
+                const {actor, rolls} = createRepeatSaveActor({hp: 10, temp: 8})
+                const harness = createHarness()
+
+                try {
+                    await runHpUpdate(harness, actor, {temp: 0})
+                    await runHpUpdate(harness, actor, {value: 10, temp: 0})
+
+                    expect(rolls).to.have.length(0)
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("does not repeat the save on healing, temporary HP gains or rests", async function()
+            {
+                const {actor, rolls} = createRepeatSaveActor({hp: 6, temp: 4})
+                const harness = createHarness()
+
+                try {
+                    // Healing through applyDamage (negative amount)
+                    await runHpUpdate(harness, actor, {value: 9, temp: 4, damage: -3})
+                    // Temporary HP replaced by a larger amount
+                    await runHpUpdate(harness, actor, {temp: 10})
+                    // A rest that clears temporary HP
+                    await runHpUpdate(harness, actor, {value: 10, temp: 0, options: {isRest: true}})
+
+                    expect(rolls).to.have.length(0)
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("ignores a cancelled damage application when the next update is not the damage", async function()
+            {
+                const {actor, rolls} = createRepeatSaveActor({hp: 10, temp: 8})
+                const harness = createHarness()
+
+                try {
+                    // Another preApplyDamage hook cancelled this damage, so no update or applyDamage follows.
+                    await harness.callbacks.get("dnd5e.preApplyDamage")(actor, 5, {
+                        "system.attributes.hp.value": 10,
+                        "system.attributes.hp.temp": 3
+                    }, {})
+                    // A later, unrelated update that sets different HP and clears temporary HP.
+                    await runHpUpdate(harness, actor, {value: 12, temp: 0})
+
+                    expect(rolls).to.have.length(0)
                 } finally {
                     harness.restore()
                 }

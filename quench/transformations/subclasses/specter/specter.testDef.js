@@ -447,6 +447,15 @@ function addFrayingRealityAssertions(actorDto)
         {
             effect.name = "Confused"
             effect.duration.seconds = 60
+            effect.changes.count = 1
+            effect.changes.changes = [
+                {
+                    key: "flags.midi-qol.OverTime",
+                    mode: 0,
+                    value: "turn=end, saveAbility=wis, saveDC=15, saveRemoves=true, allowIncapacitated=true, label=Confusion (Fraying Reality)",
+                    priority: 20
+                }
+            ]
         })
     })
 }

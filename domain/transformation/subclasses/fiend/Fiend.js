@@ -3,6 +3,7 @@ import { renderDevilishContractor } from "./activities/DevilishContractor.js"
 import { giftsOfDamnation } from "./giftsOfDamnation/index.js";
 import { ChatCardActionBinder } from "../../../../ui/chatCards/ChatCardActionBinder.js";
 import { findActivityByName } from "../../../../utils/activityNames.js"
+import { DaemonicBrand } from "./daemonicBrand/DaemonicBrand.js"
 
 const PULL_OF_THE_NETHERWORLD_ACTIVITY_ID = "GkER88EWbz2oElES"
 
@@ -28,6 +29,21 @@ export class Fiend extends Transformation {
             gift.id === giftId ||
             gift.label === activity?.name
         ) ?? null
+    }
+
+    /**
+     * Daemonic Brand (Attack Vulnerability): call after an attack roll against
+     * the given targets (tokens or actors; defaults to the user's targets) so
+     * only the first attack against a branded creature each turn has Advantage.
+     */
+    static async recordDaemonicBrandAttacks({
+        targets = null,
+        executeMacro = undefined
+    } = {})
+    {
+        return DaemonicBrand.recordAttackAgainstTargets(targets, {
+            ...(executeMacro ? {executeMacro} : {})
+        })
     }
 
     static onPreRollHitDie(context, actor)
@@ -191,6 +207,7 @@ export class Fiend extends Transformation {
                 case "Devilish Contractor":
                     await renderDevilishContractor({
                         actor,
+                        message,
                         dialogFactory,
                         container,
                         logger

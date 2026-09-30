@@ -1,0 +1,20 @@
+[
+    {
+        "id": "4-followup-vampire-P7-F104-regeneration-radiant-condition",
+        "pack": "gh-transformations",
+        "key": "!items.effects!TKHTXSYMDDTYBVWW.vRgnOvrTmeHeal15",
+        "op": "set",
+        "path": "changes.0.value",
+        "value": "turn=start, damageRoll=15, damageType=healing, applyCondition=@attributes.hp.value >= 1 && @attributes.hp.value < 60 && @flags.transformations.vampire.radiantSinceLastTurn != 1, label=Regeneration",
+        "expect": "turn=start, damageRoll=15, damageType=healing, applyCondition=@attributes.hp.value >= 1 && @attributes.hp.value < 60, label=Regeneration"
+    },
+    {
+        "id": "4-followup-vampire-P7-F104-regeneration-radiant-description",
+        "pack": "gh-transformations",
+        "key": "!items.effects!TKHTXSYMDDTYBVWW.vRgnOvrTmeHeal15",
+        "op": "set",
+        "path": "description",
+        "value": "<p>At the start of each of your turns in combat you automatically regain 15 Hit Points if you have at least 1 Hit Point but less than 60 Hit Points. The heal is skipped automatically if you took Radiant damage since the end of your last turn. Disable this effect for the turn if you are in sunlight.</p>",
+        "expect": "<p>At the start of each of your turns in combat you automatically regain 15 Hit Points if you have at least 1 Hit Point but less than 60 Hit Points. Disable this effect for the turn if you are in sunlight or have taken Radiant damage since the end of your last turn.</p>"
+    }
+]

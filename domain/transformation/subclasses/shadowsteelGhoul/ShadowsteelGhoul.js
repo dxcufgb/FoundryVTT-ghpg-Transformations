@@ -1,5 +1,6 @@
 import { Transformation } from "../../Transformation.js"
 import { ShadowsteelCurseRoll } from "./activities/ShadowsteelCurseRoll.js"
+import { ShadowsteelFury } from "./activities/ShadowsteelFury.js"
 
 /**
  * Domain subclass scaffold.
@@ -22,6 +23,21 @@ export class ShadowsteelGhoul extends Transformation
         await ShadowsteelCurseRoll.onRenderChatMessage({
             message,
             html,
+            actor,
+            logger
+        })
+    }
+
+    static onPreUseActivity({
+        activity,
+        actor,
+        logger
+    } = {})
+    {
+        logger?.debug?.("ShadowsteelGhoul.onPreUseActivity", {activity, actor})
+        // Synchronous on purpose: dnd5e/Midi read the save DC after this hook returns.
+        ShadowsteelFury.onPreUseActivity({
+            activity,
             actor,
             logger
         })

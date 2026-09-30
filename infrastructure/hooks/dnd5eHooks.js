@@ -2,6 +2,7 @@ import { conditionsMet } from "../../domain/actions/conditionSchema.js"
 import { applyRollModifierAction } from "../../services/actions/handlers/rollModifier.js"
 import { applySilverSensitivity } from "./silverSensitivity.js"
 import { ElementalImbalance } from "../../domain/transformation/subclasses/primordial/Feats/ElementalImbalance.js"
+import { DaemonicBrand } from "../../domain/transformation/subclasses/fiend/daemonicBrand/DaemonicBrand.js"
 
 function getPrimaryRoll(rolls)
 {
@@ -636,6 +637,26 @@ export function registerDnd5eHooks({
             options.transformations.appliedDamage =
                 ElementalImbalance.resolveAppliedDamageForType(damages, pendingType)
         }
+
+        // Post-mitigation damage types of the whole instance, so a type mixed
+        // into a multi-type hit is not lost.
+        if (options && typeof options === "object" && Array.isArray(damages)) {
+            options.transformations = {
+                ...(options.transformations ?? {}),
+                appliedDamageTypes: [
+                    ...new Set(
+                        damages
+                            .filter(d =>
+                                d?.type &&
+                                d.type !== "temphp" &&
+                                d.type !== "healing" &&
+                                Number(d.value) > 0
+                            )
+                            .map(d => d.type)
+                    )
+                ]
+            }
+        }
     })
 
     Hooks.on("dnd5e.restCompleted", (actor, result, config) =>
@@ -893,6 +914,12 @@ export function registerDnd5eHooks({
             rolls,
             data
         })
+
+        // Any attacker counts for Daemonic Brand, transformed or not.
+        tracker.track(
+            DaemonicBrand.recordAttackAgainstTargets(data?.workflow?.targets ?? null)
+                .catch(err => logger.warn("Daemonic Brand attack record failed", err))
+        )
     })
 
     Hooks.on("dnd5e.rollConcentration", (rolls, data) =>
@@ -1168,6 +1195,7 @@ export function registerDnd5eHooks({
                 damageType: pendingInstance?.damageType ?? null,
                 rawDamage: pendingInstance?.rawDamage ?? null,
                 appliedDamage: pendingInstance?.appliedDamage ?? null,
+                appliedDamageTypes: pendingInstance?.appliedDamageTypes ?? null,
                 actorRepository,
                 itemRepository,
                 activeEffectRepository,

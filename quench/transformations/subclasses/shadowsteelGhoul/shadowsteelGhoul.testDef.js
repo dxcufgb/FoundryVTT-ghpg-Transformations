@@ -2,6 +2,14 @@ import { validate } from "../../../helpers/DTOValidators/validate.js"
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js"
 import { waitForRollConfigurationDialogAndClickButton, waitForRollConfigurationDialogAndClose } from "../../../helpers/rollConfigurationDialog.js"
 import { SHADOWSTEEL_GHOUL_EXPLOSION_ONCE_KEY, SHADOWSTEEL_GHOUL_TRIGGER_ACTIVITY_NAME, SHADOWSTEEL_GHOUL_TRIGGER_ITEM_UUID } from "../../../../domain/transformation/subclasses/shadowsteelGhoul/triggers/shadowsteelGhoulTriggerCommon.js"
+import {
+    SHADOWSTEEL_FURY_ATTACK_IDENTIFIER,
+    SHADOWSTEEL_FURY_ATTACK_NAME,
+    SHADOWSTEEL_FURY_FEAT_IDENTIFIER,
+    SHADOWSTEEL_FURY_SAVE_IDENTIFIER,
+    SHADOWSTEEL_FURY_SAVE_NAME,
+    ShadowsteelFury
+} from "../../../../domain/transformation/subclasses/shadowsteelGhoul/activities/ShadowsteelFury.js"
 
 const DEBILITATING_MAGIC_NAME = "Debilitating Magic"
 const DEBILITATING_MAGIC_UUID = "Compendium.transformations.gh-transformations.Item.jAHcNJNgWzYnzltV"
@@ -717,6 +725,11 @@ function assertShadowsteelFuryStructure(actor, assert)
     assert.strictEqual(item.system?.identifier, "shadowsteel-fury")
     assert.isOk(activity, "Shadowsteel Fury should expose a save activity")
     assert.strictEqual(
+        activity.midiProperties?.automationOnly,
+        true,
+        "The feat's own save is superseded by the weapon/Claw Fury attack and should stay hidden"
+    )
+    assert.strictEqual(
         activity.save?.dc?.formula,
         "8 + max(@abilities.str.mod, @abilities.dex.mod) + @flags.transformations.stage"
     )
@@ -733,6 +746,126 @@ function assertShadowsteelFuryStructure(actor, assert)
     )
     assert.strictEqual(activity.target?.affects?.type, "creature")
     assert.strictEqual(activity.target?.prompt, true)
+}
+
+function getActorClawItem(actor)
+{
+    return actor.items.find(item =>
+        item?.type === "weapon" &&
+        item?.name === CURSED_CLAW_ATTACK_ITEM_NAME
+    ) ?? null
+}
+
+function assertFuryActivityPair(item, assert, {label, saveFormula = null} = {})
+{
+    const activities = resolveItemActivities(item)
+    const attack = activities.find(activity =>
+        activity?.type === "attack" &&
+        activity?.name === SHADOWSTEEL_FURY_ATTACK_NAME
+    ) ?? null
+    const save = activities.find(activity =>
+        activity?.type === "save" &&
+        activity?.name === SHADOWSTEEL_FURY_SAVE_NAME
+    ) ?? null
+
+    assert.isOk(attack, `${label} should have a Shadowsteel Fury attack activity`)
+    assert.isOk(save, `${label} should have a Shadowsteel Fury save activity`)
+    assert.strictEqual(attack.activation?.type, "bonus", "Shadowsteel Fury is a Bonus Action attack")
+    assert.strictEqual(attack.midiProperties?.identifier, SHADOWSTEEL_FURY_ATTACK_IDENTIFIER)
+    assert.strictEqual(attack.otherActivityId, SHADOWSTEEL_FURY_SAVE_IDENTIFIER)
+    assert.include(
+        String(attack.useConditionText ?? ""),
+        SHADOWSTEEL_FURY_FEAT_IDENTIFIER,
+        "The Fury attack should only be usable with the Shadowsteel Fury boon"
+    )
+    assert.strictEqual(save.midiProperties?.identifier, SHADOWSTEEL_FURY_SAVE_IDENTIFIER)
+    assert.strictEqual(save.midiProperties?.automationOnly, true)
+    assert.strictEqual(
+        save.midiProperties?.otherActivityCompatible,
+        false,
+        `${label} Fury save must not be auto-picked as the other activity of the item's normal attacks`
+    )
+    assert.deepEqual(Array.from(save.save?.ability ?? []), ["con"])
+    assert.strictEqual(save.damage?.onSave, "none")
+    if (saveFormula) {
+        assert.strictEqual(save.save?.dc?.formula, saveFormula)
+    }
+
+    const exhaustionEffectId = save.effects?.[0]?._id
+    assert.isOk(exhaustionEffectId, `${label} Fury save should apply an exhaustion effect`)
+    assert.strictEqual(save.effects[0].onSave, false)
+    const exhaustionEffect = item.effects?.get?.(exhaustionEffectId)
+    assert.isOk(exhaustionEffect, `${label} Fury exhaustion effect should exist on the item`)
+    assert.isOk(
+        exhaustionEffect.changes?.some(change =>
+            change.key === "macro.actorUpdate" &&
+            String(change.value).includes("system.attributes.exhaustion")),
+        `${label} Fury exhaustion effect should add an Exhaustion level`
+    )
+
+    return {attack, save}
+}
+
+function assertShadowsteelWeaponFuryRiders(actor, assert)
+{
+    const item = getActorItemBySourceUuid(actor, SHADOWSTEEL_WEAPON_UUID)
+    assert.isOk(item, "Shadowsteel Weapon item should be present")
+
+    const {attack, save} = assertFuryActivityPair(item, assert, {
+        label: "Shadowsteel Weapon",
+        saveFormula: "8 + @abilities.str.mod + @flags.transformations.stage"
+    })
+    const imbue = resolveItemActivityByName(item, SHADOWSTEEL_WEAPON_IMBUE_ACTIVITY_NAME)
+    const riderIds = Array.from(imbue?.effects?.[0]?.riders?.activity ?? [])
+
+    assert.sameMembers(
+        riderIds,
+        [attack.id, save.id],
+        "Imbuing a weapon should add the Shadowsteel Fury attack and save to it"
+    )
+}
+
+function assertCursedClawFuryStructure(actor, assert)
+{
+    const claw = getActorClawItem(actor)
+    assert.isOk(claw, "Cursed Claw weapon should be present")
+
+    assertFuryActivityPair(claw, assert, {
+        label: "Cursed Claw",
+        saveFormula: "8 + max(@abilities.str.mod, @abilities.dex.mod) + @flags.transformations.stage"
+    })
+}
+
+function assertShadowsteelFurySaveDcFollowsAttackAbility(actor, assert)
+{
+    const claw = getActorClawItem(actor)
+    const attack = resolveItemActivityByName(claw, SHADOWSTEEL_FURY_ATTACK_NAME)
+    assert.isOk(attack, "Cursed Claw should have a Shadowsteel Fury attack activity")
+
+    const ability = attack.ability
+    const stage = Number(actor.flags?.transformations?.stage ?? 0)
+    const expectedDc = 8 + Number(actor.system.abilities[ability]?.mod ?? 0) + stage
+
+    assert.isTrue(ShadowsteelFury.onPreUseActivity({activity: attack, actor}))
+
+    const save = resolveItemActivityByName(claw, SHADOWSTEEL_FURY_SAVE_NAME)
+    assert.strictEqual(
+        save.save?.dc?.formula,
+        `8 + @abilities.${ability}.mod + @flags.transformations.stage`,
+        "Shadowsteel Fury save DC should use the ability the attack used"
+    )
+    assert.strictEqual(save.save?.dc?.value, expectedDc)
+
+    assert.strictEqual(ShadowsteelFury.resolveAttackAbility({ability: "dex"}), "dex")
+    assert.strictEqual(ShadowsteelFury.resolveAttackAbility({ability: null}), "str")
+    assert.strictEqual(
+        ShadowsteelFury.buildSaveDcFormula("dex"),
+        "8 + @abilities.dex.mod + @flags.transformations.stage"
+    )
+    assert.isFalse(
+        ShadowsteelFury.onPreUseActivity({activity: {type: "attack", name: "Claw"}, actor}),
+        "Other attacks should not touch the Fury save DC"
+    )
 }
 
 const shadowsteelGhoulTriggerBehaviorTests = [
@@ -1269,8 +1402,8 @@ export const shadowsteelGhoulTestDef = {
                     item.type = "feat"
                     item.systemType = "transformation"
                     item.systemSubType = "shadowsteelGhoul"
-                    item.numberOfActivities = 2
-                    item.numberOfEffects = 1
+                    item.numberOfActivities = 4
+                    item.numberOfEffects = 2
                     item.addActivity(activity =>
                     {
                         activity.name = SHADOWSTEEL_WEAPON_HEAL_ACTIVITY_NAME
@@ -1302,6 +1435,7 @@ export const shadowsteelGhoulTestDef = {
                 })
 
                 validate(actorDto, {assert})
+                assertShadowsteelWeaponFuryRiders(actor, assert)
             }
         },
         {
@@ -1808,6 +1942,7 @@ export const shadowsteelGhoulTestDef = {
                 addCursedClawAttackAssertions(actorDto)
 
                 validate(actorDto, {assert})
+                assertCursedClawFuryStructure(actor, assert)
             }
         },
         {
@@ -1997,6 +2132,8 @@ export const shadowsteelGhoulTestDef = {
                 validate(actorDto, {assert})
                 assertShadowsteelExplosionStructure(actor, assert)
                 assertShadowsteelFuryStructure(actor, assert)
+                assertCursedClawFuryStructure(actor, assert)
+                assertShadowsteelFurySaveDcFollowsAttackAbility(actor, assert)
             }
         }
     ],

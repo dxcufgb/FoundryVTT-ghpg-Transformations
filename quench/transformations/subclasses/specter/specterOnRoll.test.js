@@ -1,4 +1,5 @@
 import { Specter } from "../../../../domain/transformation/subclasses/specter/Specter.js"
+import "./markOfUnmaking.test.js"
 
 const FRAYING_REALITY_DAMAGE_ITEM_UUID =
     "Compendium.transformations.gh-transformations.Item.gIZ5Gzc4nCAkiUQ6"

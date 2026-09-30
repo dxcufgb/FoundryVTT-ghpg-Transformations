@@ -1,3 +1,5 @@
+import { recordGiftGained } from "./giftContracts.js"
+
 const GIFT_OF_DAMNATION_ICON =
           "modules/transformations/Icons/Transformations/Fiend/Devilish_Contractor.png"
 
@@ -71,6 +73,10 @@ export async function applyGiftOfDamnation({
             itemIds: createdItems.map(item => item.id)
         }
     })
+
+    // Remember the signed contract and use up the new contract or the
+    // rest's switch that allowed gaining this gift.
+    await recordGiftGained(actor, giftClass.id, {replacedGift})
 
     const enhancedContract = itemRepository.findEmbeddedByUuidFlag(
         actor,

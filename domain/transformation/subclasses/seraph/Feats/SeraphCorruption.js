@@ -10,6 +10,13 @@ export const SERAPH_CORRUPTION_EFFECT_NAME = "seraph corruption"
 // first attack of each round.
 export const SERAPH_CORRUPTION_ATTACK_ROUND_FLAG = "seraph.corruptionAttackRound"
 
+// "<effect id>:<combat id>:<round>" of the last spell save the corrupted
+// Seraph gave Advantage to. Kept on the Seraph actor so every client sees it:
+// the save hook runs on the client of the creature making the save.
+export const SERAPH_CORRUPTION_SPELL_SAVE_ROUND_FLAG = "seraph.corruptionSpellSaveRound"
+
+// Local cache of the same key, covering the moment between granting the
+// Advantage and the flag update coming back from the server.
 const spellSaveAdvantageRoundByActor = new Map()
 
 /**
@@ -87,12 +94,18 @@ export class SeraphCorruption
         if (!effect || !context) return false
         if (!this.isSpellSave(context)) return false
 
-        const combat = globalThis.game?.combat ?? null
-        const roundKey = `${effect.id}:${combat?.id ?? "none"}:${this.getCombatRound()}`
+        const roundKey = this.getSpellSaveRoundKey(effect)
         const actorKey = attacker?.uuid ?? attacker?.id
         if (!actorKey || spellSaveAdvantageRoundByActor.get(actorKey) === roundKey) return false
+        if (this.getRecordedSpellSaveRoundKey(attacker) === roundKey) return false
 
         spellSaveAdvantageRoundByActor.set(actorKey, roundKey)
+        this.recordSpellSaveRound(attacker, roundKey).catch(error =>
+            globalThis.game?.transformations?.logger?.warn?.(
+                "Seraph Corruption: could not record the spell save round",
+                error
+            )
+        )
 
         const hasDisadvantage =
                   context.disadvantage === true ||
@@ -122,6 +135,45 @@ export class SeraphCorruption
         return true
     }
 
+    static getSpellSaveRoundKey(effect)
+    {
+        const combat = globalThis.game?.combat ?? null
+        return `${effect?.id ?? "none"}:${combat?.id ?? "none"}:${this.getCombatRound()}`
+    }
+
+    static getRecordedSpellSaveRoundKey(actor)
+    {
+        return foundry.utils.getProperty(
+            actor ?? {},
+            `flags.transformations.${SERAPH_CORRUPTION_SPELL_SAVE_ROUND_FLAG}`
+        ) ?? null
+    }
+
+    /**
+     * The saving creature's client usually can't update the Seraph, so the
+     * write goes through the GM in that case.
+     */
+    static async recordSpellSaveRound(actor, roundKey)
+    {
+        if (!actor) return false
+
+        if (actor.isOwner) {
+            await actor.setFlag("transformations", SERAPH_CORRUPTION_SPELL_SAVE_ROUND_FLAG, roundKey)
+            return true
+        }
+
+        const socket = globalThis.MidiQOL?.socket?.() ?? null
+        if (!socket?.executeAsGM) return false
+
+        await socket.executeAsGM("updateActor", {
+            actorUuid: actor.uuid,
+            updates: {
+                [`flags.transformations.${SERAPH_CORRUPTION_SPELL_SAVE_ROUND_FLAG}`]: roundKey
+            }
+        })
+        return true
+    }
+
     /**
      * A new Seraph Corruption starts clean: no Temporary Hit Points and no
      * attack or spell save recorded for the current round.
@@ -133,7 +185,8 @@ export class SeraphCorruption
         spellSaveAdvantageRoundByActor.delete(actor.uuid ?? actor.id)
 
         const updates = {
-            "flags.transformations.seraph.-=corruptionAttackRound": null
+            "flags.transformations.seraph.-=corruptionAttackRound": null,
+            "flags.transformations.seraph.-=corruptionSpellSaveRound": null
         }
         if (Number(actor.system?.attributes?.hp?.temp ?? 0) > 0) {
             updates["system.attributes.hp.temp"] = 0

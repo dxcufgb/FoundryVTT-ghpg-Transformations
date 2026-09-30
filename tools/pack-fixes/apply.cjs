@@ -65,6 +65,25 @@ function unsetPath(obj, p)
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 
+const pathsOverlap = (a, b) => a === b || a.startsWith(`${b}.`) || b.startsWith(`${a}.`)
+
+/**
+ * An op is superseded when a later op (in file order) rewrites the same document path, or
+ * creates/deletes the whole document. On a re-run its "expect" no longer matches, which is fine.
+ */
+function markSuperseded(ops)
+{
+    for (let i = 0; i < ops.length; i++) {
+        const op = ops[i]
+        op.superseded = ops.slice(i + 1).some(later =>
+            later.pack === op.pack && later.key === op.key && (
+                later.op === "create" || later.op === "delete" ||
+                (op.path && later.path && pathsOverlap(op.path, later.path))
+            ))
+    }
+    return ops
+}
+
 function loadPatches()
 {
     const dir = path.join(__dirname, "patches")
@@ -86,7 +105,7 @@ function loadPatches()
 
 async function main()
 {
-    const ops = loadPatches()
+    const ops = markSuperseded(loadPatches())
     const byPack = new Map()
     for (const op of ops) {
         if (!byPack.has(op.pack)) byPack.set(op.pack, [])
@@ -137,6 +156,7 @@ async function main()
                 if (op.op === "set") {
                     if (same(current, op.value)) { report.skipped++; continue }
                     if ("expect" in op && !same(current, op.expect)) {
+                        if (op.superseded) { report.skipped++; continue }
                         errors.push(`${label}: ${op.key} ${op.path} expected ${JSON.stringify(op.expect)} but found ${JSON.stringify(current)}`); continue
                     }
                     setPath(next, op.path, op.value)

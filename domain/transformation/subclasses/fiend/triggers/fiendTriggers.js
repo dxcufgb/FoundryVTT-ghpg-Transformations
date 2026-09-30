@@ -1,6 +1,7 @@
 import { onBloodied } from "./onBloodied.js"
 import { onConcentration } from "./onConcentration.js"
 import { onLongRest } from "./onLongRest.js"
+import { onShortRest } from "./onShortRest.js"
 import { onUnconscious } from "./onUnconscious.js"
 import { onSkillCheck } from "./onSkillCheck.js";
 
@@ -11,5 +12,6 @@ export const fiendTriggers = {
     [onBloodied.name]: onBloodied,
     [onConcentration.name]: onConcentration,
     [onLongRest.name]: onLongRest,
+    [onShortRest.name]: onShortRest,
     [onUnconscious.name]: onUnconscious
 }

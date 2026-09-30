@@ -77,6 +77,34 @@ quench.registerBatch(
                     "giftOfUnfetteredGlory"
                 ])
             })
+
+            it("marks which gifts have a signed contract and can be gained", function ()
+            {
+                const viewModel = createFiendGiftOfDamnationViewModel({
+                    actor: {
+                        effects: [],
+                        flags: {
+                            transformations: {
+                                fiendContracts: {
+                                    signed: ["giftOfProdigiousTalent"],
+                                    pendingContract: false,
+                                    switchAvailable: true
+                                }
+                            }
+                        }
+                    },
+                    stage: 1
+                })
+
+                const byId = Object.fromEntries(
+                    viewModel.options.map(option => [option.value, option])
+                )
+
+                expect(byId.giftOfProdigiousTalent.signed).to.equal(true)
+                expect(byId.giftOfProdigiousTalent.allowed).to.equal(true)
+                expect(byId.giftOfJoyousLife.signed).to.equal(false)
+                expect(byId.giftOfJoyousLife.allowed).to.equal(false)
+            })
         })
 
         describe("FiendGiftOfDamnationDialog", function ()

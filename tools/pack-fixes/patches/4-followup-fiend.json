@@ -1,0 +1,15 @@
+[
+    {
+        "id": "4-followup-fiend-daemonic-brand-attack-vulnerability-first-attack-advantage",
+        "pack": "gh-transformations",
+        "key": "!items.effects!WEFrREhcN84F6ehL.b7cflkfAKqLxGjDG",
+        "op": "arrayAdd",
+        "path": "changes",
+        "value": {
+            "key": "flags.midi-qol.grants.advantage.attack.all",
+            "mode": 0,
+            "value": "!combat || !combat.started || workflow?.targets?.first()?.actor?.flags?.transformations?.daemonicBrand?.attackedTurn !== (combat.id + '.' + combat.round + '.' + combat.turn)",
+            "priority": 20
+        }
+    }
+]

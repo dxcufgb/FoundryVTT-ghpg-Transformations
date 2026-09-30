@@ -1,7 +1,9 @@
-import { Vampire } from "../../../../domain/transformation/subclasses/vampire/Vampire.js"
+import { REGENERATION_RADIANT_EFFECT_NAME, REGENERATION_RADIANT_FLAG_KEY, Vampire } from "../../../../domain/transformation/subclasses/vampire/Vampire.js"
 
 const SANGROMANCY_ITEM_UUID =
     "Compendium.transformations.gh-transformations.Item.qmepd5HkL0LpxOJv"
+const REGENERATION_ITEM_UUID =
+    "Compendium.transformations.gh-transformations.Item.TKHTXSYMDDTYBVWW"
 
 quench.registerBatch(
     "transformations.subClasses.vampire.grantedItemRolls",
@@ -156,8 +158,315 @@ quench.registerBatch(
                 }
             })
         })
+
+        describe("Vampire Regeneration Radiant suppression", function ()
+        {
+            it("marks Regeneration suppressed when Radiant damage is taken on another combatant's turn", async function ()
+            {
+                const actor = createRegenerationActor()
+                const combatEnvironment = installCombatEnvironment({
+                    actor,
+                    ownTurn: false
+                })
+
+                try {
+                    await Vampire.onPreCalculateDamage({
+                        actor,
+                        target: actor,
+                        damage: 6,
+                        details: {},
+                        damageType: "radiant",
+                        appliedDamage: 6
+                    })
+
+                    expect(actor.createdEffects).to.have.length(1)
+                    const [effect] = actor.createdEffects
+                    expect(effect.name).to.equal(REGENERATION_RADIANT_EFFECT_NAME)
+                    expect(effect.changes[0].key).to.equal(REGENERATION_RADIANT_FLAG_KEY)
+                    expect(effect.changes[0].value).to.equal("1")
+                    expect(effect.flags.dae.specialDuration).to.include("turnEnd")
+                    expect(effect.flags.dae.specialDuration).to.include("combatEnd")
+                    expect(effect.duration.startRound).to.equal(2)
+                    expect(effect.duration.startTurn).to.equal(0)
+                } finally {
+                    combatEnvironment.restore()
+                }
+            })
+
+            it("detects Radiant in a mixed-type hit from the applied damage types", async function ()
+            {
+                const actor = createRegenerationActor()
+                const combatEnvironment = installCombatEnvironment({
+                    actor,
+                    ownTurn: false
+                })
+
+                try {
+                    await Vampire.onPreCalculateDamage({
+                        actor,
+                        target: actor,
+                        damage: 11,
+                        details: {},
+                        damageType: "slashing",
+                        appliedDamageTypes: ["slashing", "radiant"]
+                    })
+
+                    expect(actor.createdEffects).to.have.length(1)
+                } finally {
+                    combatEnvironment.restore()
+                }
+            })
+
+            it("falls back to the resolved damage type when no applied types are known", async function ()
+            {
+                const actor = createRegenerationActor()
+                const combatEnvironment = installCombatEnvironment({
+                    actor,
+                    ownTurn: false
+                })
+
+                try {
+                    await Vampire.onPreCalculateDamage({
+                        actor,
+                        target: actor,
+                        damage: 6,
+                        details: {},
+                        damageType: "radiant",
+                        appliedDamage: 6,
+                        appliedDamageTypes: []
+                    })
+
+                    expect(actor.createdEffects).to.have.length(1)
+                } finally {
+                    combatEnvironment.restore()
+                }
+            })
+
+            it("does not reject when the Radiant marker cannot be created", async function ()
+            {
+                const actor = createRegenerationActor()
+                actor.createEmbeddedDocuments = async function ()
+                {
+                    throw new Error("no permission")
+                }
+                const combatEnvironment = installCombatEnvironment({
+                    actor,
+                    ownTurn: false
+                })
+
+                try {
+                    await Vampire.onPreCalculateDamage({
+                        actor,
+                        target: actor,
+                        damage: 6,
+                        details: {},
+                        damageType: "radiant",
+                        appliedDamage: 6
+                    })
+                } finally {
+                    combatEnvironment.restore()
+                }
+            })
+
+            it("ignores Radiant damage taken during the vampire's own turn", async function ()
+            {
+                const actor = createRegenerationActor()
+                const combatEnvironment = installCombatEnvironment({
+                    actor,
+                    ownTurn: true
+                })
+
+                try {
+                    await Vampire.onPreCalculateDamage({
+                        actor,
+                        target: actor,
+                        damage: 6,
+                        details: {},
+                        damageType: "radiant",
+                        appliedDamage: 6
+                    })
+
+                    expect(actor.createdEffects).to.have.length(0)
+                } finally {
+                    combatEnvironment.restore()
+                }
+            })
+
+            it("ignores fully resisted Radiant damage and non-Radiant damage", async function ()
+            {
+                const actor = createRegenerationActor()
+                const combatEnvironment = installCombatEnvironment({
+                    actor,
+                    ownTurn: false
+                })
+
+                try {
+                    await Vampire.onPreCalculateDamage({
+                        actor,
+                        target: actor,
+                        damage: 0,
+                        details: {},
+                        damageType: "radiant",
+                        appliedDamage: 0
+                    })
+                    await Vampire.onPreCalculateDamage({
+                        actor,
+                        target: actor,
+                        damage: 6,
+                        details: {},
+                        damageType: "fire",
+                        appliedDamage: 6
+                    })
+
+                    expect(actor.createdEffects).to.have.length(0)
+                } finally {
+                    combatEnvironment.restore()
+                }
+            })
+
+            it("does nothing without Regeneration or when already suppressed", async function ()
+            {
+                const withoutRegeneration = createRegenerationActor({
+                    hasRegeneration: false
+                })
+                const alreadySuppressed = createRegenerationActor({
+                    effects: [{name: REGENERATION_RADIANT_EFFECT_NAME}]
+                })
+                const combatEnvironment = installCombatEnvironment({
+                    actor: withoutRegeneration,
+                    extraActors: [alreadySuppressed],
+                    ownTurn: false
+                })
+
+                try {
+                    for (const actor of [withoutRegeneration, alreadySuppressed]) {
+                        await Vampire.onPreCalculateDamage({
+                            actor,
+                            target: actor,
+                            damage: 6,
+                            details: {},
+                            damageType: "radiant",
+                            appliedDamage: 6
+                        })
+                    }
+
+                    expect(withoutRegeneration.createdEffects).to.have.length(0)
+                    expect(alreadySuppressed.createdEffects).to.have.length(0)
+                } finally {
+                    combatEnvironment.restore()
+                }
+            })
+
+            it("does nothing outside combat", async function ()
+            {
+                const actor = createRegenerationActor()
+                const combatEnvironment = installCombatEnvironment({
+                    actor,
+                    combat: null
+                })
+
+                try {
+                    await Vampire.onPreCalculateDamage({
+                        actor,
+                        target: actor,
+                        damage: 6,
+                        details: {},
+                        damageType: "radiant",
+                        appliedDamage: 6
+                    })
+
+                    expect(actor.createdEffects).to.have.length(0)
+                } finally {
+                    combatEnvironment.restore()
+                }
+            })
+        })
     }
 )
+
+let regenerationActorCounter = 0
+
+function createRegenerationActor({
+    hasRegeneration = true,
+    effects = []
+} = {})
+{
+    regenerationActorCounter += 1
+    const actor = createActor()
+    actor.id = `regeneration-actor-${regenerationActorCounter}`
+    actor.uuid = `Actor.${actor.id}`
+    actor.items = hasRegeneration
+        ? [
+            {
+                name: "Regeneration",
+                flags: {
+                    transformations: {
+                        sourceUuid: REGENERATION_ITEM_UUID
+                    }
+                }
+            }
+        ]
+        : []
+    actor.effects = [...effects]
+    actor.createdEffects = []
+    actor.createEmbeddedDocuments = async function (type, data)
+    {
+        if (type === "ActiveEffect") {
+            this.createdEffects.push(...data)
+            this.effects.push(...data)
+        }
+        return data
+    }
+
+    return actor
+}
+
+function installCombatEnvironment({
+    actor,
+    extraActors = [],
+    ownTurn = false,
+    combat = undefined
+} = {})
+{
+    const game = globalThis.game
+    const originalDescriptor = Object.getOwnPropertyDescriptor(game, "combat")
+    const combatants = [
+        {
+            id: "other-combatant",
+            actor: {uuid: "Actor.other"}
+        },
+        ...[actor, ...extraActors].map((combatActor, index) => ({
+            id: `vampire-combatant-${index}`,
+            actor: combatActor
+        }))
+    ]
+    const mockCombat = combat === undefined
+        ? {
+            started: true,
+            round: 2,
+            turn: 0,
+            combatants,
+            combatant: ownTurn ? combatants[1] : combatants[0]
+        }
+        : combat
+
+    Object.defineProperty(game, "combat", {
+        value: mockCombat,
+        configurable: true,
+        writable: true
+    })
+
+    return {
+        restore()
+        {
+            if (originalDescriptor) {
+                Object.defineProperty(game, "combat", originalDescriptor)
+            } else {
+                delete game.combat
+            }
+        }
+    }
+}
 
 function createActor({
     sangromancyHitDieMax = null

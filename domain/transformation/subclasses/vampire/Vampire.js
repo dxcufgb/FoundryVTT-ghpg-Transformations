@@ -33,6 +33,19 @@ const FANGED_BITE_NECROTIC_SAVE_3D8_OVERRIDE_FORMULA = "3d8"
 const FZEG_CLAW_BASE_DAMAGE_FORMULA = "1d8"
 const FZEG_CLAW_MIDI_ATTACK_3D6_OVERRIDE_FORMULA = "3d6"
 const TRUE_APPEARANCE_SAVE_FLAG_KEY = "saveItemUuid"
+const REGENERATION_UUID =
+          "Compendium.transformations.gh-transformations.Item.TKHTXSYMDDTYBVWW"
+const REGENERATION_EFFECT_NAME = "Regeneration"
+// Regeneration has no effect if the vampire took Radiant damage since the end
+// of its last turn. The Regeneration OverTime applyCondition skips the heal
+// while this flag is set; the marker effect that sets it expires at the end of
+// the vampire's next turn (or when combat ends).
+export const REGENERATION_RADIANT_FLAG_KEY =
+          "flags.transformations.vampire.radiantSinceLastTurn"
+export const REGENERATION_RADIANT_EFFECT_NAME =
+          "Regeneration Suppressed (Radiant)"
+const REGENERATION_RADIANT_EFFECT_ICON =
+          "modules/transformations/Icons/Transformations/Vampire/Regeneration.png"
 const TRUE_APPEARANCE_MANUAL_REVEAL_ACTIVITY_NAMES_NORMALIZED =
           new Set(
               TRUE_APPEARANCE_MANUAL_REVEAL_ACTIVITY_NAMES.map(name =>
@@ -354,9 +367,34 @@ export class Vampire extends Transformation
         actor,
         target,
         damage,
-        details
+        details,
+        damageType = null,
+        appliedDamage = null,
+        appliedDamageTypes = null,
+        activeEffectRepository = null,
+        logger = null
     } = {})
     {
+        if (this.tookRadiantDamage({
+            actor,
+            damage,
+            details,
+            damageType,
+            appliedDamage,
+            appliedDamageTypes
+        }))
+        {
+            // A failed marker (e.g. no permission on this client) must not
+            // block the True Appearance sunlight check below.
+            try {
+                await this.suppressRegenerationForRadiantDamage(actor, {
+                    activeEffectRepository
+                })
+            } catch (error) {
+                logger?.warn?.("Vampire Regeneration Radiant marker failed", error)
+            }
+        }
+
         if (!this.isRadiantDamageFromSunlight({
             actor,
             target,
@@ -376,6 +414,121 @@ export class Vampire extends Transformation
                 details
             }
         )
+    }
+
+    static tookRadiantDamage({
+        actor,
+        damage,
+        details,
+        damageType = null,
+        appliedDamage = null,
+        appliedDamageTypes = null
+    } = {})
+    {
+        // Post-mitigation damage types of this instance, when the hook layer
+        // forwards them; this also catches Radiant in a mixed-type hit. An
+        // empty list (e.g. untyped numeric damage) falls back to the single
+        // resolved type below.
+        if (Array.isArray(appliedDamageTypes) && appliedDamageTypes.length > 0) {
+            return appliedDamageTypes.includes("radiant")
+        }
+
+        const type = damageType ?? this.resolveAppliedDamageType(actor, details)
+        if (type !== "radiant") return false
+
+        const amount = appliedDamage !== null && Number.isFinite(Number(appliedDamage))
+            ? Number(appliedDamage)
+            : Number(damage)
+
+        return Number.isFinite(amount) && amount > 0
+    }
+
+    static hasRegeneration(actor)
+    {
+        return this.actorHasItem(actor, REGENERATION_UUID) ||
+            this.hasNamedEffect(actor, REGENERATION_EFFECT_NAME)
+    }
+
+    static resolveCombatantForActor(combat, actor)
+    {
+        const actorUuid = actor?.uuid ?? null
+        if (!combat || !actorUuid) return null
+
+        const combatants = combat.combatants?.contents ??
+            Array.from(combat.combatants ?? [])
+
+        return combatants.find(combatant =>
+            combatant?.actor?.uuid === actorUuid
+        ) ?? null
+    }
+
+    static async suppressRegenerationForRadiantDamage(
+        actor,
+        {
+            activeEffectRepository = null
+        } = {}
+    )
+    {
+        if (!this.hasRegeneration(actor)) return false
+        if (this.hasNamedEffect(actor, REGENERATION_RADIANT_EFFECT_NAME)) {
+            return false
+        }
+
+        // Regeneration only fires at the start of a combat turn. Outside
+        // combat, or when the vampire is not in it, there is no turn to mark.
+        const combat = globalThis.game?.combat ?? null
+        if (!combat?.started) return false
+
+        const combatant = this.resolveCombatantForActor(combat, actor)
+        if (!combatant) return false
+
+        // Radiant damage taken during the vampire's own turn happened before
+        // the end of that turn, so it does not affect the next Regeneration.
+        if (combat.combatant?.id === combatant.id) return false
+
+        const effectData = {
+            actor,
+            name: REGENERATION_RADIANT_EFFECT_NAME,
+            description:
+                "<p>You took Radiant damage since the end of your last turn. " +
+                "Regeneration has no effect at the start of your next turn.</p>",
+            icon: REGENERATION_RADIANT_EFFECT_ICON,
+            changes: [
+                {
+                    key: REGENERATION_RADIANT_FLAG_KEY,
+                    mode: 5,
+                    value: "1",
+                    priority: 20
+                }
+            ],
+            duration: {
+                rounds: 1,
+                startTime: globalThis.game?.time?.worldTime ?? null,
+                startRound: combat.round ?? 0,
+                startTurn: combat.turn ?? 0
+            },
+            flags: {
+                dae: {
+                    specialDuration: ["turnEnd", "combatEnd"]
+                }
+            }
+        }
+
+        if (typeof activeEffectRepository?.create === "function") {
+            await activeEffectRepository.create(effectData)
+            return true
+        }
+
+        if (typeof actor?.createEmbeddedDocuments !== "function") return false
+
+        const {actor: _actor, icon, ...data} = effectData
+        await actor.createEmbeddedDocuments("ActiveEffect", [
+            {
+                ...data,
+                img: icon
+            }
+        ])
+        return true
     }
 
     static async revealTrueAppearance(actor, context = {})

@@ -1,0 +1,827 @@
+[
+  {
+    "id": "4-followup-shadowsteelGhoul-F134-claw-exhaustion-effect-create",
+    "pack": "gh-transformations",
+    "key": "!items.effects!bTbxbNpRk21fnpwa.sSgFuryClawExh01",
+    "op": "create",
+    "doc": {
+      "name": "Shadowsteel Fury: Exhaustion",
+      "img": "modules/transformations/Icons/Transformations/Shadowsteel%20Ghoul/Shadowsteel%20Fury.png",
+      "origin": "Compendium.transformations.gh-transformations.Item.bTbxbNpRk21fnpwa",
+      "transfer": false,
+      "_id": "sSgFuryClawExh01",
+      "type": "base",
+      "system": {},
+      "changes": [
+        {
+          "key": "macro.actorUpdate",
+          "mode": 0,
+          "value": "@targetUuid number '+1' system.attributes.exhaustion false",
+          "priority": 20
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null,
+        "combat": null,
+        "seconds": null,
+        "rounds": null,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null
+      },
+      "description": "<p>You failed the Constitution saving throw against Shadowsteel Fury and gain 1 Exhaustion level.</p>",
+      "tint": "#ffffff",
+      "statuses": [],
+      "sort": 0,
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "statuses": []
+          }
+        },
+        "dae": {
+          "enableCondition": "",
+          "disableCondition": "",
+          "stackable": "multi",
+          "showIcon": false,
+          "disableIncapacitated": false,
+          "selfTarget": false,
+          "selfTargetAlways": false,
+          "dontApply": false,
+          "durationExpression": "",
+          "macroRepeat": "none",
+          "specialDuration": [
+            "turnStart"
+          ]
+        },
+        "core": {
+          "overlay": false
+        },
+        "ActiveAuras": {
+          "isAura": false,
+          "aura": "All",
+          "nameOverride": "",
+          "radius": "",
+          "alignment": "",
+          "type": "",
+          "customCheck": "",
+          "ignoreSelf": false,
+          "height": false,
+          "hidden": false,
+          "displayTemp": false,
+          "hostile": false,
+          "onlyOnce": false,
+          "wallsBlock": "system",
+          "statuses": []
+        }
+      },
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "dnd5e",
+        "systemVersion": "5.2.5",
+        "createdTime": 1790806213974,
+        "modifiedTime": 1790806213974,
+        "lastModifiedBy": "4NBnmpBapEI7Q4zD"
+      }
+    }
+  },
+  {
+    "id": "4-followup-shadowsteelGhoul-F134-claw-exhaustion-effect-link",
+    "pack": "gh-transformations",
+    "key": "!items!bTbxbNpRk21fnpwa",
+    "op": "arrayAdd",
+    "path": "effects",
+    "value": "sSgFuryClawExh01"
+  },
+  {
+    "id": "4-followup-shadowsteelGhoul-F134-claw-fury-attack",
+    "pack": "gh-transformations",
+    "key": "!items!bTbxbNpRk21fnpwa",
+    "op": "set",
+    "path": "system.activities.sSgFuryClawAtk01",
+    "value": {
+      "_id": "sSgFuryClawAtk01",
+      "type": "attack",
+      "sort": 100000,
+      "activation": {
+        "type": "bonus",
+        "override": false,
+        "condition": "When you take the Attack action with this weapon"
+      },
+      "consumption": {
+        "scaling": {
+          "allowed": false
+        },
+        "spellSlot": true,
+        "targets": []
+      },
+      "description": {
+        "chatFlavor": "Shadowsteel Fury: when you take the Attack action with this weapon, you can use a Bonus Action to make one additional attack with it. On a hit, the target must succeed on a Constitution saving throw (DC 8 + the attack's ability modifier + your Transformation Stage) or gain 1 Exhaustion level."
+      },
+      "duration": {
+        "units": "inst",
+        "concentration": false,
+        "override": false
+      },
+      "effects": [],
+      "flags": {},
+      "range": {
+        "units": "self",
+        "override": false
+      },
+      "target": {
+        "template": {
+          "contiguous": false,
+          "units": "ft",
+          "type": ""
+        },
+        "affects": {
+          "choice": false,
+          "type": "creature",
+          "count": "1",
+          "special": ""
+        },
+        "override": false,
+        "prompt": false
+      },
+      "uses": {
+        "spent": 0,
+        "recovery": [],
+        "max": ""
+      },
+      "visibility": {
+        "level": {
+          "min": null,
+          "max": null
+        },
+        "requireAttunement": false,
+        "requireIdentification": false,
+        "requireMagic": false,
+        "identifier": ""
+      },
+      "attack": {
+        "critical": {
+          "threshold": null
+        },
+        "flat": false,
+        "type": {
+          "value": "",
+          "classification": ""
+        },
+        "ability": "",
+        "bonus": ""
+      },
+      "damage": {
+        "critical": {
+          "bonus": ""
+        },
+        "includeBase": true,
+        "parts": []
+      },
+      "useConditionText": "items.some(i => i.identifier === \"shadowsteel-fury\")",
+      "useConditionReason": "Requires the Shadowsteel Fury boon.",
+      "effectConditionText": "",
+      "macroData": {
+        "name": "",
+        "command": ""
+      },
+      "ignoreTraits": {
+        "idi": false,
+        "idr": false,
+        "idv": false,
+        "ida": false,
+        "idm": false
+      },
+      "midiProperties": {
+        "ignoreTraits": [],
+        "triggeredActivityId": "none",
+        "triggeredActivityConditionText": "",
+        "triggeredActivityTargets": "targets",
+        "triggeredActivityRollAs": "self",
+        "triggeredActivityConsume": true,
+        "triggeredActivityConfigure": true,
+        "autoConsume": false,
+        "forceConsumeDialog": "default",
+        "forceRollDialog": "default",
+        "forceDamageDialog": "default",
+        "confirmTargets": "default",
+        "autoTargetType": "any",
+        "autoTargetAction": "default",
+        "automationOnly": false,
+        "otherActivityCompatible": true,
+        "otherActivityAsParentType": true,
+        "identifier": "shadowsteel-fury-attack",
+        "displayActivityName": false,
+        "rollMode": "default",
+        "chooseEffects": false,
+        "toggleEffect": false,
+        "ignoreFullCover": false,
+        "removeChatButtons": "default",
+        "magicEffect": false,
+        "magicDamage": false,
+        "noConcentrationCheck": false,
+        "skipConcentrationCheck": false,
+        "autoCEEffects": "default"
+      },
+      "isOverTimeFlag": false,
+      "overTimeProperties": {
+        "saveRemoves": true,
+        "rollAs": "target",
+        "preRemoveConditionText": "",
+        "postRemoveConditionText": ""
+      },
+      "otherActivityId": "shadowsteel-fury-save",
+      "otherActivityAsParentType": false,
+      "attackMode": "oneHanded",
+      "ammunition": "",
+      "otherActivityUuid": "",
+      "attackRollPerTarget": "default",
+      "fumbleThreshold": 1,
+      "name": "Shadowsteel Fury Attack",
+      "img": ""
+    }
+  },
+  {
+    "id": "4-followup-shadowsteelGhoul-F134-claw-fury-save",
+    "pack": "gh-transformations",
+    "key": "!items!bTbxbNpRk21fnpwa",
+    "op": "set",
+    "path": "system.activities.sSgFuryClawSav01",
+    "value": {
+      "type": "save",
+      "_id": "sSgFuryClawSav01",
+      "sort": 100001,
+      "activation": {
+        "type": "special",
+        "override": false,
+        "condition": ""
+      },
+      "consumption": {
+        "scaling": {
+          "allowed": false
+        },
+        "spellSlot": true,
+        "targets": []
+      },
+      "description": {
+        "chatFlavor": "Shadowsteel Fury: the target must succeed on a Constitution saving throw or gain 1 Exhaustion level. The DC is 8 plus the ability modifier used in the attack plus your Transformation Stage."
+      },
+      "duration": {
+        "units": "inst",
+        "concentration": false,
+        "override": false
+      },
+      "effects": [
+        {
+          "_id": "sSgFuryClawExh01",
+          "onSave": false,
+          "level": {
+            "min": null,
+            "max": null
+          }
+        }
+      ],
+      "flags": {},
+      "range": {
+        "units": "self",
+        "override": false
+      },
+      "target": {
+        "template": {
+          "contiguous": false,
+          "units": "ft",
+          "type": ""
+        },
+        "affects": {
+          "choice": false,
+          "type": "creature",
+          "count": "1",
+          "special": ""
+        },
+        "override": false,
+        "prompt": false
+      },
+      "uses": {
+        "spent": 0,
+        "recovery": [],
+        "max": ""
+      },
+      "visibility": {
+        "level": {
+          "min": null,
+          "max": null
+        },
+        "requireAttunement": false,
+        "requireIdentification": false,
+        "requireMagic": false,
+        "identifier": ""
+      },
+      "damage": {
+        "onSave": "none",
+        "critical": {
+          "allow": false
+        },
+        "parts": []
+      },
+      "save": {
+        "ability": [
+          "con"
+        ],
+        "dc": {
+          "calculation": "",
+          "formula": "8 + max(@abilities.str.mod, @abilities.dex.mod) + @flags.transformations.stage"
+        }
+      },
+      "useConditionText": "",
+      "useConditionReason": "",
+      "effectConditionText": "",
+      "macroData": {
+        "name": "",
+        "command": ""
+      },
+      "ignoreTraits": {
+        "idi": false,
+        "idr": false,
+        "idv": false,
+        "ida": false,
+        "idm": false
+      },
+      "midiProperties": {
+        "ignoreTraits": [],
+        "triggeredActivityId": "none",
+        "triggeredActivityConditionText": "",
+        "triggeredActivityTargets": "targets",
+        "triggeredActivityRollAs": "self",
+        "triggeredActivityConsume": true,
+        "triggeredActivityConfigure": true,
+        "autoConsume": true,
+        "forceConsumeDialog": "default",
+        "forceRollDialog": "default",
+        "forceDamageDialog": "default",
+        "confirmTargets": "default",
+        "autoTargetType": "any",
+        "autoTargetAction": "default",
+        "automationOnly": true,
+        "otherActivityCompatible": false,
+        "otherActivityAsParentType": true,
+        "identifier": "shadowsteel-fury-save",
+        "displayActivityName": false,
+        "rollMode": "default",
+        "chooseEffects": false,
+        "toggleEffect": false,
+        "ignoreFullCover": false,
+        "removeChatButtons": "default",
+        "magicEffect": false,
+        "magicDamage": false,
+        "noConcentrationCheck": false,
+        "skipConcentrationCheck": false,
+        "autoCEEffects": "default"
+      },
+      "isOverTimeFlag": false,
+      "overTimeProperties": {
+        "saveRemoves": true,
+        "rollAs": "target",
+        "preRemoveConditionText": "",
+        "postRemoveConditionText": ""
+      },
+      "otherActivityId": "",
+      "otherActivityAsParentType": true,
+      "friendlySave": "default",
+      "name": "Shadowsteel Fury Save",
+      "img": ""
+    }
+  },
+  {
+    "id": "4-followup-shadowsteelGhoul-F134-weapon-exhaustion-effect-create",
+    "pack": "gh-transformations",
+    "key": "!items.effects!Wzrt24WLkhcY77sr.sSgFuryWpnExh001",
+    "op": "create",
+    "doc": {
+      "name": "Shadowsteel Fury: Exhaustion",
+      "img": "modules/transformations/Icons/Transformations/Shadowsteel%20Ghoul/Shadowsteel%20Fury.png",
+      "origin": "Compendium.transformations.gh-transformations.Item.Wzrt24WLkhcY77sr",
+      "transfer": false,
+      "_id": "sSgFuryWpnExh001",
+      "type": "base",
+      "system": {},
+      "changes": [
+        {
+          "key": "macro.actorUpdate",
+          "mode": 0,
+          "value": "@targetUuid number '+1' system.attributes.exhaustion false",
+          "priority": 20
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null,
+        "combat": null,
+        "seconds": null,
+        "rounds": null,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null
+      },
+      "description": "<p>You failed the Constitution saving throw against Shadowsteel Fury and gain 1 Exhaustion level.</p>",
+      "tint": "#ffffff",
+      "statuses": [],
+      "sort": 0,
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "statuses": []
+          }
+        },
+        "dae": {
+          "enableCondition": "",
+          "disableCondition": "",
+          "stackable": "multi",
+          "showIcon": false,
+          "disableIncapacitated": false,
+          "selfTarget": false,
+          "selfTargetAlways": false,
+          "dontApply": false,
+          "durationExpression": "",
+          "macroRepeat": "none",
+          "specialDuration": [
+            "turnStart"
+          ]
+        },
+        "core": {
+          "overlay": false
+        },
+        "ActiveAuras": {
+          "isAura": false,
+          "aura": "All",
+          "nameOverride": "",
+          "radius": "",
+          "alignment": "",
+          "type": "",
+          "customCheck": "",
+          "ignoreSelf": false,
+          "height": false,
+          "hidden": false,
+          "displayTemp": false,
+          "hostile": false,
+          "onlyOnce": false,
+          "wallsBlock": "system",
+          "statuses": []
+        }
+      },
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "dnd5e",
+        "systemVersion": "5.2.5",
+        "createdTime": 1790806213974,
+        "modifiedTime": 1790806213974,
+        "lastModifiedBy": "4NBnmpBapEI7Q4zD"
+      }
+    }
+  },
+  {
+    "id": "4-followup-shadowsteelGhoul-F134-weapon-exhaustion-effect-link",
+    "pack": "gh-transformations",
+    "key": "!items!Wzrt24WLkhcY77sr",
+    "op": "arrayAdd",
+    "path": "effects",
+    "value": "sSgFuryWpnExh001"
+  },
+  {
+    "id": "4-followup-shadowsteelGhoul-F134-weapon-fury-attack",
+    "pack": "gh-transformations",
+    "key": "!items!Wzrt24WLkhcY77sr",
+    "op": "set",
+    "path": "system.activities.sSgFuryWpnAtk001",
+    "value": {
+      "_id": "sSgFuryWpnAtk001",
+      "type": "attack",
+      "sort": 100000,
+      "activation": {
+        "type": "bonus",
+        "override": false,
+        "condition": "When you take the Attack action with this weapon"
+      },
+      "consumption": {
+        "scaling": {
+          "allowed": false
+        },
+        "spellSlot": true,
+        "targets": []
+      },
+      "description": {
+        "chatFlavor": "Shadowsteel Fury: when you take the Attack action with this weapon, you can use a Bonus Action to make one additional attack with it. On a hit, the target must succeed on a Constitution saving throw (DC 8 + the attack's ability modifier + your Transformation Stage) or gain 1 Exhaustion level."
+      },
+      "duration": {
+        "units": "inst",
+        "concentration": false,
+        "override": false
+      },
+      "effects": [],
+      "flags": {},
+      "range": {
+        "units": "self",
+        "override": false
+      },
+      "target": {
+        "template": {
+          "contiguous": false,
+          "units": "ft",
+          "type": ""
+        },
+        "affects": {
+          "choice": false,
+          "type": "creature",
+          "count": "1",
+          "special": ""
+        },
+        "override": false,
+        "prompt": false
+      },
+      "uses": {
+        "spent": 0,
+        "recovery": [],
+        "max": ""
+      },
+      "visibility": {
+        "level": {
+          "min": null,
+          "max": null
+        },
+        "requireAttunement": false,
+        "requireIdentification": false,
+        "requireMagic": false,
+        "identifier": ""
+      },
+      "attack": {
+        "critical": {
+          "threshold": null
+        },
+        "flat": false,
+        "type": {
+          "value": "",
+          "classification": ""
+        },
+        "ability": "",
+        "bonus": ""
+      },
+      "damage": {
+        "critical": {
+          "bonus": ""
+        },
+        "includeBase": true,
+        "parts": []
+      },
+      "useConditionText": "items.some(i => i.identifier === \"shadowsteel-fury\")",
+      "useConditionReason": "Requires the Shadowsteel Fury boon.",
+      "effectConditionText": "",
+      "macroData": {
+        "name": "",
+        "command": ""
+      },
+      "ignoreTraits": {
+        "idi": false,
+        "idr": false,
+        "idv": false,
+        "ida": false,
+        "idm": false
+      },
+      "midiProperties": {
+        "ignoreTraits": [],
+        "triggeredActivityId": "none",
+        "triggeredActivityConditionText": "",
+        "triggeredActivityTargets": "targets",
+        "triggeredActivityRollAs": "self",
+        "triggeredActivityConsume": true,
+        "triggeredActivityConfigure": true,
+        "autoConsume": false,
+        "forceConsumeDialog": "default",
+        "forceRollDialog": "default",
+        "forceDamageDialog": "default",
+        "confirmTargets": "default",
+        "autoTargetType": "any",
+        "autoTargetAction": "default",
+        "automationOnly": false,
+        "otherActivityCompatible": true,
+        "otherActivityAsParentType": true,
+        "identifier": "shadowsteel-fury-attack",
+        "displayActivityName": false,
+        "rollMode": "default",
+        "chooseEffects": false,
+        "toggleEffect": false,
+        "ignoreFullCover": false,
+        "removeChatButtons": "default",
+        "magicEffect": false,
+        "magicDamage": false,
+        "noConcentrationCheck": false,
+        "skipConcentrationCheck": false,
+        "autoCEEffects": "default"
+      },
+      "isOverTimeFlag": false,
+      "overTimeProperties": {
+        "saveRemoves": true,
+        "rollAs": "target",
+        "preRemoveConditionText": "",
+        "postRemoveConditionText": ""
+      },
+      "otherActivityId": "shadowsteel-fury-save",
+      "otherActivityAsParentType": false,
+      "attackMode": "",
+      "ammunition": "",
+      "otherActivityUuid": "",
+      "attackRollPerTarget": "default",
+      "fumbleThreshold": 1,
+      "name": "Shadowsteel Fury Attack",
+      "img": ""
+    }
+  },
+  {
+    "id": "4-followup-shadowsteelGhoul-F134-weapon-fury-save",
+    "pack": "gh-transformations",
+    "key": "!items!Wzrt24WLkhcY77sr",
+    "op": "set",
+    "path": "system.activities.sSgFuryWpnSav001",
+    "value": {
+      "type": "save",
+      "_id": "sSgFuryWpnSav001",
+      "sort": 100001,
+      "activation": {
+        "type": "special",
+        "override": false,
+        "condition": ""
+      },
+      "consumption": {
+        "scaling": {
+          "allowed": false
+        },
+        "spellSlot": true,
+        "targets": []
+      },
+      "description": {
+        "chatFlavor": "Shadowsteel Fury: the target must succeed on a Constitution saving throw or gain 1 Exhaustion level. The DC is 8 plus the ability modifier used in the attack plus your Transformation Stage."
+      },
+      "duration": {
+        "units": "inst",
+        "concentration": false,
+        "override": false
+      },
+      "effects": [
+        {
+          "_id": "sSgFuryWpnExh001",
+          "onSave": false,
+          "level": {
+            "min": null,
+            "max": null
+          }
+        }
+      ],
+      "flags": {},
+      "range": {
+        "units": "self",
+        "override": false
+      },
+      "target": {
+        "template": {
+          "contiguous": false,
+          "units": "ft",
+          "type": ""
+        },
+        "affects": {
+          "choice": false,
+          "type": "creature",
+          "count": "1",
+          "special": ""
+        },
+        "override": false,
+        "prompt": false
+      },
+      "uses": {
+        "spent": 0,
+        "recovery": [],
+        "max": ""
+      },
+      "visibility": {
+        "level": {
+          "min": null,
+          "max": null
+        },
+        "requireAttunement": false,
+        "requireIdentification": false,
+        "requireMagic": false,
+        "identifier": ""
+      },
+      "damage": {
+        "onSave": "none",
+        "critical": {
+          "allow": false
+        },
+        "parts": []
+      },
+      "save": {
+        "ability": [
+          "con"
+        ],
+        "dc": {
+          "calculation": "",
+          "formula": "8 + @abilities.str.mod + @flags.transformations.stage"
+        }
+      },
+      "useConditionText": "",
+      "useConditionReason": "",
+      "effectConditionText": "",
+      "macroData": {
+        "name": "",
+        "command": ""
+      },
+      "ignoreTraits": {
+        "idi": false,
+        "idr": false,
+        "idv": false,
+        "ida": false,
+        "idm": false
+      },
+      "midiProperties": {
+        "ignoreTraits": [],
+        "triggeredActivityId": "none",
+        "triggeredActivityConditionText": "",
+        "triggeredActivityTargets": "targets",
+        "triggeredActivityRollAs": "self",
+        "triggeredActivityConsume": true,
+        "triggeredActivityConfigure": true,
+        "autoConsume": true,
+        "forceConsumeDialog": "default",
+        "forceRollDialog": "default",
+        "forceDamageDialog": "default",
+        "confirmTargets": "default",
+        "autoTargetType": "any",
+        "autoTargetAction": "default",
+        "automationOnly": true,
+        "otherActivityCompatible": false,
+        "otherActivityAsParentType": true,
+        "identifier": "shadowsteel-fury-save",
+        "displayActivityName": false,
+        "rollMode": "default",
+        "chooseEffects": false,
+        "toggleEffect": false,
+        "ignoreFullCover": false,
+        "removeChatButtons": "default",
+        "magicEffect": false,
+        "magicDamage": false,
+        "noConcentrationCheck": false,
+        "skipConcentrationCheck": false,
+        "autoCEEffects": "default"
+      },
+      "isOverTimeFlag": false,
+      "overTimeProperties": {
+        "saveRemoves": true,
+        "rollAs": "target",
+        "preRemoveConditionText": "",
+        "postRemoveConditionText": ""
+      },
+      "otherActivityId": "",
+      "otherActivityAsParentType": true,
+      "friendlySave": "default",
+      "name": "Shadowsteel Fury Save",
+      "img": ""
+    }
+  },
+  {
+    "id": "4-followup-shadowsteelGhoul-F134-weapon-enchant-riders",
+    "pack": "gh-transformations",
+    "key": "!items!Wzrt24WLkhcY77sr",
+    "op": "set",
+    "path": "system.activities.2qpNoj1V9GRf0Ol1.effects.0.riders.activity",
+    "value": [
+      "sSgFuryWpnAtk001",
+      "sSgFuryWpnSav001"
+    ],
+    "expect": []
+  },
+  {
+    "id": "4-followup-shadowsteelGhoul-F134-weapon-rider-flags",
+    "pack": "gh-transformations",
+    "key": "!items!Wzrt24WLkhcY77sr",
+    "op": "set",
+    "path": "flags.dnd5e.riders.activity",
+    "value": [
+      "sSgFuryWpnAtk001",
+      "sSgFuryWpnSav001"
+    ],
+    "expect": []
+  },
+  {
+    "id": "4-followup-shadowsteelGhoul-F134-feat-save-automation-only",
+    "pack": "gh-transformations",
+    "key": "!items!ZQsAVpvhSsifyrTQ",
+    "op": "set",
+    "path": "system.activities.y4zaeEbYZLfjmGXs.midiProperties.automationOnly",
+    "value": true,
+    "expect": false
+  }
+]

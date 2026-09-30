@@ -1,0 +1,54 @@
+[
+    {
+        "id": "4-followup-lycanthrope-P1-F116-affinity-aura-type",
+        "pack": "gh-transformations",
+        "key": "!items.effects!IKbEWxQP01NILuq6.UsKfXPBTzOYFHgem",
+        "op": "set",
+        "path": "type",
+        "value": "auraeffects.aura",
+        "expect": "base"
+    },
+    {
+        "id": "4-followup-lycanthrope-P1-F116-affinity-aura-system",
+        "pack": "gh-transformations",
+        "key": "!items.effects!IKbEWxQP01NILuq6.UsKfXPBTzOYFHgem",
+        "op": "set",
+        "path": "system",
+        "value": {
+            "showRadius": true,
+            "applyToSelf": false,
+            "bestFormula": "",
+            "canStack": false,
+            "collisionTypes": ["move"],
+            "color": "#8f8f8f",
+            "combatOnly": false,
+            "disableOnHidden": true,
+            "distanceFormula": "20",
+            "disposition": 1,
+            "evaluatePreApply": false,
+            "opacity": 0.25,
+            "overrideName": "Lycanthrope Wisdom",
+            "script": "((sourceToken?.actor?.flags?.transformations?.lycanthrope?.hybridForm ?? 0) == 1) && !(sourceToken?.actor?.effects?.some(e => e.name === \"Feral Hybrid Form\") ?? false)",
+            "stashedChanges": [],
+            "stashedStatuses": []
+        },
+        "expect": {}
+    },
+    {
+        "id": "4-followup-lycanthrope-P1-F116-affinity-activeauras-off",
+        "pack": "gh-transformations",
+        "key": "!items.effects!IKbEWxQP01NILuq6.UsKfXPBTzOYFHgem",
+        "op": "set",
+        "path": "flags.ActiveAuras.isAura",
+        "value": false,
+        "expect": true
+    },
+    {
+        "id": "4-followup-lycanthrope-P1-F116-affinity-auraeffects-flag",
+        "pack": "gh-transformations",
+        "key": "!items.effects!IKbEWxQP01NILuq6.UsKfXPBTzOYFHgem",
+        "op": "set",
+        "path": "flags.auraeffects",
+        "value": { "originalType": "base" }
+    }
+]

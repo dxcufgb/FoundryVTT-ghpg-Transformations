@@ -1,0 +1,15 @@
+[
+    {
+        "id": "4-followup-seraph-P3-F76-holy-purge-macro-to-call",
+        "pack": "gh-transformations",
+        "key": "!items.effects!PZPpHME9RtoA1TXo.9LOsoW2CxaI2Sup8",
+        "op": "arrayAdd",
+        "path": "changes",
+        "value": {
+            "key": "flags.midi-qol.optional.holyPurge.macroToCall",
+            "mode": 0,
+            "value": "function.globalThis.TransformationsSeraphAuras?.onHolyPurgeUsed",
+            "priority": 20
+        }
+    }
+]

@@ -650,7 +650,7 @@ const REGENERATION_STAGE4_CHOICE = Object.freeze({
                 {
                     key: "flags.midi-qol.OverTime",
                     mode: 0,
-                    value: "turn=start, damageRoll=15, damageType=healing, applyCondition=@attributes.hp.value >= 1 && @attributes.hp.value < 60, label=Regeneration",
+                    value: "turn=start, damageRoll=15, damageType=healing, applyCondition=@attributes.hp.value >= 1 && @attributes.hp.value < 60 && @flags.transformations.vampire.radiantSinceLastTurn != 1, label=Regeneration",
                     priority: 20
                 }
             ]

@@ -624,36 +624,20 @@ export const lycanthropeTestDef = {
                     item.itemName = "Hybrid Form Affinity"
                     item.addEffect(effect => {
                         effect.name = "Hybrid Form Affinity"
-                        effect.changes = [
-                            {
-                                key: "system.abilities.wis.check.roll.mode",
-                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-                                value: 1
-                            },
-                            {
-                                key: "system.abilities.wis.save.roll.mode",
-                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-                                value: 1
+                        // Allies-only aura: auraeffects applies it to friendly tokens within
+                        // 20 ft while the lycanthrope is voluntarily in hybrid form, and
+                        // (applyToSelf false) stashes the changes out of the owner's own
+                        // prepared effect, so the lycanthrope gets no Wisdom advantage.
+                        effect.type = "auraeffects.aura"
+                        effect.distanceFormula = "20"
+                        effect.collisionTypes = ["move"]
+                        effect.changes.count = 0
+                        effect.flags.match.push({
+                            path: "ActiveAuras",
+                            expected: {
+                                isAura: false
                             }
-                        ]
-                        effect.flags = {
-                            "ActiveAuras": {
-                                "isAura": true,
-                                "aura": "Allies",
-                                "nameOverride": "",
-                                "radius": "20",
-                                "alignment": "",
-                                "type": "",
-                                "customCheck": "((auraEntity?.actor?.flags?.transformations?.lycanthrope?.hybridForm ?? 0) == 1) && !(auraEntity?.actor?.effects?.some(e => e.name === \"Feral Hybrid Form\") ?? false)",
-                                "ignoreSelf": true,
-                                "height": false,
-                                "hidden": false,
-                                "displayTemp": true,
-                                "hostile": false,
-                                "onlyOnce": false,
-                                "wallsBlock": "true"
-                            }
-                        }
+                        })
                     })
                 })
                 actorDto.addItem(item => {
