@@ -27,7 +27,7 @@ export class AberrantHorror extends Transformation
             roll.parts = roll.parts.map(part =>
             {
                 if (typeof part !== "string") return part
-                return part.replace("+ @abilities.con.mod", "").trim()
+                return part.replace(/\s*\+\s*@abilities\.con\.mod\b/g, " ").trim()
             })
         }
     }
