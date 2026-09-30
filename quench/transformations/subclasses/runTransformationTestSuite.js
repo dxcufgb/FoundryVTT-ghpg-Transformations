@@ -14,6 +14,7 @@ import { chooseDamageResistanceOnStage1 } from "../../helpers/fiend/chooseDamage
 import { createChatCardTestHelper, createDeterministicRollHelper } from "../../helpers/index.js";
 import { chooseSaveProficiencyOnStage1 } from "../../helpers/hag/chooseSaveProficiencyOnStage1.js";
 import { chooseTransformationChoiceByUuid } from "../../helpers/hag/chooseTransformationChoiceByUuid.js";
+import { chooseEldritchLimbsDamageType } from "../../helpers/aberrantHorror/chooseEldritchLimbsDamageType.js";
 
 export function runTransformationTestSuite({
     mochaFunctions,
@@ -38,6 +39,9 @@ export function runTransformationTestSuite({
         createChatCardTestHelper,
         createDeterministicRollHelper,
         createActorItemAndWait,
+        aberrantHorror: {
+            chooseEldritchLimbsDamageType
+        },
         fey: {
             chooseDamageResistanceOnLongRest
         },

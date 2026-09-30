@@ -963,13 +963,13 @@ export const AberrantHorrorTestDef = {
             },
 
             steps: [
-                async ({actor, helpers}) =>
+                async ({actor, runtime, helpers, waiters}) =>
                 {
-                    await helpers.applyItemActivityEffect({
+                    await helpers.aberrantHorror.chooseEldritchLimbsDamageType({
+                        runtime,
                         actor,
-                        itemName: "Aberrant Mutation",
-                        effectName: "Eldritch Limbs",
-                        macroTrigger: "on"
+                        waiters,
+                        choice: "piercing"
                     })
                 }
             ],
@@ -998,7 +998,7 @@ export const AberrantHorrorTestDef = {
 
                 actorDto.addItem(item =>
                 {
-                    item.itemName = "Eldritch Limbs"
+                    item.itemName = "Eldritch Limbs (Piercing)"
                     item.type = "weapon"
                 })
 
@@ -1021,13 +1021,13 @@ export const AberrantHorrorTestDef = {
             },
 
             steps: [
-                async ({actor, helpers}) =>
+                async ({actor, runtime, helpers, waiters}) =>
                 {
-                    await helpers.applyItemActivityEffect({
+                    await helpers.aberrantHorror.chooseEldritchLimbsDamageType({
+                        runtime,
                         actor,
-                        itemName: "Aberrant Mutation",
-                        effectName: "Eldritch Limbs",
-                        macroTrigger: "on"
+                        waiters,
+                        choice: "slashing"
                     })
                 }
             ],
@@ -1046,14 +1046,14 @@ export const AberrantHorrorTestDef = {
 
                 actorDto.addItem(item =>
                 {
-                    item.itemName = "Eldritch Limbs"
+                    item.itemName = "Eldritch Limbs (Slashing)"
                     item.type = "weapon"
                     item.addActivity(activity =>
                     {
                         activity.abilityTypes = ["str", "dex"]
                         activity.addDamagePart(damagePart =>
                         {
-                            damagePart.damageTypes = ["bludgeoning", "piercing", "slashing"]
+                            damagePart.damageTypes = ["slashing"]
                             damagePart.roll = "1d8"
                         })
                     })

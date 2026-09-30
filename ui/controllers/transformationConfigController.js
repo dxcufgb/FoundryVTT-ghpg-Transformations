@@ -29,6 +29,17 @@ export function createTransformationConfigController({
                     return
                 }
 
+                // Saving with the active transformation still selected must not re-apply it:
+                // that would reset the stage to 0 while keeping the finished stage.
+                if (transformationId === (actor.flags?.transformations?.type ?? "None")) {
+                    logger.debug(
+                        "TransformationConfigController: selection unchanged, nothing to apply",
+                        actorUuid,
+                        transformationId
+                    )
+                    return
+                }
+
                 if (transformationId === "None") {
                     return transformationService.clearTransformation(actor)
                 }

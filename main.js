@@ -46,6 +46,9 @@ import { registerGmWelcomeCard } from "./ui/chatCards/GmWelcomeCard.js"
 //hasRun set to false for dev function.
 let hasRun = false
 
+// Assigned on "ready"; the socketlib handlers resolve it lazily.
+let macros = null
+
 const logger = createLogger({
     prefix: "Transformations",
     level: 1
@@ -306,24 +309,12 @@ Hooks.once("ready", async () =>
 {
     console.log("Transformations | Ready")
 
-    const macros = bootstrapMacros({
+    macros = bootstrapMacros({
         infrastructure: Registry.infrastructure,
+        getDialogFactory: () => UiAccessor.dialogs,
         notify: ui.notifications,
         tracker: Registry.dependencies.utils.asyncTrackers.get("macros"),
         logger: Registry.logger
-    })
-
-    game.socket.on("module.transformations", async data =>
-    {
-        if (!game.user.isGM) return
-        if (data.type !== "EXECUTE_MACRO") return
-
-        if (!validateMacroPayload(data.payload, {logger})) {
-            logger.warn("Rejected invalid macro payload from socket", data)
-            return
-        }
-
-        await macros.executeMacro(data.payload)
     })
 
     createModuleApi({
@@ -379,6 +370,7 @@ Hooks.once("socketlib.ready", () =>
         createGMTransformationHandlers,
         getDialogFactory: () => UiAccessor.dialogs,
         getStageUpApprovalService: () => Registry.services.stageUpApprovalService,
+        getMacros: () => macros,
         logger: Registry.logger
     })
 

@@ -2,6 +2,8 @@
 import { validateMacroPayload } from "../infrastructure/macros/validateMacroPayload.js"
 import { withMacroExecutionLock } from "../infrastructure/macros/withMacroExecutionLock.js"
 
+export const EXECUTE_MACRO_EVENT = "executeMacro"
+
 export function createMacroExecutor({
     actorRepository,
     tokenRepository,
@@ -10,6 +12,7 @@ export function createMacroExecutor({
     activeEffectRepository,
     macroRegistry,
     macroContextFactory,
+    getDialogFactory = () => null,
     tracker,
     logger,
     notify
@@ -35,11 +38,21 @@ export function createMacroExecutor({
             {
                 logger.debug("macroWrapper called", payload)
 
-                if (socketGateway.canMutateLocally()) {
-                    return executeMacro(payload)
+                const routedPayload = {
+                    ...payload,
+                    triggeringUserId: payload?.triggeringUserId ?? game.user?.id ?? null
                 }
 
-                socketGateway.emit("EXECUTE_MACRO", payload)
+                if (socketGateway.canMutateLocally()) {
+                    return executeMacro(routedPayload)
+                }
+
+                if (!socketGateway.isGMOnline()) {
+                    notify.warn("A GM must be online for this transformation ability to take effect.")
+                    return
+                }
+
+                return socketGateway.executeAsGM(EXECUTE_MACRO_EVENT, routedPayload)
             })()
         )
     }
@@ -69,7 +82,7 @@ export function createMacroExecutor({
                     return
                 }
 
-                const { trigger, transformationType, action } = payload
+                const { trigger, transformationType, action, triggeringUserId = null } = payload
 
                 const entry = macroRegistry.get(transformationType)
                 if (!entry) {
@@ -81,6 +94,7 @@ export function createMacroExecutor({
                     logger,
                     activeEffectRepository,
                     itemRepository,
+                    getDialogFactory,
                     tracker
                 })
 
@@ -113,7 +127,8 @@ export function createMacroExecutor({
                             token,
                             trigger,
                             effect,
-                            context
+                            context,
+                            triggeringUserId
                         })
                     },
                     {

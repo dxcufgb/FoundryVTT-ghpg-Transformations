@@ -82,6 +82,8 @@ export function createActorRepository({
                 await actor.update({
                     "flags.transformations.type": transformationId,
                     "flags.transformations.stage": stage,
+                    // Keep finishedStage in step, otherwise the next stage up is treated as already applied.
+                    "flags.transformations.finishedStage": stage,
                     "flags.transformations.fallbackActorId": actor.id
                 })
             })()

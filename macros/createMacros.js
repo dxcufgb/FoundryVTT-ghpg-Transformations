@@ -4,6 +4,7 @@ import { createMacroContextFactory } from "../infrastructure/macros/createMacroC
 
 export function bootstrapMacros({
     infrastructure,
+    getDialogFactory,
     notify,
     tracker,
     logger
@@ -26,6 +27,7 @@ export function bootstrapMacros({
         itemRepository,
         macroRegistry,
         macroContextFactory,
+        getDialogFactory,
         tracker,
         logger,
         notify

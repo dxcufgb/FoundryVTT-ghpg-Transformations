@@ -35,7 +35,10 @@ export function createRollTableAction({
                     context: {
                         ...context,
                         currentRollTableEffectLowRange
-                    }
+                    },
+                    displayChat: action.data.displayChat ?? true,
+                    actor,
+                    authorUserId: context?.triggeringUserId ?? null
                 })
 
                 if (!outcome || !outcome.effectKey) return

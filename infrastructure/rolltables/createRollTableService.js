@@ -15,13 +15,19 @@ export function createRollTableService({
     async function roll({
         uuid,
         mode = "normal",
-        context = {}
+        context = {},
+        displayChat = true,
+        actor = null,
+        authorUserId = null
     })
     {
         logger.debug("createRollTableService.roll", {
             uuid,
             mode,
-            context
+            context,
+            displayChat,
+            actor,
+            authorUserId
         })
         if (!uuid) {
             logger.warn("rollTableService.roll called without uuid")
@@ -40,7 +46,15 @@ export function createRollTableService({
 
                 const testOveridenResult = globalThis.__TRANSFORMATIONS_TEST__ === true ? globalThis.___TransformationTestEnvironment___?.rollTableResult : undefined
 
-                const rollResult = await table.draw()
+                // Post the chat card ourselves: trigger actions usually run on the GM
+                // client, and table.draw() would otherwise author the message as the GM.
+                const rollResult = await table.draw({ displayChat: false })
+                if (displayChat && rollResult?.results?.length) {
+                    await table.toMessage(rollResult.results, {
+                        roll: rollResult.roll,
+                        messageData: buildMessageData({ actor, authorUserId })
+                    })
+                }
                 let result
                 if (testOveridenResult != undefined) {
                     result = table.results.find(r =>
@@ -85,6 +99,22 @@ export function createRollTableService({
         whenIdle: tracker.whenIdle,
         roll
     })
+
+    function buildMessageData({ actor, authorUserId })
+    {
+        logger.debug("createRollTableService.buildMessageData", { actor, authorUserId })
+        const messageData = {}
+
+        if (typeof authorUserId === "string" && game.users?.get(authorUserId)) {
+            messageData.author = authorUserId
+        }
+
+        if (actor) {
+            messageData.speaker = ChatMessage.implementation.getSpeaker({ actor })
+        }
+
+        return messageData
+    }
 
     function passesMode(outcome, mode, context)
     {

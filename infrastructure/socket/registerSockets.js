@@ -2,6 +2,8 @@ import {
     CANCEL_STAGE_UP_APPROVAL_EVENT,
     REQUEST_STAGE_UP_APPROVAL_EVENT
 } from "../../services/transformations/createStageUpApprovalService.js"
+import { EXECUTE_MACRO_EVENT } from "../../macros/createMacroExecutor.js"
+import { validateMacroPayload } from "../macros/validateMacroPayload.js"
 
 export function registerSockets({
     socketGateway,
@@ -9,6 +11,7 @@ export function registerSockets({
     createGMTransformationHandlers,
     getDialogFactory,
     getStageUpApprovalService,
+    getMacros,
     logger
 })
 {
@@ -52,6 +55,27 @@ export function registerSockets({
     socketGateway.register(
         "applyTriggerActions",
         handlers.applyTriggerActions
+    )
+
+    socketGateway.register(
+        EXECUTE_MACRO_EVENT,
+        async payload =>
+        {
+            logger.debug("registerSockets.executeMacro", {payload})
+
+            if (!validateMacroPayload(payload, {logger})) {
+                logger.warn("Rejected invalid macro payload from socket", payload)
+                return false
+            }
+
+            const macros = getMacros?.()
+            if (!macros) {
+                logger.error("executeMacro requested before macros were bootstrapped", {payload})
+                return false
+            }
+
+            return macros.executeMacro(payload)
+        }
     )
 
     socketGateway.register(
