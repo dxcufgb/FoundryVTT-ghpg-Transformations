@@ -8,7 +8,7 @@ export class GiftOfProdigiousTalent
     static stage = 1
     static description = "Choose two Skills. Gain Expertise in the chosen skills. \n\n If you roll a 1 or 2 on an Ability Check using one of the chosen skills, you immediately lose half your maximum number of Hit Point Dice, rounded down.You do not regain Hit Point Dice lost this way until you finish two Long Rests."
 
-    static async apply({actor, actorRepository, itemRepository, advancementChoiceHandler}) {
+    static async apply({actor, actorRepository, itemRepository, advancementChoiceHandler, replacedGift = false}) {
         const sourceItem = this.itemUuid
             ? await fromUuid(this.itemUuid)
             : null
@@ -34,6 +34,7 @@ export class GiftOfProdigiousTalent
 
         return applyGiftOfDamnation({
             actor,
+            replacedGift,
             giftClass: this,
             itemRepository,
             actorRepository,

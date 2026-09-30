@@ -214,6 +214,7 @@ Hooks.once("setup", async () =>
     registerActorPreUpdateHooks({
         actorRepository: infrastructure.actorRepository,
         transformationQueryService: services.transformationQueryService,
+        transformationRegistry: services.transformationRegistry,
         logger
     })
 
@@ -305,7 +306,6 @@ Hooks.once("setup", async () =>
     })
 
     Registry.logger.setLogLevel(game.settings.get(constants.MODULE_NAME, "loggerLevel"))
-    if (game.user.isGM) Registry.logger.setLogLevel(5)
 
     console.log("Transformations | Setup complete")
 })
@@ -342,15 +342,14 @@ Hooks.once("ready", async () =>
 
     const pack = game.packs.get("transformations.temp-items")
 
-    if (pack.locked) {
+    if (pack?.locked) {
         await pack.configure({locked: false})
     }
 
-    // TODO: enable the first startup condition once the welcome message is finished.
-    // if (!game.settings.get(constants.MODULE_NAME, "welcomeMessageShown")) {
-    await sendGmWelcomeMessage({game, logger: Registry.logger})
-    //     await game.settings.set(constants.MODULE_NAME, "welcomeMessageShown", true)
-    // }
+    if (!game.settings.get(constants.MODULE_NAME, "welcomeMessageShown")) {
+        await sendGmWelcomeMessage({game, logger: Registry.logger})
+        await game.settings.set(constants.MODULE_NAME, "welcomeMessageShown", true)
+    }
     //CONFIG.debug.hooks = true
     // CONFIG.debug.documents = true
     // CONFIG.debug.rollParsing = true
@@ -359,7 +358,7 @@ Hooks.once("ready", async () =>
 
 Hooks.on("renderCompendiumDirectory", (app, html) => {
     if (!game.user.isGM) {
-        html.querySelector(`[data-pack="transformations.temp-items"]`).remove()
+        html.querySelector(`[data-pack="transformations.temp-items"]`)?.remove()
     }
 })
 

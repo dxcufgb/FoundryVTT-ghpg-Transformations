@@ -673,12 +673,17 @@ export const HagTestDef = {
                         })
                         activity.target.affects.type = "creature"
                         activity.target.affects.count = 1
-                        activity.checkDc = 14 + 3
-                        activity.checkAbiliy = "cha"
+                        // Cha saving throw DC 14 + Stage, not an ability check
+                        activity.type = "save"
+                        activity.saveDc = 14 + 3
+                        activity.saveAbility = ["cha"]
                     })
                     item.addActivity(activity => {
                         activity.name = "Hag Charm Person"
-                        activity.activity = "bonus"
+                        // Spends a Hit Point Die to cast Charm Person as a Bonus Action
+                        activity.type = "cast"
+                        activity.activationType = "bonus"
+                        activity.spellUuid = "Compendium.transformations.gh-transformations.Item.Pzl5nFS0d3cPa916"
                     })
                 })
                 actorDto.addItem(item => {
@@ -1037,7 +1042,7 @@ export const HagTestDef = {
                         choice: {
                             id: "str",
                             label: "Strength",
-                            icon: "modules/transformations/Icons/abilities/Strength.svg",
+                            icon: "modules/transformations/Icons/Abilities/Strength.svg",
                             raw: "saves:str",
                             value: "str"
                         }
@@ -1118,7 +1123,7 @@ export const HagTestDef = {
                         choice: {
                             id: "str",
                             label: "Strength",
-                            icon: "modules/transformations/Icons/abilities/Strength.svg",
+                            icon: "modules/transformations/Icons/Abilities/Strength.svg",
                             raw: "saves:str",
                             value: "str"
                         }
@@ -1199,7 +1204,7 @@ export const HagTestDef = {
                         choice: {
                             id: "str",
                             label: "Strength",
-                            icon: "modules/transformations/Icons/abilities/Strength.svg",
+                            icon: "modules/transformations/Icons/Abilities/Strength.svg",
                             raw: "saves:str",
                             value: "str"
                         }
@@ -1307,7 +1312,7 @@ export const HagTestDef = {
                         choice: {
                             id: "str",
                             label: "Strength",
-                            icon: "modules/transformations/Icons/abilities/Strength.svg",
+                            icon: "modules/transformations/Icons/Abilities/Strength.svg",
                             raw: "saves:str",
                             value: "str"
                         }
@@ -1499,7 +1504,7 @@ export const HagTestDef = {
                         choice: {
                             id: "str",
                             label: "Strength",
-                            icon: "modules/transformations/Icons/abilities/Strength.svg",
+                            icon: "modules/transformations/Icons/Abilities/Strength.svg",
                             raw: "saves:str",
                             value: "str"
                         }
@@ -1696,7 +1701,7 @@ export const HagTestDef = {
                         choice: {
                             id: "str",
                             label: "Strength",
-                            icon: "modules/transformations/Icons/abilities/Strength.svg",
+                            icon: "modules/transformations/Icons/Abilities/Strength.svg",
                             raw: "saves:str",
                             value: "str"
                         }
@@ -1802,7 +1807,7 @@ export const HagTestDef = {
                         choice: {
                             id: "str",
                             label: "Strength",
-                            icon: "modules/transformations/Icons/abilities/Strength.svg",
+                            icon: "modules/transformations/Icons/Abilities/Strength.svg",
                             raw: "saves:str",
                             value: "str"
                         }

@@ -302,7 +302,16 @@ export function createItemRepository({
                     return null
                 }
 
-                const created = await createObjectOnActor(actor, source)
+                // Caller flags (removeOnLongRest, ...) live in the module scope,
+                // where the rest cleanup looks for them.
+                const flagOverrides = Object.fromEntries(
+                    Object.entries(flags ?? {}).map(([key, value]) =>
+                        [`flags.transformations.${key}`, value]
+                    )
+                )
+                const created = await createObjectOnActor(actor, source, "", {
+                    overrides: flagOverrides
+                })
 
                 logger?.trace?.(
                     "Transformation item added",

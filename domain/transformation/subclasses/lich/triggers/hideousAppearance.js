@@ -12,7 +12,13 @@ export const hideousAppearanceSaveVariables = [
     }
 ]
 
-export function createHideousAppearanceSaveActionGroup()
+export const HIDEOUS_APPEARANCE_TRIGGER_TEXT = {
+    bloodied: "When you become Bloodied",
+    concentration: "When you start concentrating on a spell",
+    unconscious: "When you gain the Unconscious condition"
+}
+
+export function createHideousAppearanceSaveActionGroup(triggerText = HIDEOUS_APPEARANCE_TRIGGER_TEXT.bloodied)
 {
     return {
         name: "hideous-appearance-save",
@@ -36,7 +42,7 @@ export function createHideousAppearanceSaveActionGroup()
                         img: "",
                         title: "",
                         subtitle: "",
-                        body: "When you become bloodied you need to roll a constitution saving throw. If you fail this save, your Horrific Appearance is revealed."
+                        body: `${triggerText} while hiding your true form, you need to roll a DC @transformationSaveDC Constitution saving throw. If you fail this save, your Hideous Appearance is revealed.`
                     }
                 }
             },

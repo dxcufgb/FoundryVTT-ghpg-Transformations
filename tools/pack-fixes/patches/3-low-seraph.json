@@ -1,0 +1,191 @@
+[
+    {
+        "id": "low-seraph-F77-protective-wings-reaction",
+        "pack": "gh-transformations",
+        "key": "!items!5MgmZYeNffq5C6f6",
+        "op": "set",
+        "path": "system.activities.pWrdRxn7Kq2mVb4T",
+        "value": {
+            "type": "utility",
+            "name": "Protective Wings",
+            "_id": "pWrdRxn7Kq2mVb4T",
+            "sort": 0,
+            "activation": {
+                "type": "reaction",
+                "override": false,
+                "condition": "You or an ally within 5 feet of you is targeted by a weapon attack while your Angelic Wings are manifested"
+            },
+            "consumption": {
+                "scaling": {
+                    "allowed": false
+                },
+                "spellSlot": true,
+                "targets": []
+            },
+            "description": {
+                "chatFlavor": "Impose Disadvantage on the triggering weapon attack. If it hits the ally, you take half the damage (rounded up) and the ally takes the other half."
+            },
+            "duration": {
+                "units": "inst",
+                "concentration": false,
+                "override": false
+            },
+            "effects": [],
+            "flags": {},
+            "range": {
+                "units": "ft",
+                "value": "5",
+                "override": false,
+                "special": ""
+            },
+            "target": {
+                "template": {
+                    "contiguous": false,
+                    "units": "ft",
+                    "type": ""
+                },
+                "affects": {
+                    "choice": false,
+                    "type": "creature",
+                    "count": "1"
+                },
+                "override": false,
+                "prompt": false
+            },
+            "uses": {
+                "spent": 0,
+                "recovery": [],
+                "max": ""
+            },
+            "visibility": {
+                "level": {
+                    "min": null,
+                    "max": null
+                },
+                "requireAttunement": false,
+                "requireIdentification": false,
+                "requireMagic": false,
+                "identifier": ""
+            },
+            "roll": {
+                "prompt": false,
+                "visible": false,
+                "name": "",
+                "formula": ""
+            },
+            "useConditionText": "reaction === \"preAttack\" && [\"mwak\", \"rwak\"].includes(workflow?.activity?.actionType) && target?.flags?.transformations?.seraph?.angelicWings == 1",
+            "useConditionReason": "Your Angelic Wings must be manifested.",
+            "effectConditionText": "",
+            "macroData": {
+                "name": "",
+                "command": ""
+            },
+            "ignoreTraits": {
+                "idi": false,
+                "idr": false,
+                "idv": false,
+                "ida": false,
+                "idm": false
+            },
+            "midiProperties": {
+                "ignoreTraits": [],
+                "triggeredActivityId": "none",
+                "triggeredActivityConditionText": "",
+                "triggeredActivityTargets": "targets",
+                "triggeredActivityRollAs": "self",
+                "autoConsume": true,
+                "forceConsumeDialog": "default",
+                "forceRollDialog": "default",
+                "forceDamageDialog": "default",
+                "confirmTargets": "default",
+                "autoTargetType": "any",
+                "autoTargetAction": "default",
+                "automationOnly": false,
+                "otherActivityCompatible": true,
+                "otherActivityAsParentType": true,
+                "identifier": "",
+                "displayActivityName": false,
+                "rollMode": "default",
+                "chooseEffects": false,
+                "toggleEffect": false,
+                "ignoreFullCover": false,
+                "removeChatButtons": "default",
+                "magicEffect": false,
+                "magicDamage": false,
+                "noConcentrationCheck": false,
+                "skipConcentrationCheck": false,
+                "autoCEEffects": "default"
+            },
+            "isOverTimeFlag": false,
+            "overTimeProperties": {
+                "saveRemoves": true,
+                "preRemoveConditionText": "",
+                "postRemoveConditionText": ""
+            },
+            "otherActivityId": "none",
+            "otherActivityAsParentType": true,
+            "img": ""
+        }
+    },
+    {
+        "id": "low-seraph-F77-grapple-adv-save-str",
+        "pack": "gh-transformations",
+        "key": "!items.effects!5MgmZYeNffq5C6f6.p3BH7CKgD67w2wYi",
+        "op": "arrayAdd",
+        "path": "changes",
+        "value": {
+            "key": "flags.midi-qol.advantage.save.str",
+            "mode": 0,
+            "value": "confirm(\"Protective Wings\", {content: \"Is this saving throw to avoid being Grappled?\", defaultYes: true})",
+            "priority": 20
+        }
+    },
+    {
+        "id": "low-seraph-F77-grapple-adv-save-dex",
+        "pack": "gh-transformations",
+        "key": "!items.effects!5MgmZYeNffq5C6f6.p3BH7CKgD67w2wYi",
+        "op": "arrayAdd",
+        "path": "changes",
+        "value": {
+            "key": "flags.midi-qol.advantage.save.dex",
+            "mode": 0,
+            "value": "confirm(\"Protective Wings\", {content: \"Is this saving throw to avoid being Grappled?\", defaultYes: true})",
+            "priority": 20
+        }
+    },
+    {
+        "id": "low-seraph-F77-grapple-adv-skill-ath",
+        "pack": "gh-transformations",
+        "key": "!items.effects!5MgmZYeNffq5C6f6.p3BH7CKgD67w2wYi",
+        "op": "arrayAdd",
+        "path": "changes",
+        "value": {
+            "key": "flags.midi-qol.advantage.skill.ath",
+            "mode": 0,
+            "value": "statuses?.grappled && confirm(\"Protective Wings\", {content: \"Is this check to escape a Grapple?\", defaultYes: true})",
+            "priority": 20
+        }
+    },
+    {
+        "id": "low-seraph-F77-grapple-adv-skill-acr",
+        "pack": "gh-transformations",
+        "key": "!items.effects!5MgmZYeNffq5C6f6.p3BH7CKgD67w2wYi",
+        "op": "arrayAdd",
+        "path": "changes",
+        "value": {
+            "key": "flags.midi-qol.advantage.skill.acr",
+            "mode": 0,
+            "value": "statuses?.grappled && confirm(\"Protective Wings\", {content: \"Is this check to escape a Grapple?\", defaultYes: true})",
+            "priority": 20
+        }
+    },
+    {
+        "id": "low-seraph-F77-effect-description",
+        "pack": "gh-transformations",
+        "key": "!items.effects!5MgmZYeNffq5C6f6.p3BH7CKgD67w2wYi",
+        "op": "set",
+        "path": "description",
+        "value": "<p>While your Angelic Wings are manifested: your Fly Speed is increased by 10 feet, and you have Advantage on saving throws or ability checks to avoid having the Grappled condition or to escape a Grapple (you are asked to confirm when the roll is grapple-related).</p>",
+        "expect": "<p>Your Fly Speed is increased by 10 feet.</p>"
+    }
+]

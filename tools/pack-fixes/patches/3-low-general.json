@@ -1,0 +1,108 @@
+[
+  {
+    "id": "3-low-general-F187-origin-6W4JqizsNFN16T5X-WGvzU2Ehlh9HYSov",
+    "pack": "gh-transformations",
+    "key": "!items.effects!6W4JqizsNFN16T5X.WGvzU2Ehlh9HYSov",
+    "op": "set",
+    "path": "origin",
+    "value": "Compendium.transformations.gh-transformations.Item.6W4JqizsNFN16T5X",
+    "expect": "Item.zuZIVrr5OnDP5ol3"
+  },
+  {
+    "id": "3-low-general-F187-origin-KjT5KJkSNDcrmQqr-WGvzU2Ehlh9HYSov",
+    "pack": "gh-transformations",
+    "key": "!items.effects!KjT5KJkSNDcrmQqr.WGvzU2Ehlh9HYSov",
+    "op": "set",
+    "path": "origin",
+    "value": "Compendium.transformations.gh-transformations.Item.KjT5KJkSNDcrmQqr",
+    "expect": "Item.zuZIVrr5OnDP5ol3"
+  },
+  {
+    "id": "3-low-general-F187-origin-bwyV8maZr7H0NHNi-WGvzU2Ehlh9HYSov",
+    "pack": "gh-transformations",
+    "key": "!items.effects!bwyV8maZr7H0NHNi.WGvzU2Ehlh9HYSov",
+    "op": "set",
+    "path": "origin",
+    "value": "Compendium.transformations.gh-transformations.Item.bwyV8maZr7H0NHNi",
+    "expect": "Item.zuZIVrr5OnDP5ol3"
+  },
+  {
+    "id": "3-low-general-F187-origin-fqCu1G3ZS91WHTw9-GnLJJWrvhECvnzLk",
+    "pack": "gh-transformations",
+    "key": "!items.effects!fqCu1G3ZS91WHTw9.GnLJJWrvhECvnzLk",
+    "op": "set",
+    "path": "origin",
+    "value": "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+    "expect": "Compendium.transformations.gh-transformations.Item.vrNGMfv2qOoLFHoP"
+  },
+  {
+    "id": "3-low-general-F187-origin-fqCu1G3ZS91WHTw9-JJeA5y9BWDJUL9eW",
+    "pack": "gh-transformations",
+    "key": "!items.effects!fqCu1G3ZS91WHTw9.JJeA5y9BWDJUL9eW",
+    "op": "set",
+    "path": "origin",
+    "value": "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+    "expect": "Actor.fuAVYEokEYXbIkJ1.Item.p6ftYuQjbMOuDg22"
+  },
+  {
+    "id": "3-low-general-F187-origin-fqCu1G3ZS91WHTw9-lTMi3v8l8IhJ5pgt",
+    "pack": "gh-transformations",
+    "key": "!items.effects!fqCu1G3ZS91WHTw9.lTMi3v8l8IhJ5pgt",
+    "op": "set",
+    "path": "origin",
+    "value": "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
+    "expect": "Actor.fuAVYEokEYXbIkJ1.Item.PTZcLzAX21ZGCinM"
+  },
+  {
+    "id": "3-low-general-F187-origin-isnJl7FKtG06YPAu-WGvzU2Ehlh9HYSov",
+    "pack": "gh-transformations",
+    "key": "!items.effects!isnJl7FKtG06YPAu.WGvzU2Ehlh9HYSov",
+    "op": "set",
+    "path": "origin",
+    "value": "Compendium.transformations.gh-transformations.Item.isnJl7FKtG06YPAu",
+    "expect": "Item.zuZIVrr5OnDP5ol3"
+  },
+  {
+    "id": "3-low-general-F187-origin-kCaxPcrf3l64RMrU-89dBQ2vTf1gdQzxN",
+    "pack": "gh-transformations",
+    "key": "!items.effects!kCaxPcrf3l64RMrU.89dBQ2vTf1gdQzxN",
+    "op": "set",
+    "path": "origin",
+    "value": "Compendium.transformations.gh-transformations.Item.kCaxPcrf3l64RMrU",
+    "expect": "Item.itLNLNGmzNCvFe2A"
+  },
+  {
+    "id": "3-low-general-F187-origin-uz5tgoO2cJUssjij-WGvzU2Ehlh9HYSov",
+    "pack": "gh-transformations",
+    "key": "!items.effects!uz5tgoO2cJUssjij.WGvzU2Ehlh9HYSov",
+    "op": "set",
+    "path": "origin",
+    "value": "Compendium.transformations.gh-transformations.Item.uz5tgoO2cJUssjij",
+    "expect": "Item.zuZIVrr5OnDP5ol3"
+  },
+  {
+    "id": "3-low-general-F187-stale-sourceid-fqCu1G3ZS91WHTw9",
+    "pack": "gh-transformations",
+    "key": "!items!fqCu1G3ZS91WHTw9",
+    "op": "unset",
+    "path": "flags.dnd5e.sourceId"
+  },
+  {
+    "id": "3-low-general-F188-inhuman-reflexes-effect-img",
+    "pack": "gh-transformations",
+    "key": "!items.effects!rviGB0iP3bPoH6dZ.8CBnOnEvZvdzwdX8",
+    "op": "set",
+    "path": "img",
+    "value": "modules/transformations/Icons/Transformations/Vampire/Inhuman%20Reflexes.png",
+    "expect": "modules/transformations/Icons/Transformations/Vampire/inhuman%20Reflexes.png"
+  },
+  {
+    "id": "3-low-general-F188-beguilers-charm-effect-img",
+    "pack": "gh-transformations",
+    "key": "!items.effects!zqHnVx3qp8v5MqM6.vGoSz5vgrX2vsQ9q",
+    "op": "set",
+    "path": "img",
+    "value": "modules/transformations/Icons/Transformations/Vampire/Beguilers%20Charm.png",
+    "expect": "modules/transformations/Icons/Transformations/Vampire/Beguiler%E2%80%99s%20Charm.png"
+  }
+]

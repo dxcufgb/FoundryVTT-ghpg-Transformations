@@ -50,9 +50,11 @@ export function createApplyFiendGiftOfDamnation({
                     ? 2
                     : 1
 
+                let replacedGift = false
                 if (existingEffects.length >= maxActiveEffects) {
                     if (maxActiveEffects === 1) {
                         await removeGiftEffects(actor, existingEffects)
+                        replacedGift = true
                     } else {
                         const effectIdToRemove =
                             await chooseGiftEffectToRemove(actor, existingEffects)
@@ -74,6 +76,7 @@ export function createApplyFiendGiftOfDamnation({
                         }
 
                         await removeGiftEffects(actor, [effectToRemove])
+                        replacedGift = true
                     }
                 }
 
@@ -85,7 +88,8 @@ export function createApplyFiendGiftOfDamnation({
                     actor,
                     actorRepository,
                     itemRepository,
-                    advancementChoiceHandler
+                    advancementChoiceHandler,
+                    replacedGift
                 })
             })()
         )

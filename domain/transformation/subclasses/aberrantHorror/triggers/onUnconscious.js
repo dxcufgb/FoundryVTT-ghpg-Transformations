@@ -32,7 +32,7 @@ export const onUnconscious = {
                         flavor: {
                             itemUuid: "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
                             subtitle: "Transformation Feature",
-                            body: "When you become bloodied you need to roll a DC @transformationSaveDC constitution saving throw. If you fail this save, your Horrific Appearance is revealed."
+                            body: "When you gain the Unconscious condition while hiding your true form, you need to roll a DC @transformationSaveDC constitution saving throw. If you fail this save, your Horrific Appearance is revealed."
                         }
                     }
                 },

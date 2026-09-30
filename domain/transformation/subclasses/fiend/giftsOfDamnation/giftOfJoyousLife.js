@@ -91,13 +91,14 @@ export class GiftOfJoyousLife
 
     }
 
-    static async apply({actor, itemRepository, actorRepository}) {
+    static async apply({actor, itemRepository, actorRepository, replacedGift = false}) {
         const sourceItem = this.itemUuid
             ? await fromUuid(this.itemUuid)
             : null
 
         return applyGiftOfDamnation({
             actor,
+            replacedGift,
             giftClass: this,
             itemRepository,
             actorRepository,

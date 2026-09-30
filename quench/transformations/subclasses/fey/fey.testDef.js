@@ -1888,6 +1888,7 @@ export const feyTestDef = {
                 {
                     globalThis.___TransformationTestEnvironment___.saveResult = 20
                     globalThis.___TransformationTestEnvironment___.saveRolled = false
+                    globalThis.___TransformationTestEnvironment___.weakendConstitutionStart = Date.now()
                 }
             ],
 
@@ -1904,6 +1905,13 @@ export const feyTestDef = {
             assertions: async ({actor, assert, validators}) =>
             {
                 assert.isTrue(globalThis.___TransformationTestEnvironment___.saveRolled)
+
+                const start = globalThis.___TransformationTestEnvironment___.weakendConstitutionStart
+                const exhaustionMessages = game.messages.contents.filter(m =>
+                    m.timestamp >= start &&
+                    String(m.content ?? "").includes("weakend constitution!")
+                )
+                assert.equal(exhaustionMessages.length, 0, "No exhaustion chat message on a successful save")
 
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.stats.exhaustion = 0

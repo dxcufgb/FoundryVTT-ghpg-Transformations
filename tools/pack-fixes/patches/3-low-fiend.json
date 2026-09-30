@@ -1,0 +1,118 @@
+[
+    {
+        "id": "3-low-fiend-halting-brand-half-walk",
+        "pack": "gh-transformations",
+        "key": "!items.effects!0npAmRAQjFWFpL6x.kmVZ3iEwidSt4mZ2",
+        "op": "arrayAdd",
+        "path": "changes",
+        "value": {
+            "key": "system.attributes.movement.walk",
+            "mode": 1,
+            "value": "0.5",
+            "priority": 60
+        }
+    },
+    {
+        "id": "3-low-fiend-halting-brand-half-burrow",
+        "pack": "gh-transformations",
+        "key": "!items.effects!0npAmRAQjFWFpL6x.kmVZ3iEwidSt4mZ2",
+        "op": "arrayAdd",
+        "path": "changes",
+        "value": {
+            "key": "system.attributes.movement.burrow",
+            "mode": 1,
+            "value": "0.5",
+            "priority": 60
+        }
+    },
+    {
+        "id": "3-low-fiend-halting-brand-half-climb",
+        "pack": "gh-transformations",
+        "key": "!items.effects!0npAmRAQjFWFpL6x.kmVZ3iEwidSt4mZ2",
+        "op": "arrayAdd",
+        "path": "changes",
+        "value": {
+            "key": "system.attributes.movement.climb",
+            "mode": 1,
+            "value": "0.5",
+            "priority": 60
+        }
+    },
+    {
+        "id": "3-low-fiend-halting-brand-half-fly",
+        "pack": "gh-transformations",
+        "key": "!items.effects!0npAmRAQjFWFpL6x.kmVZ3iEwidSt4mZ2",
+        "op": "arrayAdd",
+        "path": "changes",
+        "value": {
+            "key": "system.attributes.movement.fly",
+            "mode": 1,
+            "value": "0.5",
+            "priority": 60
+        }
+    },
+    {
+        "id": "3-low-fiend-halting-brand-half-swim",
+        "pack": "gh-transformations",
+        "key": "!items.effects!0npAmRAQjFWFpL6x.kmVZ3iEwidSt4mZ2",
+        "op": "arrayAdd",
+        "path": "changes",
+        "value": {
+            "key": "system.attributes.movement.swim",
+            "mode": 1,
+            "value": "0.5",
+            "priority": 60
+        }
+    },
+    {
+        "id": "3-low-fiend-overwhelming-brand-kJsmxs6NMpPX3ja9-activation-special",
+        "pack": "gh-transformations",
+        "key": "!items!0npAmRAQjFWFpL6x",
+        "op": "set",
+        "path": "system.activities.kJsmxs6NMpPX3ja9.activation.type",
+        "value": "special",
+        "expect": ""
+    },
+    {
+        "id": "3-low-fiend-overwhelming-brand-lbQAUu138Jdq3km9-activation-special",
+        "pack": "gh-transformations",
+        "key": "!items!0npAmRAQjFWFpL6x",
+        "op": "set",
+        "path": "system.activities.lbQAUu138Jdq3km9.activation.type",
+        "value": "special",
+        "expect": ""
+    },
+    {
+        "id": "3-low-fiend-abyssal-resistance-bypass-mode-add",
+        "pack": "gh-transformations",
+        "key": "!items.effects!1jj1O2nBZDfUs5aL.FF9Lu2CwjhHXIXMX",
+        "op": "set",
+        "path": "changes.6.mode",
+        "value": 2,
+        "expect": 0
+    },
+    {
+        "id": "3-low-fiend-temp-items-delete-prodigious-talent-0PmHEyadDJeXiyCb",
+        "pack": "temp-items",
+        "key": "!items!0PmHEyadDJeXiyCb",
+        "op": "delete"
+    },
+    {
+        "id": "3-low-fiend-temp-items-delete-prodigious-talent-1DYNf0etVf03a9IK",
+        "pack": "temp-items",
+        "key": "!items!1DYNf0etVf03a9IK",
+        "op": "delete"
+    },
+    {
+        "id": "3-low-fiend-temp-items-delete-prodigious-talent-LbTFkruh0zWmRTCi",
+        "pack": "temp-items",
+        "key": "!items!LbTFkruh0zWmRTCi",
+        "op": "delete"
+    },
+    {
+        "id": "3-low-fiend-temp-items-delete-prodigious-talent-MrUEASsSFpsv02aH",
+        "pack": "temp-items",
+        "key": "!items!MrUEASsSFpsv02aH",
+        "op": "delete"
+    }
+]

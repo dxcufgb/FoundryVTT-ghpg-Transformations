@@ -265,7 +265,7 @@ quench.registerBatch(
                     id: "shell",
                     name: "Chitinous Shell",
                     changes: [
-                        { key: "system.attributes.ac.bonus", mode: 2, value: "2" },
+                        { key: "system.attributes.ac.bonus", mode: 2, value: "+2" },
                         { key: "system.attributes.movement.walk", mode: 2, value: "-10" }
                     ],
                     async update(data)
@@ -294,7 +294,7 @@ quench.registerBatch(
                 const shell = {
                     id: "shell",
                     name: "Chitinous Shell",
-                    changes: [{ key: "system.attributes.ac.bonus", mode: 2, value: "2" }],
+                    changes: [{ key: "system.attributes.ac.bonus", mode: 2, value: "+2" }],
                     async update(data)
                     {
                         Object.assign(this, data)

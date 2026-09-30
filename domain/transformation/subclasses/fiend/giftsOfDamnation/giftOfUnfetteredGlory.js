@@ -10,12 +10,13 @@ export class GiftOfUnfetteredGlory
         "\n" +
         "Each time you roll a Hit Point Die to regain Hit Points during a Short Rest, you regain 2 Hit Points fewer per Hit Die."
 
-    static async apply({actor, actorRepository, itemRepository}) {
+    static async apply({actor, actorRepository, itemRepository, replacedGift = false}) {
         const sourceItem = this.itemUuid
             ? await fromUuid(this.itemUuid)
             : null
         return applyGiftOfDamnation({
             actor,
+            replacedGift,
             giftClass: this,
             itemRepository,
             actorRepository,

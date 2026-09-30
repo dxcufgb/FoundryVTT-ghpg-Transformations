@@ -1,0 +1,568 @@
+[
+    {
+        "id": "3-low-hag-F48-forget-magic-type-save",
+        "pack": "gh-transformations",
+        "key": "!items!TIKmev4FNvD6wfqU",
+        "op": "set",
+        "path": "system.activities.V0kqozxBpDlzIVjC.type",
+        "value": "save",
+        "expect": "check"
+    },
+    {
+        "id": "3-low-hag-F48-forget-magic-save",
+        "pack": "gh-transformations",
+        "key": "!items!TIKmev4FNvD6wfqU",
+        "op": "set",
+        "path": "system.activities.V0kqozxBpDlzIVjC.save",
+        "value": {
+            "ability": [
+                "cha"
+            ],
+            "dc": {
+                "calculation": "",
+                "formula": "14 + @flags.transformations.stage"
+            }
+        }
+    },
+    {
+        "id": "3-low-hag-F48-forget-magic-unset-check",
+        "pack": "gh-transformations",
+        "key": "!items!TIKmev4FNvD6wfqU",
+        "op": "unset",
+        "path": "system.activities.V0kqozxBpDlzIVjC.check"
+    },
+    {
+        "id": "3-low-hag-F48-charm-person-cast",
+        "pack": "gh-transformations",
+        "key": "!items!TIKmev4FNvD6wfqU",
+        "op": "set",
+        "path": "system.activities.bgk5iaJaiEFM6zL2",
+        "value": {
+            "type": "cast",
+            "name": "Hag Charm Person",
+            "_id": "bgk5iaJaiEFM6zL2",
+            "sort": 0,
+            "activation": {
+                "type": "bonus",
+                "override": true,
+                "condition": ""
+            },
+            "consumption": {
+                "scaling": {
+                    "allowed": false
+                },
+                "spellSlot": true,
+                "targets": [
+                    {
+                        "type": "hitDice",
+                        "value": "1",
+                        "target": "largest"
+                    }
+                ]
+            },
+            "description": {
+                "chatFlavor": ""
+            },
+            "duration": {
+                "units": "inst",
+                "concentration": false,
+                "override": false
+            },
+            "flags": {},
+            "range": {
+                "units": "self",
+                "override": false,
+                "special": ""
+            },
+            "target": {
+                "template": {
+                    "contiguous": false,
+                    "units": "ft",
+                    "type": ""
+                },
+                "affects": {
+                    "choice": false,
+                    "type": ""
+                },
+                "override": false,
+                "prompt": false
+            },
+            "uses": {
+                "spent": 0,
+                "recovery": [],
+                "max": ""
+            },
+            "visibility": {
+                "level": {
+                    "min": null,
+                    "max": null
+                },
+                "requireAttunement": false,
+                "requireIdentification": false,
+                "requireMagic": false,
+                "identifier": ""
+            },
+            "useConditionText": "",
+            "useConditionReason": "",
+            "effectConditionText": "",
+            "macroData": {
+                "name": "",
+                "command": ""
+            },
+            "ignoreTraits": {
+                "idi": false,
+                "idr": false,
+                "idv": false,
+                "ida": false,
+                "idm": false
+            },
+            "midiProperties": {
+                "ignoreTraits": [],
+                "triggeredActivityId": "none",
+                "triggeredActivityConditionText": "",
+                "triggeredActivityTargets": "targets",
+                "triggeredActivityRollAs": "self",
+                "autoConsume": false,
+                "forceConsumeDialog": "default",
+                "forceRollDialog": "default",
+                "forceDamageDialog": "default",
+                "confirmTargets": "default",
+                "autoTargetType": "any",
+                "autoTargetAction": "default",
+                "automationOnly": false,
+                "otherActivityCompatible": true,
+                "otherActivityAsParentType": true,
+                "identifier": "",
+                "displayActivityName": false,
+                "rollMode": "default",
+                "chooseEffects": false,
+                "toggleEffect": false,
+                "ignoreFullCover": false,
+                "removeChatButtons": "default",
+                "magicEffect": false,
+                "magicDamage": false,
+                "noConcentrationCheck": false,
+                "skipConcentrationCheck": false,
+                "autoCEEffects": "default"
+            },
+            "isOverTimeFlag": false,
+            "overTimeProperties": {
+                "saveRemoves": true,
+                "preRemoveConditionText": "",
+                "postRemoveConditionText": ""
+            },
+            "otherActivityId": "none",
+            "otherActivityAsParentType": true,
+            "img": "",
+            "spell": {
+                "ability": "",
+                "challenge": {
+                    "override": false
+                },
+                "properties": [],
+                "spellbook": false,
+                "uuid": "Compendium.transformations.gh-transformations.Item.Pzl5nFS0d3cPa916"
+            }
+        },
+        "expect": {
+            "type": "utility",
+            "name": "Hag Charm Person",
+            "_id": "bgk5iaJaiEFM6zL2",
+            "sort": 0,
+            "activation": {
+                "type": "bonus",
+                "override": false,
+                "condition": ""
+            },
+            "consumption": {
+                "scaling": {
+                    "allowed": false
+                },
+                "spellSlot": true,
+                "targets": [
+                    {
+                        "type": "hitDice",
+                        "value": "1",
+                        "target": "largest"
+                    }
+                ]
+            },
+            "description": {
+                "chatFlavor": ""
+            },
+            "duration": {
+                "units": "inst",
+                "concentration": false,
+                "override": false
+            },
+            "effects": [],
+            "flags": {},
+            "range": {
+                "units": "self",
+                "override": false,
+                "special": ""
+            },
+            "target": {
+                "template": {
+                    "contiguous": false,
+                    "units": "ft",
+                    "type": ""
+                },
+                "affects": {
+                    "choice": false,
+                    "type": ""
+                },
+                "override": false,
+                "prompt": false
+            },
+            "uses": {
+                "spent": 0,
+                "recovery": [],
+                "max": ""
+            },
+            "visibility": {
+                "level": {
+                    "min": null,
+                    "max": null
+                },
+                "requireAttunement": false,
+                "requireIdentification": false,
+                "requireMagic": false,
+                "identifier": ""
+            },
+            "roll": {
+                "prompt": false,
+                "visible": false,
+                "name": "",
+                "formula": ""
+            },
+            "useConditionText": "",
+            "useConditionReason": "",
+            "effectConditionText": "",
+            "macroData": {
+                "name": "",
+                "command": ""
+            },
+            "ignoreTraits": {
+                "idi": false,
+                "idr": false,
+                "idv": false,
+                "ida": false,
+                "idm": false
+            },
+            "midiProperties": {
+                "ignoreTraits": [],
+                "triggeredActivityId": "none",
+                "triggeredActivityConditionText": "",
+                "triggeredActivityTargets": "targets",
+                "triggeredActivityRollAs": "self",
+                "autoConsume": false,
+                "forceConsumeDialog": "default",
+                "forceRollDialog": "default",
+                "forceDamageDialog": "default",
+                "confirmTargets": "default",
+                "autoTargetType": "any",
+                "autoTargetAction": "default",
+                "automationOnly": false,
+                "otherActivityCompatible": true,
+                "otherActivityAsParentType": true,
+                "identifier": "",
+                "displayActivityName": false,
+                "rollMode": "default",
+                "chooseEffects": false,
+                "toggleEffect": false,
+                "ignoreFullCover": false,
+                "removeChatButtons": "default",
+                "magicEffect": false,
+                "magicDamage": false,
+                "noConcentrationCheck": false,
+                "skipConcentrationCheck": false,
+                "autoCEEffects": "default"
+            },
+            "isOverTimeFlag": false,
+            "overTimeProperties": {
+                "saveRemoves": true,
+                "preRemoveConditionText": "",
+                "postRemoveConditionText": ""
+            },
+            "otherActivityId": "none",
+            "otherActivityAsParentType": true,
+            "img": ""
+        }
+    },
+    {
+        "id": "3-low-hag-F48-master-charm-person-spell",
+        "pack": "gh-transformations",
+        "key": "!items!Pzl5nFS0d3cPa916",
+        "op": "create",
+        "doc": {
+            "name": "Charm Person (Master of the Red Sisterhood)",
+            "system": {
+                "description": {
+                    "value": "<p>One Humanoid you can see within range makes a Wisdom saving throw. It does so with Advantage if you or your allies are fighting it. On a failed save, the target has the &amp;Reference[charmed apply=false] condition until the spell ends or until you or your allies damage it. The Charmed creature is Friendly to you. When the spell ends, the target knows it was Charmed by you.</p><p><strong>Using a Higher-Level Spell Slot.</strong> You can target one additional creature for each spell slot level above 1.</p>",
+                    "chat": ""
+                },
+                "source": {
+                    "custom": "",
+                    "rules": "2024",
+                    "license": "CC-BY-4.0",
+                    "book": "",
+                    "revision": 1
+                },
+                "activation": {
+                    "type": "bonus",
+                    "condition": "",
+                    "value": null
+                },
+                "duration": {
+                    "value": "1",
+                    "units": "hour"
+                },
+                "target": {
+                    "affects": {
+                        "type": "creature",
+                        "count": "@item.level",
+                        "choice": false,
+                        "special": ""
+                    },
+                    "template": {
+                        "units": "ft",
+                        "contiguous": false,
+                        "type": ""
+                    }
+                },
+                "range": {
+                    "value": "30",
+                    "units": "ft",
+                    "special": ""
+                },
+                "uses": {
+                    "max": "",
+                    "recovery": [],
+                    "spent": 0
+                },
+                "level": 1,
+                "school": "enc",
+                "properties": [
+                    "vocal",
+                    "somatic"
+                ],
+                "materials": {
+                    "value": "",
+                    "consumed": false,
+                    "cost": 0,
+                    "supply": 0
+                },
+                "activities": {
+                    "dnd5eactivity000": {
+                        "_id": "dnd5eactivity000",
+                        "type": "save",
+                        "activation": {
+                            "type": "bonus",
+                            "value": null,
+                            "override": false
+                        },
+                        "consumption": {
+                            "targets": [],
+                            "scaling": {
+                                "allowed": false,
+                                "max": ""
+                            },
+                            "spellSlot": false
+                        },
+                        "description": {
+                            "chatFlavor": ""
+                        },
+                        "duration": {
+                            "units": "inst",
+                            "override": false,
+                            "concentration": false
+                        },
+                        "effects": [
+                            {
+                                "_id": "cseixtvHbAKixPva",
+                                "onSave": false,
+                                "level": {
+                                    "min": null,
+                                    "max": null
+                                }
+                            }
+                        ],
+                        "range": {
+                            "override": false,
+                            "units": "self"
+                        },
+                        "target": {
+                            "prompt": true,
+                            "template": {
+                                "contiguous": false,
+                                "units": "ft"
+                            },
+                            "affects": {
+                                "choice": false
+                            },
+                            "override": false
+                        },
+                        "damage": {
+                            "onSave": "half",
+                            "parts": [],
+                            "critical": {
+                                "allow": false
+                            }
+                        },
+                        "save": {
+                            "ability": [
+                                "wis"
+                            ],
+                            "dc": {
+                                "calculation": "",
+                                "formula": "12 + @flags.transformations.stage"
+                            }
+                        },
+                        "uses": {
+                            "spent": 0,
+                            "recovery": [],
+                            "max": ""
+                        },
+                        "sort": 0,
+                        "flags": {},
+                        "visibility": {
+                            "level": {
+                                "min": null,
+                                "max": null
+                            },
+                            "requireAttunement": false,
+                            "requireIdentification": false,
+                            "requireMagic": false
+                        },
+                        "useConditionText": "",
+                        "useConditionReason": "",
+                        "effectConditionText": "",
+                        "macroData": {
+                            "name": "",
+                            "command": ""
+                        },
+                        "ignoreTraits": {
+                            "idi": false,
+                            "idr": false,
+                            "idv": false,
+                            "ida": false,
+                            "idm": false
+                        },
+                        "midiProperties": {
+                            "ignoreTraits": [],
+                            "triggeredActivityId": "none",
+                            "triggeredActivityConditionText": "",
+                            "triggeredActivityTargets": "targets",
+                            "triggeredActivityRollAs": "self",
+                            "autoConsume": false,
+                            "forceConsumeDialog": "default",
+                            "forceRollDialog": "default",
+                            "forceDamageDialog": "default",
+                            "confirmTargets": "default",
+                            "autoTargetType": "any",
+                            "autoTargetAction": "default",
+                            "automationOnly": false,
+                            "otherActivityCompatible": true,
+                            "otherActivityAsParentType": true,
+                            "identifier": "",
+                            "displayActivityName": false,
+                            "rollMode": "default",
+                            "chooseEffects": false,
+                            "toggleEffect": false,
+                            "ignoreFullCover": false,
+                            "removeChatButtons": "default",
+                            "magicEffect": false,
+                            "magicDamage": false,
+                            "noConcentrationCheck": false,
+                            "skipConcentrationCheck": false,
+                            "autoCEEffects": "default"
+                        },
+                        "isOverTimeFlag": false,
+                        "overTimeProperties": {
+                            "saveRemoves": true,
+                            "preRemoveConditionText": "",
+                            "postRemoveConditionText": ""
+                        },
+                        "otherActivityId": "",
+                        "otherActivityAsParentType": true,
+                        "friendlySave": "default",
+                        "name": "",
+                        "img": ""
+                    }
+                },
+                "identifier": "charm-person",
+                "method": "atwill",
+                "prepared": 2
+            },
+            "type": "spell",
+            "img": "icons/magic/control/hypnosis-mesmerism-eye.webp",
+            "effects": [
+                "cseixtvHbAKixPva"
+            ],
+            "folder": "IFMSpRR58qHqrFcq",
+            "flags": {
+                "dnd5e": {}
+            },
+            "_stats": {
+                "compendiumSource": null,
+                "duplicateSource": null,
+                "exportSource": null,
+                "coreVersion": "13.351",
+                "systemId": "dnd5e",
+                "systemVersion": "5.2.5",
+                "createdTime": 1790787609931,
+                "modifiedTime": 1790787609931,
+                "lastModifiedBy": "4NBnmpBapEI7Q4zD"
+            },
+            "ownership": {
+                "default": 0,
+                "4NBnmpBapEI7Q4zD": 3
+            },
+            "_id": "Pzl5nFS0d3cPa916",
+            "sort": 200100
+        }
+    },
+    {
+        "id": "3-low-hag-F48-master-charm-person-effect",
+        "pack": "gh-transformations",
+        "key": "!items.effects!Pzl5nFS0d3cPa916.cseixtvHbAKixPva",
+        "op": "create",
+        "doc": {
+            "name": "Charmed",
+            "origin": "Compendium.dnd5e.spells24.Item.phbsplCharmPerso",
+            "duration": {
+                "rounds": 1,
+                "startTime": null,
+                "seconds": 3600,
+                "combat": null,
+                "turns": null,
+                "startRound": null,
+                "startTurn": null
+            },
+            "disabled": false,
+            "flags": {},
+            "img": "systems/dnd5e/icons/svg/statuses/charmed.svg",
+            "_id": "cseixtvHbAKixPva",
+            "type": "base",
+            "system": {},
+            "changes": [],
+            "description": "<p>the target has the &amp;Reference[charmed apply=false] condition until the spell ends or until you or your allies damage it. The Charmed creature is Friendly to you. When the spell ends, the target knows it was Charmed by you.</p>",
+            "tint": "#ffffff",
+            "transfer": false,
+            "statuses": [
+                "charmed"
+            ],
+            "sort": 0,
+            "_stats": {
+                "compendiumSource": null,
+                "duplicateSource": null,
+                "exportSource": null,
+                "coreVersion": "13.351",
+                "systemId": "dnd5e",
+                "systemVersion": "5.2.5",
+                "lastModifiedBy": null
+            }
+        }
+    }
+]

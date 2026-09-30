@@ -903,6 +903,49 @@ quench.registerBatch(
                 }
             })
 
+            it("addItemFromUuid stores caller flags in the transformations flag scope", async function ()
+            {
+                const actor = createActor()
+                const restoreFoundry = installFoundryUtils()
+                const originalFromUuid = globalThis.fromUuid
+                const sourceItem = {
+                    uuid: "Compendium.transformations.temp-items.Item.flagged-item",
+                    name: "Flagged Item",
+                    type: "weapon",
+                    system: {}
+                }
+
+                globalThis.fromUuid = async uuid =>
+                    uuid === sourceItem.uuid
+                        ? sourceItem
+                        : null
+
+                const {repository} = createRepository()
+
+                try {
+                    const created = await repository.addItemFromUuid({
+                        actor,
+                        uuid: sourceItem.uuid,
+                        flags: {
+                            removeOnLongRest: true
+                        }
+                    })
+
+                    expect(created).to.exist
+                    expect(created.flags?.transformations?.removeOnLongRest)
+                    .to.equal(true)
+                    expect(created.flags?.transformations?.sourceUuid)
+                    .to.equal(sourceItem.uuid)
+                } finally {
+                    restoreFoundry()
+
+                    if (originalFromUuid === undefined) {
+                        delete globalThis.fromUuid
+                    } else {
+                        globalThis.fromUuid = originalFromUuid
+                    }
+                }
+            })
         })
     }
 )

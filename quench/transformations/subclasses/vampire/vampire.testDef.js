@@ -484,6 +484,7 @@ const stage3Choices = Object.freeze([
                     "<p>The creature has been charmed by a vampire and is their thrall for 24 hours or until the vampire charms another creature or decides to release this creature from it's charm.</p>"
                 effect.transfer = false
                 effect.statuses = ["charmed"]
+                effect.duration.seconds = 86400
                 effect.changes.count = 0
             })
         }
@@ -636,10 +637,24 @@ const REGENERATION_STAGE4_CHOICE = Object.freeze({
         "You regain 15 Hit Points at the start of your turn if you have at least 1 Hit Point but less than 60 Hit Points",
     advancementCount: 0,
     activityCount: 1,
-    effectCount: 0,
+    effectCount: 1,
     usesMax: "",
     configureChoiceItemValidation: item =>
     {
+        item.addEffect(effect =>
+        {
+            effect.name = "Regeneration"
+            effect.transfer = true
+            effect.changes.count = 1
+            effect.changes = [
+                {
+                    key: "flags.midi-qol.OverTime",
+                    mode: 0,
+                    value: "turn=start, damageRoll=15, damageType=healing, applyCondition=@attributes.hp.value >= 1 && @attributes.hp.value < 60, label=Regeneration",
+                    priority: 20
+                }
+            ]
+        })
         item.addActivity(activity =>
         {
             activity.id = "DEym6OhDBDw7aBn8"
@@ -2017,8 +2032,8 @@ function addGreaterSanguineCurseValidation(actorDto)
             "modules/transformations/Icons/Transformations/Vampire/Greater%20Sanguine%20Curse.png"
         item.identifier = "greater-sanguine-curse"
         item.descriptionIncludes = "You must feed every 4 days"
-        item.systemType = ""
-        item.systemSubType = ""
+        item.systemType = "transformation"
+        item.systemSubType = "vampire"
         item.numberOfAdvancements = 0
         item.numberOfActivities = 0
         item.numberOfEffects = 0

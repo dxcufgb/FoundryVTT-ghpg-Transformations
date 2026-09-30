@@ -1515,6 +1515,21 @@ export const shadowsteelGhoulTestDef = {
                         effect.name = SHADOWSTEEL_ABSORPTION_EFFECT_NAME
                         effect.type = "base"
                         effect.changes.count = 1
+                        effect.changes = [
+                            {
+                                key: "system.attributes.ac.bonus",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: "+1",
+                                priority: 20
+                            }
+                        ]
+                        effect.flags.match.push({
+                            path: "dae",
+                            expected: {
+                                disableCondition:
+                                    "@attributes.ac.equippedArmor.system.armor.value > 0"
+                            }
+                        })
                     })
                 })
 

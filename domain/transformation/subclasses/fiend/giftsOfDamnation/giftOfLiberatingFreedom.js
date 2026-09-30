@@ -10,7 +10,7 @@ export class GiftOfLiberatingFreedom
         "You can have your wing manifested for 1 hour total, including several shorter stints adding up to 1 hour. You regain your ability to use your wings for an hour after finishing a Long Rest."
     static itemUuid = "Compendium.transformations.gh-transformations.Item.KdqNhneTuvIeJZJn"
 
-    static async apply({actor, actorRepository, itemRepository}) {
+    static async apply({actor, actorRepository, itemRepository, replacedGift = false}) {
         const sourceItem = this.itemUuid
             ? await fromUuid(this.itemUuid)
             : null
@@ -22,6 +22,7 @@ export class GiftOfLiberatingFreedom
         const actorOriginalFlySpeed = actor.system.attributes.movement.fly ?? 0
         const giftItem = await applyGiftOfDamnation({
             actor,
+            replacedGift,
             giftClass: this,
             itemRepository,
             actorRepository,

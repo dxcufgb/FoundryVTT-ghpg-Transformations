@@ -4,6 +4,9 @@ export const stage4 = {
         items: [
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.xhjdYqMyYbPOLGKc"
+            },
+            {
+                uuid: "Compendium.transformations.gh-transformations.Item.TKHTXSYMDDTYBVWW"
             }
         ],
         actor: {
@@ -13,7 +16,7 @@ export const stage4 = {
         }
     },
     choices: {
-        count: 2,
+        count: 1,
         items: [
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.v002gdymkyOVGowv",
@@ -38,9 +41,6 @@ export const stage4 = {
                         "Compendium.transformations.gh-transformations.Item.HjL4gLx90PsSkSK7"
                     ]
                 }
-            },
-            {
-                uuid: "Compendium.transformations.gh-transformations.Item.TKHTXSYMDDTYBVWW"
             }
         ]
     }

@@ -49,12 +49,6 @@ export function createRollTableService({
                 // Post the chat card ourselves: trigger actions usually run on the GM
                 // client, and table.draw() would otherwise author the message as the GM.
                 const rollResult = await table.draw({ displayChat: false })
-                if (displayChat && rollResult?.results?.length) {
-                    await table.toMessage(rollResult.results, {
-                        roll: rollResult.roll,
-                        messageData: buildMessageData({ actor, authorUserId })
-                    })
-                }
                 let result
                 if (testOveridenResult != undefined) {
                     result = table.results.find(r =>
@@ -81,6 +75,15 @@ export function createRollTableService({
                         { mode, outcome }
                     )
                     return null
+                }
+
+                // Only post the card once the result is accepted, so rejected
+                // downgrade-only rolls don't appear in chat as if applied.
+                if (displayChat && rollResult?.results?.length) {
+                    await table.toMessage(rollResult.results, {
+                        roll: rollResult.roll,
+                        messageData: buildMessageData({ actor, authorUserId })
+                    })
                 }
 
                 return outcome

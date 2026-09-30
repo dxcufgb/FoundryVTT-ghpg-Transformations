@@ -158,7 +158,18 @@ export async function replaceSyntheticMidiActivityCard({
 
     const target = wrapper.querySelector(selector)
     if (!target) {
-        await message.update({content})
+        // The earlier card is gone (e.g. midi rewrote the content). Add the
+        // card again instead of wiping the midi card and its buttons.
+        const injected = await injectSyntheticMidiActivityCard({
+            message,
+            content
+        })
+        if (injected) return true
+
+        wrapper.insertAdjacentHTML("beforeend", content)
+        await message.update({
+            content: wrapper.innerHTML
+        })
         return true
     }
 

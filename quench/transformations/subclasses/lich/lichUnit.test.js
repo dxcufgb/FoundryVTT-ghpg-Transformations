@@ -4,6 +4,9 @@ import { LichMagicaRegainSpellSlots } from "../../../../domain/transformation/su
 import { MemoriLichdomNecroticDamage } from "../../../../domain/transformation/subclasses/lich/activities/memoriLichdomNecroticDamage.js"
 import { onPreRollDamage } from "../../../../domain/transformation/subclasses/lich/triggers/onPreRollDamage.js"
 import { conditionsMet } from "../../../../domain/actions/conditionSchema.js"
+import { onBloodied } from "../../../../domain/transformation/subclasses/lich/triggers/onBloodied.js"
+import { onConcentration } from "../../../../domain/transformation/subclasses/lich/triggers/onConcentration.js"
+import { onUnconscious } from "../../../../domain/transformation/subclasses/lich/triggers/onUnconscious.js"
 
 const SOUL_VESSEL_UUID = "Compendium.transformations.gh-transformations.Item.rluvw9sNdr3JO93n"
 const MEMORI_LICHDOM_UUID = "Compendium.transformations.gh-transformations.Item.5NEzTu8Y5PGmmCOO"
@@ -65,6 +68,102 @@ quench.registerBatch(
                 expect(isSoulVesselCharged({items: [createSoulVessel(0)]})).to.equal(true)
                 expect(isSoulVesselCharged({items: [createSoulVessel(1)]})).to.equal(false)
                 expect(isSoulVesselCharged({items: []})).to.equal(false)
+            })
+
+            it("caches the charged state synchronously before the update", function()
+            {
+                const options = {}
+                const result = Lich.preUpdateItem({
+                    item: createSoulVessel(1),
+                    changed: {system: {uses: {spent: 0}}},
+                    options
+                })
+
+                expect(result).to.equal(true)
+                expect(options.transformations.lich.soulVesselCharged).to.equal(true)
+            })
+
+            it("writes a boolean flag when no cached state reaches the update", async function()
+            {
+                const updates = []
+                const actor = {
+                    flags: {},
+                    async update(data)
+                    {
+                        updates.push(data)
+                    }
+                }
+
+                await Lich.updateItem({
+                    item: createSoulVessel(0),
+                    changed: {system: {uses: {spent: 0}}},
+                    actor,
+                    options: {}
+                })
+
+                expect(updates).to.deep.equal([
+                    {"flags.transformations.lich.soulVesselCharged": true}
+                ])
+            })
+        })
+
+        describe("Lich Magica enforce disadvantage", function()
+        {
+            function createAttacker(deleted)
+            {
+                return {
+                    effects: [{
+                        id: "enforce",
+                        name: "Enforce Disadvantage",
+                        origin: "Actor.a.Item.b.ActiveEffect.dQzYsMWKJw6E7rKc",
+                        async delete()
+                        {
+                            deleted.push(this.id)
+                        }
+                    }]
+                }
+            }
+
+            it("imposes Disadvantage on a save against the Lich's spell", async function()
+            {
+                const deleted = []
+                const context = {workflow: {item: {type: "spell"}}}
+
+                await Lich.onPreRollSavingThrowAsAttacker(context, createAttacker(deleted))
+
+                expect(context.disadvantage).to.equal(true)
+                expect(deleted).to.deep.equal(["enforce"])
+            })
+
+            it("ignores a save that is not against a spell", async function()
+            {
+                const deleted = []
+                const context = {workflow: {item: {type: "weapon"}}}
+
+                await Lich.onPreRollSavingThrowAsAttacker(context, createAttacker(deleted))
+
+                expect(context.disadvantage).to.equal(undefined)
+                expect(deleted).to.deep.equal([])
+            })
+        })
+
+        describe("Hideous Appearance", function()
+        {
+            function getSaveBody(trigger)
+            {
+                return trigger.actionGroups[0].actions[0].data.flavor.body
+            }
+
+            it("describes the trigger that called for the save", function()
+            {
+                expect(getSaveBody(onBloodied)).to.contain("Bloodied")
+                expect(getSaveBody(onConcentration)).to.contain("concentrating")
+                expect(getSaveBody(onUnconscious)).to.contain("Unconscious")
+
+                for (const trigger of [onBloodied, onConcentration, onUnconscious]) {
+                    expect(getSaveBody(trigger)).to.contain("Hideous Appearance")
+                    expect(getSaveBody(trigger)).to.not.contain("Horrific")
+                }
             })
         })
 

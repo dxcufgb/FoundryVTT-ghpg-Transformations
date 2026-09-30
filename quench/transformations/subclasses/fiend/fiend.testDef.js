@@ -824,32 +824,32 @@ export const fiendTestDef = {
                             effect.changes.count = 6
                             effect.changes = [
                                 {
-                                    key: "system.abillities.cha.bonuses.save",
+                                    key: "system.abilities.cha.bonuses.save",
                                     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
                                     value: -2
                                 },
                                 {
-                                    key: "system.abillities.con.bonuses.save",
+                                    key: "system.abilities.con.bonuses.save",
                                     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
                                     value: -2
                                 },
                                 {
-                                    key: "system.abillities.dex.bonuses.save",
+                                    key: "system.abilities.dex.bonuses.save",
                                     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
                                     value: -2
                                 },
                                 {
-                                    key: "system.abillities.int.bonuses.save",
+                                    key: "system.abilities.int.bonuses.save",
                                     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
                                     value: -2
                                 },
                                 {
-                                    key: "system.abillities.str.bonuses.save",
+                                    key: "system.abilities.str.bonuses.save",
                                     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
                                     value: -2
                                 },
                                 {
-                                    key: "system.abillities.wis.bonuses.save",
+                                    key: "system.abilities.wis.bonuses.save",
                                     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
                                     value: -2
                                 }
@@ -1042,7 +1042,7 @@ export const fiendTestDef = {
                     item.itemName = "Overwhelming Brand"
                     item.addActivity(activity => {
                         activity.name = "Halting Brand"
-                        activity.activationType = ""
+                        activity.activationType = "special"
                         activity.target.value = 1
                         activity.target.type = "creature"
                         activity.addEffect(effect => {
@@ -1051,12 +1051,39 @@ export const fiendTestDef = {
                             effect.duration.duration = 60
                             effect.duration.rounds = 10
                             effect.duration.seconds = 60
-                            effect.changes.count = 0
+                            effect.changes.count = 5
+                            effect.changes = [
+                                {
+                                    key: "system.attributes.movement.walk",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.MULTIPLY,
+                                    value: 0.5
+                                },
+                                {
+                                    key: "system.attributes.movement.burrow",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.MULTIPLY,
+                                    value: 0.5
+                                },
+                                {
+                                    key: "system.attributes.movement.climb",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.MULTIPLY,
+                                    value: 0.5
+                                },
+                                {
+                                    key: "system.attributes.movement.fly",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.MULTIPLY,
+                                    value: 0.5
+                                },
+                                {
+                                    key: "system.attributes.movement.swim",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.MULTIPLY,
+                                    value: 0.5
+                                }
+                            ]
                         })
                     })
                     item.addActivity(activity => {
                         activity.name = "Blinding Brand"
-                        activity.activationType = ""
+                        activity.activationType = "special"
                         activity.target.value = 1
                         activity.target.type = "creature"
                         activity.addEffect(effect => {
@@ -1176,7 +1203,7 @@ export const fiendTestDef = {
                                 value: "Slashing"
                             },
                             {
-                                key: "system.traits.dr.bypass",
+                                key: "system.traits.dr.bypasses",
                                 mode: CONST.ACTIVE_EFFECT_MODES.ADD,
                                 value: "Magical"
                             }
@@ -1721,7 +1748,7 @@ export const fiendTestDef = {
                             {
                                 id: loopVars.skills[0],
                                 label: loopVars.names[0],
-                                icon: `modules/transformations/Icons/skills/${loopVars.icons[0]}.png`,
+                                icon: `modules/transformations/Icons/Skills/${loopVars.icons[0]}.png`,
                                 raw: `skills:${loopVars.skills[0]}`,
                                 value: loopVars.skills[0],
                                 mode: "forcedExpertise"
@@ -1729,7 +1756,7 @@ export const fiendTestDef = {
                             {
                                 id: loopVars.skills[1],
                                 label: loopVars.names[1],
-                                icon: `modules/transformations/Icons/skills/${loopVars.icons[1]}.png`,
+                                icon: `modules/transformations/Icons/Skills/${loopVars.icons[1]}.png`,
                                 raw: `skills:${loopVars.skills[1]}`,
                                 value: loopVars.skills[1],
                                 mode: "forcedExpertise"
@@ -1893,7 +1920,7 @@ export const fiendTestDef = {
                             {
                                 id: loopVars.skills[0],
                                 label: loopVars.names[0],
-                                icon: `modules/transformations/Icons/skills/${loopVars.icons[0]}.png`,
+                                icon: `modules/transformations/Icons/Skills/${loopVars.icons[0]}.png`,
                                 raw: `skills:${loopVars.skills[0]}`,
                                 value: loopVars.skills[0],
                                 mode: "forcedExpertise"
@@ -1901,7 +1928,7 @@ export const fiendTestDef = {
                             {
                                 id: loopVars.skills[1],
                                 label: loopVars.names[1],
-                                icon: `modules/transformations/Icons/skills/${loopVars.icons[1]}.png`,
+                                icon: `modules/transformations/Icons/Skills/${loopVars.icons[1]}.png`,
                                 raw: `skills:${loopVars.skills[1]}`,
                                 value: loopVars.skills[1],
                                 mode: "forcedExpertise"
@@ -2014,7 +2041,7 @@ export const fiendTestDef = {
                             {
                                 id: SKILL.ACROBATICS,
                                 label: "Acrobatics",
-                                icon: `modules/transformations/Icons/skills/Acrobatics.png`,
+                                icon: `modules/transformations/Icons/Skills/Acrobatics.png`,
                                 raw: `skills:${SKILL.ACROBATICS}`,
                                 value: SKILL.ACROBATICS,
                                 mode: "forcedExpertise"
@@ -2022,7 +2049,7 @@ export const fiendTestDef = {
                             {
                                 id: SKILL.ARCANA,
                                 label: "Arcana",
-                                icon: `modules/transformations/Icons/skills/Arcana.png`,
+                                icon: `modules/transformations/Icons/Skills/Arcana.png`,
                                 raw: `skills:${SKILL.ARCANA}`,
                                 value: SKILL.ARCANA,
                                 mode: "forcedExpertise"
@@ -2139,7 +2166,7 @@ export const fiendTestDef = {
                             {
                                 id: SKILL.ACROBATICS,
                                 label: "Acrobatics",
-                                icon: `modules/transformations/Icons/skills/Acrobatics.png`,
+                                icon: `modules/transformations/Icons/Skills/Acrobatics.png`,
                                 raw: `skills:${SKILL.ACROBATICS}`,
                                 value: SKILL.ACROBATICS,
                                 mode: "forcedExpertise"
@@ -2147,7 +2174,7 @@ export const fiendTestDef = {
                             {
                                 id: SKILL.ARCANA,
                                 label: "Arcana",
-                                icon: `modules/transformations/Icons/skills/Arcana.png`,
+                                icon: `modules/transformations/Icons/Skills/Arcana.png`,
                                 raw: `skills:${SKILL.ARCANA}`,
                                 value: SKILL.ARCANA,
                                 mode: "forcedExpertise"
@@ -2899,7 +2926,7 @@ export const fiendTestDef = {
         },
 
         {
-            name: `Enhanced Contract consumes item use on gift of Damnation`,
+            name: `Enhanced Contract consumes item use when switching gift of Damnation`,
             setup: async ({actor, helpers, loopVars}) =>
             {
                 await ChatMessage.deleteDocuments(
@@ -2939,6 +2966,9 @@ export const fiendTestDef = {
             steps: [
                 async ({actor, runtime}) =>
                 {
+                    // The first gift is not a switch; only replacing it grants temp HP.
+                    const firstGift = giftsOfDamnation.find(entry => entry.id === "giftOfJoyousLife")
+                    await runtime.services.applyFiendGiftOfDamnation({actor, gift: firstGift})
                     const gift = giftsOfDamnation.find(entry => entry.id === "giftOfUnsurpassedFortune")
                     await runtime.services.applyFiendGiftOfDamnation({actor, gift})
                 }
@@ -3032,6 +3062,9 @@ export const fiendTestDef = {
                 await waiters.waitForCondition(() =>
                     actor.items.some(i => i.name === "Gift of Unsurpassed Fortune")
                 )
+                // First switch spends the Enhanced Contract use.
+                const switchedGift = giftsOfDamnation.find(entry => entry.id === "giftOfJoyousLife")
+                await runtime.services.applyFiendGiftOfDamnation({actor, gift: switchedGift})
                 await actor.update({
                     "system.attributes.hp.temp": 0
                 })

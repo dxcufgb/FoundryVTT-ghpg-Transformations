@@ -608,6 +608,11 @@ function addCleanseAfflictionItemAssertions(actorDto)
     })
 }
 
+const PROTECTIVE_WINGS_GRAPPLE_SAVE_CONDITION =
+    'confirm("Protective Wings", {content: "Is this saving throw to avoid being Grappled?", defaultYes: true})'
+const PROTECTIVE_WINGS_GRAPPLE_ESCAPE_CONDITION =
+    'statuses?.grappled && confirm("Protective Wings", {content: "Is this check to escape a Grapple?", defaultYes: true})'
+
 function addProtectiveWingsItemAssertions(actorDto)
 {
     actorDto.addItem(item =>
@@ -617,17 +622,41 @@ function addProtectiveWingsItemAssertions(actorDto)
         item.type = "feat"
         item.systemType = "transformation"
         item.systemSubType = "seraph"
-        item.numberOfActivities = 0
+        item.numberOfActivities = 1
         item.numberOfEffects = 1
         item.addEffect(effect =>
         {
             effect.name = "Protective Wings"
-            effect.changes.count = 1
+            effect.changes.count = 5
             effect.changes = [
                 {
                     key: "system.attributes.movement.fly",
                     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
                     value: "10",
+                    priority: 20
+                },
+                {
+                    key: "flags.midi-qol.advantage.save.str",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: PROTECTIVE_WINGS_GRAPPLE_SAVE_CONDITION,
+                    priority: 20
+                },
+                {
+                    key: "flags.midi-qol.advantage.save.dex",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: PROTECTIVE_WINGS_GRAPPLE_SAVE_CONDITION,
+                    priority: 20
+                },
+                {
+                    key: "flags.midi-qol.advantage.skill.ath",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: PROTECTIVE_WINGS_GRAPPLE_ESCAPE_CONDITION,
+                    priority: 20
+                },
+                {
+                    key: "flags.midi-qol.advantage.skill.acr",
+                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                    value: PROTECTIVE_WINGS_GRAPPLE_ESCAPE_CONDITION,
                     priority: 20
                 }
             ]

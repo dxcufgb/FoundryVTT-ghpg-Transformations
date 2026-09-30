@@ -10,7 +10,8 @@ export async function applyGiftOfDamnation({
     itemOptions = {},
     changes = [],
     description = giftClass?.description ?? "",
-    flagData = {}
+    flagData = {},
+    replacedGift = false
 })
 {
     if (!actor || !giftClass) {
@@ -76,11 +77,17 @@ export async function applyGiftOfDamnation({
         "Compendium.transformations.gh-transformations.Item.nAqAkgKH6w6OHQcM"
     )
     
-    if (enhancedContract && itemRepository.getRemainingUses(enhancedContract) > 0)
+    // Enhanced Contract: temp HP only when an active gift was switched out,
+    // not when the first gift (or an extra Subcontractor slot) is filled.
+    if (
+        replacedGift &&
+        enhancedContract &&
+        itemRepository.getRemainingUses(enhancedContract) > 0
+    )
     {
-        const amount = (actor.flags.transformations.stage * 5)
-        actorRepository.addTempHp(actor, amount)
-        itemRepository.consumeUses(enhancedContract, 1)
+        const amount = (actor.flags.transformations.stage ?? 0) * 5
+        await actorRepository.addTempHp(actor, amount)
+        await itemRepository.consumeUses(enhancedContract, 1)
     }
 
     return effect

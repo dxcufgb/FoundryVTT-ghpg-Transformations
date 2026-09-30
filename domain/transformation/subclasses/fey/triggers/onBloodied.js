@@ -45,11 +45,14 @@ export const onBloodied = {
                     },
                     data: {
                         mode: "add",
-                        value: 1
+                        amount: 1
                     }
                 },
                 {
                     type: "CHAT",
+                    when: {
+                        saveFailed: "weakend-constitution-con-save"
+                    },
                     data: {
                         message: "@actor.name gain one level of exhaustion due to their fey forms weakend constitution!"
                     }

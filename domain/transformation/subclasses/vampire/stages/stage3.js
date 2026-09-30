@@ -27,7 +27,7 @@ export const stage3 = {
             {
                 uuid: "Compendium.transformations.gh-transformations.Item.qmepd5HkL0LpxOJv",
                 requires: {
-                    actor: "HAS_SPELL_SLOTS"
+                    actor: "CAN_CAST_CANTRIPS"
                 }
             }
         ]

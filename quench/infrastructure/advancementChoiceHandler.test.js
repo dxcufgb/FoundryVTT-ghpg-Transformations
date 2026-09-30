@@ -542,7 +542,7 @@ quench.registerBatch(
                 )
                 expect(calls.dialog[0].choices).to.have.length(18)
                 expect(calls.dialog[0].choices[0]).to.deep.equal({
-                    icon: "modules/transformations/Icons/skills/Acrobatics.png",
+                    icon: "modules/transformations/Icons/Skills/Acrobatics.png",
                     id: "acr",
                     label: "Acrobatics",
                     raw: "skills:acr",
@@ -575,14 +575,14 @@ quench.registerBatch(
                 expect(calls.dialog).to.have.length(1)
                 expect(calls.dialog[0].choices).to.deep.equal([
                     {
-                        icon: "modules/transformations/Icons/abilities/Strength.svg",
+                        icon: "modules/transformations/Icons/Abilities/Strength.svg",
                         id: "str",
                         label: "Strength",
                         raw: "saves:str",
                         value: "str"
                     },
                     {
-                        icon: "modules/transformations/Icons/abilities/Dexterity.svg",
+                        icon: "modules/transformations/Icons/Abilities/Dexterity.svg",
                         id: "dex",
                         label: "Dexterity",
                         raw: "saves:dex",
@@ -602,7 +602,7 @@ quench.registerBatch(
                     label: "Strength",
                     description: "Gain proficiency in strength saving throws.",
                     source: "transformation",
-                    icon: "modules/transformations/Icons/abilities/Strength.svg",
+                    icon: "modules/transformations/Icons/Abilities/Strength.svg",
                     origin: "Actor.actor-1",
                     saveIdentifier: "str",
                     changes: [
@@ -644,7 +644,7 @@ quench.registerBatch(
                 )
                 expect(calls.dialog[0].choices).to.have.length(6)
                 expect(calls.dialog[0].choices[0]).to.deep.equal({
-                    icon: "modules/transformations/Icons/abilities/Strength.svg",
+                    icon: "modules/transformations/Icons/Abilities/Strength.svg",
                     id: "str",
                     label: "Strength",
                     raw: "saves:str",

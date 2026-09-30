@@ -194,7 +194,7 @@ export class LegionOfSlimeSplit
             state: "placed",
             duplicateActorUuid,
             duplicateActorName: duplicateActor.name,
-            resultMessage: `${duplicateActor.name} has been placed.`
+            resultMessage: `${escapeName(duplicateActor.name)} has been placed.`
         })
 
         return true
@@ -257,6 +257,8 @@ export class LegionOfSlimeSplit
         resultMessage
     } = {})
     {
+        duplicateActorName = escapeName(duplicateActorName)
+
         const itemDocument = await resolveSyntheticCardItem({
             actor,
             message,
@@ -434,6 +436,12 @@ export class LegionOfSlimeMerge
     }
 }
 
+function escapeName(name)
+{
+    if (!name) return name
+    return foundry.utils.escapeHTML?.(String(name)) ?? String(name)
+}
+
 function buildSplitState({
     actor,
     token
@@ -444,10 +452,10 @@ function buildSplitState({
     const currentHp = getFiniteNumber(actor?.system?.attributes?.hp?.value, 0)
     const maxHp = getFiniteNumber(actor?.system?.attributes?.hp?.max, currentHp)
 
-    const retainedCurrentHp = Math.ceil(currentHp / 2)
-    const duplicateCurrentHp = Math.max(currentHp - retainedCurrentHp, 0)
-    const retainedMaxHp = Math.ceil(maxHp / 2)
-    const duplicateMaxHp = Math.max(maxHp - retainedMaxHp, 0)
+    const retainedCurrentHp = Math.floor(currentHp / 2)
+    const duplicateCurrentHp = retainedCurrentHp
+    const retainedMaxHp = Math.floor(maxHp / 2)
+    const duplicateMaxHp = retainedMaxHp
 
     const prototypeTokenSource = getBaseTokenSource(actor, token)
     const splitPrototypeToken = buildSplitTokenSource({

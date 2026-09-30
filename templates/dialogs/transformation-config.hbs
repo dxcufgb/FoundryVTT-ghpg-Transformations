@@ -2,7 +2,7 @@
     <section class="flexcol transformation-config">
         <fieldset class="card">
             <legend>Transformation</legend>
-            <ol name="transformation" class="unlist form-grid form-grid-50 types-list" style="width:500px; --type-rows: {{ rows }};">
+            <ol name="transformation" class="unlist form-grid form-grid-50 types-list" style="width:500px;">
                 {{#each transformations as |t|}}
                 <li class="type-row transformation-option">
                     <input type="radio" id="transformation-type-{{t.itemId}}" name="transformation" value="{{t.itemId}}"

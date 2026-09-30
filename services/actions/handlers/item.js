@@ -19,7 +19,7 @@ export function createItemAction({
                 switch (mode) {
 
                     case "add": {
-                        await itemRepository.addItemFromUuid(actor, uuid, { context })
+                        await itemRepository.addItemFromUuid({ actor, uuid })
                         return true
                     }
 

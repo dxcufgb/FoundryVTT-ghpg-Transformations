@@ -94,6 +94,84 @@ function getCachedSoulVesselChargedState(options)
     return options?.transformations?.lich?.soulVesselCharged
 }
 
+function toChargedState(uses)
+{
+    if (uses == null) return null
+
+    const parsedValue = Number(uses)
+    return Number.isFinite(parsedValue) ? parsedValue > 0 : null
+}
+
+function resolveOriginatingMessageItem(...configs)
+{
+    for (const config of configs) {
+        const messageId =
+                  config?.data?.flags?.dnd5e?.originatingMessage ??
+                  config?.flags?.dnd5e?.originatingMessage ??
+                  null
+        if (!messageId) continue
+
+        const message = globalThis.game?.messages?.get?.(messageId)
+        const item = message?.getAssociatedItem?.() ?? null
+        if (item) return item
+    }
+
+    // dnd5e only records originatingMessage after the roll; before it, the
+    // chat card that was clicked is reachable through the roll event.
+    const eventMessageId =
+              configs[0]?.event?.target?.closest?.("[data-message-id]")?.dataset?.messageId ?? null
+    if (eventMessageId) {
+        const message = globalThis.game?.messages?.get?.(eventMessageId)
+        return message?.getAssociatedItem?.() ?? null
+    }
+
+    return null
+}
+
+function resolveWorkflowFromId(context)
+{
+    const workflowId = context?.midiOptions?.workflowId
+    if (!workflowId) return null
+
+    try {
+        return globalThis.MidiQOL?.Workflow?.getWorkflow?.(workflowId) ?? null
+    } catch {
+        return null
+    }
+}
+
+function resolveSaveItemFromUuid(context)
+{
+    const saveItemUuid = context?.midiOptions?.saveItemUuid
+    if (!saveItemUuid || typeof globalThis.fromUuidSync !== "function") return null
+
+    try {
+        return globalThis.fromUuidSync(saveItemUuid) ?? null
+    } catch {
+        return null
+    }
+}
+
+/**
+ * Lich Magica only imposes Disadvantage on a save against one of the Lich's spells.
+ */
+function isSpellSave(context, dialog = null)
+{
+    const workflow =
+              context?.workflow ??
+              context?.midiOptions?.workflow ??
+              resolveWorkflowFromId(context) ??
+              null
+    const item =
+              workflow?.saveItem ??
+              workflow?.item ??
+              resolveSaveItemFromUuid(context) ??
+              resolveOriginatingMessageItem(context, dialog) ??
+              null
+
+    return item?.type === "spell"
+}
+
 function getConcentratingStatus()
 {
     return globalThis.CONFIG?.specialStatusEffects?.CONCENTRATING ?? "concentrating"
@@ -188,6 +266,7 @@ export class Lich extends Transformation
             effect.origin?.endsWith(ENFORCE_DISADVANTAGE_EFFECT_ORIGIN_SUFFIX)
         )
         if (!effect) return
+        if (!isSpellSave(context, data.dialog)) return
 
         const hasAdvantage =
                   context.advantage === true ||
@@ -413,7 +492,11 @@ export class Lich extends Transformation
         await eldritchEffect.delete()
     }
 
-    static async preUpdateItem({
+    /**
+     * Synchronous so the cached state reaches the update options when the
+     * dispatcher calls it without awaiting (preUpdate* hooks cannot be awaited).
+     */
+    static preUpdateItem({
         item,
         changed,
         options = {}
@@ -421,10 +504,9 @@ export class Lich extends Transformation
     {
         if (item?.name !== SOUL_VESSEL_NAME) return
 
-        const nextUses = resolveSoulVesselUses({item, changed})
-        if (nextUses == null) return
+        const isCharged = toChargedState(resolveSoulVesselUses({item, changed}))
+        if (isCharged == null) return
 
-        const isCharged = Number(nextUses) !== 0
         setCachedSoulVesselChargedState(options, isCharged)
         return isCharged
     }
@@ -440,11 +522,11 @@ export class Lich extends Transformation
 
         const isCharged =
                   getCachedSoulVesselChargedState(options) ??
-                  resolveSoulVesselUses({
+                  toChargedState(resolveSoulVesselUses({
                       item,
                       changed,
                       allowCurrentValueFallback: true
-                  })
+                  }))
 
         if (isCharged == null) return
 

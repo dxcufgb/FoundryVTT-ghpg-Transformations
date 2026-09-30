@@ -1,4 +1,5 @@
 import { ElementalImbalance } from "../../../../domain/transformation/subclasses/primordial/Feats/ElementalImbalance.js"
+import "./heartOfStone.test.js"
 
 function createActor(damageTypePerMidiId = {})
 {

@@ -232,7 +232,7 @@ export function createTransformationService({
         if (!actor) {
             logger.warn(
                 "Transformation skipped: actor no longer exists",
-                actorUuid
+                diff?._id ?? null
             )
             return
         }
@@ -303,8 +303,8 @@ export function createTransformationService({
         if (!dialogFactory) {
             logger.debug(
                 "Stage choice skipped: dialog factory not available",
-                definition.id,
-                newStage
+                actor?.flags?.transformations?.type ?? null,
+                actor?.flags?.transformations?.stage ?? null
             )
             return null
         }

@@ -1,3 +1,26 @@
+// The loggerLevel setting stores these names; numeric levels pass through.
+const LOG_LEVEL_NAMES = {
+    none: 0,
+    error: 1,
+    warn: 2,
+    warning: 2,
+    log: 3,
+    info: 4,
+    debug: 5
+}
+
+export function resolveLogLevel(level, fallback = 2)
+{
+    if (typeof level === "number" && Number.isFinite(level)) return level
+    if (typeof level !== "string") return fallback
+
+    const trimmed = level.trim().toLowerCase()
+    if (trimmed in LOG_LEVEL_NAMES) return LOG_LEVEL_NAMES[trimmed]
+
+    const numeric = Number(trimmed)
+    return trimmed !== "" && Number.isFinite(numeric) ? numeric : fallback
+}
+
 export function createLogger({
     level = 3,
     prefix = "Transformations",
@@ -5,7 +28,7 @@ export function createLogger({
 } = {})
 {
     bootstrapLogger?.debug?.("createLogger", { level, prefix })
-    let actualLevel = level
+    let actualLevel = resolveLogLevel(level, 3)
 
     function enabled(minLevel)
     {
@@ -67,7 +90,7 @@ export function createLogger({
 
         setLogLevel(level)
         {
-            actualLevel = level
+            actualLevel = resolveLogLevel(level, actualLevel)
         }
     }
 }

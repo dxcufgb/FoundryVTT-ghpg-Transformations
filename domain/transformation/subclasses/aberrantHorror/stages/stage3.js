@@ -3,10 +3,7 @@ export const stage3 = {
     grants: {
         items: [
             {
-                uuid: "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz",
-                replaces: {
-                    uuid: "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT"
-                }
+                uuid: "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz"
             }
         ]
     },

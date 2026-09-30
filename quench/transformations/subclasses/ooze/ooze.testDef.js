@@ -184,7 +184,7 @@ export const oozeTestDef = {
                             }
                             effect.changes = [
                                 {
-                                    key: "system.abilities.dex.check.roll.mode",
+                                    key: "system.skills.ste.roll.mode",
                                     value: 1,
                                     mode: CONST.ACTIVE_EFFECT_MODES.ADD
                                 }
@@ -813,14 +813,27 @@ export const oozeTestDef = {
                         activity.addEffect(effect => {
                             effect.name = "Grapple"
                             effect.statuses = ["grappled"]
-                            effect.changes.count = 0
+                            effect.changes.count = 2
+                            effect.changes = [
+                                {
+                                    key: "flags.midi-qol.disadvantage.skill.ath",
+                                    value: "1",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM
+                                },
+                                {
+                                    key: "flags.midi-qol.disadvantage.skill.acr",
+                                    value: "1",
+                                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM
+                                }
+                            ]
                         })
                     })
                     item.addActivity(activity => {
-                        activity.name = "Grapple Save"
+                        activity.name = "Grapple Escape"
+                        activity.type = "check"
                         activity.activationType = "special"
-                        activity.saveAbility = ["con"]
-                        activity.saveDc = 12
+                        activity.checkAssociated = ["ath", "acr"]
+                        activity.checkDc = 12
                         activity.duration.units = "inst"
                         activity.duration.concentration = false
                         activity.range.units = "self"
@@ -839,7 +852,19 @@ export const oozeTestDef = {
                     item.addEffect(effect => {
                         effect.name = "Grapple"
                         effect.statuses = ["grappled"]
-                        effect.changes.count = 0
+                        effect.changes.count = 2
+                        effect.changes = [
+                            {
+                                key: "flags.midi-qol.disadvantage.skill.ath",
+                                value: "1",
+                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM
+                            },
+                            {
+                                key: "flags.midi-qol.disadvantage.skill.acr",
+                                value: "1",
+                                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM
+                            }
+                        ]
                     })
                 })
                 actorDto.addItem(item =>

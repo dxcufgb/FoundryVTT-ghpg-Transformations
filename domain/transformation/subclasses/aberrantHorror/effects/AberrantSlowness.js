@@ -16,7 +16,7 @@ export class AberrantSlowness extends AberrantEffect
         args?.logger?.debug?.("AberrantSlowness.constructor", { args })
         super(args)
         this.description =
-            "After rolling Initiative, you have the Stunned condition until the end of your first turn"
+            "Your Speed (all modes) decreases by 15 feet and cannot be increased"
     }
 
     async beforeApply()

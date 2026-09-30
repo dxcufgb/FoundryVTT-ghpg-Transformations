@@ -1,0 +1,133 @@
+[
+    {
+        "id": "low-lycanthrope-F114-rat-stealth-expertise",
+        "pack": "gh-transformations",
+        "key": "!items.effects!Wk2EIMS6AcMFoaSv.zr3smD1G37qZMMB7",
+        "op": "set",
+        "path": "changes",
+        "value": [
+            {
+                "key": "system.abilities.dex.value",
+                "mode": 4,
+                "value": "18",
+                "priority": 20
+            },
+            {
+                "key": "macro.createItem",
+                "mode": 0,
+                "value": "Compendium.transformations.gh-transformations.Item.rTbT3kHq8WnY2pLs",
+                "priority": 20
+            },
+            {
+                "key": "macro.createItem",
+                "mode": 0,
+                "value": "Compendium.transformations.gh-transformations.Item.rTcL7vMx4QzK9dNe",
+                "priority": 20
+            },
+            {
+                "key": "macro.createItem",
+                "mode": 0,
+                "value": "Compendium.transformations.gh-transformations.Item.o2FZSdm3Uh2bu9x6",
+                "priority": 20
+            },
+            {
+                "key": "macro.createItem",
+                "mode": 0,
+                "value": "Compendium.transformations.gh-transformations.Item.oIEpysqxNtPgmgiw",
+                "priority": 20
+            },
+            {
+                "key": "system.skills.ste.value",
+                "mode": 4,
+                "value": "2",
+                "priority": 20
+            },
+            {
+                "key": "system.traits.languages.custom",
+                "mode": 2,
+                "value": "Your ability to speak is reduced to short basic guttural responses",
+                "priority": 20
+            },
+            {
+                "key": "flags.transformations.lycanthrope.hybridForm",
+                "mode": 5,
+                "value": "1",
+                "priority": 20
+            }
+        ],
+        "expect": [
+            {
+                "key": "system.abilities.dex.value",
+                "mode": 4,
+                "value": "18",
+                "priority": 20
+            },
+            {
+                "key": "macro.createItem",
+                "mode": 0,
+                "value": "Compendium.transformations.gh-transformations.Item.rTbT3kHq8WnY2pLs",
+                "priority": 20
+            },
+            {
+                "key": "macro.createItem",
+                "mode": 0,
+                "value": "Compendium.transformations.gh-transformations.Item.rTcL7vMx4QzK9dNe",
+                "priority": 20
+            },
+            {
+                "key": "macro.createItem",
+                "mode": 0,
+                "value": "Compendium.transformations.gh-transformations.Item.o2FZSdm3Uh2bu9x6",
+                "priority": 20
+            },
+            {
+                "key": "macro.createItem",
+                "mode": 0,
+                "value": "Compendium.transformations.gh-transformations.Item.oIEpysqxNtPgmgiw",
+                "priority": 20
+            },
+            {
+                "key": "system.skills.ste.value",
+                "mode": 2,
+                "value": "1",
+                "priority": 20
+            },
+            {
+                "key": "system.skills.ste.bonuses.check",
+                "mode": 2,
+                "value": "@prof",
+                "priority": 20
+            },
+            {
+                "key": "system.traits.languages.custom",
+                "mode": 2,
+                "value": "Your ability to speak is reduced to short basic guttural responses",
+                "priority": 20
+            },
+            {
+                "key": "flags.transformations.lycanthrope.hybridForm",
+                "mode": 5,
+                "value": "1",
+                "priority": 20
+            }
+        ]
+    },
+    {
+        "id": "low-lycanthrope-F120-multiattack-bonus-action",
+        "pack": "gh-transformations",
+        "key": "!items!o2FZSdm3Uh2bu9x6",
+        "op": "set",
+        "path": "system.activities.Ms63W7e3Mv2Margn.activation.type",
+        "value": "bonus",
+        "expect": "action"
+    },
+    {
+        "id": "low-lycanthrope-F121-bear-subtype",
+        "pack": "gh-transformations",
+        "key": "!items!CSIQIM4rTZt2eul4",
+        "op": "set",
+        "path": "system.type.subtype",
+        "value": "lycanthrope",
+        "expect": "lich"
+    }
+]

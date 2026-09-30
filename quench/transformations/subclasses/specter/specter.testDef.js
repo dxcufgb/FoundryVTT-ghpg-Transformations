@@ -691,6 +691,7 @@ function addCallOfUnmakingAssertions(actorDto, {
         item.addEffect(effect =>
         {
             effect.name = "Mark of Unmaking"
+            effect.duration.seconds = 60
         })
     })
 }

@@ -26,6 +26,18 @@ export function createConditionService({
         )
     }
 
+    // Sangromancy Specialist: "a spellcaster who can cast cantrips". Spell slots count
+    // (every such class has cantrips), as does an actor that owns any cantrip.
+    function canCastCantrips(actor)
+    {
+        logger.debug("createConditionService.canCastCantrips", { actor })
+        if (hasSpellSlotCapacity(actor)) return true
+
+        return Boolean(actor?.items?.some?.(item =>
+            item?.type === "spell" && item.system?.level === 0
+        ))
+    }
+
     function checkActorRequirement({ actor, requirement })
     {
         logger.debug("createConditionService.checkActorRequirement", { actor, requirement })
@@ -39,6 +51,9 @@ export function createConditionService({
             case "HAS_AVAILABLE_SPELL_SLOTS":
                 return hasAvailableSpellSlots(actor)
 
+            case "CAN_CAST_CANTRIPS":
+                return canCastCantrips(actor)
+
             default:
                 console.warn(
                     `[ConditionService] Unknown actor requirement: ${requirement}`
@@ -50,6 +65,7 @@ export function createConditionService({
     return Object.freeze({
         checkActorRequirement,
         hasSpellSlotCapacity,
-        hasAvailableSpellSlots
+        hasAvailableSpellSlots,
+        canCastCantrips
     })
 }

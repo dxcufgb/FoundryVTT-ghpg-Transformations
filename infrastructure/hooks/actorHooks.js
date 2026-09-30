@@ -144,9 +144,7 @@ async function injectTransformationLegendInTraitsTab(renderTemplate, game, modul
     if (!data) return
 
     const tab = html.querySelector('.tab-body > .tab[data-tab="specialTraits"]')
-    if (!tab.children.length) return
-
-    if (tab.querySelector('fieldset.card.transformation')) return
+    if (!tab?.children.length) return
 
     const isGM = game.user.isGM
 
@@ -162,6 +160,12 @@ async function injectTransformationLegendInTraitsTab(renderTemplate, game, modul
     )
 
     const card = $(cardHtml)
+
+    // Replace a card left from an earlier (partial) render instead of adding
+    // a second one; checked after the await so overlapping renders collapse.
+    for (const existing of tab.querySelectorAll("fieldset.transformation-card")) {
+        existing.remove()
+    }
 
     const afterFirst = tab.children[1] || null
     tab.insertBefore(card[0], afterFirst)

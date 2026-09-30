@@ -1,0 +1,34 @@
+[
+    {
+        "id": "3-low-specter-mark-of-unmaking-duration",
+        "pack": "gh-transformations",
+        "key": "!items.effects!PdRY64cTjNWgaL30.0K7ZHkDe80Fx6iAK",
+        "op": "set",
+        "path": "duration.seconds",
+        "value": 60,
+        "expect": null
+    },
+    {
+        "id": "3-low-specter-pull-of-oblivion-ignore-traits",
+        "pack": "gh-transformations",
+        "key": "!items!gIZ5Gzc4nCAkiUQ6",
+        "op": "set",
+        "path": "system.activities.TCZLjQrRAgwql9fI.midiProperties.ignoreTraits",
+        "value": [
+            "idi",
+            "idr",
+            "ida",
+            "idm"
+        ],
+        "expect": []
+    },
+    {
+        "id": "3-low-specter-ghastly-touch-macro-optional-flags",
+        "pack": "gh-transformations",
+        "key": "!items!TVXr6k6ItMlp8jPn",
+        "op": "set",
+        "path": "flags.dae.macro.command",
+        "value": "if(args[0].workflow.activity.name == \"Paralyzing touch extra damage\"){\n  if (!args[0].actor.items.find(i => i.flags?.transformations?.sourceUuid === \"Compendium.transformations.gh-transformations.Item.kqUqRvNBuxkVNGNH\")){\n    return false;\n  }\n}",
+        "expect": "if(args[0].workflow.activity.name == \"Paralyzing touch extra damage\"){\n  if (!args[0].actor.items.find(i => i.flags.transformations.sourceUuid === \"Compendium.transformations.gh-transformations.Item.kqUqRvNBuxkVNGNH\")){\n    return false;\n  }\n}"
+    }
+]

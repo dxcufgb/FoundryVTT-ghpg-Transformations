@@ -21,7 +21,7 @@ export function createSettingsMenu({
             info: "Info",
             debug: "Debug"
         },
-        default: "Warning"
+        default: "warn"
     })
 
     game.settings.register(MODULE_ID, "downgradeTransformationAllowedRoles", {

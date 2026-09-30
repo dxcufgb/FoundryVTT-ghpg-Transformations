@@ -140,10 +140,18 @@ function createHarness({
         }
     }
 
+    const transformationRegistry = {
+        getEntryForActor()
+        {
+            return {TransformationClass}
+        }
+    }
+
     // Every client (players included) registers the preUpdate* hooks.
     registerActorPreUpdateHooks({
         actorRepository,
         transformationQueryService,
+        transformationRegistry,
         logger: createLogger()
     })
 
@@ -286,6 +294,32 @@ quench.registerBatch(
                     )
 
                     expect(actor.flags.transformations.lich.soulVesselCharged).to.equal(true)
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("writes preUpdateItem state into the update options synchronously", function()
+            {
+                const actor = createActor()
+                const harness = createHarness()
+                const item = createSoulVessel(actor, {
+                    value: 1,
+                    spent: 0
+                })
+                const options = {}
+
+                try {
+                    const result = harness.callbacks.get("preUpdateItem")(
+                        item,
+                        {system: {uses: {value: 0, spent: 1}}},
+                        options,
+                        "user-1"
+                    )
+
+                    // Foundry does not await preUpdate* hooks, so nothing may be deferred.
+                    expect(result instanceof Promise).to.equal(false)
+                    expect(options.transformations?.lich?.soulVesselCharged).to.equal(false)
                 } finally {
                     harness.restore()
                 }

@@ -6,6 +6,9 @@ import { ContextValidationDTO } from "../../../helpers/validationDTOs/context/Co
 import { EffectValidationDTO } from "../../../helpers/validationDTOs/effect/EffectValidationDTO.js"
 import { MessageValidationDTO } from "../../../helpers/validationDTOs/message/MessageValidationDTO.js"
 import { AberrantHorror } from "../../../../domain/transformation/subclasses/aberrantHorror/AberrantHorror.js"
+import { aberrantHorrorEffects } from "../../../../domain/transformation/subclasses/aberrantHorror/effects/index.js"
+import { onConcentration } from "../../../../domain/transformation/subclasses/aberrantHorror/triggers/onConcentration.js"
+import { onUnconscious } from "../../../../domain/transformation/subclasses/aberrantHorror/triggers/onUnconscious.js"
 // test/definitions/aberrantHorror.testdef.js
 export const AberrantHorrorTestDef = {
     id: "aberrant-horror",
@@ -146,6 +149,7 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
                     "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
                     "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz",
+                    "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT",
                     "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
                     "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq",
                     "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat"
@@ -190,6 +194,7 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
                     "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
                     "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz",
+                    "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT",
                     "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
                     "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
                     "Compendium.transformations.gh-transformations.Item.QO6SsGjul4dZUxd5"
@@ -234,6 +239,7 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
                     "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
                     "Compendium.transformations.gh-transformations.Item.jEd1HSOhm7sJcNXz",
+                    "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT",
                     "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
                     "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
                     "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat"
@@ -285,6 +291,7 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
                     "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
                     "Compendium.transformations.gh-transformations.Item.bZIioCqc5wwEUdKG",
+                    "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT",
                     "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
                     "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
                     "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
@@ -345,6 +352,7 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
                     "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
                     "Compendium.transformations.gh-transformations.Item.bZIioCqc5wwEUdKG",
+                    "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT",
                     "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
                     "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
                     "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
@@ -405,6 +413,7 @@ export const AberrantHorrorTestDef = {
                     "Compendium.transformations.gh-transformations.Item.fqCu1G3ZS91WHTw9",
                     "Compendium.transformations.gh-transformations.Item.EUL3OB8Il8nTydsu",
                     "Compendium.transformations.gh-transformations.Item.bZIioCqc5wwEUdKG",
+                    "Compendium.transformations.gh-transformations.Item.bsBdRmfRxCxzJokT",
                     "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV",
                     "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
                     "Compendium.transformations.gh-transformations.Item.aJasAyo9CCBdyuat",
@@ -956,6 +965,72 @@ export const AberrantHorrorTestDef = {
             {
                 assert.isTrue(staticVars.afterSpellSave)
                 assert.isFalse(staticVars.afterOtherSave)
+            }
+        },
+
+        {
+            name: "Every Unstable Form table result resolves to an Aberrant effect",
+
+            requiredPath: [
+                {stage: 1}
+            ],
+
+            steps: [
+                async ({staticVars}) =>
+                {
+                    const tableUuids = [
+                        "Compendium.transformations.gh-roll-tables.RollTable.NcOgsdD3d4dassuY",
+                        "Compendium.transformations.gh-roll-tables.RollTable.bHA1uo22DkMiJJuG",
+                        "Compendium.transformations.gh-roll-tables.RollTable.7M7eNAAjMGQhSiVY",
+                        "Compendium.transformations.gh-roll-tables.RollTable.bBA81xCQndyJAIPi"
+                    ]
+                    staticVars.unresolved = []
+                    staticVars.missingTables = []
+                    for (const uuid of tableUuids) {
+                        const table = await fromUuid(uuid)
+                        if (!table) {
+                            staticVars.missingTables.push(uuid)
+                            continue
+                        }
+                        for (const result of table.results) {
+                            const effectKey = result.flags?.transformations?.effectKey ||
+                                (typeof result.name === "string" ? result.name.replaceAll(" ", "") : "")
+                            if (!aberrantHorrorEffects[effectKey]) {
+                                staticVars.unresolved.push(`${table.name} ${result.range.join("-")}: "${effectKey}"`)
+                            }
+                        }
+                    }
+                }
+            ],
+
+            assertions: async ({assert, staticVars}) =>
+            {
+                assert.deepEqual(staticVars.missingTables, [], "All Unstable Form tables should exist")
+                assert.deepEqual(staticVars.unresolved, [], "Every table result should resolve to an Aberrant effect")
+            }
+        },
+
+        {
+            name: "Hideous Appearance save cards link the Hideous Appearance item with trigger-specific text",
+
+            requiredPath: [
+                {stage: 1}
+            ],
+
+            steps: [],
+
+            assertions: async ({assert}) =>
+            {
+                const hideousAppearanceUuid = "Compendium.transformations.gh-transformations.Item.xmCGLWU5p3RjVmRV"
+                const concentrationFlavor = onConcentration.actionGroups[0].actions[0].data.flavor
+                const unconsciousFlavor = onUnconscious.actionGroups[0].actions[0].data.flavor
+
+                assert.equal(concentrationFlavor.itemUuid, hideousAppearanceUuid)
+                assert.equal(unconsciousFlavor.itemUuid, hideousAppearanceUuid)
+                assert.notInclude(concentrationFlavor.body, "bloodied")
+                assert.include(concentrationFlavor.body, "concentrate")
+                assert.notInclude(unconsciousFlavor.body, "bloodied")
+                assert.include(unconsciousFlavor.body, "Unconscious")
             }
         },
 

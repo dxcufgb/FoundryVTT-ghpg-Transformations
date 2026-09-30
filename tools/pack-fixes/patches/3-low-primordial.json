@@ -1,0 +1,19 @@
+[
+  {
+    "id": "3-low-primordial-F131-heart-of-stone-special-duration",
+    "pack": "gh-transformations",
+    "key": "!items.effects!esO6UI1o9ZRlMn2W.eHFFf9m6aSpDKO2d",
+    "op": "set",
+    "path": "flags.dae.specialDuration",
+    "value": ["longRest"],
+    "expect": []
+  },
+  {
+    "id": "3-low-primordial-F131-heart-of-stone-flag",
+    "pack": "gh-transformations",
+    "key": "!items.effects!esO6UI1o9ZRlMn2W.eHFFf9m6aSpDKO2d",
+    "op": "set",
+    "path": "flags.transformations.heartOfStone",
+    "value": true
+  }
+]

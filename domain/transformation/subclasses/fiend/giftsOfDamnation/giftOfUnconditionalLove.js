@@ -86,13 +86,14 @@ export class GiftOfUnconditionalLove
         }
     }
 
-    static async apply({actor, actorRepository, itemRepository}) {
+    static async apply({actor, actorRepository, itemRepository, replacedGift = false}) {
         const sourceItem = this.itemUuid
             ? await fromUuid(this.itemUuid)
             : null
 
         return applyGiftOfDamnation({
             actor,
+            replacedGift,
             giftClass: this,
             itemRepository,
             actorRepository,

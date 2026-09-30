@@ -1,0 +1,135 @@
+[
+    {
+        "id": "3-low-vampire-F101-beguilers-charm-24h",
+        "pack": "gh-transformations",
+        "key": "!items.effects!zqHnVx3qp8v5MqM6.vGoSz5vgrX2vsQ9q",
+        "op": "set",
+        "path": "duration.seconds",
+        "value": 86400,
+        "expect": null
+    },
+    {
+        "id": "3-low-vampire-F104-regeneration-overtime-effect",
+        "pack": "gh-transformations",
+        "key": "!items.effects!TKHTXSYMDDTYBVWW.vRgnOvrTmeHeal15",
+        "op": "create",
+        "doc": {
+            "name": "Regeneration",
+            "img": "modules/transformations/Icons/Transformations/Vampire/Regeneration.png",
+            "origin": "Compendium.transformations.gh-transformations.Item.TKHTXSYMDDTYBVWW",
+            "_id": "vRgnOvrTmeHeal15",
+            "type": "base",
+            "system": {},
+            "changes": [
+                {
+                    "key": "flags.midi-qol.OverTime",
+                    "mode": 0,
+                    "value": "turn=start, damageRoll=15, damageType=healing, applyCondition=@attributes.hp.value >= 1 && @attributes.hp.value < 60, label=Regeneration",
+                    "priority": 20
+                }
+            ],
+            "disabled": false,
+            "duration": {
+                "startTime": null,
+                "combat": null,
+                "seconds": null,
+                "rounds": null,
+                "turns": null,
+                "startRound": null,
+                "startTurn": null
+            },
+            "description": "<p>At the start of each of your turns in combat you automatically regain 15 Hit Points if you have at least 1 Hit Point but less than 60 Hit Points. Disable this effect for the turn if you are in sunlight or have taken Radiant damage since the end of your last turn.</p>",
+            "tint": "#ffffff",
+            "transfer": true,
+            "statuses": [],
+            "sort": 0,
+            "flags": {
+                "dnd5e": {
+                    "riders": {
+                        "statuses": []
+                    }
+                },
+                "dae": {
+                    "disableCondition": "",
+                    "stackable": "noneName",
+                    "showIcon": false,
+                    "disableIncapacitated": false,
+                    "durationExpression": "",
+                    "macroRepeat": "none",
+                    "specialDuration": []
+                },
+                "core": {
+                    "overlay": false
+                },
+                "ActiveAuras": {
+                    "isAura": false,
+                    "aura": "All",
+                    "nameOverride": "",
+                    "radius": "",
+                    "alignment": "",
+                    "type": "",
+                    "customCheck": "",
+                    "ignoreSelf": false,
+                    "height": false,
+                    "hidden": false,
+                    "displayTemp": false,
+                    "hostile": false,
+                    "onlyOnce": false,
+                    "wallsBlock": "system",
+                    "statuses": []
+                }
+            },
+            "_stats": {
+                "compendiumSource": null,
+                "duplicateSource": null,
+                "exportSource": null,
+                "coreVersion": "13.351",
+                "systemId": "dnd5e",
+                "systemVersion": "5.2.5",
+                "createdTime": null,
+                "modifiedTime": null,
+                "lastModifiedBy": null
+            }
+        }
+    },
+    {
+        "id": "3-low-vampire-F104-regeneration-effect-link",
+        "pack": "gh-transformations",
+        "key": "!items!TKHTXSYMDDTYBVWW",
+        "op": "arrayAdd",
+        "path": "effects",
+        "value": "vRgnOvrTmeHeal15"
+    },
+    {
+        "id": "3-low-vampire-F105-greater-curse-type",
+        "pack": "gh-transformations",
+        "key": "!items!ZCqnYQJ2nFR8AWQq",
+        "op": "set",
+        "path": "system.type.value",
+        "value": "transformation",
+        "expect": ""
+    },
+    {
+        "id": "3-low-vampire-F105-greater-curse-subtype",
+        "pack": "gh-transformations",
+        "key": "!items!ZCqnYQJ2nFR8AWQq",
+        "op": "set",
+        "path": "system.type.subtype",
+        "value": "vampire",
+        "expect": ""
+    },
+    {
+        "id": "3-low-vampire-F106-fzeg-claw-onuse",
+        "pack": "gh-transformations",
+        "key": "!items!0ZgPuhqfVv3Nk0x4",
+        "op": "unset",
+        "path": "flags.midi-qol.onUseMacroName"
+    },
+    {
+        "id": "3-low-vampire-F106-fzeg-claw-dae-macro",
+        "pack": "gh-transformations",
+        "key": "!items!0ZgPuhqfVv3Nk0x4",
+        "op": "unset",
+        "path": "flags.dae.macro"
+    }
+]

@@ -33,7 +33,7 @@ export const onConcentration = {
                         flavor: {
                             itemUuid: "Compendium.transformations.gh-transformations.Item.nCsHUZkM8p26at19",
                             subtitle: "Transformation Feature",
-                            body: "When you become bloodied you need to roll a DC @transformationSaveDC constitution saving throw. If you fail this save, your Horrific Appearance is revealed."
+                            body: "When you concentrate on a spell you need to roll a DC @transformationSaveDC constitution saving throw. If you fail this save, your Horrific Appearance is revealed."
                         }
                     }
                 },

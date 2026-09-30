@@ -1,0 +1,167 @@
+[
+    {
+        "id": "3-low-lich-magica-enforce-disadv-turn-end",
+        "pack": "gh-transformations",
+        "key": "!items.effects!0wnk2ZQGOrwMvxH3.dQzYsMWKJw6E7rKc",
+        "op": "set",
+        "path": "flags.dae.specialDuration",
+        "value": [
+            "turnEnd"
+        ],
+        "expect": []
+    },
+    {
+        "id": "3-low-lich-magica-enforce-disadv-seconds",
+        "pack": "gh-transformations",
+        "key": "!items.effects!0wnk2ZQGOrwMvxH3.dQzYsMWKJw6E7rKc",
+        "op": "set",
+        "path": "duration.seconds",
+        "value": 12,
+        "expect": null
+    },
+    {
+        "id": "3-low-lich-magica-vessel-check-macro",
+        "pack": "gh-transformations",
+        "key": "!items!0wnk2ZQGOrwMvxH3",
+        "op": "set",
+        "path": "flags.midi-qol",
+        "value": {
+            "onUseMacroName": "[preTargeting]ItemMacro"
+        }
+    },
+    {
+        "id": "3-low-lich-soul-shattering-activity",
+        "pack": "gh-transformations",
+        "key": "!items!p5Ub9sHX1mCyNLEc",
+        "op": "set",
+        "path": "system.activities.sSAtk7Qv2LmNpX4c",
+        "value": {
+            "type": "utility",
+            "name": "Soul-Shattering Attack",
+            "_id": "sSAtk7Qv2LmNpX4c",
+            "sort": 0,
+            "activation": {
+                "type": "special",
+                "override": false,
+                "condition": "After you make a weapon attack or Unarmed Strike"
+            },
+            "consumption": {
+                "scaling": {
+                    "allowed": false
+                },
+                "spellSlot": true,
+                "targets": [
+                    {
+                        "type": "itemUses",
+                        "value": "1",
+                        "target": ""
+                    },
+                    {
+                        "type": "itemUses",
+                        "value": "1",
+                        "target": "soul-vessel"
+                    }
+                ]
+            },
+            "description": {
+                "chatFlavor": "Spend the charge in your soul vessel to add the Challenge Rating of the soul within it to the attack roll and damage dealt with that attack. If the creature dies from that attack, you can instantly recharge your soul vessel with the soul that you just expended."
+            },
+            "duration": {
+                "units": "inst",
+                "concentration": false,
+                "override": false
+            },
+            "effects": [],
+            "flags": {},
+            "range": {
+                "units": "self",
+                "override": false,
+                "special": ""
+            },
+            "target": {
+                "template": {
+                    "contiguous": false,
+                    "units": "ft",
+                    "type": ""
+                },
+                "affects": {
+                    "choice": false,
+                    "type": ""
+                },
+                "override": false,
+                "prompt": false
+            },
+            "uses": {
+                "spent": 0,
+                "recovery": [],
+                "max": ""
+            },
+            "visibility": {
+                "level": {
+                    "min": null,
+                    "max": null
+                },
+                "requireAttunement": false,
+                "requireIdentification": false,
+                "requireMagic": false,
+                "identifier": ""
+            },
+            "roll": {
+                "prompt": false,
+                "visible": false,
+                "name": "",
+                "formula": ""
+            },
+            "useConditionText": "",
+            "useConditionReason": "",
+            "effectConditionText": "",
+            "macroData": {
+                "name": "",
+                "command": ""
+            },
+            "ignoreTraits": {
+                "idi": false,
+                "idr": false,
+                "idv": false,
+                "ida": false,
+                "idm": false
+            },
+            "midiProperties": {
+                "ignoreTraits": [],
+                "triggeredActivityId": "none",
+                "triggeredActivityConditionText": "",
+                "triggeredActivityTargets": "targets",
+                "triggeredActivityRollAs": "self",
+                "autoConsume": true,
+                "forceConsumeDialog": "default",
+                "forceRollDialog": "default",
+                "forceDamageDialog": "default",
+                "confirmTargets": "default",
+                "autoTargetType": "any",
+                "autoTargetAction": "default",
+                "automationOnly": false,
+                "otherActivityCompatible": true,
+                "otherActivityAsParentType": true,
+                "identifier": "",
+                "displayActivityName": false,
+                "rollMode": "default",
+                "chooseEffects": false,
+                "toggleEffect": false,
+                "ignoreFullCover": false,
+                "removeChatButtons": "default",
+                "magicEffect": false,
+                "magicDamage": false,
+                "noConcentrationCheck": false,
+                "skipConcentrationCheck": false,
+                "autoCEEffects": "default"
+            },
+            "isOverTimeFlag": false,
+            "overTimeProperties": {
+                "saveRemoves": true,
+                "preRemoveConditionText": "",
+                "postRemoveConditionText": ""
+            },
+            "img": ""
+        }
+    }
+]

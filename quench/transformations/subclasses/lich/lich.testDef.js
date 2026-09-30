@@ -1351,6 +1351,7 @@ export const lichTestDef = {
             finalAssertions: async ({actor, assert}) =>
             {
                 const actorProf = actor.system.attributes.prof
+                const soulVesselId = actor.items.find(i => i.name === "Soul Vessel")._id
 
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
@@ -1363,6 +1364,22 @@ export const lichTestDef = {
                     item.uses.addRecovery(recovery => {
                         recovery.period = "lr"
                         recovery.type = "recoverAll"
+                    })
+                    item.addActivity(activity => {
+                        activity.name = "Soul-Shattering Attack"
+                        activity.activationType = "special"
+                        activity.addConsumption(consumption => {
+                            consumption.numberOfTargets = 2
+                            consumption.addTarget(target => {
+                                target.type = "itemUses"
+                                target.value = 1
+                            })
+                            consumption.addTarget(target => {
+                                target.target = soulVesselId
+                                target.type = "itemUses"
+                                target.value = 1
+                            })
+                        })
                     })
                 })
                 validate(actorDto, {assert})

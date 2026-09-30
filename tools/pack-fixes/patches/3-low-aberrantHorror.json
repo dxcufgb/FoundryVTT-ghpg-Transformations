@@ -1,0 +1,50 @@
+[
+    {
+        "id": "low-aberrantHorror-terrifying-visage-no-template-type",
+        "pack": "gh-transformations",
+        "key": "!items!aJasAyo9CCBdyuat",
+        "op": "set",
+        "path": "system.activities.iwzC6ZjXugpptEH5.target.template.type",
+        "value": "",
+        "expect": "emanationNoTemplate"
+    },
+    {
+        "id": "low-aberrantHorror-terrifying-visage-no-template-size",
+        "pack": "gh-transformations",
+        "key": "!items!aJasAyo9CCBdyuat",
+        "op": "set",
+        "path": "system.activities.iwzC6ZjXugpptEH5.target.template.size",
+        "value": "",
+        "expect": "15"
+    },
+    {
+        "id": "low-aberrantHorror-item-unset-stale-stages-flag",
+        "pack": "gh-transformations",
+        "key": "!items!LYRqg32rV17vq7L2",
+        "op": "unset",
+        "path": "flags.transformations.stages"
+    },
+    {
+        "id": "low-aberrantHorror-item-unset-stale-triggers-flag",
+        "pack": "gh-transformations",
+        "key": "!items!LYRqg32rV17vq7L2",
+        "op": "unset",
+        "path": "flags.transformations.triggers"
+    },
+    {
+        "id": "low-aberrantHorror-item-unset-stale-effects-flag",
+        "pack": "gh-transformations",
+        "key": "!items!LYRqg32rV17vq7L2",
+        "op": "unset",
+        "path": "flags.transformations.effects"
+    },
+    {
+        "id": "3-low-aberrantHorror-chitinous-shell-signed-ac-bonus",
+        "pack": "gh-transformations",
+        "key": "!items.effects!fqCu1G3ZS91WHTw9.GnLJJWrvhECvnzLk",
+        "op": "set",
+        "path": "changes.0.value",
+        "value": "+2",
+        "expect": "2"
+    }
+]

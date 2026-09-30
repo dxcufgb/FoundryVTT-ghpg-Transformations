@@ -29,9 +29,9 @@ export function registerItemActionTests({ describe, it, expect })
             calls = []
 
             fakeRepo = {
-                addItemFromUuid: async (a, uuid, options) =>
+                addItemFromUuid: async (options) =>
                 {
-                    calls.push({ fn: "add", uuid, options })
+                    calls.push({ fn: "add", uuid: options?.uuid, options })
                 },
 
                 findEmbeddedByUuidFlag: (a, uuid) =>
@@ -88,7 +88,7 @@ export function registerItemActionTests({ describe, it, expect })
             expect(result).to.equal(true)
             expect(calls[0].fn).to.equal("add")
             expect(calls[0].uuid).to.equal("test-uuid")
-            expect(calls[0].options.context.foo).to.equal("bar")
+            expect(calls[0].options.actor).to.equal(actor)
         })
 
         // ─────────────────────────────────────────────

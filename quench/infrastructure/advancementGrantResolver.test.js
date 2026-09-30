@@ -217,7 +217,7 @@ quench.registerBatch(
                     label: "Arcana",
                     description: "Gain proficiency in Arcana.",
                     source: "transformation",
-                    icon: "modules/transformations/Icons/skills/Arcana.png",
+                    icon: "modules/transformations/Icons/Skills/Arcana.png",
                     origin: "Actor.actor-1",
                     skillIdentifier: "arc",
                     changes: [

@@ -126,6 +126,11 @@ const LycanthropeForms = [
                     value: 18
                 },
                 {
+                    key: "system.skills.ste.value",
+                    mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+                    value: 2
+                },
+                {
                     key: "system.traits.languages.custom",
                     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
                     value: "Your ability to speak is reduced to short basic guttural responses"

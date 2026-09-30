@@ -25,7 +25,7 @@ export async function setupTest({
         returnObjects.runtime = createTestRuntime({
             serviceMocks: createObjects.runtime.serviceMocks != undefined ? createObjects.runtime.serviceMocks : {},
             infrastructureMocks: createObjects.runtime.infrastructureMocks != undefined ? createObjects.runtime.infrastructureMocks : {},
-            loggerLevel: createObjects.runtime.loggerLevel != undefined ? createObjects.runtime.loggerLevel : {}
+            loggerLevel: createObjects.runtime.loggerLevel != undefined ? createObjects.runtime.loggerLevel : 0
         })
         registerTransformationMacros({
             macroRegistry: returnObjects.runtime.infrastructure.macroRegistry,

@@ -1,4 +1,5 @@
 import { disadvantageOnAllD20RollsEffectChanges } from "../../config/disadvantageOnAllD20Rolls.js"
+import { HeartOfStone } from "../../domain/transformation/subclasses/primordial/Feats/HeartOfStone.js"
 
 export function registerGMOnlyActorHooks({
     game,
@@ -63,6 +64,13 @@ export function registerGMOnlyActorHooks({
         logger.debug("GM updateActor", actor, changed, options, userId)
         if (!isActiveGM()) return
         debouncedTracker.pulse("GM.updateActor")
+
+        // Runs for every actor, including non-transformed recipients of Heart of Stone.
+        try {
+            await HeartOfStone.removeIfTempHpDepleted({actor, changed, logger})
+        } catch (err) {
+            logger.error("Error removing Heart of Stone effect", {actor, err})
+        }
 
         const previousHp = getPreviousHpFromOptions(actor, options)
 
@@ -348,12 +356,14 @@ export function registerGMOnlyActorHooks({
 export function registerActorPreUpdateHooks({
     actorRepository,
     transformationQueryService,
+    transformationRegistry,
     logger
 })
 {
     logger.debug("registerActorPreUpdateHooks", {
         actorRepository,
-        transformationQueryService
+        transformationQueryService,
+        transformationRegistry
     })
 
     Hooks.on("preUpdateActor", (actor, changed, options, userId) =>
@@ -398,13 +408,36 @@ export function registerActorPreUpdateHooks({
 
     })
 
-    Hooks.on("preUpdateItem", async (item, changed, options, userId) =>
+    // Must stay synchronous: Foundry sends the update as soon as preUpdate* hooks return,
+    // so anything written to options after an await would be lost.
+    Hooks.on("preUpdateItem", (item, changed, options, userId) =>
     {
-        await dispatchTransformationItemHook({
-            actorRepository,
-            transformationQueryService,
-            logger
-        }, "preUpdateItem", item, changed, options, userId)
+        logger.debug("preUpdateItem", item, changed, options, userId)
+        const actor = actorRepository.resolveActor(item?.parent)
+        if (!actor) return
+
+        const TransformationClass =
+            transformationRegistry?.getEntryForActor(actor)?.TransformationClass
+
+        if (typeof TransformationClass?.preUpdateItem !== "function") return
+
+        try {
+            TransformationClass.preUpdateItem({
+                item,
+                changed,
+                options,
+                userId,
+                actor,
+                logger
+            })
+        } catch (err) {
+            logger.error("Error handling preUpdateItem transformation hook", {
+                actor,
+                item,
+                changed,
+                err
+            })
+        }
     })
 }
 

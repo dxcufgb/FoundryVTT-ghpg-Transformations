@@ -1,0 +1,96 @@
+[
+    {
+        "id": "3-low-ooze-F23-transparent-stealth-only",
+        "pack": "gh-transformations",
+        "key": "!items.effects!tnQ6DL0epyIXWwkJ.pubq96jHqX92pzea",
+        "op": "set",
+        "path": "changes.0.key",
+        "value": "system.skills.ste.roll.mode",
+        "expect": "system.abilities.dex.check.roll.mode"
+    },
+    {
+        "id": "3-low-ooze-F25-grapple-escape-type-check",
+        "pack": "gh-transformations",
+        "key": "!items!TZ1uye2noWJA7gf0",
+        "op": "set",
+        "path": "system.activities.Vse4yvjtEo8zzK9F.type",
+        "value": "check",
+        "expect": "save"
+    },
+    {
+        "id": "3-low-ooze-F25-grapple-escape-name",
+        "pack": "gh-transformations",
+        "key": "!items!TZ1uye2noWJA7gf0",
+        "op": "set",
+        "path": "system.activities.Vse4yvjtEo8zzK9F.name",
+        "value": "Grapple Escape",
+        "expect": "Grapple Save"
+    },
+    {
+        "id": "3-low-ooze-F25-grapple-escape-check",
+        "pack": "gh-transformations",
+        "key": "!items!TZ1uye2noWJA7gf0",
+        "op": "set",
+        "path": "system.activities.Vse4yvjtEo8zzK9F.check",
+        "value": {
+            "ability": "",
+            "associated": ["ath", "acr"],
+            "dc": {
+                "calculation": "",
+                "formula": "8+@abilities.con.mod+@flags.transformations.stage"
+            }
+        }
+    },
+    {
+        "id": "3-low-ooze-F25-grapple-escape-unset-save",
+        "pack": "gh-transformations",
+        "key": "!items!TZ1uye2noWJA7gf0",
+        "op": "unset",
+        "path": "system.activities.Vse4yvjtEo8zzK9F.save"
+    },
+    {
+        "id": "3-low-ooze-F25-grapple-escape-unset-damage",
+        "pack": "gh-transformations",
+        "key": "!items!TZ1uye2noWJA7gf0",
+        "op": "unset",
+        "path": "system.activities.Vse4yvjtEo8zzK9F.damage"
+    },
+    {
+        "id": "3-low-ooze-F25-grapple-escape-unset-friendly-save",
+        "pack": "gh-transformations",
+        "key": "!items!TZ1uye2noWJA7gf0",
+        "op": "unset",
+        "path": "system.activities.Vse4yvjtEo8zzK9F.friendlySave"
+    },
+    {
+        "id": "3-low-ooze-F25-grapple-escape-disadvantage",
+        "pack": "gh-transformations",
+        "key": "!items.effects!TZ1uye2noWJA7gf0.o69nEdev49jmEvhf",
+        "op": "set",
+        "path": "changes",
+        "value": [
+            {
+                "key": "flags.midi-qol.disadvantage.skill.ath",
+                "mode": 0,
+                "value": "1",
+                "priority": 20
+            },
+            {
+                "key": "flags.midi-qol.disadvantage.skill.acr",
+                "mode": 0,
+                "value": "1",
+                "priority": 20
+            }
+        ],
+        "expect": []
+    },
+    {
+        "id": "3-low-ooze-F25-grapple-effect-description",
+        "pack": "gh-transformations",
+        "key": "!items.effects!TZ1uye2noWJA7gf0.o69nEdev49jmEvhf",
+        "op": "set",
+        "path": "description",
+        "value": "<p>Grappled by a mimicking ooze. Ability checks made to escape this grapple have Disadvantage.</p>",
+        "expect": ""
+    }
+]

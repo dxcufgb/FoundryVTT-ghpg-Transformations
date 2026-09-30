@@ -2,6 +2,7 @@ import { Transformation } from "../../Transformation.js"
 import { createHagsEye } from "./Activities/CreateHagsEye.js"
 import { GrantWaterBreathing } from "./Activities/GrantWaterBreathing.js"
 import { hagSpellRecovery } from "./Activities/HagSpellRecovery.js"
+import { MasterOfRedClawHealing } from "./Activities/MasterOfRedClawHealing.js"
 import { activityMatchesName } from "../../../../utils/activityNames.js"
 
 /**
@@ -81,6 +82,17 @@ export class Hag extends Transformation
         triggeringUserId = null
     )
     {
+        this.logger?.debug?.("Hag.onActivityUse", activity, usage, message)
+        if (MasterOfRedClawHealing.onActivityUse({
+            activity,
+            usage,
+            actor: usage?.workflow?.actor ?? activity?.actor ?? null,
+            logger: this.logger
+        }))
+        {
+            return
+        }
+
         // "Midi Use" is called "Use" when midi-qol's activity name prefix is off
         const activityName = activityMatchesName(activity, "Midi Use")
             ? "Midi Use"

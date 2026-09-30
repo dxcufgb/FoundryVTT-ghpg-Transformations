@@ -1,0 +1,36 @@
+[
+  {
+    "id": "3-low-shadowsteelGhoul-F135-absorption-ac-bonus-key",
+    "pack": "gh-transformations",
+    "key": "!items.effects!Gf5NFuIgltNZ1RFI.RCi9juXaTBtk5Oly",
+    "op": "set",
+    "path": "changes.0.key",
+    "value": "system.attributes.ac.bonus",
+    "expect": "system.attributes.ac.armor"
+  },
+  {
+    "id": "3-low-shadowsteelGhoul-F135-absorption-ac-bonus-signed-value",
+    "pack": "gh-transformations",
+    "key": "!items.effects!Gf5NFuIgltNZ1RFI.RCi9juXaTBtk5Oly",
+    "op": "set",
+    "path": "changes.0.value",
+    "value": "+1",
+    "expect": "1"
+  },
+  {
+    "id": "3-low-shadowsteelGhoul-F135-absorption-disable-when-armored",
+    "pack": "gh-transformations",
+    "key": "!items.effects!Gf5NFuIgltNZ1RFI.RCi9juXaTBtk5Oly",
+    "op": "set",
+    "path": "flags.dae.disableCondition",
+    "value": "@attributes.ac.equippedArmor.system.armor.value > 0",
+    "expect": ""
+  },
+  {
+    "id": "3-low-shadowsteelGhoul-F185-weapon-master-remove-empty-itemmacro",
+    "pack": "gh-transformations",
+    "key": "!items!cPHwqVOf3unl7c1r",
+    "op": "unset",
+    "path": "flags.midi-qol.onUseMacroName"
+  }
+]

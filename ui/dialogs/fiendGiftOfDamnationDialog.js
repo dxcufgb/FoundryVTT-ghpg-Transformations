@@ -73,6 +73,7 @@ export class FiendGiftOfDamnationDialog
             }
             this.close()
         })
+        if (!select) return
         select.addEventListener("change", () => {
             this.updateDescription(root, select)
         })
@@ -91,6 +92,7 @@ export class FiendGiftOfDamnationDialog
     }
 
     updateDescription(root, select) {
+        if (!select) return
         const value = select.value
         const descriptions = root.querySelectorAll('.fiend-gift-description')
 

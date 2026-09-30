@@ -119,8 +119,9 @@ async function main()
                 const doc = await read(op.key)
                 if (op.op === "create") {
                     if (doc !== undefined && doc !== null) {
-                        if (same(doc, op.doc)) { report.skipped++; continue }
-                        errors.push(`${label}: create target ${op.key} already exists with different content`)
+                        // Already created by an earlier run; later ops may have changed it since.
+                        if (!same(doc, op.doc)) console.log(`${label}: ${op.key} already exists (changed since creation), skipped`)
+                        report.skipped++
                         continue
                     }
                     changes.set(op.key, structuredClone(op.doc)); report.applied++; continue

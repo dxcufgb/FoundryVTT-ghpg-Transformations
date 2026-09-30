@@ -90,27 +90,6 @@ function resolveDamageTypeFromDetails(damageDetails, {preferElemental = false} =
         : null
 }
 
-function resolveAppliedDamageForType(damages, damageType)
-{
-    if (!Array.isArray(damages)) return null
-
-    let found = false
-    const total = damages.reduce((sum, entry) =>
-    {
-        if (entry?.type !== damageType) return sum
-
-        const value = Number(entry?.value)
-        if (!Number.isFinite(value)) return sum
-
-        found = true
-        return sum + value
-    }, 0)
-
-    return found
-        ? Math.max(0, Math.floor(total))
-        : null
-}
-
 function resolveRawDamageAmount(damageDetails, damageType)
 {
     const details = Array.isArray(damageDetails)
@@ -655,7 +634,7 @@ export function registerDnd5eHooks({
         const pendingType = options?.transformations?.damageType
         if (pendingType) {
             options.transformations.appliedDamage =
-                resolveAppliedDamageForType(damages, pendingType)
+                ElementalImbalance.resolveAppliedDamageForType(damages, pendingType)
         }
     })
 
@@ -724,7 +703,7 @@ export function registerDnd5eHooks({
         if (!actor) return
 
         const transformation = transformationRegistry.getEntryForActor(actor)
-        transformation.TransformationClass.onPreRollHitDie(context, actor)
+        transformation?.TransformationClass?.onPreRollHitDie?.(context, actor)
     })
 
     Hooks.on("dnd5e.preRollSavingThrow", (context, options, data) =>
@@ -1092,7 +1071,7 @@ export function registerDnd5eHooks({
 
     Hooks.on("dnd5e.postUseActivity", async (activity, usage, changes) => {
         logger.debug("dnd5e.postUseActivity called", activity, usage, changes)
-        const actor = usage.workflow.actor
+        const actor = usage?.workflow?.actor ?? activity?.actor ?? null
         if (!actor) return
         const triggeringUserId = resolveTriggeringUserId(
             changes?.message,
