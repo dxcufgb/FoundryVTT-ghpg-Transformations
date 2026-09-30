@@ -157,6 +157,7 @@ export function createActiveEffectRepository({
         changes = [],
         duration = {},
         flags = {},
+        statuses = [],
         context = {},
         origin = ""
     })
@@ -191,6 +192,7 @@ export function createActiveEffectRepository({
             changes,
             duration,
             origin,
+            statuses,
             flags: {
                 ...flags,
                 ddbimporter: {

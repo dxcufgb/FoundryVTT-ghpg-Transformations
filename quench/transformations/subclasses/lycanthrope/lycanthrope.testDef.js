@@ -318,29 +318,9 @@ export const lycanthropeTestDef = {
                         effect.name = "Silver Sensitivity"
                         effect.changes = [
                             {
-                                "key": "system.traits.dv.value",
-                                "value": "bludgeoning",
-                                "mode": 2
-                            },
-                            {
-                                "key": "system.traits.dv.value",
-                                "value": "piercing",
-                                "mode": 2
-                            },
-                            {
-                                "key": "system.traits.dv.value",
-                                "value": "slashing",
-                                "mode": 2
-                            },
-                            {
-                                "key": "system.traits.dv.bypasses",
-                                "value": "ada",
-                                "mode": 0
-                            },
-                            {
-                                "key": "system.traits.dv.bypasses",
-                                "value": "mgc",
-                                "mode": 0
+                                "key": "flags.transformations.silverSensitivity",
+                                "value": "true",
+                                "mode": 5
                             }
                         ]
                     })

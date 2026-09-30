@@ -747,24 +747,61 @@ export const AberrantHorrorTestDef = {
             finalAwait: async ({actor, waiters}) =>
             {
                 await waiters.waitForCondition(() =>
-                    actor.effects.find(e => e.name == "Stunned")
+                    actor.effects.find(e => e.name == "Aberrant Confusion: Stunned")
                 )
             },
 
             finalAssertions: async ({actor, assert, validators}) =>
             {
                 const actorDto = new ActorValidationDTO(actor)
-                actorDto.hasEffect = "Stunned"
+                actorDto.hasEffect = "Aberrant Confusion: Stunned"
+
+                const stunEffect = actor.effects.find(e => e.name == "Aberrant Confusion: Stunned")
+                assert.isTrue(stunEffect.statuses.has("stunned"), "Stun effect should apply the Stunned status")
+                assert.deepEqual(stunEffect.getFlag("dae", "specialDuration"), ["turnEnd"], "Stun should end at the end of the first turn")
 
                 const messageDto = new MessageValidationDTO("NA")
                 messageDto.count = 1
                 messageDto.contents.values = [
-                    `Due to Aberrant Confusion ${actor.name} is stunned for the first round!`
+                    `Due to Aberrant Confusion ${actor.name} is stunned until the end of their first turn!`
                 ]
                 messageDto.contents.mode = "equal"
 
                 validate(messageDto, {assert})
                 validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: "Initiative does not stun without Aberrant Confusion",
+
+            setup: async ({game}) =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+            },
+
+            steps: [
+                {
+                    trigger: "initiative",
+                    await: async ({runtime, actor, waiters}) =>
+                    {
+                        await waiters.waitForDomainStability({
+                            actor,
+                            asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                        })
+                    }
+                }
+            ],
+
+            finalAssertions: async ({actor, assert}) =>
+            {
+                assert.isFalse(actor.statuses.has("stunned"), "Actor without Aberrant Confusion must not be stunned")
+                assert.isUndefined(
+                    actor.effects.find(e => e.name == "Aberrant Confusion: Stunned"),
+                    "No Aberrant Confusion stun effect expected"
+                )
             }
         }
     ],

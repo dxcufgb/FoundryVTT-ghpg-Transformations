@@ -3,9 +3,9 @@ export const onInitiative = {
 
     actionGroups: [
         {
-            name: "hideous-appearance-save",
+            name: "aberrant-confusion-stun",
             when: {
-                effect: {
+                effects: {
                     has: ["Aberrant Confusion"]
                 }
             },
@@ -13,15 +13,26 @@ export const onInitiative = {
                 {
                     type: "EFFECT",
                     data: {
-                        mode: "toggle",
-                        name: "stunned",
-                        active: true,
+                        mode: "create",
+                        name: "Aberrant Confusion: Stunned",
+                        icon: "modules/transformations/Icons/Transformations/Aberrant%20Horror/Unstable_Form.png",
+                        statuses: ["stunned"],
+                        changes: [],
+                        // Stunned only until the end of the actor's first turn.
+                        duration: {
+                            rounds: 1
+                        },
+                        flags: {
+                            dae: {
+                                specialDuration: ["turnEnd"]
+                            }
+                        }
                     }
                 },
                 {
                     type: "CHAT",
                     data: {
-                        message: "Due to Aberrant Confusion @actor.name is stunned for the first round!"
+                        message: "Due to Aberrant Confusion @actor.name is stunned until the end of their first turn!"
                     }
                 }
             ]

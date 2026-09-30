@@ -1,0 +1,17 @@
+[
+    {
+        "id": "critical-silver-sensitivity-changes",
+        "pack": "gh-transformations",
+        "key": "!items.effects!XdPwwrl91fjc9JMY.FdvzVPWIFvk59tMH",
+        "op": "set",
+        "path": "changes",
+        "value": [
+            {
+                "key": "flags.transformations.silverSensitivity",
+                "mode": 5,
+                "value": "true",
+                "priority": 20
+            }
+        ]
+    }
+]

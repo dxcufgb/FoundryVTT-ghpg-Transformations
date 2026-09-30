@@ -213,7 +213,7 @@ export function createEffectAction({
             return
         }
         let changes = []
-        for (const change of data.changes) {
+        for (const change of data.changes ?? []) {
             changes.push({
                 key: change.key,
                 mode: change.mode,
@@ -241,6 +241,7 @@ export function createEffectAction({
             icon,
             duration = {},
             flags = {},
+            statuses = [],
             source
         } = data
         return tracker.track(
@@ -254,6 +255,7 @@ export function createEffectAction({
                     changes,
                     duration,
                     flags,
+                    statuses,
                     origin,
                     source: source ?? "custom",
                     context

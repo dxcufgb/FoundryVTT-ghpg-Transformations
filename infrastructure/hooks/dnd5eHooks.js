@@ -1,5 +1,6 @@
 import { conditionsMet } from "../../domain/actions/conditionSchema.js"
 import { applyRollModifierAction } from "../../services/actions/handlers/rollModifier.js"
+import { applySilverSensitivity } from "./silverSensitivity.js"
 
 function getPrimaryRoll(rolls)
 {
@@ -532,6 +533,15 @@ export function registerDnd5eHooks({
         {
             triggerRuntime.run("damage", actor)
         })()
+    })
+
+    Hooks.on("dnd5e.calculateDamage", (actor, damages, options) =>
+    {
+        try {
+            applySilverSensitivity(actor, damages)
+        } catch (error) {
+            logger.warn("Silver Sensitivity damage adjustment failed", error)
+        }
     })
 
     Hooks.on("dnd5e.restCompleted", (actor, result, config) =>

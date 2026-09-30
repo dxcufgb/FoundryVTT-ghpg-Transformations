@@ -250,10 +250,8 @@ Hooks.once("setup", async () =>
                 )
             }
         }
-
-        logger.log("applying transformation flags!")
-        await TransformationsDev.applyFlags()
-        logger.log("flags applied!")
+        // The flags are baked into the compendium packs. Run TransformationsDev.applyFlags()
+        // manually (with the pack unlocked) after editing flags/*.flags.js.
     }
     createDnd5eConfig({
         transformationSubTypes,
