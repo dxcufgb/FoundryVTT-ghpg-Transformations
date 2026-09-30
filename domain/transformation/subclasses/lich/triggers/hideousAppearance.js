@@ -33,9 +33,8 @@ export function createHideousAppearanceSaveActionGroup()
                     key: "hideous-appearance-con-save",
                     title: "Hideous Appearance",
                     flavor: {
-                        img: "",
-                        title: "",
-                        subtitle: "",
+                        itemName: "Hideous Appearance",
+                        subtitle: "Transformation Feature",
                         body: "When you become bloodied you need to roll a constitution saving throw. If you fail this save, your Horrific Appearance is revealed."
                     }
                 }

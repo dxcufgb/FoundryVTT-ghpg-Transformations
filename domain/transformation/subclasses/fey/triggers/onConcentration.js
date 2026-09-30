@@ -19,6 +19,7 @@ export const onConcentration = {
                         key: "hideous-appearance-con-save",
                         title: "Hideous Appearance",
                         flavor: {
+                            itemName: "Hideous Appearance",
                             itemUuid: "Compendium.transformations.gh-transformations.Item.Uo86wtOs7PMOFlav",
                             subtitle: "Transformation Feature",
                             body: "When you become bloodied you need to roll a constitution saving throw. If you fail this save, your Horrific Appearance is revealed."

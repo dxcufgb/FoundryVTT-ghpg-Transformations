@@ -15,6 +15,7 @@ import { createRollModifierAction } from "./rollModifier.js"
 export function createActionHandlers({
     trackers,
     getGame,
+    socketGateway,
     directMacroInvoker,
     actorRepository,
     itemRepository,
@@ -27,6 +28,7 @@ export function createActionHandlers({
     logger.debug("createActionHandlers", {
         trackers,
         getGame,
+        socketGateway,
         directMacroInvoker,
         actorRepository,
         itemRepository,
@@ -95,6 +97,8 @@ export function createActionHandlers({
             logger
         }),
         SAVE: createSaveAction({
+            getGame,
+            socketGateway,
             tracker: trackers.ui,
             logger
         }),

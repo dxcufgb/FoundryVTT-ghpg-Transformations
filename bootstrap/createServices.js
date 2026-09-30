@@ -112,6 +112,7 @@ export function createServices({
     const actionHandlers = createActionHandlers({
         trackers,
         getGame,
+        socketGateway,
         directMacroInvoker,
         activeEffectRepository,
         actorRepository,

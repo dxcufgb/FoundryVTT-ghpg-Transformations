@@ -4,6 +4,10 @@ import {
 } from "../../services/transformations/createStageUpApprovalService.js"
 import { EXECUTE_MACRO_EVENT } from "../../macros/createMacroExecutor.js"
 import { validateMacroPayload } from "../macros/validateMacroPayload.js"
+import {
+    handleRoutedSavingThrow,
+    ROLL_SAVING_THROW_EVENT
+} from "../../services/actions/handlers/save.js"
 
 export function registerSockets({
     socketGateway,
@@ -86,6 +90,15 @@ export function registerSockets({
     socketGateway.register(
         CANCEL_STAGE_UP_APPROVAL_EVENT,
         payload => getStageUpApprovalService().cancelApprovalRequest(payload)
+    )
+
+    socketGateway.register(
+        ROLL_SAVING_THROW_EVENT,
+        payload =>
+        {
+            logger.debug("registerSockets.rollSavingThrow", {payload})
+            return handleRoutedSavingThrow(payload)
+        }
     )
 
     socketGateway.register(
