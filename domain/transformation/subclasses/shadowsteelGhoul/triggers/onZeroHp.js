@@ -1,6 +1,6 @@
 import {
     createShadowsteelGhoulTriggerActionGroup,
-    SHADOWSTEEL_GHOUL_ZERO_HP_ONCE_KEY
+    SHADOWSTEEL_GHOUL_EXPLOSION_ONCE_KEY
 } from "./shadowsteelGhoulTriggerCommon.js"
 
 export const onZeroHp = {
@@ -8,7 +8,7 @@ export const onZeroHp = {
     actionGroups: [
         createShadowsteelGhoulTriggerActionGroup({
             name: "shadowsteel-ghoul-zero-hp-midi-save",
-            onceKey: SHADOWSTEEL_GHOUL_ZERO_HP_ONCE_KEY
+            onceKey: SHADOWSTEEL_GHOUL_EXPLOSION_ONCE_KEY
         })
     ]
 }

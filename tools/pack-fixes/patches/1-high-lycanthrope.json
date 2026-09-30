@@ -1,0 +1,54 @@
+[
+    {
+        "id": "high-lycanthrope-iron-pelt-transfer",
+        "pack": "gh-transformations",
+        "key": "!items.effects!G5LNiZBdQu2AYuSC.DsI6rA3SSuPCKG9u",
+        "op": "set",
+        "path": "transfer",
+        "value": true,
+        "expect": false
+    },
+    {
+        "id": "high-lycanthrope-claw-attack-bonus-no-double-mod",
+        "pack": "gh-transformations",
+        "key": "!items!4XwffwdkK1n7ehJj",
+        "op": "set",
+        "path": "system.activities.LL3fnYXElb0RgP7W.attack.bonus",
+        "value": "",
+        "expect": "@mod"
+    },
+    {
+        "id": "high-lycanthrope-bite-attack-bonus-no-double-mod",
+        "pack": "gh-transformations",
+        "key": "!items!eVUH5GeBkB61uMbg",
+        "op": "set",
+        "path": "system.activities.LL3fnYXElb0RgP7W.attack.bonus",
+        "value": "",
+        "expect": "@mod"
+    },
+    {
+        "id": "high-lycanthrope-claw-finesse",
+        "pack": "gh-transformations",
+        "key": "!items!4XwffwdkK1n7ehJj",
+        "op": "arrayAdd",
+        "path": "system.properties",
+        "value": "fin"
+    },
+    {
+        "id": "high-lycanthrope-bite-finesse",
+        "pack": "gh-transformations",
+        "key": "!items!eVUH5GeBkB61uMbg",
+        "op": "arrayAdd",
+        "path": "system.properties",
+        "value": "fin"
+    },
+    {
+        "id": "high-lycanthrope-affinity-aura-source-hybrid-check",
+        "pack": "gh-transformations",
+        "key": "!items.effects!IKbEWxQP01NILuq6.UsKfXPBTzOYFHgem",
+        "op": "set",
+        "path": "flags.ActiveAuras.customCheck",
+        "value": "((auraEntity?.actor?.flags?.transformations?.lycanthrope?.hybridForm ?? 0) == 1) && !(auraEntity?.actor?.effects?.some(e => e.name === \"Feral Hybrid Form\") ?? false)",
+        "expect": "(actor.id !== auraEntity.document.actor.id) || ((actor.flags?.transformations?.lycanthrope?.hybridForm ?? 0) == 1)"
+    }
+]

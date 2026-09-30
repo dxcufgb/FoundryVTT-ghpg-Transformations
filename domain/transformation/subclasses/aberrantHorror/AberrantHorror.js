@@ -35,8 +35,35 @@ export class AberrantHorror extends Transformation
     static async onPreRollSavingThrow(context, actor, options = {})
     {
         this.logger?.debug?.("AberrantHorror.onPreRollSavingThrow", actor, context, options)
-        if (context.workflow?.item?.type !== "spell") return
-        context.subject.setFlag("transformations", "saveIsSpell", true)
+        const subject = context?.subject ?? actor
+        if (typeof subject?.setFlag !== "function") return
+
+        // The flag describes the save that is about to be rolled, so it is
+        // rewritten on every save; otherwise one spell save would make every
+        // later save count as a save against a spell (Unstable Existence).
+        const isSpell = isSaveAgainstSpell(context)
+        const current = subject.getFlag?.("transformations", "saveIsSpell") === true
+
+        if (current === isSpell) return
+
+        await subject.setFlag("transformations", "saveIsSpell", isSpell)
     }
 
+}
+
+function isSaveAgainstSpell(context)
+{
+    const workflowItem = context?.workflow?.item ?? context?.midiOptions?.workflow?.item
+    if (workflowItem) return workflowItem.type === "spell"
+
+    // midi-qol passes the originating item's uuid when it requests the save.
+    const saveItemUuid = context?.midiOptions?.saveItemUuid
+    if (!saveItemUuid || typeof globalThis.fromUuidSync !== "function") return false
+
+    try {
+        return globalThis.fromUuidSync(saveItemUuid)?.type === "spell"
+    }
+    catch {
+        return false
+    }
 }

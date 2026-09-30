@@ -5,6 +5,7 @@ import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorV
 import { ContextValidationDTO } from "../../../helpers/validationDTOs/context/ContextValidationDTO.js"
 import { EffectValidationDTO } from "../../../helpers/validationDTOs/effect/EffectValidationDTO.js"
 import { MessageValidationDTO } from "../../../helpers/validationDTOs/message/MessageValidationDTO.js"
+import { AberrantHorror } from "../../../../domain/transformation/subclasses/aberrantHorror/AberrantHorror.js"
 // test/definitions/aberrantHorror.testdef.js
 export const AberrantHorrorTestDef = {
     id: "aberrant-horror",
@@ -438,6 +439,13 @@ export const AberrantHorrorTestDef = {
                     }
                 },
                 {
+                    adjust: async ({actor}) =>
+                    {
+                        // Unstable Form is only rolled after a day in which damage was taken
+                        await actor.setFlag("transformations", "aberrantHorror.tookDamage", true)
+                    }
+                },
+                {
                     trigger: "longRest"
                 }
             ],
@@ -497,6 +505,13 @@ export const AberrantHorrorTestDef = {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 2)
                     }
 
+                },
+                {
+                    adjust: async ({actor}) =>
+                    {
+                        // Unstable Form is only rolled after a day in which damage was taken
+                        await actor.setFlag("transformations", "aberrantHorror.tookDamage", true)
+                    }
                 },
                 {
                     trigger: "longRest"
@@ -564,6 +579,13 @@ export const AberrantHorrorTestDef = {
                     await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 3)
+                    }
+                },
+                {
+                    adjust: async ({actor}) =>
+                    {
+                        // Unstable Form is only rolled after a day in which damage was taken
+                        await actor.setFlag("transformations", "aberrantHorror.tookDamage", true)
                     }
                 },
                 {
@@ -639,6 +661,13 @@ export const AberrantHorrorTestDef = {
                     await: async ({runtime, actor, waiters}) =>
                     {
                         await waiters.waitForStageFinished(runtime, actor, waiters.waitForCondition, 4)
+                    }
+                },
+                {
+                    adjust: async ({actor}) =>
+                    {
+                        // Unstable Form is only rolled after a day in which damage was taken
+                        await actor.setFlag("transformations", "aberrantHorror.tookDamage", true)
                     }
                 },
                 {
@@ -807,6 +836,195 @@ export const AberrantHorrorTestDef = {
     ],
 
     itemBehaviorTests: [
+        {
+            name: "Long rest without damage taken does not roll on the Unstable Form table",
+
+            requiredPath: [
+                {stage: 1}
+            ],
+
+            setup: async () =>
+            {
+                await ChatMessage.deleteDocuments(
+                    game.messages.contents.map(m => m.id)
+                )
+                globalThis.___TransformationTestEnvironment___.rollTableResult = 60
+            },
+
+            steps: [
+                async ({actor, runtime}) =>
+                {
+                    await actor.unsetFlag("transformations", "aberrantHorror.tookDamage")
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                }
+            ],
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, assert}) =>
+            {
+                const effectsDto = new EffectValidationDTO()
+                effectsDto.withOrigin = {origin: "Unstable Form", expected: 0}
+
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects = effectsDto
+                validate(actorDto, {assert})
+
+                const messageDto = new MessageValidationDTO("RollTable")
+                messageDto.count = 0
+                validate(messageDto, {assert})
+            }
+        },
+
+        {
+            name: "Taking damage records it for Unstable Form and the next long rest clears it",
+
+            requiredPath: [
+                {stage: 1}
+            ],
+
+            setup: async () =>
+            {
+                globalThis.___TransformationTestEnvironment___.rollTableResult = 60
+            },
+
+            steps: [
+                async ({actor, runtime, waiters, staticVars}) =>
+                {
+                    await runtime.services.triggerRuntime.run("damage", actor)
+                    await waiters.waitForDomainStability({
+                        actor,
+                        asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                    })
+                    staticVars.tookDamageAfterDamage =
+                        actor.getFlag("transformations", "aberrantHorror.tookDamage")
+                    await runtime.services.triggerRuntime.run("longRest", actor)
+                }
+            ],
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({actor, assert, staticVars}) =>
+            {
+                assert.isTrue(staticVars.tookDamageAfterDamage)
+                assert.isUndefined(actor.getFlag("transformations", "aberrantHorror.tookDamage"))
+
+                const effectsDto = new EffectValidationDTO()
+                effectsDto.has = ["Aberrant Slow Speech"]
+                effectsDto.withOrigin = {origin: "Unstable Form", expected: 1}
+
+                const actorDto = new ActorValidationDTO(actor)
+                actorDto.effects = effectsDto
+                validate(actorDto, {assert})
+            }
+        },
+
+        {
+            name: "Saves not caused by a spell reset the saveIsSpell flag",
+
+            requiredPath: [
+                {stage: 1}
+            ],
+
+            steps: [
+                async ({actor, staticVars}) =>
+                {
+                    await AberrantHorror.onPreRollSavingThrow(
+                        {subject: actor, workflow: {item: {type: "spell"}}},
+                        actor
+                    )
+                    staticVars.afterSpellSave = actor.getFlag("transformations", "saveIsSpell")
+
+                    await AberrantHorror.onPreRollSavingThrow({subject: actor}, actor)
+                    staticVars.afterOtherSave = actor.getFlag("transformations", "saveIsSpell")
+                }
+            ],
+
+            assertions: async ({assert, staticVars}) =>
+            {
+                assert.isTrue(staticVars.afterSpellSave)
+                assert.isFalse(staticVars.afterOtherSave)
+            }
+        },
+
+        {
+            name: "Hideous Appearance does not roll a save on bloodied when the true form is already revealed",
+
+            requiredPath: [
+                {stage: 1},
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
+                }
+            ],
+
+            setup: async () =>
+            {
+                globalThis.___TransformationTestEnvironment___.saveResult = 1
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            trigger: "bloodied",
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({assert}) =>
+            {
+                assert.isFalse(globalThis.___TransformationTestEnvironment___.saveRolled)
+            }
+        },
+
+        {
+            name: "Hideous Appearance does not roll a save on concentration when the true form is already revealed",
+
+            requiredPath: [
+                {stage: 1},
+                {
+                    stage: 2,
+                    choose: "Compendium.transformations.gh-transformations.Item.kYvA2no3p5xCHUrq"
+                }
+            ],
+
+            setup: async () =>
+            {
+                globalThis.___TransformationTestEnvironment___.saveResult = 1
+                globalThis.___TransformationTestEnvironment___.saveRolled = false
+            },
+
+            trigger: "concentration",
+
+            await: async ({runtime, waiters, actor}) =>
+            {
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+            },
+
+            assertions: async ({assert}) =>
+            {
+                assert.isFalse(globalThis.___TransformationTestEnvironment___.saveRolled)
+            }
+        },
+
         {
             name: "Aberrant Form grants temp HP when bloodied",
 
@@ -1416,6 +1634,15 @@ export const AberrantHorrorTestDef = {
                     item.itemName = "Writhing Tendrils"
                     item.addActivity(activity =>
                     {
+                        activity.name = "Sprout Tendrils"
+                        activity.activationType = "bonus"
+                    })
+                })
+                actorDto.addItem(item =>
+                {
+                    item.itemName = "Writhing Tendrils"
+                    item.addActivity(activity =>
+                    {
                         activity.name = "Aberrant Affliction"
                         activity.spellUuid = "Compendium.transformations.gh-transformations.Item.5t4cjiimldjKmwlK"
                         activity.activationType = "reaction"
@@ -1899,6 +2126,7 @@ export const AberrantHorrorTestDef = {
                 async ({actor, runtime, helpers}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                    await runtime.services.triggerRuntime.run("damage", actor)
                     await runtime.services.triggerRuntime.run("longRest", actor)
                 },
                 async ({actor, runtime, helpers}) =>
@@ -1963,6 +2191,7 @@ export const AberrantHorrorTestDef = {
                 async ({actor, runtime, helpers}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                    await runtime.services.triggerRuntime.run("damage", actor)
                     await runtime.services.triggerRuntime.run("longRest", actor)
                 },
                 async ({actor, runtime, helpers}) =>
@@ -2027,6 +2256,7 @@ export const AberrantHorrorTestDef = {
                 async ({actor, runtime, helpers}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 10
+                    await runtime.services.triggerRuntime.run("damage", actor)
                     await runtime.services.triggerRuntime.run("longRest", actor)
                 },
                 async ({actor, runtime, helpers}) =>
@@ -2165,6 +2395,8 @@ export const AberrantHorrorTestDef = {
                     item.itemName = "Poisonous Mutations"
                     item.addActivity(activity =>
                     {
+                        activity.saveAbility = ["con"]
+                        activity.saveDc = 8 + actor.system.attributes.prof + 4
                         activity.addDamagePart(damagePart =>
                         {
                             damagePart.roll = "3d6"
@@ -2368,6 +2600,7 @@ export const AberrantHorrorTestDef = {
                 async ({actor, runtime, waiters}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                    await runtime.services.triggerRuntime.run("damage", actor)
                     await runtime.services.triggerRuntime.run("longRest", actor)
                 },
                 async ({actor, runtime, waiters}) =>
@@ -2422,6 +2655,7 @@ export const AberrantHorrorTestDef = {
                 async ({actor, runtime, waiters}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 26
+                    await runtime.services.triggerRuntime.run("damage", actor)
                     await runtime.services.triggerRuntime.run("longRest", actor)
                 },
                 async ({actor, runtime, waiters}) =>
@@ -2479,6 +2713,7 @@ export const AberrantHorrorTestDef = {
                 async ({actor, runtime, waiters}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 100
+                    await runtime.services.triggerRuntime.run("damage", actor)
                     await runtime.services.triggerRuntime.run("longRest", actor)
                 },
                 async ({actor, runtime, waiters}) =>
@@ -2541,6 +2776,7 @@ export const AberrantHorrorTestDef = {
                 async ({actor, runtime, waiters}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 26
+                    await runtime.services.triggerRuntime.run("damage", actor)
                     await runtime.services.triggerRuntime.run("longRest", actor)
                 },
                 async ({actor, runtime, waiters}) =>
@@ -2604,6 +2840,7 @@ export const AberrantHorrorTestDef = {
                 async ({actor, runtime, waiters}) =>
                 {
                     globalThis.___TransformationTestEnvironment___.rollTableResult = 93
+                    await runtime.services.triggerRuntime.run("damage", actor)
                     await runtime.services.triggerRuntime.run("longRest", actor)
                     await waiters.waitForCondition(() =>
                         actor.effects.find(e => e.name == "Aberrant Slow Speech")

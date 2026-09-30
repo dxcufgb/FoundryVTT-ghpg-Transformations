@@ -4,6 +4,8 @@ export const TRUE_APPEARANCE_EFFECT_NAME =
 export const TRUE_APPEARANCE_SAVE_ITEM_UUID =
                  "Compendium.transformations.gh-transformations.Item.5nFmQkoKj3YFFNuj"
 
+export const TRUE_APPEARANCE_SAVE_ACTIVITY_ID = "3L9NR9UMGa1buZxK"
+
 export const TRUE_APPEARANCE_SAVE_ACTIVITY_NAME = "Midi Save"
 
 export const TRUE_APPEARANCE_SAVE_DC_BY_STAGE = Object.freeze({
@@ -54,6 +56,7 @@ export function createTrueAppearanceSaveActionGroup({
                 type: "ITEM_ACTIVITY",
                 data: {
                     itemUuid: TRUE_APPEARANCE_SAVE_ITEM_UUID,
+                    activityId: TRUE_APPEARANCE_SAVE_ACTIVITY_ID,
                     activityName: TRUE_APPEARANCE_SAVE_ACTIVITY_NAME,
                     blocker: true
                 }

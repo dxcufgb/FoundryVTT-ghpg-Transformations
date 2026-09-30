@@ -1,0 +1,20 @@
+[
+    {
+        "id": "high-ooze-corrosive-membrane-disable-condition-typo",
+        "pack": "gh-transformations",
+        "key": "!items.effects!4wBzd27wLWGJEhrc.B7gPYbOgYc4BcagF",
+        "op": "set",
+        "path": "flags.dae.disableCondition",
+        "value": "@flags.transformations.ooze.oozeForm != 1",
+        "expect": "@flags.tarnsformations.ooze.oozeForm != 1"
+    },
+    {
+        "id": "high-ooze-slippery-ego-item-effect-informational",
+        "pack": "gh-transformations",
+        "key": "!items.effects!xGebwKPQnKbGbhkj.uEoZOUAE3JsWCWrY",
+        "op": "set",
+        "path": "transfer",
+        "value": false,
+        "expect": true
+    }
+]

@@ -1,0 +1,104 @@
+[
+    {
+        "id": "high-fiend-daemonic-brand-save-penalty-1",
+        "pack": "gh-transformations",
+        "key": "!items.effects!WEFrREhcN84F6ehL.fVneHee1qDuNfup4",
+        "op": "set",
+        "path": "changes.1.value",
+        "value": "-2",
+        "expect": "-1"
+    },
+    {
+        "id": "high-fiend-daemonic-brand-save-penalty-2",
+        "pack": "gh-transformations",
+        "key": "!items.effects!WEFrREhcN84F6ehL.fVneHee1qDuNfup4",
+        "op": "set",
+        "path": "changes.2.value",
+        "value": "-2",
+        "expect": "-1"
+    },
+    {
+        "id": "high-fiend-daemonic-brand-save-penalty-3",
+        "pack": "gh-transformations",
+        "key": "!items.effects!WEFrREhcN84F6ehL.fVneHee1qDuNfup4",
+        "op": "set",
+        "path": "changes.3.value",
+        "value": "-2",
+        "expect": "-1"
+    },
+    {
+        "id": "high-fiend-daemonic-brand-save-penalty-4",
+        "pack": "gh-transformations",
+        "key": "!items.effects!WEFrREhcN84F6ehL.fVneHee1qDuNfup4",
+        "op": "set",
+        "path": "changes.4.value",
+        "value": "-2",
+        "expect": "-1"
+    },
+    {
+        "id": "high-fiend-daemonic-brand-save-penalty-5",
+        "pack": "gh-transformations",
+        "key": "!items.effects!WEFrREhcN84F6ehL.fVneHee1qDuNfup4",
+        "op": "set",
+        "path": "changes.5.value",
+        "value": "-2",
+        "expect": "-1"
+    },
+    {
+        "id": "high-fiend-true-name-save-cha",
+        "pack": "gh-transformations",
+        "key": "!items!9Ptls1PSiuOtg7cY",
+        "op": "set",
+        "path": "system.activities.B7zlkI7jYaohIcyZ.save.ability",
+        "value": [
+            "cha"
+        ],
+        "expect": [
+            "wis"
+        ]
+    },
+    {
+        "id": "high-fiend-infernal-smite-sr-recovery",
+        "pack": "gh-transformations",
+        "key": "!items!J8kBOzgYeNfUolan",
+        "op": "set",
+        "path": "system.uses.recovery",
+        "value": [
+            {
+                "period": "lr",
+                "type": "recoverAll"
+            },
+            {
+                "period": "sr",
+                "type": "recoverAll"
+            }
+        ],
+        "expect": [
+            {
+                "period": "lr",
+                "type": "recoverAll"
+            }
+        ]
+    },
+    {
+        "id": "high-fiend-pull-netherworld-activity-name",
+        "pack": "gh-transformations",
+        "key": "!items!p6h58Xog87H04epW",
+        "op": "set",
+        "path": "system.activities.GkER88EWbz2oElES.name",
+        "value": "Midi Damage",
+        "expect": ""
+    },
+    {
+        "id": "high-fiend-pull-netherworld-ignore-traits",
+        "pack": "gh-transformations",
+        "key": "!items!p6h58Xog87H04epW",
+        "op": "set",
+        "path": "system.activities.GkER88EWbz2oElES.midiProperties.ignoreTraits",
+        "value": [
+            "idi",
+            "idr"
+        ],
+        "expect": []
+    }
+]

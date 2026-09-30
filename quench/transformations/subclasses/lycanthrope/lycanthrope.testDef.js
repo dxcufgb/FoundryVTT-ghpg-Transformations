@@ -633,7 +633,7 @@ export const lycanthropeTestDef = {
                                 "radius": "20",
                                 "alignment": "",
                                 "type": "",
-                                "customCheck": "",
+                                "customCheck": "((auraEntity?.actor?.flags?.transformations?.lycanthrope?.hybridForm ?? 0) == 1) && !(auraEntity?.actor?.effects?.some(e => e.name === \"Feral Hybrid Form\") ?? false)",
                                 "ignoreSelf": true,
                                 "height": false,
                                 "hidden": false,

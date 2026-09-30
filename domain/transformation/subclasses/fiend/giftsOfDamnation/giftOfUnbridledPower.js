@@ -41,12 +41,20 @@ export class GiftOfUnbridledPower
 
             await actorRepository.consumeHitDie(actor, 2)
 
+            const recoveryBudget = GiftClass.getHighestDieResult(roll)
+            const psychicDamage = Number(roll.total ?? 0) * 2
+
             await message.update({
                 "flags.transformations.state": "rolled",
                 "flags.transformations.rollFormula": rollFormula,
-                "flags.transformations.recoveryBudget": roll.total,
+                "flags.transformations.recoveryBudget": recoveryBudget,
+                "flags.transformations.psychicDamage": psychicDamage,
                 "flags.transformations.presentedRoll": presentedRoll
             })
+
+            if (psychicDamage > 0) {
+                await actorRepository.applyDamage(actor, psychicDamage)
+            }
 
             void ChatMessagePartInjector
 
@@ -87,7 +95,6 @@ export class GiftOfUnbridledPower
             }
 
             await GiftClass.restoreSpellSlots(actor, selectedSpellSlots)
-            await actorRepository.applyDamage(actor, recoveryBudget * 2)
             await GiftClass.complete(message, ChatMessagePartInjector)
         }
     }
@@ -179,6 +186,20 @@ export class GiftOfUnbridledPower
         })
     }
 
+    static getHighestDieResult(roll)
+    {
+        const results = (roll?.dice ?? [])
+        .flatMap(die => die?.results ?? [])
+        .filter(result => result?.active !== false && result?.discarded !== true)
+        .map(result => Number(result?.result))
+        .filter(result => Number.isFinite(result))
+
+        if (results.length) return Math.max(...results)
+
+        const total = Number(roll?.total ?? 0)
+        return Number.isFinite(total) ? total : 0
+    }
+
     static getHighestAvailableHitDie(actor, actorRepository)
     {
         return getHighestAvailableHitDieDenomination(actor, actorRepository)
@@ -252,6 +273,8 @@ export class GiftOfUnbridledPower
         const rollFormula = message?.flags?.transformations?.rollFormula ?? null
         const recoveryBudget =
                   Number(message?.flags?.transformations?.recoveryBudget ?? 0)
+        const psychicDamage =
+                  Number(message?.flags?.transformations?.psychicDamage ?? recoveryBudget * 2)
 
         return renderGiftOfDamnationCard({
             actor,
@@ -263,7 +286,8 @@ export class GiftOfUnbridledPower
                 : "Spell Slot Budget Roll",
             supplements: this.buildSupplements({
                 state,
-                recoveryBudget
+                recoveryBudget,
+                psychicDamage
             }),
             buttons: this.buildButtons({state}),
             roll
@@ -297,13 +321,14 @@ export class GiftOfUnbridledPower
 
     static buildSupplements({
         state,
-        recoveryBudget
+        recoveryBudget,
+        psychicDamage = recoveryBudget * 2
     } = {})
     {
         if (state === "rolled") {
             return [
-                `You can recover up to <strong>${recoveryBudget}</strong> spell slot levels.`,
-                `After recovery, you take Psychic damage equal to <strong>${recoveryBudget * 2}</strong>.`
+                `You can recover up to <strong>${recoveryBudget}</strong> spell slot levels (the highest die rolled).`,
+                `You took <strong>${psychicDamage}</strong> Psychic damage (twice the total rolled).`
             ]
         }
 
@@ -311,6 +336,6 @@ export class GiftOfUnbridledPower
             return ["Gift resolved."]
         }
 
-        return ["Spend 2 Hit Dice to determine how many spell slot levels you can recover."]
+        return ["Spend 2 Hit Dice: recover spell slot levels equal to the highest die rolled, and take Psychic damage equal to twice the total."]
     }
 }

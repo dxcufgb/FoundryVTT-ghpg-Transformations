@@ -3,11 +3,10 @@ export const SHADOWSTEEL_GHOUL_TRIGGER_ITEM_UUID =
 
 export const SHADOWSTEEL_GHOUL_TRIGGER_ACTIVITY_NAME = "Midi Save"
 
-export const SHADOWSTEEL_GHOUL_BLOODIED_ONCE_KEY =
-                 "shadowsteelGhoulBloodiedMidiSave"
-
-export const SHADOWSTEEL_GHOUL_ZERO_HP_ONCE_KEY =
-                 "shadowsteelGhoulZeroHpMidiSave"
+// Shadowsteel Explosion fires the first time the ghoul is Bloodied OR reduced to 0 HP after a rest,
+// so both triggers share a single once-per-rest key.
+export const SHADOWSTEEL_GHOUL_EXPLOSION_ONCE_KEY =
+                 "shadowsteelGhoulExplosionMidiSave"
 
 const SHADOWSTEEL_GHOUL_TRIGGER_RESETS = Object.freeze([
     "shortRest",

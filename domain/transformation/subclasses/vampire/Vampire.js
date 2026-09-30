@@ -1,6 +1,6 @@
 import { Transformation } from "../../Transformation.js"
 import { SangromancySpecialistEnhanceCantripDamage } from "./activities/SangromancySpecialistEnhanceCantripDamage.js"
-import { getTrueAppearanceSaveDcForStage, TRUE_APPEARANCE_EFFECT_NAME, TRUE_APPEARANCE_MANUAL_REVEAL_ACTIVITY_NAMES, TRUE_APPEARANCE_REVEAL_TRIGGER_TYPES, TRUE_APPEARANCE_SAVE_ACTIVITY_NAME, TRUE_APPEARANCE_SAVE_ITEM_UUID } from "./triggers/trueAppearanceTriggerCommon.js"
+import { getTrueAppearanceSaveDcForStage, TRUE_APPEARANCE_EFFECT_NAME, TRUE_APPEARANCE_MANUAL_REVEAL_ACTIVITY_NAMES, TRUE_APPEARANCE_REVEAL_TRIGGER_TYPES, TRUE_APPEARANCE_SAVE_ACTIVITY_ID, TRUE_APPEARANCE_SAVE_ACTIVITY_NAME, TRUE_APPEARANCE_SAVE_ITEM_UUID } from "./triggers/trueAppearanceTriggerCommon.js"
 
 const FANGED_BITE_UUID =
           "Compendium.transformations.gh-transformations.Item.TreKDUe7BregxPRU"
@@ -23,6 +23,7 @@ const SANGROMANCY_FLAG_KEY = "vampire.sangromancyHitDieMax"
 const FANGED_BITE_MIDI_ATTACK_ACTIVITY_ID = "ddjFKkSGslAQQjB4"
 const FANGED_BITE_MIDI_ATTACK_ACTIVITY_NAME = "Midi Attack"
 const FANGED_BITE_NECROTIC_SAVE_ACTIVITY_NAME = "Necrotic Save"
+const FZEG_CLAW_MIDI_ATTACK_ACTIVITY_ID = "LL3fnYXElb0RgP7W"
 const FZEG_CLAW_MIDI_ATTACK_ACTIVITY_NAME = "Midi Attack"
 const FANGED_BITE_STRIGOI_DAMAGE_FORMULA = "2d4"
 const FANGED_BITE_BASE_DAMAGE_FORMULA = "1d6"
@@ -635,8 +636,18 @@ export class Vampire extends Transformation
             config
         })
 
+        const activityIds = [
+            activity,
+            workflow?.activity,
+            config?.activity,
+            config?.subject
+        ].map(candidate => this.resolveActivityId(candidate))
+
         return itemSourceUuid === FZEG_CLAW_UUID &&
-            activityName === FZEG_CLAW_MIDI_ATTACK_ACTIVITY_NAME
+            (
+                activityIds.includes(FZEG_CLAW_MIDI_ATTACK_ACTIVITY_ID) ||
+                activityName === FZEG_CLAW_MIDI_ATTACK_ACTIVITY_NAME
+            )
     }
 
     static isRollConfigAdvantage(rollConfig = {})
@@ -773,9 +784,14 @@ export class Vampire extends Transformation
 
     static resolveTrueAppearanceSaveActivity(item)
     {
-        return this.resolveActivities(item).find(activity =>
-            this.resolveActivityName(activity) === TRUE_APPEARANCE_SAVE_ACTIVITY_NAME
-        ) ?? null
+        const activities = this.resolveActivities(item)
+        return activities.find(activity =>
+            this.resolveActivityId(activity) === TRUE_APPEARANCE_SAVE_ACTIVITY_ID
+        ) ??
+            activities.find(activity =>
+                this.resolveActivityName(activity) === TRUE_APPEARANCE_SAVE_ACTIVITY_NAME
+            ) ??
+            null
     }
 
     static resolveActivities(item)
@@ -818,7 +834,10 @@ export class Vampire extends Transformation
     {
         const item = this.resolveActivityItem(activity, usage)
         return this.isTrueAppearanceSaveItem(item) &&
-            this.resolveActivityName(activity) === TRUE_APPEARANCE_SAVE_ACTIVITY_NAME
+            (
+                this.resolveActivityId(activity) === TRUE_APPEARANCE_SAVE_ACTIVITY_ID ||
+                this.resolveActivityName(activity) === TRUE_APPEARANCE_SAVE_ACTIVITY_NAME
+            )
     }
 
     static isTrueAppearanceManualRevealActivity({

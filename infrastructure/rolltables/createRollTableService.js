@@ -68,13 +68,6 @@ export function createRollTableService({
                     logger.warn("RollTable produced no result", uuid)
                     return null
                 }
-                const existingKey = result.flags?.transformations?.effectKey
-
-                if (!existingKey) {
-                    debouncedTracker.pulse("applyEffectKey")
-                    await result.setFlag("transformations", "effectKey", result.name.replaceAll(" ", ""))
-                }
-
                 const outcome = normalizeResult({
                     table,
                     rollResult,
@@ -177,8 +170,16 @@ export function createRollTableService({
 
         if (flagged) return flagged
 
+        // Derived in memory: the drawn result usually belongs to a module
+        // compendium, which must not be written to.
+        const derived = typeof result?.name === "string"
+            ? result.name.replaceAll(" ", "")
+            : ""
+
+        if (derived) return derived
+
         // Fallback: [EffectKey] in text
-        const text = result?.text ?? ""
+        const text = result?.description ?? result?.text ?? ""
         const match = text.match(/\[(.+?)\]/)
         return match ? match[1] : null
     }

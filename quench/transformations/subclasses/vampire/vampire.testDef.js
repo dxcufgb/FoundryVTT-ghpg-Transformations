@@ -1373,6 +1373,8 @@ function getTrueAppearanceItem(actor)
 function getTrueAppearanceSaveActivity(item)
 {
     return getItemActivities(item).find(activity =>
+        activity?.id === SUPREME_SANGUINE_CURSE_SAVE_ACTIVITY_ID ||
+        activity?._id === SUPREME_SANGUINE_CURSE_SAVE_ACTIVITY_ID ||
         activity?.name === TRUE_APPEARANCE_SAVE_ACTIVITY_NAME
     ) ?? null
 }
@@ -1913,8 +1915,10 @@ function addFzegClawValidation(actorDto, {
             activity.uses.max = ""
             activity.attackType = "melee"
             activity.attackFlat = false
+            activity.attackBonus = ""
             activity.attackMode = "oneHanded"
             activity.attackRollPerTarget = "default"
+            activity.macroName = MIDI_ATTACK_ACTIVITY_NAME
             activity.damageIncludeBase = true
             activity.addDamagePart(damagePart =>
             {
@@ -2057,6 +2061,8 @@ function addSupremeSanguineCurseValidation(actorDto)
             activity.id = SUPREME_SANGUINE_CURSE_SAVE_ACTIVITY_ID
             activity.type = "save"
             activity.activationType = "special"
+            activity.macroName = TRUE_APPEARANCE_SAVE_ACTIVITY_NAME
+            activity.saveDcFormula = "4 + 4 * @flags.transformations.stage"
             activity.duration.units = "inst"
             activity.duration.concentration = false
             activity.range.units = "self"
@@ -3326,7 +3332,7 @@ export const vampireTestDef = {
                     staticVars.detachedMidiAttackActivity = {
                         id: midiAttackActivity.id ?? midiAttackActivity._id,
                         _id: midiAttackActivity._id ?? midiAttackActivity.id,
-                        name: midiAttackActivity.name || MIDI_ATTACK_ACTIVITY_NAME
+                        name: midiAttackActivity.name ?? ""
                     }
                     staticVars.damageRolls = [
                         {

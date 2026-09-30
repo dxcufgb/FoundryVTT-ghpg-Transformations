@@ -674,6 +674,10 @@ export const fiendTestDef = {
                         recovery.period = "lr"
                         recovery.type = "recoverAll"
                     })
+                    item.uses.addRecovery(recovery => {
+                        recovery.period = "sr"
+                        recovery.type = "recoverAll"
+                    })
                     item.addActivity(activity => {
                         activity.name = "Midi Damage"
                         activity.activityType = "special"
@@ -1184,6 +1188,7 @@ export const fiendTestDef = {
                     item.addActivity(activity => {
                         activity.name = "Midi Save"
                         activity.saveDc = 20
+                        activity.saveAbility = ["cha"]
                         activity.addEffect(effect => {
                             effect.name = "Controlled by True Name"
                             effect.changes = [
@@ -2935,7 +2940,7 @@ export const fiendTestDef = {
         },
 
         {
-            name: `Gift of Unfettered Glory increases hitDiereduction after hit die roll`,
+            name: `Gift of Unfettered Glory reduces the first hit die roll by 2`,
 
             setup: async ({actor}) =>
             {
@@ -2971,28 +2976,17 @@ export const fiendTestDef = {
                 }
             ],
 
-            await: async ({actor, waiters}) =>
-            {
-                await waiters.waitForCondition(() =>
-                    actor.flags?.transformations?.fiend?.giftOfUnfetteredGlory?.hitDieModifier === 2
-                )
-            },
-
-            assertions: async ({actor, assert, staticVars}) =>
+            assertions: async ({assert, staticVars}) =>
             {
                 assert.deepEqual(
                     staticVars.context.rolls[0].parts,
-                    ["1d8"]
-                )
-                assert.equal(
-                    actor.flags?.transformations?.fiend?.giftOfUnfetteredGlory?.hitDieModifier,
-                    2
+                    ["1d8", "-2"]
                 )
             }
         },
 
         {
-            name: `Gift of Unfettered Glory adds -2 to hit die roll`,
+            name: `Gift of Unfettered Glory applies a flat -2 to every hit die roll`,
 
             setup: async ({actor}) =>
             {
@@ -3025,6 +3019,17 @@ export const fiendTestDef = {
                         waiters,
                         staticVars
                     })
+                    staticVars.firstContext = staticVars.context
+                    staticVars.context = {
+                        rolls: [
+                            {
+                                parts: [
+                                    "1d8",
+                                    "@abilities.con.mod"
+                                ]
+                            }
+                        ]
+                    }
                     const transformation = runtime.services.transformationRegistry.getEntryForActor(actor)
                     transformation.TransformationClass.onPreRollHitDie(staticVars.context, actor)
                 }
@@ -3033,8 +3038,12 @@ export const fiendTestDef = {
             assertions: async ({staticVars, assert}) =>
             {
                 assert.deepEqual(
+                    staticVars.firstContext.rolls[0].parts,
+                    ["1d8", "-2"]
+                )
+                assert.deepEqual(
                     staticVars.context.rolls[0].parts,
-                    ["1d8-2"]
+                    ["1d8", "@abilities.con.mod", "-2"]
                 )
             }
         },
@@ -4118,12 +4127,6 @@ export const fiendTestDef = {
                                 slotType: "spell"
                             },
                             {
-                                slotKey: "spell1",
-                                level: 1,
-                                cost: 1,
-                                slotType: "spell"
-                            },
-                            {
                                 slotKey: "spell2",
                                 level: 2,
                                 cost: 2,
@@ -4180,7 +4183,12 @@ export const fiendTestDef = {
                     expect(presentedRolls[0]?.total).to.equal(4)
                     expect(message.flags?.transformations?.state).to.equal("rolled")
                     expect(message.flags?.transformations?.rollFormula).to.equal("2d6")
-                    expect(message.flags?.transformations?.recoveryBudget).to.equal(4)
+                    // Budget is the highest die (3), damage is twice the total (8) and is taken on the roll.
+                    expect(message.flags?.transformations?.recoveryBudget).to.equal(3)
+                    expect(message.flags?.transformations?.psychicDamage).to.equal(8)
+                    await waiters.waitForCondition(() =>
+                        actor.system.attributes.hp.value === staticVars.initialHp - 8
+                    )
                     expect(chatCardHelper.hasButton({
                         text: "Roll"
                     })).to.equal(false)
@@ -4206,17 +4214,17 @@ export const fiendTestDef = {
 
                     expect(dialogCalls).to.have.length(1)
                     expect(dialogCalls[0]?.actor).to.equal(actor)
-                    expect(dialogCalls[0]?.amount).to.equal(4)
+                    expect(dialogCalls[0]?.amount).to.equal(3)
 
                     await waiters.waitForCondition(() =>
-                        actor.system.spells.spell1.value === 2 &&
+                        actor.system.spells.spell1.value === 1 &&
                         actor.system.spells.spell2.value === 1
                     )
                     await waiters.waitForCondition(() =>
                         actor.system.attributes.hp.value === staticVars.initialHp - 8
                     )
 
-                    expect(actor.system.spells.spell1.value).to.equal(2)
+                    expect(actor.system.spells.spell1.value).to.equal(1)
                     expect(actor.system.spells.spell2.value).to.equal(1)
                     expect(actor.system.spells.spell3.value).to.equal(1)
                     expect(actor.system.attributes.hp.value).to.equal(
@@ -4371,18 +4379,19 @@ export const fiendTestDef = {
 
                     expect(dialogCalls).to.have.length(1)
                     expect(dialogCalls[0]?.actor).to.equal(actor)
-                    expect(dialogCalls[0]?.amount).to.equal(5)
+                    expect(dialogCalls[0]?.amount).to.equal(3)
 
                     expect(actor.system.spells.spell1.value).to.equal(0)
                     expect(actor.system.spells.spell2.value).to.equal(0)
+                    // The Psychic damage is taken on the roll, so closing the dialog does not avoid it.
                     expect(actor.system.attributes.hp.value).to.equal(
-                        staticVars.initialHp
+                        staticVars.initialHp - 10
                     )
                     expect(
                         actor.items.get(staticVars.classItem.id)?.system?.hd?.value
                     ).to.equal(staticVars.initialHitDice - 2)
                     expect(message.flags?.transformations?.state).to.equal("rolled")
-                    expect(message.flags?.transformations?.recoveryBudget).to.equal(5)
+                    expect(message.flags?.transformations?.recoveryBudget).to.equal(3)
 
                     await message.update({
                         "flags.transformations.unbridledPowerCancelPersistenceCheck": true

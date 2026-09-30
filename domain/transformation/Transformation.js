@@ -59,7 +59,7 @@ export class Transformation
         this.logger?.debug?.("Transformation.onHitDieRoll", {})
     }
 
-    static onPreRollSavingThrow(actor, context, options = {})
+    static onPreRollSavingThrow(context, actor, options = {})
     {
         this.logger?.debug?.("Transformation.onSavingThrow", actor, context, options)
     }

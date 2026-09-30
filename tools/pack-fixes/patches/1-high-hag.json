@@ -1,0 +1,644 @@
+[
+    {
+        "id": "high-hag-F41-sea-senses-swim",
+        "pack": "gh-transformations",
+        "key": "!items.effects!uvXqAIXFpzl5Gb9G.fkfofmnJxG6OXyeb",
+        "op": "set",
+        "path": "changes",
+        "value": [
+            {
+                "key": "system.attributes.movement.swim",
+                "mode": 2,
+                "value": "10",
+                "priority": 20
+            },
+            {
+                "key": "system.attributes.movement.swim",
+                "mode": 4,
+                "value": "@attributes.movement.walk",
+                "priority": 30
+            },
+            {
+                "key": "system.attributes.senses.darkvision",
+                "mode": 4,
+                "value": "60",
+                "priority": 20
+            }
+        ],
+        "expect": [
+            {
+                "key": "system.attributes.movement.swim",
+                "mode": 2,
+                "value": "10",
+                "priority": 20
+            },
+            {
+                "key": "system.attributes.senses.darkvision",
+                "mode": 2,
+                "value": "",
+                "priority": 20
+            }
+        ]
+    },
+    {
+        "id": "high-hag-F41-sea-adept-senses-swim",
+        "pack": "gh-transformations",
+        "key": "!items.effects!uvW6tQLGDIGoCLtu.L8WJfSx44YmrtZv6",
+        "op": "set",
+        "path": "changes",
+        "value": [
+            {
+                "key": "system.attributes.movement.swim",
+                "mode": 2,
+                "value": "10",
+                "priority": 20
+            },
+            {
+                "key": "system.attributes.movement.swim",
+                "mode": 4,
+                "value": "@attributes.movement.walk",
+                "priority": 30
+            },
+            {
+                "key": "system.attributes.senses.darkvision",
+                "mode": 4,
+                "value": "60",
+                "priority": 20
+            }
+        ],
+        "expect": [
+            {
+                "key": "system.attributes.movement.swim",
+                "mode": 2,
+                "value": "10",
+                "priority": 20
+            },
+            {
+                "key": "system.attributes.senses.darkvision",
+                "mode": 2,
+                "value": "",
+                "priority": 20
+            }
+        ]
+    },
+    {
+        "id": "high-hag-F41-sea-master-senses-swim",
+        "pack": "gh-transformations",
+        "key": "!items.effects!s0rygs5QsN6Zo7Bf.13rBALOBpxRTWayn",
+        "op": "set",
+        "path": "changes",
+        "value": [
+            {
+                "key": "system.attributes.movement.swim",
+                "mode": 2,
+                "value": "10",
+                "priority": 20
+            },
+            {
+                "key": "system.attributes.movement.swim",
+                "mode": 4,
+                "value": "@attributes.movement.walk",
+                "priority": 30
+            },
+            {
+                "key": "system.attributes.senses.darkvision",
+                "mode": 4,
+                "value": "60",
+                "priority": 20
+            }
+        ],
+        "expect": [
+            {
+                "key": "system.attributes.movement.swim",
+                "mode": 2,
+                "value": "10",
+                "priority": 20
+            },
+            {
+                "key": "system.attributes.senses.darkvision",
+                "mode": 2,
+                "value": "",
+                "priority": 20
+            }
+        ]
+    },
+    {
+        "id": "high-hag-F42-sea-gaze-dc",
+        "pack": "gh-transformations",
+        "key": "!items!uvXqAIXFpzl5Gb9G",
+        "op": "set",
+        "path": "system.activities.0iKGv0crPzqdGlEz.save.dc.formula",
+        "value": "8 + @abilities.cha.mod + @flags.transformations.stage",
+        "expect": "8 + @mod + @flags.transformations.stage"
+    },
+    {
+        "id": "high-hag-F42-sea-adept-gaze-dc",
+        "pack": "gh-transformations",
+        "key": "!items!uvW6tQLGDIGoCLtu",
+        "op": "set",
+        "path": "system.activities.g2UJi8EpPDJs3paX.save.dc.formula",
+        "value": "8 + @abilities.cha.mod + @flags.transformations.stage",
+        "expect": "8 + @mod + @flags.transformations.stage"
+    },
+    {
+        "id": "high-hag-F42-sea-master-gaze-dc",
+        "pack": "gh-transformations",
+        "key": "!items!s0rygs5QsN6Zo7Bf",
+        "op": "set",
+        "path": "system.activities.K4J0TtTytccr8KZo.save.dc.formula",
+        "value": "8 + @abilities.cha.mod + @flags.transformations.stage",
+        "expect": "8 + @mod + @flags.transformations.stage"
+    },
+    {
+        "id": "high-hag-F42-sea-master-frightening-gaze-dc",
+        "pack": "gh-transformations",
+        "key": "!items!s0rygs5QsN6Zo7Bf",
+        "op": "set",
+        "path": "system.activities.4AqbG9763W297UAB.save.dc.formula",
+        "value": "14 + @abilities.cha.mod",
+        "expect": "14 + @mod"
+    },
+    {
+        "id": "high-hag-F43-evil-eye-dc",
+        "pack": "gh-transformations",
+        "key": "!items!Xjl2r8LyJwtM1v9B",
+        "op": "set",
+        "path": "system.activities.EmcfnynRmENq5Pdb.save.dc.formula",
+        "value": "14 + @abilities.cha.mod",
+        "expect": "14 + @attributes.cha.mod "
+    },
+    {
+        "id": "high-hag-F43-evil-eye-dae-macro",
+        "pack": "gh-transformations",
+        "key": "!items!Xjl2r8LyJwtM1v9B",
+        "op": "set",
+        "path": "flags",
+        "value": {
+            "dae": {
+                "macro": {
+                    "name": "Evil Eye",
+                    "img": "modules/transformations/Icons/Transformations/Hag/EvilEye.png",
+                    "type": "script",
+                    "scope": "global",
+                    "command": "(async () => {\n    await game.transformations.executeMacro({\n        trigger: args[0],\n        transformationType: args[1],\n        action: args[2],\n        args: args[3]\n    });\n})();",
+                    "author": "4NBnmpBapEI7Q4zD",
+                    "ownership": {
+                        "default": 3
+                    },
+                    "_id": null,
+                    "folder": null,
+                    "sort": 0,
+                    "flags": {},
+                    "_stats": {
+                        "coreVersion": "13.351",
+                        "systemId": "dnd5e",
+                        "systemVersion": "5.2.5",
+                        "lastModifiedBy": null,
+                        "compendiumSource": null,
+                        "duplicateSource": null,
+                        "exportSource": null
+                    }
+                }
+            }
+        },
+        "expect": {}
+    },
+    {
+        "id": "high-hag-F43-evil-eye-effect-create",
+        "pack": "gh-transformations",
+        "key": "!items.effects!Xjl2r8LyJwtM1v9B.hEv1lEyeZer0Hp4x",
+        "op": "create",
+        "doc": {
+            "name": "Evil Eye",
+            "img": "modules/transformations/Icons/Transformations/Hag/EvilEye.png",
+            "origin": "Compendium.transformations.gh-transformations.Item.Xjl2r8LyJwtM1v9B",
+            "transfer": false,
+            "_id": "hEv1lEyeZer0Hp4x",
+            "type": "base",
+            "system": {},
+            "changes": [
+                {
+                    "key": "macro.itemMacro",
+                    "mode": 0,
+                    "value": "hag evilEyeDropToZero",
+                    "priority": 20
+                }
+            ],
+            "disabled": false,
+            "duration": {
+                "startTime": null,
+                "combat": null,
+                "seconds": null,
+                "rounds": null,
+                "turns": null,
+                "startRound": null,
+                "startTurn": null
+            },
+            "description": "Failed the Evil Eye saving throw: drops to 0 Hit Points.",
+            "tint": "#ffffff",
+            "statuses": [],
+            "sort": 0,
+            "flags": {
+                "dnd5e": {
+                    "riders": {
+                        "statuses": []
+                    }
+                },
+                "dae": {
+                    "enableCondition": "",
+                    "disableCondition": "",
+                    "stackable": "noneName",
+                    "showIcon": false,
+                    "disableIncapacitated": false,
+                    "selfTarget": false,
+                    "selfTargetAlways": false,
+                    "dontApply": false,
+                    "durationExpression": "",
+                    "macroRepeat": "none",
+                    "specialDuration": []
+                },
+                "core": {
+                    "overlay": false
+                },
+                "ActiveAuras": {
+                    "isAura": false,
+                    "aura": "All",
+                    "nameOverride": "",
+                    "radius": "",
+                    "alignment": "",
+                    "type": "",
+                    "customCheck": "",
+                    "ignoreSelf": false,
+                    "height": false,
+                    "hidden": false,
+                    "displayTemp": false,
+                    "hostile": false,
+                    "onlyOnce": false,
+                    "wallsBlock": "system",
+                    "statuses": []
+                }
+            },
+            "_stats": {
+                "compendiumSource": null,
+                "duplicateSource": null,
+                "exportSource": null,
+                "coreVersion": "13.351",
+                "systemId": "dnd5e",
+                "systemVersion": "5.2.5",
+                "createdTime": 1790787609931,
+                "modifiedTime": 1790787609931,
+                "lastModifiedBy": "4NBnmpBapEI7Q4zD"
+            }
+        }
+    },
+    {
+        "id": "high-hag-F43-evil-eye-effect-link",
+        "pack": "gh-transformations",
+        "key": "!items!Xjl2r8LyJwtM1v9B",
+        "op": "arrayAdd",
+        "path": "effects",
+        "value": "hEv1lEyeZer0Hp4x"
+    },
+    {
+        "id": "high-hag-F43-evil-eye-activity-effect",
+        "pack": "gh-transformations",
+        "key": "!items!Xjl2r8LyJwtM1v9B",
+        "op": "arrayAdd",
+        "path": "system.activities.EmcfnynRmENq5Pdb.effects",
+        "value": {
+            "_id": "hEv1lEyeZer0Hp4x",
+            "onSave": false,
+            "level": {
+                "min": null,
+                "max": null
+            }
+        }
+    },
+    {
+        "id": "high-hag-F44-invisibility-method",
+        "pack": "gh-transformations",
+        "key": "!items!kkfFADuQHxFgxeaP",
+        "op": "set",
+        "path": "system.method",
+        "value": "atwill",
+        "expect": "spell"
+    },
+    {
+        "id": "high-hag-F44-invisibility-no-slot",
+        "pack": "gh-transformations",
+        "key": "!items!kkfFADuQHxFgxeaP",
+        "op": "set",
+        "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+        "value": false,
+        "expect": true
+    },
+    {
+        "id": "high-hag-F44-invisibility-item-uses",
+        "pack": "gh-transformations",
+        "key": "!items!kkfFADuQHxFgxeaP",
+        "op": "set",
+        "path": "system.activities.dnd5eactivity000.consumption.targets",
+        "value": [
+            {
+                "type": "itemUses",
+                "target": "",
+                "value": "1",
+                "scaling": {
+                    "mode": "",
+                    "formula": ""
+                }
+            }
+        ],
+        "expect": []
+    },
+    {
+        "id": "high-hag-F44-charm-person-method",
+        "pack": "gh-transformations",
+        "key": "!items!PplpAQyFEx9XTHiE",
+        "op": "set",
+        "path": "system.method",
+        "value": "atwill",
+        "expect": "spell"
+    },
+    {
+        "id": "high-hag-F44-charm-person-no-slot",
+        "pack": "gh-transformations",
+        "key": "!items!PplpAQyFEx9XTHiE",
+        "op": "set",
+        "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+        "value": false,
+        "expect": true
+    },
+    {
+        "id": "high-hag-F44-charm-person-item-uses",
+        "pack": "gh-transformations",
+        "key": "!items!PplpAQyFEx9XTHiE",
+        "op": "set",
+        "path": "system.activities.dnd5eactivity000.consumption.targets",
+        "value": [
+            {
+                "type": "itemUses",
+                "target": "",
+                "value": "1",
+                "scaling": {
+                    "mode": "",
+                    "formula": ""
+                }
+            }
+        ],
+        "expect": []
+    },
+    {
+        "id": "high-hag-F44-disguise-self-method",
+        "pack": "gh-transformations",
+        "key": "!items!OhHNB8vk37DW2Dom",
+        "op": "set",
+        "path": "system.method",
+        "value": "atwill",
+        "expect": "spell"
+    },
+    {
+        "id": "high-hag-F44-disguise-self-no-slot",
+        "pack": "gh-transformations",
+        "key": "!items!OhHNB8vk37DW2Dom",
+        "op": "set",
+        "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+        "value": false,
+        "expect": true
+    },
+    {
+        "id": "high-hag-F44-disguise-self-item-uses",
+        "pack": "gh-transformations",
+        "key": "!items!OhHNB8vk37DW2Dom",
+        "op": "set",
+        "path": "system.activities.dnd5eactivity000.consumption.targets",
+        "value": [
+            {
+                "type": "itemUses",
+                "target": "",
+                "value": "1",
+                "scaling": {
+                    "mode": "",
+                    "formula": ""
+                }
+            }
+        ],
+        "expect": []
+    },
+    {
+        "id": "high-hag-F44-sea-adept-grant-spell",
+        "pack": "gh-transformations",
+        "key": "!items!uvW6tQLGDIGoCLtu",
+        "op": "set",
+        "path": "system.advancement.0.configuration.spell",
+        "value": {
+            "ability": [],
+            "method": "atwill",
+            "uses": {
+                "max": "@flags.transformations.stage",
+                "per": "lr",
+                "requireSlot": false
+            },
+            "prepared": 0
+        },
+        "expect": null
+    },
+    {
+        "id": "high-hag-F44-sea-master-grant-spell",
+        "pack": "gh-transformations",
+        "key": "!items!s0rygs5QsN6Zo7Bf",
+        "op": "set",
+        "path": "system.advancement.0.configuration.spell",
+        "value": {
+            "ability": [],
+            "method": "atwill",
+            "uses": {
+                "max": "@flags.transformations.stage",
+                "per": "lr",
+                "requireSlot": false
+            },
+            "prepared": 0
+        },
+        "expect": null
+    },
+    {
+        "id": "high-hag-F45-red-adept-remove-trait",
+        "pack": "gh-transformations",
+        "key": "!items!zOGFmHYkrM4ZKbEU",
+        "op": "set",
+        "path": "system.advancement",
+        "value": [
+            {
+                "type": "ItemGrant",
+                "_id": "u9gkBV2GmSAFFvjN",
+                "configuration": {
+                    "items": [
+                        {
+                            "uuid": "Compendium.transformations.gh-transformations.Item.PplpAQyFEx9XTHiE",
+                            "optional": false
+                        },
+                        {
+                            "uuid": "Compendium.transformations.gh-transformations.Item.ZzTR302lGjMOrQnx",
+                            "optional": false
+                        }
+                    ],
+                    "optional": false,
+                    "spell": {
+                        "ability": [],
+                        "method": "atwill",
+                        "uses": {
+                            "max": "@flags.transformations.stage",
+                            "per": "lr",
+                            "requireSlot": false
+                        },
+                        "prepared": 0
+                    }
+                },
+                "value": {},
+                "level": 0,
+                "title": "",
+                "hint": ""
+            }
+        ],
+        "expect": [
+            {
+                "type": "ItemGrant",
+                "_id": "u9gkBV2GmSAFFvjN",
+                "configuration": {
+                    "items": [
+                        {
+                            "uuid": "Compendium.transformations.gh-transformations.Item.PplpAQyFEx9XTHiE",
+                            "optional": false
+                        },
+                        {
+                            "uuid": "Compendium.transformations.gh-transformations.Item.ZzTR302lGjMOrQnx",
+                            "optional": false
+                        }
+                    ],
+                    "optional": false,
+                    "spell": {
+                        "ability": [],
+                        "method": "atwill",
+                        "uses": {
+                            "max": "1",
+                            "per": "lr",
+                            "requireSlot": false
+                        },
+                        "prepared": 0
+                    }
+                },
+                "value": {},
+                "level": 0,
+                "title": "",
+                "hint": ""
+            },
+            {
+                "type": "Trait",
+                "_id": "gH8nVpm5tmltBlbG",
+                "configuration": {
+                    "allowReplacements": false,
+                    "choices": [],
+                    "grants": [
+                        "skills:dec",
+                        "skills:per"
+                    ],
+                    "mode": "upgrade"
+                },
+                "level": 0,
+                "title": "",
+                "hint": "",
+                "value": {}
+            }
+        ]
+    },
+    {
+        "id": "high-hag-F45-red-master-remove-trait",
+        "pack": "gh-transformations",
+        "key": "!items!TIKmev4FNvD6wfqU",
+        "op": "set",
+        "path": "system.advancement",
+        "value": [
+            {
+                "type": "ItemGrant",
+                "_id": "u9gkBV2GmSAFFvjN",
+                "configuration": {
+                    "items": [
+                        {
+                            "uuid": "Compendium.transformations.gh-transformations.Item.PplpAQyFEx9XTHiE",
+                            "optional": false
+                        },
+                        {
+                            "uuid": "Compendium.transformations.gh-transformations.Item.0QxkaaXnKKlzdAha",
+                            "optional": false
+                        }
+                    ],
+                    "optional": false,
+                    "spell": {
+                        "ability": [],
+                        "method": "atwill",
+                        "uses": {
+                            "max": "@flags.transformations.stage",
+                            "per": "lr",
+                            "requireSlot": false
+                        },
+                        "prepared": 0
+                    }
+                },
+                "value": {},
+                "level": 0,
+                "title": "",
+                "hint": ""
+            }
+        ],
+        "expect": [
+            {
+                "type": "Trait",
+                "_id": "gH8nVpm5tmltBlbG",
+                "configuration": {
+                    "allowReplacements": false,
+                    "choices": [],
+                    "grants": [
+                        "skills:dec",
+                        "skills:per"
+                    ],
+                    "mode": "upgrade"
+                },
+                "level": 0,
+                "title": "",
+                "hint": "",
+                "value": {}
+            },
+            {
+                "type": "ItemGrant",
+                "_id": "u9gkBV2GmSAFFvjN",
+                "configuration": {
+                    "items": [
+                        {
+                            "uuid": "Compendium.transformations.gh-transformations.Item.PplpAQyFEx9XTHiE",
+                            "optional": false
+                        },
+                        {
+                            "uuid": "Compendium.transformations.gh-transformations.Item.0QxkaaXnKKlzdAha",
+                            "optional": false
+                        }
+                    ],
+                    "optional": false,
+                    "spell": {
+                        "ability": [],
+                        "method": "atwill",
+                        "uses": {
+                            "max": "1",
+                            "per": "lr",
+                            "requireSlot": false
+                        },
+                        "prepared": 0
+                    }
+                },
+                "value": {},
+                "level": 0,
+                "title": "",
+                "hint": ""
+            }
+        ]
+    }
+]

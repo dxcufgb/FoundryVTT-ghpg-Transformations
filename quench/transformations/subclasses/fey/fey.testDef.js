@@ -222,6 +222,32 @@ function getMagickTrickItem(actor, itemUuid, awardedByItemUuid, spellLevel, save
     return item
 }
 
+// Magic Tricks / Greater Magic Tricks spells are cast without a spell slot
+function assertSpellsCastWithoutSlot(actor, spells, assert)
+{
+    for (const spell of spells) {
+        if (!(spell.level > 0)) continue
+        const item = actor.items.find(i => i.flags?.transformations?.sourceUuid === spell.uuid)
+        assert.isOk(item, `spell ${spell.uuid} not found`)
+        assert.strictEqual(item.system.method, "atwill", `${item.name} should be cast at will`)
+        const slotActivities = item.system.activities.filter(a => a.consumption?.spellSlot === true)
+        assert.strictEqual(slotActivities.length, 0, `${item.name} should not consume spell slots`)
+    }
+}
+
+// Seasonally Affected: the court's vulnerability is left out of the Fey Form
+// resistance choice (only Cold and Fire are on that list)
+function assertSeasonalResistanceBlock(actor, loopVars, assert)
+{
+    const vulnerability = loopVars.seasonallyAffectedDamageVulnerability
+    const blocked = actor.flags?.transformations?.feyFormResistanceBlocked ?? {}
+    if (["cold", "fire"].includes(vulnerability)) {
+        assert.strictEqual(blocked[vulnerability], true, `${vulnerability} should be blocked`)
+    } else {
+        assert.deepEqual(Object.keys(blocked), [])
+    }
+}
+
 export const feyTestDef = {
     id: "fey",
     rollTableOrigin: "NA",
@@ -645,6 +671,9 @@ export const feyTestDef = {
                     identifier: ATTRIBUTE.ROLLABLE.DEATH_SAVES
                 })
                 validate(actorDto, {assert})
+                assertSpellsCastWithoutSlot(actor, loopVars.magicTricksSpells, assert)
+                assertSpellsCastWithoutSlot(actor, loopVars.greaterMagicTricksSpells, assert)
+                assertSeasonalResistanceBlock(actor, loopVars, assert)
             }
         },
 
@@ -945,9 +974,16 @@ export const feyTestDef = {
                     ability: "dex",
                     originType: "spell"
                 })
+                // midi-qol carries the workflow on midiOptions
+                context.midiOptions = {workflow: context.workflow}
+                delete context.workflow
+                context.subject = actor
+                context.rolls = [{options: {}}]
+
+                // Same argument order as the dnd5e.preRollSavingThrow hook
                 await transformation.TransformationClass.onPreRollSavingThrow(
-                    actor,
                     context,
+                    actor,
                     {onceService: runtime.infrastructure.onceService}
                 )
 
@@ -955,6 +991,7 @@ export const feyTestDef = {
                 contextDto.disadvantage = true
                 contextDto.advantage = null
                 validate(contextDto, {assert})
+                assert.strictEqual(context.rolls[0].options.disadvantage, true)
 
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.flags.match.push({
@@ -1130,6 +1167,7 @@ export const feyTestDef = {
                     )
                 })
                 validate(actorDto, {assert})
+                assertSpellsCastWithoutSlot(actor, loopVars.magicTricksSpells, assert)
             }
         },
 
@@ -1356,7 +1394,7 @@ export const feyTestDef = {
                 {
                     item.itemName = "Tooth and Claw"
                     item.type = "weapon"
-                    item.numberOfEffects = 1
+                    item.numberOfEffects = 2
                     item.uses.max = actorProf + transformationStage
                     item.uses.addRecovery(recovery =>
                     {
@@ -1369,27 +1407,44 @@ export const feyTestDef = {
                         effect.duration.turns = 1
                         effect.statuses = ["stunned"]
                     })
-                    item.numberOfActivities = 3
+                    item.addEffect(effect =>
+                    {
+                        effect.name = "Tooth and Claw"
+                        effect.duration.seconds = 60
+                    })
+                    item.numberOfActivities = 4
+                    // Manifesting spends a use and lasts 1 minute
                     item.addActivity(activity =>
                     {
-                        activity.name = "Attack as Action"
-                        activity.activationType = "action"
-                        activity.attackBonus = "@mod"
-
+                        activity.name = "Manifest Natural Weapon"
+                        activity.activationType = "bonus"
+                        activity.duration.units = "minute"
+                        activity.duration.value = "1"
                         activity.addConsumption(consumption =>
                         {
-                            consumption.spellSlot = true
-                            consumption.numberOfTargets = 2
-                            consumption.addTarget(target =>
-                            {
-                                target.type = "activityUses"
-                                target.value = "1"
-                            })
+                            consumption.numberOfTargets = 1
                             consumption.addTarget(target =>
                             {
                                 target.type = "itemUses"
                                 target.value = "1"
                             })
+                        })
+                        activity.addEffect(effect =>
+                        {
+                            effect.name = "Tooth and Claw"
+                        })
+                    })
+                    // The attack adds the ability modifier itself, and can be
+                    // used for every attack while the weapon is manifested
+                    item.addActivity(activity =>
+                    {
+                        activity.name = "Attack as Action"
+                        activity.activationType = "action"
+                        activity.attackBonus = ""
+
+                        activity.addConsumption(consumption =>
+                        {
+                            consumption.numberOfTargets = 0
                         })
                         activity.addDamagePart(damagePart =>
                         {
@@ -1403,20 +1458,14 @@ export const feyTestDef = {
                     {
                         activity.name = "Attack as Bonus Action"
                         activity.activationType = "bonus"
-                        activity.attackBonus = "@mod"
+                        activity.attackBonus = ""
 
                         activity.addConsumption(consumption =>
                         {
-                            consumption.spellSlot = true
-                            consumption.numberOfTargets = 2
+                            consumption.numberOfTargets = 1
                             consumption.addTarget(target =>
                             {
                                 target.type = "activityUses"
-                                target.value = "1"
-                            })
-                            consumption.addTarget(target =>
-                            {
-                                target.type = "itemUses"
                                 target.value = "1"
                             })
                         })
@@ -1428,19 +1477,19 @@ export const feyTestDef = {
                             damagePart.damageTypes = ["slashing"]
                         })
                     })
+                    // Once per round, without spending a use
                     item.addActivity(activity =>
                     {
                         activity.name = "Psychic Damage"
                         activity.activationType = "special"
+                        activity.uses.addRecovery(recovery =>
+                        {
+                            recovery.period = "turnStart"
+                            recovery.type = "recoverAll"
+                        })
                         activity.addConsumption(consumption =>
                         {
-                            consumption.spellSlot = true
-                            consumption.numberOfTargets = 2
-                            consumption.addTarget(target =>
-                            {
-                                target.type = "itemUses"
-                                target.value = "1"
-                            })
+                            consumption.numberOfTargets = 1
                             consumption.addTarget(target =>
                             {
                                 target.type = "activityUses"
@@ -1461,6 +1510,16 @@ export const feyTestDef = {
                     })
                 })
                 validate(actorDto, {assert})
+
+                // Consumption is not covered by the DTO validator
+                const toothAndClaw = actor.items.find(i => i.name === "Tooth and Claw")
+                const targetTypes = name => (
+                    toothAndClaw.system.activities.find(a => a.name === name)?.consumption?.targets ?? []
+                ).map(target => target.type)
+                assert.deepEqual(targetTypes("Manifest Natural Weapon"), ["itemUses"])
+                assert.deepEqual(targetTypes("Attack as Action"), [])
+                assert.deepEqual(targetTypes("Attack as Bonus Action"), ["activityUses"])
+                assert.deepEqual(targetTypes("Psychic Damage"), ["activityUses"])
             }
         },
 

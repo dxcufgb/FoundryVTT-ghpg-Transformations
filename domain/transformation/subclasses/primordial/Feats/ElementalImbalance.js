@@ -38,6 +38,8 @@ export class ElementalImbalance
         actor,
         damage,
         details,
+        damageType = null,
+        rawDamage = null,
         logger
     } = {})
     {
@@ -49,7 +51,9 @@ export class ElementalImbalance
         const triggerDamage = this.resolveTriggerDamage({
             actor,
             damage,
-            details
+            details,
+            damageType,
+            rawDamage
         })
         if (!triggerDamage) return
 
@@ -134,7 +138,8 @@ export class ElementalImbalance
 
             await this.rollSave({
                 event,
-                button: saveButton
+                button: saveButton,
+                message
             })
         })
     }
@@ -167,19 +172,21 @@ export class ElementalImbalance
                   this.getDamageTypeLabel(damageType)
         const originalDamage =
                   Number(message?.flags?.transformations?.originalDamage ?? 0)
+        const vulnerabilityDamage =
+                  Number(
+                      message?.flags?.transformations?.vulnerabilityDamage ??
+                      originalDamage
+                  )
         const roll = await RollService.simpleRoll(this.rollFormula)
         const isTriggered = roll.total === 1
         const feat = this.resolveFeat(actor)
 
-        if (isTriggered) {
-            await this.applyDamageVulnerability({
+        const vulnerabilityApplied = isTriggered
+            ? await this.applyInstanceVulnerability({
                 actor,
-                feat,
-                damageType,
-                damageTypeLabel,
-                activeEffectRepository
+                originalDamage: vulnerabilityDamage
             })
-        }
+            : false
 
         const state = isTriggered
             ? "rolled-triggered"
@@ -190,7 +197,7 @@ export class ElementalImbalance
             "flags.transformations.presentedRoll": {
                 total: roll.total
             },
-            "flags.transformations.vulnerabilityApplied": isTriggered
+            "flags.transformations.vulnerabilityApplied": vulnerabilityApplied
         })
 
         await this.replaceMessageCard({
@@ -200,9 +207,10 @@ export class ElementalImbalance
                 feat,
                 damageTypeLabel,
                 originalDamage,
+                vulnerabilityDamage,
                 state,
                 roll,
-                vulnerabilityApplied: isTriggered
+                vulnerabilityApplied
             })
         })
     }
@@ -218,28 +226,62 @@ export class ElementalImbalance
     static resolveTriggerDamage({
         actor,
         damage,
-        details
+        details,
+        damageType: instanceDamageType = null,
+        rawDamage = null
     } = {})
     {
         const map = actor.getFlag("transformations", "damageTypePerMidiId") ?? {};
         const midiSourceUuid = details?.midi?.sourceActorUuid ?? null
-        const damageType =
-                  this.normalizeDamageType(
-                      midiSourceUuid
-                          ? map[midiSourceUuid]
-                          : null
-                  ) ??
-                  this.resolveDamageType(details)
-        const amount = this.resolveDamageAmount(damage)
+        // A known instance type is authoritative; the flag map and details
+        // are only fallbacks for callers that do not pass it.
+        const damageType = instanceDamageType
+            ? this.normalizeDamageType(instanceDamageType)
+            : (
+                this.normalizeDamageType(
+                    midiSourceUuid
+                        ? map[midiSourceUuid]
+                        : null
+                ) ??
+                this.resolveDamageType(details)
+            )
+        const appliedAmount = this.resolveDamageAmount(damage)
+        const rawAmount = rawDamage == null
+            ? NaN
+            : Number(rawDamage)
+        const hasRawAmount = Number.isFinite(rawAmount) && rawAmount > 0
 
-        if (!damageType || !Number.isFinite(amount) || amount <= 0) {
-            return null
+        if (!damageType) return null
+
+        // The feature triggers even with Resistance or Immunity to the
+        // damage. When Immunity reduced the applied amount to 0, the
+        // pre-mitigation amount of the instance is used instead.
+        if (Number.isFinite(appliedAmount) && appliedAmount > 0) {
+            // The applied amount is the total of every damage type in the
+            // application; the extra damage from Vulnerability to this
+            // instance can never exceed the instance's own raw amount.
+            // Creatures within 5 feet take the original (raw) amount.
+            return {
+                type: damageType,
+                label: this.getDamageTypeLabel(damageType),
+                amount: hasRawAmount
+                    ? rawAmount
+                    : appliedAmount,
+                vulnerabilityDamage: hasRawAmount
+                    ? Math.min(appliedAmount, rawAmount)
+                    : appliedAmount
+            }
         }
 
+        if (!hasRawAmount) return null
+
+        // Vulnerability overrides the Immunity: the instance deals double
+        // its raw amount, all of which is still to be applied.
         return {
             type: damageType,
             label: this.getDamageTypeLabel(damageType),
-            amount
+            amount: rawAmount,
+            vulnerabilityDamage: rawAmount * 2
         }
     }
 
@@ -372,6 +414,8 @@ export class ElementalImbalance
                     damageType: triggerDamage.type,
                     damageTypeLabel: triggerDamage.label,
                     originalDamage: triggerDamage.amount,
+                    vulnerabilityDamage:
+                        triggerDamage.vulnerabilityDamage ?? triggerDamage.amount,
                     itemUuid: feat?.uuid ?? null,
                     rollFormula: this.rollFormula,
                     vulnerabilityApplied: false
@@ -385,6 +429,7 @@ export class ElementalImbalance
         feat,
         damageTypeLabel,
         originalDamage,
+        vulnerabilityDamage = originalDamage,
         state,
         roll = null,
         vulnerabilityApplied = false
@@ -433,6 +478,7 @@ export class ElementalImbalance
                 state,
                 damageTypeLabel,
                 originalDamage,
+                vulnerabilityDamage,
                 vulnerabilityApplied
             }),
             buttons: this.buildButtons({state})
@@ -538,6 +584,7 @@ export class ElementalImbalance
         state,
         damageTypeLabel,
         originalDamage,
+        vulnerabilityDamage = originalDamage,
         vulnerabilityApplied
     } = {})
     {
@@ -548,11 +595,11 @@ export class ElementalImbalance
         if (state === "rolled-triggered") {
             supplements.push(
                 vulnerabilityApplied
-                    ? `Volatile reaction triggered. Vulnerability to ${damageTypeLabel} damage was applied.`
+                    ? `Volatile reaction triggered. Vulnerability to this instance doubled it: ${vulnerabilityDamage} extra ${damageTypeLabel} damage was applied.`
                     : `Volatile reaction triggered.`
             )
             supplements.push(
-                `Affected creatures within 5 feet can click the DC ${this.saveDc} ${this.getSaveAbilityLabel()} saving throw button to halve this damage.`
+                `Creatures within 5 feet take ${originalDamage} ${damageTypeLabel} damage: select them and click the DC ${this.saveDc} ${this.getSaveAbilityLabel()} saving throw button. The damage is applied after the save (halved on a success).`
             )
         } else if (state === "rolled-safe") {
             supplements.push("No volatile reaction occurs.")
@@ -586,47 +633,25 @@ export class ElementalImbalance
         })
     }
 
-    static async applyDamageVulnerability({
+    /**
+     * Vulnerability to the triggering instance only: the damage already taken is dealt once more,
+     * ignoring resistances and immunities. With Resistance this brings the instance back to its full
+     * amount (Resistance and Vulnerability both apply), otherwise it doubles it.
+     */
+    static async applyInstanceVulnerability({
         actor,
-        feat,
-        damageType,
-        damageTypeLabel,
-        activeEffectRepository
+        originalDamage
     } = {})
     {
-        if (!actor || !damageType || !activeEffectRepository) return null
-
-        const effectName = this.buildVulnerabilityEffectName(damageTypeLabel)
-        if (activeEffectRepository.hasByName(actor, effectName)) {
-            return activeEffectRepository.findByName(actor, effectName)
+        const amount = Number(originalDamage)
+        if (!actor?.applyDamage || !Number.isFinite(amount) || amount <= 0) {
+            return false
         }
 
-        return activeEffectRepository.create({
-            actor,
-            name: effectName,
-            description:
-                `Gain vulnerability to ${damageTypeLabel.toLowerCase()} damage from Elemental Imbalance.`,
-            source: "transformation",
-            icon: feat?.img ?? null,
-            origin: feat?.uuid ?? actor?.uuid ?? "",
-            changes: [{
-                key: "system.traits.dv.value",
-                mode: globalThis.CONST?.ACTIVE_EFFECT_MODES?.ADD ?? 2,
-                value: damageType
-            }],
-            flags: {
-                dnd5e: {
-                    hidden: true
-                },
-                transformations: {
-                    elementalImbalance: true,
-                    damageType
-                },
-                dae: {
-                    specialDuration: ["longRest"]
-                }
-            }
-        })
+        // A numeric amount makes dnd5e ignore resistances, immunities and vulnerabilities.
+        await actor.applyDamage(amount)
+
+        return true
     }
 
     static buildVulnerabilityEffectName(damageTypeLabel)
@@ -641,10 +666,17 @@ export class ElementalImbalance
 
     static async rollSave({
         event,
-        button
+        button,
+        message = null
     } = {})
     {
         if (!button) return
+
+        const damageType = this.normalizeDamageType(
+            message?.flags?.transformations?.damageType
+        )
+        const originalDamage =
+                  Number(message?.flags?.transformations?.originalDamage ?? 0)
 
         const ability = button.dataset.ability ?? this.saveAbility
         const dc = Number(button.dataset.dc ?? this.saveDc)
@@ -667,18 +699,58 @@ export class ElementalImbalance
                 token: token.document
             })
 
-            await actor.rollSavingThrow({
+            const saveDc = Number.isFinite(dc)
+                ? dc
+                : this.saveDc
+            const saveResult = await actor.rollSavingThrow({
                 event,
                 ability,
-                target: Number.isFinite(dc)
-                    ? dc
-                    : this.saveDc
+                target: saveDc
             }, {}, {
                 data: {
                     speaker
                 }
             })
+
+            await this.applySplashDamage({
+                actor,
+                saveResult,
+                saveDc,
+                damageType,
+                originalDamage
+            })
         }
+    }
+
+    static async applySplashDamage({
+        actor,
+        saveResult,
+        saveDc,
+        damageType,
+        originalDamage
+    } = {})
+    {
+        if (!actor?.applyDamage || !damageType) return null
+        if (!Number.isFinite(originalDamage) || originalDamage <= 0) return null
+
+        const saveRoll = Array.isArray(saveResult)
+            ? saveResult[0]
+            : saveResult
+        const saveTotal = Number(saveRoll?.total)
+        if (!Number.isFinite(saveTotal)) return null
+
+        const saved = saveTotal >= saveDc
+        const value = saved
+            ? Math.floor(originalDamage / 2)
+            : originalDamage
+        if (value <= 0) return null
+
+        await actor.applyDamage([{
+            value,
+            type: damageType
+        }])
+
+        return value
     }
 
     static resolveSaveTargets()

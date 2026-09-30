@@ -15,7 +15,10 @@ export class GiftOfLiberatingFreedom
             ? await fromUuid(this.itemUuid)
             : null
 
-        const actorFlySpeed = ((actor.system.attributes.movement.walk - parseInt(actor.system.attributes.movement.bonus) ?? 0) / 2)
+        const movement = actor.system.attributes.movement
+        const walkSpeed = Number(movement.walk) || 0
+        const movementBonus = Number.parseInt(movement.bonus) || 0
+        const actorFlySpeed = (walkSpeed - movementBonus) / 2
         const actorOriginalFlySpeed = actor.system.attributes.movement.fly ?? 0
         const giftItem = await applyGiftOfDamnation({
             actor,

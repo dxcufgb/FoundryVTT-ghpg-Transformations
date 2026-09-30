@@ -140,6 +140,31 @@ quench.registerBatch(
 
                 expect(result).to.equal(true)
             })
+
+            it("conditionsMet treats effects {name} as a required effect", function ()
+            {
+                const fakeActor = {effects: [{name: "Hiding Fiend Appearance"}]}
+                const emptyActor = {effects: []}
+
+                expect(conditionsMet(fakeActor, {
+                    effects: {name: "Hiding Fiend Appearance"}
+                })).to.equal(true)
+                expect(conditionsMet(emptyActor, {
+                    effects: {name: "Hiding Fiend Appearance"}
+                })).to.equal(false)
+            })
+
+            it("conditionsMet evaluates both effects has and missing", function ()
+            {
+                const fakeActor = {effects: [{name: "A"}, {name: "B"}]}
+
+                expect(conditionsMet(fakeActor, {
+                    effects: {has: ["A"], missing: ["C"]}
+                })).to.equal(true)
+                expect(conditionsMet(fakeActor, {
+                    effects: {has: ["A"], missing: ["B"]}
+                })).to.equal(false)
+            })
             it("executes actions in declared order", async function ()
             {
                 const callOrder = []

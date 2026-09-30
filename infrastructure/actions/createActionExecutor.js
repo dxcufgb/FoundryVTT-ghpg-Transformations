@@ -14,6 +14,9 @@ export function createActionExecutor({
         actorRepository
     })
 
+    // Once keys whose action is currently running (actor uuid + key).
+    const runningOnceKeys = new Set()
+
     async function execute({
         actorId,
         actions,
@@ -75,9 +78,12 @@ export function createActionExecutor({
                             continue
                         }
 
-                        if (action.once?.key) {
+                        const onceReservation = action.once?.key
+                            ? `${actor.uuid ?? actor.id}:${action.once.key}`
+                            : null
+                        if (onceReservation) {
                             const hasBeenExecuted = onceService.hasOnceBeenExecuted(actor, action.once.key)
-                            if (hasBeenExecuted === true) {
+                            if (hasBeenExecuted === true || runningOnceKeys.has(onceReservation)) {
                                 logger.debug("Once action skipped", action.once.key)
                                 continue
                             }
@@ -92,15 +98,23 @@ export function createActionExecutor({
                             continue
                         }
 
-                        const result = await handler({
-                            actor,
-                            action,
-                            context,
-                            variables
-                        })
+                        // Claim the once key before awaiting, so triggers that share it and run at the same time
+                        // (e.g. Bloodied and 0 HP from one hit) can't both pass the check.
+                        if (onceReservation) runningOnceKeys.add(onceReservation)
+                        let result
+                        try {
+                            result = await handler({
+                                actor,
+                                action,
+                                context,
+                                variables
+                            })
 
-                        if (action.once?.key && result !== false) {
-                            await onceService.setOnceFlag(actor, action.once)
+                            if (action.once?.key && result !== false) {
+                                await onceService.setOnceFlag(actor, action.once)
+                            }
+                        } finally {
+                            if (onceReservation) runningOnceKeys.delete(onceReservation)
                         }
 
                         if (action.data?.blocker === true && result === false) {

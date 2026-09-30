@@ -518,15 +518,13 @@ function addParalyzingTouchAssertions(actorDto, {
             activity.target.prompt = false
             activity.saveAbility = ["con"]
             activity.saveDc = saveDc
+            // Failed save: Paralyzed (activity effect). Successful save: Prone,
+            // applied by the activity's postActiveEffects macro to savers only.
+            activity.macroName = "Paralyzing Touch Prone On Save"
             activity.addEffect(effect =>
             {
                 effect.name = "Paralyzed"
                 effect.statuses = ["paralyzed"]
-            })
-            activity.addEffect(effect =>
-            {
-                effect.name = "Prone"
-                effect.statuses = ["prone"]
             })
         })
         item.addEffect(effect =>

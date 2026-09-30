@@ -14,6 +14,7 @@ export const onSavingThrow = {
                 custom: {
                     saves: {
                         current: {
+                            isSpell: true,
                             naturalRoll: 1
                         }
                     }

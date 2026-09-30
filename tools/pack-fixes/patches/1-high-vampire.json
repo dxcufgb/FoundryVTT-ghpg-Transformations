@@ -1,0 +1,38 @@
+[
+    {
+        "id": "1-high-vampire-F80-curse-save-macro-name",
+        "pack": "gh-transformations",
+        "key": "!items!5nFmQkoKj3YFFNuj",
+        "op": "set",
+        "path": "system.activities.3L9NR9UMGa1buZxK.macroData.name",
+        "value": "Midi Save",
+        "expect": ""
+    },
+    {
+        "id": "1-high-vampire-F80-curse-save-dc-formula",
+        "pack": "gh-transformations",
+        "key": "!items!5nFmQkoKj3YFFNuj",
+        "op": "set",
+        "path": "system.activities.3L9NR9UMGa1buZxK.save.dc.formula",
+        "value": "4 + 4 * @flags.transformations.stage",
+        "expect": ""
+    },
+    {
+        "id": "1-high-vampire-F81-claw-attack-bonus",
+        "pack": "gh-transformations",
+        "key": "!items!0ZgPuhqfVv3Nk0x4",
+        "op": "set",
+        "path": "system.activities.LL3fnYXElb0RgP7W.attack.bonus",
+        "value": "",
+        "expect": "@mod + @prof"
+    },
+    {
+        "id": "1-high-vampire-F82-claw-macro-name",
+        "pack": "gh-transformations",
+        "key": "!items!0ZgPuhqfVv3Nk0x4",
+        "op": "set",
+        "path": "system.activities.LL3fnYXElb0RgP7W.macroData.name",
+        "value": "Midi Attack",
+        "expect": ""
+    }
+]

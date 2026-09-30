@@ -1062,6 +1062,18 @@ const elementalImbalanceBehaviorTests = [
                       ElementalImbalance.getDamageTypeLabel(loopVars.damageType)
             const effectName = getElementalImbalanceEffectName(loopVars.damageType)
             const rollHelper = helpers.createDeterministicRollHelper()
+            const applyDamageCalls = []
+            const originalApplyDamage = actor.applyDamage
+
+            actor.applyDamage = async function applyDamage(damages, options)
+            {
+                applyDamageCalls.push({
+                    damages,
+                    options
+                })
+
+                return actor
+            }
 
             try {
                 const initialMessage = chatCardHelper.getMessage()
@@ -1135,13 +1147,19 @@ const elementalImbalanceBehaviorTests = [
 
                 if (loopVars.expectVulnerability) {
                     await waiters.waitForCondition(() =>
+                        applyDamageCalls.length === 1
+                    )
+                    // Vulnerability to the triggering instance only: the damage taken is dealt
+                    // once more, ignoring traits, and no lasting vulnerability is added.
+                    expect(applyDamageCalls[0]?.damages).to.equal(
+                        staticVars.damageAmount
+                    )
+                    expect(
                         actor.effects.some(effect => effect.name === effectName)
-                    )
-                    await waiters.waitForCondition(() =>
-                        getActorTraitValues(actor.system.traits?.dv?.value).includes(
-                            loopVars.damageType
-                        )
-                    )
+                    ).to.equal(false)
+                    expect(
+                        getActorTraitValues(actor.system.traits?.dv?.value)
+                    ).to.not.include(loopVars.damageType)
                     expect(
                         chatCardHelper.getMessage()?.flags?.transformations?.vulnerabilityApplied
                     ).to.equal(true)
@@ -1212,6 +1230,15 @@ const elementalImbalanceBehaviorTests = [
                         expect(saveCalls[0]?.config?.target).to.equal(
                             ElementalImbalance.saveDc
                         )
+
+                        // Failed save (12 vs DC 15): full splash damage of the triggering type.
+                        await waiters.waitForCondition(() =>
+                            applyDamageCalls.length === 2
+                        )
+                        expect(applyDamageCalls[1]?.damages).to.deep.equal([{
+                            value: staticVars.damageAmount,
+                            type: loopVars.damageType
+                        }])
                     } finally {
                         ElementalImbalance.resolveSaveTargets =
                             originalResolveSaveTargets
@@ -1219,10 +1246,11 @@ const elementalImbalanceBehaviorTests = [
                     }
 
                     const actorDto = new ActorValidationDTO(actor)
-                    actorDto.stats.vulnerabilities = [loopVars.damageType]
-                    actorDto.effects.has.push(effectName)
+                    actorDto.stats.vulnerabilities = []
+                    actorDto.effects.notHas.push(effectName)
                     validate(actorDto, {assert})
                 } else {
+                    expect(applyDamageCalls.length).to.equal(0)
                     expect(
                         chatCardHelper.hasButton({
                             selector: "[data-primordial-action='roll-save']"
@@ -1238,6 +1266,7 @@ const elementalImbalanceBehaviorTests = [
                     validate(actorDto, {assert})
                 }
             } finally {
+                actor.applyDamage = originalApplyDamage
                 rollHelper.restore()
             }
         }
@@ -1395,6 +1424,79 @@ const primordialChaosBehaviorTests = [
                             isSpell: true,
                             naturalRoll: 2,
                             total: 7,
+                            success: false
+                        }
+                    }
+                })
+
+                await waiters.waitForDomainStability({
+                    actor,
+                    asyncTrackers: runtime.dependencies.utils.asyncTrackers
+                })
+                await waiters.waitForNextFrame()
+            }
+        ],
+        assertions: async ({actor, expect, staticVars}) =>
+        {
+            try {
+                expect(findLatestPrimordialChaosMessage({
+                    actor,
+                    chaosItem: staticVars.chaosItem,
+                    chaosActivity: staticVars.chaosActivity,
+                    initialMessageIds: staticVars.initialMessageIds
+                })).to.equal(null)
+                expect(staticVars.damageRollDialogRendered).to.equal(false)
+                expect(findDamageRollDialog()).to.equal(null)
+            } finally {
+                restoreDamageRollDialogRenderSpy(staticVars)
+                game.dice3d = staticVars.originalDice3d
+            }
+        }
+    },
+    {
+        name: "Primordial Chaos does not trigger on a natural 1 saving throw that is not against a spell",
+        uuid: PRIMORDIAL_CHAOS_UUID,
+        setup: async ({staticVars}) =>
+        {
+            await ChatMessage.deleteDocuments(
+                game.messages.contents.map(message => message.id)
+            )
+            setupPrimordialElementalAffinityAdvancement()
+            installDamageRollDialogRenderSpy(staticVars)
+
+            staticVars.originalDice3d = game.dice3d
+            game.dice3d = {
+                isEnabled()
+                {
+                    return false
+                },
+                async showForRoll() {}
+            }
+
+            const existingDamageRollDialog = findDamageRollDialog()
+            if (existingDamageRollDialog) {
+                await closeApplication(existingDamageRollDialog)
+            }
+        },
+        requiredPath: buildPrimordialChaosRequiredPath(),
+        steps: [
+            async ({actor, runtime, waiters, staticVars}) =>
+            {
+                staticVars.chaosItem = resolvePrimordialChaosItem(actor)
+                staticVars.chaosActivity = resolvePrimordialChaosActivity(
+                    staticVars.chaosItem
+                )
+                staticVars.initialMessageIds = new Set(
+                    game.messages.contents.map(message => message.id)
+                )
+
+                await runtime.services.triggerRuntime.run("savingThrow", actor, {
+                    saves: {
+                        current: {
+                            ability: "con",
+                            isSpell: false,
+                            naturalRoll: 1,
+                            total: 1,
                             success: false
                         }
                     }
@@ -1838,12 +1940,12 @@ export const primordialTestDef = {
                     {
                         activity.name = "Lightning Strike"
                         activity.activationType = "action"
-                        activity.attackBonus = "@mod"
+                        activity.attackBonus = ""
                         activity.addDamagePart(damagePart =>
                         {
                             damagePart.customEnabled = true
                             damagePart.custom =
-                                "(3+(@flags.transformations.stage - 2))d8"
+                                "(3+(@flags.transformations.stage - 2))d8 + @mod"
                             damagePart.bonus = ""
                             damagePart.numberOfTypes = 1
                             damagePart.damageTypes = ["lightning"]
@@ -2588,8 +2690,14 @@ export const primordialTestDef = {
                     item.addEffect(effect =>
                     {
                         effect.name = "Primordial Aura: Bludgeoning"
-                        effect.changes.count = 1
+                        effect.changes.count = 2
                         effect.changes = [
+                            {
+                                key: "system.traits.dr.value",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: "bludgeoning",
+                                priority: 20
+                            },
                             {
                                 key: "macro.itemMacro",
                                 mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
@@ -2601,8 +2709,14 @@ export const primordialTestDef = {
                     item.addEffect(effect =>
                     {
                         effect.name = "Primordial Aura: Cold"
-                        effect.changes.count = 1
+                        effect.changes.count = 2
                         effect.changes = [
+                            {
+                                key: "system.traits.dr.value",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: "cold",
+                                priority: 20
+                            },
                             {
                                 key: "macro.itemMacro",
                                 mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
@@ -2614,8 +2728,14 @@ export const primordialTestDef = {
                     item.addEffect(effect =>
                     {
                         effect.name = "Primordial Aura: Fire"
-                        effect.changes.count = 1
+                        effect.changes.count = 2
                         effect.changes = [
+                            {
+                                key: "system.traits.dr.value",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: "fire",
+                                priority: 20
+                            },
                             {
                                 key: "macro.itemMacro",
                                 mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
@@ -2627,8 +2747,14 @@ export const primordialTestDef = {
                     item.addEffect(effect =>
                     {
                         effect.name = "Primordial Aura: Lightning"
-                        effect.changes.count = 1
+                        effect.changes.count = 2
                         effect.changes = [
+                            {
+                                key: "system.traits.dr.value",
+                                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                                value: "lightning",
+                                priority: 20
+                            },
                             {
                                 key: "macro.itemMacro",
                                 mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
@@ -2829,7 +2955,7 @@ export const primordialTestDef = {
                     item.type = "feat"
                     item.systemType = "transformation"
                     item.systemSubType = "primordial"
-                    item.numberOfActivities = 1
+                    item.numberOfActivities = 2
                     item.numberOfEffects = 4
                     item.uses.max = actorConMod
                     item.uses.addRecovery(recovery =>
@@ -2862,6 +2988,15 @@ export const primordialTestDef = {
                                 "lightning"
                             ]
                         })
+                    })
+                    item.addActivity(activity =>
+                    {
+                        // The benefits apply to the primordial, not to the attacker who made the save.
+                        activity.name = "Elemental Benefit"
+                        activity.activationType = "special"
+                        activity.range.units = "self"
+                        activity.target.affects.type = "self"
+                        activity.target.prompt = false
                     })
                     item.addEffect(effect =>
                     {

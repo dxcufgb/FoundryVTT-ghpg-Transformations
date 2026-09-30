@@ -2,10 +2,10 @@ import { Transformation } from "../../Transformation.js"
 import { ElementalImbalance } from "./Feats/ElementalImbalance.js"
 import { RoilingElements } from "./Feats/RoilingElements.js"
 
+// Elemental Affinity: Earth (the affinity choice item, not "Elemental Mastery: Earth")
 export const PRIMORDIAL_EARTH_FEATURE_UUID =
-          "Compendium.transformations.gh-transformations.Item.U1W6fCAmzOKBRmD5"
+          "Compendium.transformations.gh-transformations.Item.grBkv7vIBfOVvnUg"
 
-const ELEMENTAL_MASTERY_EARTH_EFFECT_NAME = "elemental mastery: earth"
 const TEMP_HP_PATH = "system.attributes.hp.temp"
 
 /**
@@ -87,6 +87,8 @@ export class Primordial extends Transformation
         actor,
         damage,
         details,
+        damageType = null,
+        rawDamage = null,
         logger
     } = {})
     {
@@ -96,6 +98,8 @@ export class Primordial extends Transformation
             actor,
             damage,
             details,
+            damageType,
+            rawDamage,
             logger
         })
     }
@@ -177,8 +181,8 @@ export class Primordial extends Transformation
 
     static actorHasEarthFeature(actor)
     {
-        return actorHasSourceUuid(actor?.items, PRIMORDIAL_EARTH_FEATURE_UUID) ||
-            actorHasActiveEffect(actor, ELEMENTAL_MASTERY_EARTH_EFFECT_NAME)
+        return Boolean(actor?.flags?.transformations?.primordial?.hasEarth) ||
+            actorHasSourceUuid(actor?.items, PRIMORDIAL_EARTH_FEATURE_UUID)
     }
 }
 
@@ -195,14 +199,6 @@ function actorHasSourceUuid(collection, sourceUuid)
 {
     return collectionSome(collection, document =>
         resolveSourceUuids(document).has(sourceUuid)
-    )
-}
-
-function actorHasActiveEffect(actor, normalizedName)
-{
-    return collectionSome(actor?.effects, effect =>
-        effect?.disabled !== true &&
-        String(effect?.name ?? "").trim().toLowerCase() === normalizedName
     )
 }
 

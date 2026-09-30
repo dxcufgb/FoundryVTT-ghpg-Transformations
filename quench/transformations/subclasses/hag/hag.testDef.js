@@ -266,7 +266,7 @@ export const HagTestDef = {
             ],
             finalAssertions: async ({actor, assert}) =>
             {
-                const actorWisdomModifier = actor.system.abilities.wis.mod
+                const actorCharismaModifier = actor.system.abilities.cha.mod
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.voZkMwLxwSvVml4p",
@@ -285,8 +285,13 @@ export const HagTestDef = {
                                 value: 10
                             },
                             {
+                                key: "system.attributes.movement.swim",
+                                mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+                                value: "@attributes.movement.walk"
+                            },
+                            {
                                 key: "system.attributes.senses.darkvision",
-                                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                                mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
                                 value: 60
                             }
                         ]
@@ -298,7 +303,7 @@ export const HagTestDef = {
                         activity.target.affects.count = 1
                         activity.range.value = 30
                         activity.range.unit = "ft"
-                        activity.saveDc = 8 + 1 + actorWisdomModifier
+                        activity.saveDc = 8 + 1 + actorCharismaModifier
                         activity.addDamagePart(damagePart => {
                             damagePart.custom = "(@flags.transformations.stage)d8"
                             damagePart.type = "psychic"
@@ -327,7 +332,9 @@ export const HagTestDef = {
                     spell: "Compendium.transformations.gh-transformations.Item.PplpAQyFEx9XTHiE",
                     spellData: {
                         name: "Charm Person (Adept of the Red Sisterhood)"
-                    }
+                    },
+                    // Stage 1 proficiency only; the Adept boon must not upgrade it to Expertise
+                    skillProficiencies: ["dec", "per"]
                 },
                 {
                     sisterhood: "The Sea Sisterhood",
@@ -388,6 +395,9 @@ export const HagTestDef = {
                 actorDto.addItem(item => {
                     item.itemName = loopVars.spellData.name
                 })
+                for (const skill of loopVars.skillProficiencies ?? []) {
+                    actorDto.skills[skill].proficient = 1
+                }
                 actorDto.addItem(item => {
                     item.itemName = "Iron Sensitivity"
                     item.uses.max = 1
@@ -731,7 +741,7 @@ export const HagTestDef = {
             ],
             finalAssertions: async ({actor, assert}) =>
             {
-                const actorWisdomModifier = actor.system.abilities.wis.mod
+                const actorCharismaModifier = actor.system.abilities.cha.mod
                 const actorDto = new ActorValidationDTO(actor)
                 actorDto.hasItemWithSourceUuids = [
                     "Compendium.transformations.gh-transformations.Item.6rVQqrBxeoqLBp3X",
@@ -764,7 +774,7 @@ export const HagTestDef = {
                         activity.target.affects.count = 1
                         activity.range.value = 30
                         activity.range.unit = "ft"
-                        activity.saveDc = 14 + actorWisdomModifier
+                        activity.saveDc = 14 + actorCharismaModifier
                         activity.saveAbiliy = "wis"
                         activity.addEffect(effect => {
                             effect.name = "Frightened"
@@ -872,6 +882,9 @@ export const HagTestDef = {
                         activity.range.unit = "ft"
                         activity.saveDc = 14 + actorCharismaModifier
                         activity.saveAbiliy = "wis"
+                        activity.addEffect(effect => {
+                            effect.name = "Evil Eye"
+                        })
                     })
                 })
                 actorDto.addItem(item => {

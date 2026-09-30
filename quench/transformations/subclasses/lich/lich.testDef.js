@@ -517,7 +517,7 @@ export const lichTestDef = {
                     item.itemName = "Lich Magica"
                     item.addActivity(activity => {
                         activity.name = "Regain Spell Slot"
-                        activity.activationType = "action"
+                        activity.activationType = "bonus"
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
@@ -529,7 +529,7 @@ export const lichTestDef = {
                     })
                     item.addActivity(activity => {
                         activity.name = "Enforce Disadvantage"
-                        activity.activationType = "action"
+                        activity.activationType = "bonus"
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
                             consumption.addTarget(target => {
@@ -548,7 +548,7 @@ export const lichTestDef = {
                         activity.activationType = "special"
                         activity.critical.allow = true
                         activity.addDamagePart(damagePart => {
-                            damagePart.custom = "(@flags.transformation.stage)d6"
+                            damagePart.custom = "(@flags.transformations.stage)d6"
                             damagePart.type = ['necrotic']
                         })
                         activity.addConsumption(consumption => {
@@ -563,7 +563,7 @@ export const lichTestDef = {
                     item.addActivity(activity => {
                         activity.name = "Lich Healing"
                         activity.activationType = "special"
-                        activity.healing.custom = "(@flags.transformation.stage)d6"
+                        activity.healing.custom = "(@flags.transformations.stage)d6"
                         activity.healing.types = ["healing"]
                         activity.addConsumption(consumption => {
                             consumption.numberOfTargets = 1
@@ -833,7 +833,7 @@ export const lichTestDef = {
                     item.addActivity(activity => {
                         activity.name = "Life Force"
                         activity.activationType = "special"
-                        activity.healing.roll = "1d6"
+                        activity.healing.custom = "(@flags.transformations.stage)d6"
                         activity.healing.type = "healing"
                     })
                     item.addActivity(activity => {
@@ -844,7 +844,7 @@ export const lichTestDef = {
                         activity.target.value = 1
                         activity.target.type = "creature"
                         activity.addDamagePart(damagePart => {
-                            damagePart.roll = "1d6"
+                            damagePart.custom = "(@flags.transformations.stage)d6"
                             damagePart.type = "poison"
                         })
                     })
@@ -917,7 +917,7 @@ export const lichTestDef = {
                         effect.name = "Necromantic Dystrophia"
                         effect.changes = [
                             {
-                                key: "system.abilities.con.check.roll.mode",
+                                key: "system.abilities.con.save.roll.mode",
                                 value: -1,
                                 mode: 2
                             }

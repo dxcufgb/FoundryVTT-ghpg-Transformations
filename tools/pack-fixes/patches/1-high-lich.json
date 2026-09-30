@@ -1,0 +1,166 @@
+[
+    {
+        "id": "1-high-lich-magica-necrotic-stage-flag",
+        "pack": "gh-transformations",
+        "key": "!items!0wnk2ZQGOrwMvxH3",
+        "op": "set",
+        "path": "system.activities.KkFFYCCmL0pu0rlx.damage.parts.0.custom.formula",
+        "value": "(@flags.transformations.stage)d6",
+        "expect": "(@flags.transformation.stage)d6"
+    },
+    {
+        "id": "1-high-lich-magica-healing-stage-flag",
+        "pack": "gh-transformations",
+        "key": "!items!0wnk2ZQGOrwMvxH3",
+        "op": "set",
+        "path": "system.activities.yi1HZdeRx8iDOxLZ.healing.custom.formula",
+        "value": "(@flags.transformations.stage)d6",
+        "expect": "(@flags.transformation.stage)d6"
+    },
+    {
+        "id": "1-high-lich-magica-regain-slot-bonus-action",
+        "pack": "gh-transformations",
+        "key": "!items!0wnk2ZQGOrwMvxH3",
+        "op": "set",
+        "path": "system.activities.tqC2KdisjyfivAJn.activation.type",
+        "value": "bonus",
+        "expect": "action"
+    },
+    {
+        "id": "1-high-lich-magica-enforce-disadv-bonus-action",
+        "pack": "gh-transformations",
+        "key": "!items!0wnk2ZQGOrwMvxH3",
+        "op": "set",
+        "path": "system.activities.TzcEAgQ7agWZf7oW.activation.type",
+        "value": "bonus",
+        "expect": "action"
+    },
+    {
+        "id": "1-high-lich-dystrophia-con-save-disadvantage",
+        "pack": "gh-transformations",
+        "key": "!items.effects!5Jr4ZiwRqJv1Lot9.ccqBobJcAf5jD88v",
+        "op": "set",
+        "path": "changes.0.key",
+        "value": "system.abilities.con.save.roll.mode",
+        "expect": "system.abilities.con.check.roll.mode"
+    },
+    {
+        "id": "1-high-lich-unholy-healing-macro-check",
+        "pack": "gh-transformations",
+        "key": "!items!fxVTPJ9l8u4MJaJe",
+        "op": "set",
+        "path": "flags.dae.macro.command",
+        "value": "if(args[0].workflow.activity.name == \"Activate Soul Vessel Healing\"){\n  if (!args[0].actor.effects.find(e => e.name === \"Soul Vessel Active\" && !e.disabled) === true){\n    ui.notifications.warn(\"You must have a soul vessel to use this activity.\");\n    return false;\n  }\n} else if(args[0].workflow.activity.name == \"Heal on round start\"){\n  if (!args[0].actor.effects.find(e => e.name === \"Unholy Healing\" && !e.disabled)){\n    return false;\n  }\n}",
+        "expect": "if(args[0].workflow.activity.name == \"Activate Soul Vessel Healing\"){\n  if (!args[0].actor.effects.find(e => e.name === \"Soul Vessel Active\" && !e.disabled) === true){\n    ui.notifications.warn(\"You must have a soul vessel to use this activity.\");\n    return false;\n  }\n} else if(args[0].workflow.activity.name == \"Heal on round start\"){\n  if (!args[0].actor.effects.find(e => e.name === \"Unholy Healing\" && !e.disabled) !== true){\n    return false;\n  }\n}"
+    },
+    {
+        "id": "1-high-lich-unholy-healing-effect-not-transfer",
+        "pack": "gh-transformations",
+        "key": "!items.effects!fxVTPJ9l8u4MJaJe.1n3o6oWAgdz911IT",
+        "op": "set",
+        "path": "transfer",
+        "value": false,
+        "expect": true
+    },
+    {
+        "id": "1-high-lich-soul-vessel-hp-character-level",
+        "pack": "gh-transformations",
+        "key": "!items!rluvw9sNdr3JO93n",
+        "op": "set",
+        "path": "system.activities.pJYVdvbmgOwvU18y.bonuses.hp",
+        "value": "10 * @details.level",
+        "expect": "10 * @flags.transformations.stage"
+    },
+    {
+        "id": "1-high-lich-soul-vessel-creature-size-tiny",
+        "pack": "creatures",
+        "key": "!actors!Ccn224flJTKl0ZDh",
+        "op": "set",
+        "path": "system.traits.size",
+        "value": "tiny",
+        "expect": "med"
+    },
+    {
+        "id": "1-high-lich-soul-vessel-token-width",
+        "pack": "creatures",
+        "key": "!actors!Ccn224flJTKl0ZDh",
+        "op": "set",
+        "path": "prototypeToken.width",
+        "value": 0.5,
+        "expect": 1
+    },
+    {
+        "id": "1-high-lich-soul-vessel-token-height",
+        "pack": "creatures",
+        "key": "!actors!Ccn224flJTKl0ZDh",
+        "op": "set",
+        "path": "prototypeToken.height",
+        "value": 0.5,
+        "expect": 1
+    },
+    {
+        "id": "1-high-lich-corrupting-life-force-custom",
+        "pack": "gh-transformations",
+        "key": "!items!l4qP3E5fOFZjLpNT",
+        "op": "set",
+        "path": "system.activities.aST0F9LRZKzYlS99.healing.custom",
+        "value": {
+            "enabled": true,
+            "formula": "(@flags.transformations.stage)d6"
+        },
+        "expect": {
+            "enabled": false
+        }
+    },
+    {
+        "id": "1-high-lich-corrupting-life-force-number",
+        "pack": "gh-transformations",
+        "key": "!items!l4qP3E5fOFZjLpNT",
+        "op": "set",
+        "path": "system.activities.aST0F9LRZKzYlS99.healing.number",
+        "value": null,
+        "expect": 1
+    },
+    {
+        "id": "1-high-lich-corrupting-life-force-denomination",
+        "pack": "gh-transformations",
+        "key": "!items!l4qP3E5fOFZjLpNT",
+        "op": "set",
+        "path": "system.activities.aST0F9LRZKzYlS99.healing.denomination",
+        "value": null,
+        "expect": 6
+    },
+    {
+        "id": "1-high-lich-corrupting-poison-custom",
+        "pack": "gh-transformations",
+        "key": "!items!l4qP3E5fOFZjLpNT",
+        "op": "set",
+        "path": "system.activities.XqIqO17ETx1odGcw.damage.parts.0.custom",
+        "value": {
+            "enabled": true,
+            "formula": "(@flags.transformations.stage)d6"
+        },
+        "expect": {
+            "enabled": false,
+            "formula": ""
+        }
+    },
+    {
+        "id": "1-high-lich-corrupting-poison-number",
+        "pack": "gh-transformations",
+        "key": "!items!l4qP3E5fOFZjLpNT",
+        "op": "set",
+        "path": "system.activities.XqIqO17ETx1odGcw.damage.parts.0.number",
+        "value": null,
+        "expect": 1
+    },
+    {
+        "id": "1-high-lich-corrupting-poison-denomination",
+        "pack": "gh-transformations",
+        "key": "!items!l4qP3E5fOFZjLpNT",
+        "op": "set",
+        "path": "system.activities.XqIqO17ETx1odGcw.damage.parts.0.denomination",
+        "value": null,
+        "expect": 6
+    }
+]

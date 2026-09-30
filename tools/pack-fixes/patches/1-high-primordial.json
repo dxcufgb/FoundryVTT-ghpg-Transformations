@@ -1,0 +1,414 @@
+[
+  {
+    "id": "1-high-primordial-F122-aura-macro",
+    "pack": "gh-transformations",
+    "key": "!items!00vXc5RNzuZPXQui",
+    "op": "set",
+    "path": "flags.dae.macro.command",
+    "value": "// Primordial Aura: the effect's own \"system.traits.dr.value\" change grants the Resistance.\n// When the creature already had Resistance to the type from another source, this macro upgrades the\n// effect by adding a \"system.traits.di.value\" change to the effect itself. It never writes trait data\n// to the actor, so removing the effect removes everything it granted.\nconst lastArg = args?.[args.length - 1] ?? {};\nconst phase = args?.[0];\nif (phase !== \"on\") return;\n\nconst damageType = String(args?.[1] ?? lastArg.damageType ?? \"\").trim().toLowerCase();\nif (!damageType) return;\n\nconst actorDoc = lastArg.actorUuid ? await fromUuid(lastArg.actorUuid) : (actor ?? null);\nconst effectDoc =\n  (lastArg.effectUuid ? await fromUuid(lastArg.effectUuid) : null) ??\n  actorDoc?.effects?.get?.(lastArg.effectId) ??\n  null;\nif (!actorDoc || !effectDoc) return;\n\nconst DR_KEY = \"system.traits.dr.value\";\nconst DI_KEY = \"system.traits.di.value\";\nconst toArray = value => {\n  if (Array.isArray(value)) return [...value];\n  if (value instanceof Set) return [...value];\n  return [];\n};\nconst splitValues = value => String(value ?? \"\").split(/[\\s,;]+/).map(v => v.trim().toLowerCase()).filter(Boolean);\nconst otherEffectGrants = key =>\n  (actorDoc.appliedEffects ?? []).some(effect =>\n    effect.id !== effectDoc.id &&\n    (effect.changes ?? []).some(change => change.key === key && splitValues(change.value).includes(damageType))\n  );\n\nif ((effectDoc.changes ?? []).some(change => change.key === DI_KEY)) return;\n\nconst alreadyImmune = toArray(actorDoc.system?.traits?.di?.value).includes(damageType);\nif (alreadyImmune) return;\n\nconst sourceResistant = toArray(actorDoc._source?.system?.traits?.dr?.value).includes(damageType);\nconst alreadyResistant = sourceResistant || otherEffectGrants(DR_KEY);\nif (!alreadyResistant) return;\n\ntry {\n  await effectDoc.update({\n    changes: [\n      ...effectDoc.changes.map(change => ({ ...change })),\n      { key: DI_KEY, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: damageType, priority: 20 }\n    ]\n  });\n} catch (error) {\n  console.warn(\"Primordial Aura | could not upgrade Resistance to Immunity\", error);\n}\n",
+    "expect": "const lastArg = args?.[args.length - 1] ?? {};\nconst phase = args?.[0];\nconst passedType =\n  args?.[1] ??\n  lastArg.damageType ??\n  item?.getFlag(\"world\", \"damageType\") ??\n  null;\n\nconst damageType = String(passedType ?? \"\").trim().toLowerCase();\nif (!damageType) {\n  ui.notifications.warn(\"No damage type was provided to the Item Macro.\");\n  return;\n}\n\nconst actorDoc =\n  lastArg.actorUuid ? await fromUuid(lastArg.actorUuid) :\n  item?.actor ??\n  actor ??\n  token?.actor ??\n  null;\n\nif (!actorDoc) {\n  ui.notifications.warn(\"No actor found for resistance/immunity macro.\");\n  return;\n}\n\n// This macro assumes standard dnd5e trait structure.\n// If your install differs, inspect actorDoc.system.traits in console.\nconst drPath = \"system.traits.dr.value\";\nconst diPath = \"system.traits.di.value\";\n\nconst toArray = (value) => {\n  if (Array.isArray(value)) return [...value];\n  if (value instanceof Set) return [...value];\n  if (value?.values && typeof value.values === \"function\") return [...value.values()];\n  return [];\n};\n\nconst unique = (arr) => [...new Set(arr)];\nconst hasType = (arr, type) => arr.includes(type);\n\nconst currentRes = toArray(foundry.utils.getProperty(actorDoc, drPath));\nconst currentImm = toArray(foundry.utils.getProperty(actorDoc, diPath));\n\nconst effectId =\n  lastArg.effectId ??\n  lastArg.efData?._id ??\n  \"noEffect\";\n\nconst stateKey = `${item?.uuid ?? \"noItem\"}::${effectId}::${damageType}`;\nconst stateFlagKey = \"resistanceImmunityState\";\nconst storedState = actorDoc.getFlag(\"world\", stateFlagKey) ?? {};\n\nif (phase === \"off\") {\n  const prior = storedState[stateKey];\n  if (!prior) return;\n\n  const res = toArray(foundry.utils.getProperty(actorDoc, drPath));\n  const imm = toArray(foundry.utils.getProperty(actorDoc, diPath));\n\n  if (prior.mode === \"resistance\") {\n    const newRes = res.filter(t => t !== damageType);\n    await actorDoc.update({\n      [drPath]: newRes\n    });\n  } else if (prior.mode === \"immunity\") {\n    const newImm = imm.filter(t => t !== damageType);\n    await actorDoc.update({\n      [diPath]: newImm\n    });\n  }\n\n  delete storedState[stateKey];\n  await actorDoc.setFlag(\"world\", stateFlagKey, storedState);\n  return;\n}\n\n// Default behavior: treat anything other than \"off\" as apply/on\nif (hasType(currentImm, damageType)) {\n  // Actor already has immunity, so do nothing and track nothing.\n  return;\n}\n\nif (hasType(currentRes, damageType)) {\n  // Already resistant -> grant immunity\n  const newImm = unique([...currentImm, damageType]);\n\n  await actorDoc.update({\n    [diPath]: newImm\n  });\n\n  storedState[stateKey] = {\n    mode: \"immunity\",\n    damageType\n  };\n  await actorDoc.setFlag(\"world\", stateFlagKey, storedState);\n} else {\n  // No resistance -> grant resistance\n  const newRes = unique([...currentRes, damageType]);\n\n  await actorDoc.update({\n    [drPath]: newRes\n  });\n\n  storedState[stateKey] = {\n    mode: \"resistance\",\n    damageType\n  };\n  await actorDoc.setFlag(\"world\", stateFlagKey, storedState);\n}"
+  },
+  {
+    "id": "1-high-primordial-F122-aura-changes-bludgeoning",
+    "pack": "gh-transformations",
+    "key": "!items.effects!00vXc5RNzuZPXQui.95e9a6JJ4ZEwVtTR",
+    "op": "set",
+    "path": "changes",
+    "value": [
+      {
+        "key": "system.traits.dr.value",
+        "mode": 2,
+        "value": "bludgeoning",
+        "priority": 20
+      },
+      {
+        "key": "macro.itemMacro",
+        "mode": 0,
+        "value": "bludgeoning",
+        "priority": 20
+      }
+    ],
+    "expect": [
+      {
+        "key": "macro.itemMacro",
+        "mode": 0,
+        "value": "bludgeoning",
+        "priority": 20
+      }
+    ]
+  },
+  {
+    "id": "1-high-primordial-F122-aura-changes-cold",
+    "pack": "gh-transformations",
+    "key": "!items.effects!00vXc5RNzuZPXQui.MTMHVwmBfrnlwnjg",
+    "op": "set",
+    "path": "changes",
+    "value": [
+      {
+        "key": "system.traits.dr.value",
+        "mode": 2,
+        "value": "cold",
+        "priority": 20
+      },
+      {
+        "key": "macro.itemMacro",
+        "mode": 0,
+        "value": "cold",
+        "priority": 20
+      }
+    ],
+    "expect": [
+      {
+        "key": "macro.itemMacro",
+        "mode": 0,
+        "value": "cold",
+        "priority": 20
+      }
+    ]
+  },
+  {
+    "id": "1-high-primordial-F122-aura-changes-fire",
+    "pack": "gh-transformations",
+    "key": "!items.effects!00vXc5RNzuZPXQui.l4BgNcCF8GcbWwra",
+    "op": "set",
+    "path": "changes",
+    "value": [
+      {
+        "key": "system.traits.dr.value",
+        "mode": 2,
+        "value": "fire",
+        "priority": 20
+      },
+      {
+        "key": "macro.itemMacro",
+        "mode": 0,
+        "value": "fire",
+        "priority": 20
+      }
+    ],
+    "expect": [
+      {
+        "key": "macro.itemMacro",
+        "mode": 0,
+        "value": "fire",
+        "priority": 20
+      }
+    ]
+  },
+  {
+    "id": "1-high-primordial-F122-aura-changes-lightning",
+    "pack": "gh-transformations",
+    "key": "!items.effects!00vXc5RNzuZPXQui.HU446uh4f0epGzu2",
+    "op": "set",
+    "path": "changes",
+    "value": [
+      {
+        "key": "system.traits.dr.value",
+        "mode": 2,
+        "value": "lightning",
+        "priority": 20
+      },
+      {
+        "key": "macro.itemMacro",
+        "mode": 0,
+        "value": "lightning",
+        "priority": 20
+      }
+    ],
+    "expect": [
+      {
+        "key": "macro.itemMacro",
+        "mode": 0,
+        "value": "lightning",
+        "priority": 20
+      }
+    ]
+  },
+  {
+    "id": "1-high-primordial-F124-revealed-seconds",
+    "pack": "gh-transformations",
+    "key": "!items.effects!4QeF6uxf922byGo2.6EAcgYjOOVcirkBS",
+    "op": "set",
+    "path": "duration.seconds",
+    "value": 60,
+    "expect": 6
+  },
+  {
+    "id": "1-high-primordial-F124-revealed-turns",
+    "pack": "gh-transformations",
+    "key": "!items.effects!4QeF6uxf922byGo2.6EAcgYjOOVcirkBS",
+    "op": "set",
+    "path": "duration.turns",
+    "value": null,
+    "expect": 1
+  },
+  {
+    "id": "1-high-primordial-F128-lightning-attack-bonus",
+    "pack": "gh-transformations",
+    "key": "!items!pf2FTD9AFlTvmeDU",
+    "op": "set",
+    "path": "system.activities.o6JfZ9CQBGDWUAVL.attack.bonus",
+    "value": "",
+    "expect": "@mod"
+  },
+  {
+    "id": "1-high-primordial-F128-lightning-damage-mod",
+    "pack": "gh-transformations",
+    "key": "!items!pf2FTD9AFlTvmeDU",
+    "op": "set",
+    "path": "system.activities.o6JfZ9CQBGDWUAVL.damage.parts.0.custom.formula",
+    "value": "(3+(@flags.transformations.stage - 2))d8 + @mod",
+    "expect": "(3+(@flags.transformations.stage - 2))d8"
+  },
+  {
+    "id": "1-high-primordial-F126-save-effects",
+    "pack": "gh-transformations",
+    "key": "!items!yDWkfqMrAMyFkVrO",
+    "op": "set",
+    "path": "system.activities.Kg96JDyCsTNlgrMs.effects",
+    "value": [],
+    "expect": [
+      {
+        "_id": "Xi9d3vbRMAogqvEx",
+        "onSave": false,
+        "level": {
+          "min": null,
+          "max": null
+        }
+      },
+      {
+        "_id": "FKRZKx6JN5fT4lLY",
+        "onSave": false,
+        "level": {
+          "min": null,
+          "max": null
+        }
+      },
+      {
+        "_id": "lcCGDHdmEsjlhRuq",
+        "onSave": false,
+        "level": {
+          "min": null,
+          "max": null
+        }
+      },
+      {
+        "_id": "SS5XML8blsfNIE1K",
+        "onSave": false,
+        "level": {
+          "min": null,
+          "max": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "1-high-primordial-F126-save-trigger-id",
+    "pack": "gh-transformations",
+    "key": "!items!yDWkfqMrAMyFkVrO",
+    "op": "set",
+    "path": "system.activities.Kg96JDyCsTNlgrMs.midiProperties.triggeredActivityId",
+    "value": "eMasteryBenefit1",
+    "expect": "none"
+  },
+  {
+    "id": "1-high-primordial-F126-save-trigger-targets",
+    "pack": "gh-transformations",
+    "key": "!items!yDWkfqMrAMyFkVrO",
+    "op": "set",
+    "path": "system.activities.Kg96JDyCsTNlgrMs.midiProperties.triggeredActivityTargets",
+    "value": "self",
+    "expect": "targets"
+  },
+  {
+    "id": "1-high-primordial-F126-save-trigger-consume",
+    "pack": "gh-transformations",
+    "key": "!items!yDWkfqMrAMyFkVrO",
+    "op": "set",
+    "path": "system.activities.Kg96JDyCsTNlgrMs.midiProperties.triggeredActivityConsume",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "1-high-primordial-F126-benefit-activity",
+    "pack": "gh-transformations",
+    "key": "!items!yDWkfqMrAMyFkVrO",
+    "op": "set",
+    "path": "system.activities.eMasteryBenefit1",
+    "value": {
+      "type": "utility",
+      "name": "Elemental Benefit",
+      "_id": "eMasteryBenefit1",
+      "sort": 100000,
+      "activation": {
+        "type": "special",
+        "override": false,
+        "condition": "After using the Elemental Mastery reaction"
+      },
+      "consumption": {
+        "scaling": {
+          "allowed": false
+        },
+        "spellSlot": true,
+        "targets": []
+      },
+      "description": {
+        "chatFlavor": "Until the end of your next turn you gain the benefit of one element (Air, Earth, Fire, or Water)."
+      },
+      "duration": {
+        "units": "inst",
+        "concentration": false,
+        "override": false
+      },
+      "effects": [
+        {
+          "_id": "Xi9d3vbRMAogqvEx",
+          "level": {
+            "min": null,
+            "max": null
+          }
+        },
+        {
+          "_id": "FKRZKx6JN5fT4lLY",
+          "level": {
+            "min": null,
+            "max": null
+          }
+        },
+        {
+          "_id": "lcCGDHdmEsjlhRuq",
+          "level": {
+            "min": null,
+            "max": null
+          }
+        },
+        {
+          "_id": "SS5XML8blsfNIE1K",
+          "level": {
+            "min": null,
+            "max": null
+          }
+        }
+      ],
+      "flags": {},
+      "range": {
+        "units": "self",
+        "override": false,
+        "special": ""
+      },
+      "target": {
+        "template": {
+          "contiguous": false,
+          "units": "ft",
+          "type": ""
+        },
+        "affects": {
+          "choice": false,
+          "type": "self",
+          "count": "",
+          "special": ""
+        },
+        "override": false,
+        "prompt": false
+      },
+      "uses": {
+        "spent": 0,
+        "recovery": [],
+        "max": ""
+      },
+      "visibility": {
+        "level": {
+          "min": null,
+          "max": null
+        },
+        "requireAttunement": false,
+        "requireIdentification": false,
+        "requireMagic": false,
+        "identifier": ""
+      },
+      "roll": {
+        "prompt": false,
+        "visible": false,
+        "name": "",
+        "formula": ""
+      },
+      "useConditionText": "",
+      "useConditionReason": "",
+      "effectConditionText": "",
+      "macroData": {
+        "name": "",
+        "command": ""
+      },
+      "ignoreTraits": {
+        "idi": false,
+        "idr": false,
+        "idv": false,
+        "ida": false,
+        "idm": false
+      },
+      "midiProperties": {
+        "ignoreTraits": [],
+        "triggeredActivityId": "none",
+        "triggeredActivityConditionText": "",
+        "triggeredActivityTargets": "targets",
+        "triggeredActivityRollAs": "self",
+        "triggeredActivityConsume": true,
+        "triggeredActivityConfigure": true,
+        "autoConsume": false,
+        "forceConsumeDialog": "default",
+        "forceRollDialog": "default",
+        "forceDamageDialog": "default",
+        "confirmTargets": "default",
+        "autoTargetType": "any",
+        "autoTargetAction": "default",
+        "automationOnly": false,
+        "otherActivityCompatible": true,
+        "otherActivityAsParentType": true,
+        "identifier": "",
+        "displayActivityName": false,
+        "rollMode": "default",
+        "chooseEffects": true,
+        "toggleEffect": false,
+        "ignoreFullCover": false,
+        "removeChatButtons": "default",
+        "magicEffect": false,
+        "magicDamage": false,
+        "noConcentrationCheck": false,
+        "skipConcentrationCheck": false,
+        "autoCEEffects": "default"
+      },
+      "isOverTimeFlag": false,
+      "overTimeProperties": {
+        "saveRemoves": true,
+        "rollAs": "target",
+        "preRemoveConditionText": "",
+        "postRemoveConditionText": ""
+      },
+      "otherActivityId": "none",
+      "otherActivityAsParentType": true,
+      "img": ""
+    }
+  },
+  {
+    "id": "1-high-primordial-F126-Xi9d3vbRMAogqvEx-turnEnd",
+    "pack": "gh-transformations",
+    "key": "!items.effects!yDWkfqMrAMyFkVrO.Xi9d3vbRMAogqvEx",
+    "op": "set",
+    "path": "flags.dae.specialDuration",
+    "value": [
+      "turnEnd"
+    ],
+    "expect": [
+      "None"
+    ]
+  },
+  {
+    "id": "1-high-primordial-F126-description",
+    "pack": "gh-transformations",
+    "key": "!items!yDWkfqMrAMyFkVrO",
+    "op": "set",
+    "path": "system.description.value",
+    "value": "<p>You add the final element to your Elemental Affinity.</p><p>In addition, whenever a creature hits you with a melee attack, you can use your Reaction to force it to make a Dexterity saving throw. It takes 6d6 damage of a type of your choice (Bludgeoning, Cold, Fire, or Lightning) on a failed save, or half as much on a successful one. Then, until the end of your next turn, you gain one of the following benefits:</p><ul><li><strong>Air.</strong> You have Advantage on all ranged weapon and ranged spell attacks.</li><li><strong>Earth.</strong> At the start of your turn, you gain 20 Temporary Hit Points.</li><li><strong>Fire.</strong> At the start of your turn, each creature of your choice within 5 feet of you takes 2d6 Fire damage.</li><li><strong>Water.</strong> Whenever a creature you can see within 60 feet of you regains Hit Points by spending Hit Point Dice or through a spell or magical ability, it regains an additional 20 Hit Points (apply manually).</li></ul><p>You can use this Reaction a number of times equal to your Constitution modifier, and you regain all expended uses when you finish a Long Rest.</p><p><em>Automation:</em> the Damage activity targets the attacker; the benefit is then chosen and applied to you by the Elemental Benefit activity.</p>",
+    "expect": ""
+  }
+]

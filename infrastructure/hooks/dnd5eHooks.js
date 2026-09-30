@@ -80,6 +80,23 @@ function resolveDamageTypeFromDetails(damageDetails)
         : null
 }
 
+function resolveRawDamageAmount(damageDetails, damageType)
+{
+    const details = Array.isArray(damageDetails)
+        ? damageDetails
+        : [damageDetails]
+
+    return details.reduce((total, detail) =>
+    {
+        if (detail?.type !== damageType) return total
+
+        const value = Number(detail?.value)
+        return Number.isFinite(value)
+            ? total + value
+            : total
+    }, 0)
+}
+
 function updateDamageTypePerMidiId({
     actor,
     midiId,
@@ -101,11 +118,21 @@ function updateDamageTypePerMidiId({
         delete current[midiId]
     }
 
-    const result = actor.setFlag(
-        "transformations",
-        "damageTypePerMidiId",
-        current
-    )
+    // setFlag merges objects, so a cleared entry must be deleted explicitly
+    // with the "-=" syntax.
+    const result = !damageType && typeof actor.update === "function"
+        ? actor.update({
+            flags: {
+                transformations: {
+                    damageTypePerMidiId: {[`-=${midiId}`]: null}
+                }
+            }
+        })
+        : actor.setFlag(
+            "transformations",
+            "damageTypePerMidiId",
+            current
+        )
 
     if (typeof result?.catch === "function") {
         result.catch(error =>
@@ -206,6 +233,46 @@ async function resolveItemFromContext(context)
     return normalizeTriggerItem(item, savedItemUuid)
 }
 
+// Whether the save being rolled is against a spell, keyed by actor uuid.
+// Written synchronously in dnd5e.preRollSavingThrow (where midi-qol's
+// midiOptions are available) and consumed in dnd5e.rollSavingThrow, so it
+// does not depend on an unawaited flag write.
+const pendingSaveIsSpell = new Map()
+
+function resolveSaveIsSpell(context)
+{
+    const workflowItem =
+              context?.workflow?.item ??
+              context?.midiOptions?.workflow?.item ??
+              null
+    if (workflowItem) return workflowItem.type === "spell"
+
+    const workflowId = context?.midiOptions?.workflowId
+    if (workflowId) {
+        try {
+            const workflow = globalThis.MidiQOL?.Workflow?.getWorkflow?.(workflowId)
+            if (workflow?.item) return workflow.item.type === "spell"
+        }
+        catch {
+            // fall through to the item uuid
+        }
+    }
+
+    // midi-qol passes the originating item's uuid when it requests the save.
+    const saveItemUuid = context?.midiOptions?.saveItemUuid
+    if (saveItemUuid && typeof globalThis.fromUuidSync === "function") {
+        try {
+            const item = globalThis.fromUuidSync(saveItemUuid)
+            if (item) return item.type === "spell"
+        }
+        catch {
+            return null
+        }
+    }
+
+    return null
+}
+
 function normalizeTriggerItem(item, fallbackSourceUuid = null)
 {
     if (!item && !fallbackSourceUuid) return null
@@ -219,6 +286,7 @@ function normalizeTriggerItem(item, fallbackSourceUuid = null)
         id: item?.id ?? null,
         name: item?.name ?? null,
         uuid: item?.uuid ?? sourceUuid,
+        type: item?.type ?? null,
         sourceUuid
     }
 }
@@ -525,9 +593,11 @@ export function registerDnd5eHooks({
     })()
     }
 
-    Hooks.on("dnd5e.damageActor", (actor) =>
+    Hooks.on("dnd5e.damageActor", (actor, changes, update, userId) =>
     {
-        logger.debug("dnd5e.damageActor called", actor)
+        logger.debug("dnd5e.damageActor called", actor, changes, userId)
+        // dnd5e fires this on every connected client; only the client that applied the damage runs the trigger.
+        if (userId && userId !== game.user?.id) return
         debouncedTracker.pulse("dnd5e.damageActor");
         (async () =>
         {
@@ -615,7 +685,12 @@ export function registerDnd5eHooks({
     Hooks.on("dnd5e.preRollSavingThrow", (context, options, data) =>
     {
         logger.debug("dnd5e.preRollSavingThrow called", context, options, data)
-        debouncedTracker.pulse("dnd5e.preRollSavingThrow");
+        debouncedTracker.pulse("dnd5e.preRollSavingThrow")
+
+        if (context?.subject?.uuid) {
+            pendingSaveIsSpell.set(context.subject.uuid, resolveSaveIsSpell(context))
+        }
+
         (async () =>
         {
             const actor = context?.subject
@@ -668,11 +743,19 @@ export function registerDnd5eHooks({
         const roll = getPrimaryRoll(rolls)
         if (!roll) return
 
-        const natural = getNaturalRoll(roll);
+        const natural = getNaturalRoll(roll)
+
+        const pendingIsSpell = pendingSaveIsSpell.get(actor.uuid) ?? null
+        pendingSaveIsSpell.delete(actor.uuid);
 
         (async () =>
         {
             const item = await resolveItemFromContext(context)
+            const isSpell =
+                      pendingIsSpell ??
+                      (item?.type
+                          ? item.type === "spell"
+                          : actor.getFlag?.("transformations", "saveIsSpell") === true)
 
             await dispatchTransformationRoll({
                 hookName: "dnd5e.rollSavingThrow",
@@ -686,7 +769,7 @@ export function registerDnd5eHooks({
                 saves: {
                     current: {
                         ability: context.ability,
-                        isSpell: context?.subject?.getFlag("transformations", "saveIsSpell"),
+                        isSpell,
                         item: item,
                         naturalRoll: natural,
                         total: roll.total,
@@ -1016,6 +1099,18 @@ export function registerDnd5eHooks({
 
         const midiId = details?.midi?.sourceActorUuid ?? null
         const damageType = resolveDamageTypeFromDetails(damageDetails)
+
+        // dnd5e passes the same options object on to dnd5e.applyDamage, so
+        // the pre-mitigation amount of this instance travels with it. It is
+        // needed when resistance or immunity reduced the applied amount.
+        if (damageType && details && typeof details === "object") {
+            details.transformations = {
+                ...(details.transformations ?? {}),
+                damageType,
+                rawDamage: resolveRawDamageAmount(damageDetails, damageType)
+            }
+        }
+
         if (!midiId || !damageType) return
 
         updateDamageTypePerMidiId({
@@ -1034,6 +1129,9 @@ export function registerDnd5eHooks({
         if (!actor) return
 
         const midiId = details?.midi?.sourceActorUuid ?? null
+        const pendingInstance = details?.transformations ?? null
+        if (details?.transformations) delete details.transformations
+
         const transformation = transformationRegistry.getEntryForActor(actor)
         if (transformation?.TransformationClass?.onPreCalculateDamage) {
             const result = transformation.TransformationClass.onPreCalculateDamage({
@@ -1041,6 +1139,8 @@ export function registerDnd5eHooks({
                 target,
                 damage,
                 details,
+                damageType: pendingInstance?.damageType ?? null,
+                rawDamage: pendingInstance?.rawDamage ?? null,
                 actorRepository,
                 itemRepository,
                 activeEffectRepository,

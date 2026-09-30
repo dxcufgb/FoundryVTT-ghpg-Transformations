@@ -1,3 +1,5 @@
+import { createSlipperyEgoActions } from "./slipperyEgo.js"
+
 export const onSavingThrow = {
     name: "savingThrow",
 
@@ -14,16 +16,7 @@ export const onSavingThrow = {
                     }
                 }
             },
-            actions: [
-                {
-                    type: "ACTOR_FLAG",
-                    data: {
-                        mode: "set",
-                        path: "flags.transformations.ooze.slipperyEgoEffect",
-                        value: 1
-                    }
-                }
-            ]
+            actions: createSlipperyEgoActions()
         }
     ]
 }

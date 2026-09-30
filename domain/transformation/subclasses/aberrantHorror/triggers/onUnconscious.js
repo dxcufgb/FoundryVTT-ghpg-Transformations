@@ -22,7 +22,7 @@ export const onUnconscious = {
                 {
                     type: "SAVE",
                     when: {
-                        effects: {name: "Hiding Hideous Appearance"}
+                        effects: {has: ["Hiding Hideous Appearance"]}
                     },
                     data: {
                         ability: "con",

@@ -33,6 +33,7 @@ export function createOnceService({
         const onceFlags = actor.getFlag("transformations", "once")
         if (onceFlags) {
             const updated = { ...onceFlags }
+            const removedKeys = []
             let changed = false
 
             for (const [key, entry] of Object.entries(updated)) {
@@ -45,6 +46,7 @@ export function createOnceService({
 
                 if (shouldReset) {
                     delete updated[key]
+                    removedKeys.push(key)
                     changed = true
                 }
             }
@@ -52,6 +54,15 @@ export function createOnceService({
             if (changed) {
                 if (Object.keys(updated).length === 0) {
                     await actor.unsetFlag("transformations", "once")
+                } else if (typeof actor.update === "function") {
+                    // setFlag merges objects, so reset keys must be deleted
+                    // explicitly with the "-=" syntax.
+                    const deletions = Object.fromEntries(
+                        removedKeys.map(key => [`-=${key}`, null])
+                    )
+                    await actor.update({
+                        flags: {transformations: {once: deletions}}
+                    })
                 } else {
                     await actor.setFlag("transformations", "once", updated)
                 }

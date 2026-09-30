@@ -1,0 +1,324 @@
+[
+    {
+        "id": "high-aberrantHorror-loss-of-vitality-key-bHA1uo22DkMiJJuG",
+        "pack": "gh-roll-tables",
+        "key": "!tables.results!bHA1uo22DkMiJJuG.Fuclq6M9typVcnJf",
+        "op": "set",
+        "path": "flags.transformations.effectKey",
+        "value": "AberrantLossOfVitality",
+        "expect": "AberrantLossofVitality"
+    },
+    {
+        "id": "high-aberrantHorror-loss-of-vitality-key-7M7eNAAjMGQhSiVY",
+        "pack": "gh-roll-tables",
+        "key": "!tables.results!7M7eNAAjMGQhSiVY.Fuclq6M9typVcnJf",
+        "op": "set",
+        "path": "flags.transformations.effectKey",
+        "value": "AberrantLossOfVitality",
+        "expect": "AberrantLossofVitality"
+    },
+    {
+        "id": "high-aberrantHorror-loss-of-vitality-key-bBA81xCQndyJAIPi",
+        "pack": "gh-roll-tables",
+        "key": "!tables.results!bBA81xCQndyJAIPi.Fuclq6M9typVcnJf",
+        "op": "set",
+        "path": "flags.transformations.effectKey",
+        "value": "AberrantLossOfVitality",
+        "expect": "AberrantLossofVitality"
+    },
+    {
+        "id": "high-aberrantHorror-stage2-disadvantage-key",
+        "pack": "gh-roll-tables",
+        "key": "!tables.results!bHA1uo22DkMiJJuG.T3lrK1hZVVboCDEU",
+        "op": "set",
+        "path": "flags",
+        "value": {
+            "transformations": {
+                "effectKey": "AberrantDisadvantage"
+            }
+        },
+        "expect": {}
+    },
+    {
+        "id": "high-aberrantHorror-poisonous-mutations-dc",
+        "pack": "gh-transformations",
+        "key": "!items!dPug75X8a0sc0dLz",
+        "op": "set",
+        "path": "system.activities.6Rd7FvhZSnBAukrH.save.dc.formula",
+        "value": "8 + @prof + @flags.transformations.stage",
+        "expect": "8 + @mod + @flags.dnd5e.transformationStage"
+    },
+    {
+        "id": "high-aberrantHorror-writhing-tendrils-no-consume-KaOeluVux8BOFW23",
+        "pack": "gh-transformations",
+        "key": "!items!dQECAYtnFKFfmX3E",
+        "op": "set",
+        "path": "system.activities.KaOeluVux8BOFW23.consumption.targets",
+        "value": [],
+        "expect": [
+            {
+                "type": "itemUses",
+                "value": "1",
+                "target": ""
+            }
+        ]
+    },
+    {
+        "id": "high-aberrantHorror-writhing-tendrils-no-consume-P9kcYattFTXaNRzP",
+        "pack": "gh-transformations",
+        "key": "!items!dQECAYtnFKFfmX3E",
+        "op": "set",
+        "path": "system.activities.P9kcYattFTXaNRzP.consumption.targets",
+        "value": [],
+        "expect": [
+            {
+                "type": "itemUses",
+                "value": "1",
+                "target": ""
+            }
+        ]
+    },
+    {
+        "id": "high-aberrantHorror-writhing-tendrils-no-consume-upCRN9bqwM2c0XuJ",
+        "pack": "gh-transformations",
+        "key": "!items!dQECAYtnFKFfmX3E",
+        "op": "set",
+        "path": "system.activities.upCRN9bqwM2c0XuJ.consumption.targets",
+        "value": [],
+        "expect": [
+            {
+                "type": "itemUses",
+                "value": "1",
+                "target": ""
+            }
+        ]
+    },
+    {
+        "id": "high-aberrantHorror-writhing-tendrils-sprout-activity",
+        "pack": "gh-transformations",
+        "key": "!items!dQECAYtnFKFfmX3E",
+        "op": "set",
+        "path": "system.activities.ErctburNplcuxQtw",
+        "value": {
+            "type": "utility",
+            "_id": "ErctburNplcuxQtw",
+            "sort": -100000,
+            "activation": {
+                "type": "bonus",
+                "override": false,
+                "condition": ""
+            },
+            "consumption": {
+                "scaling": {
+                    "allowed": false
+                },
+                "spellSlot": true,
+                "targets": [
+                    {
+                        "type": "itemUses",
+                        "value": "1",
+                        "target": ""
+                    }
+                ]
+            },
+            "description": {
+                "chatFlavor": "Tendril-like appendages sprout from your body for 1 minute. While they last you can use Aberrant Pushback, Aberrant Disengage and Aberrant Affliction. You can use a Bonus Action to retract them."
+            },
+            "duration": {
+                "units": "minute",
+                "concentration": false,
+                "override": false,
+                "value": "1"
+            },
+            "effects": [
+                {
+                    "_id": "Hle0KezjlY51rv68",
+                    "level": {
+                        "min": null,
+                        "max": null
+                    }
+                }
+            ],
+            "flags": {},
+            "range": {
+                "units": "self",
+                "override": false,
+                "special": ""
+            },
+            "target": {
+                "template": {
+                    "contiguous": false,
+                    "units": "ft",
+                    "type": ""
+                },
+                "affects": {
+                    "choice": false,
+                    "type": "self",
+                    "special": ""
+                },
+                "override": false,
+                "prompt": false
+            },
+            "uses": {
+                "spent": 0,
+                "recovery": [],
+                "max": ""
+            },
+            "visibility": {
+                "level": {
+                    "min": null,
+                    "max": null
+                },
+                "requireAttunement": false,
+                "requireIdentification": false,
+                "requireMagic": false,
+                "identifier": ""
+            },
+            "roll": {
+                "prompt": false,
+                "visible": false,
+                "name": "",
+                "formula": ""
+            },
+            "useConditionText": "",
+            "useConditionReason": "",
+            "effectConditionText": "",
+            "macroData": {
+                "name": "",
+                "command": ""
+            },
+            "ignoreTraits": {
+                "idi": false,
+                "idr": false,
+                "idv": false,
+                "ida": false,
+                "idm": false
+            },
+            "midiProperties": {
+                "ignoreTraits": [],
+                "triggeredActivityId": "none",
+                "triggeredActivityConditionText": "",
+                "triggeredActivityTargets": "targets",
+                "triggeredActivityRollAs": "self",
+                "autoConsume": true,
+                "forceConsumeDialog": "default",
+                "forceRollDialog": "default",
+                "forceDamageDialog": "default",
+                "confirmTargets": "default",
+                "autoTargetType": "any",
+                "autoTargetAction": "default",
+                "automationOnly": false,
+                "otherActivityCompatible": true,
+                "otherActivityAsParentType": true,
+                "identifier": "",
+                "displayActivityName": false,
+                "rollMode": "default",
+                "chooseEffects": false,
+                "toggleEffect": false,
+                "ignoreFullCover": false,
+                "removeChatButtons": "default",
+                "magicEffect": false,
+                "magicDamage": false,
+                "noConcentrationCheck": false,
+                "autoCEEffects": "default"
+            },
+            "isOverTimeFlag": false,
+            "overTimeProperties": {
+                "saveRemoves": true,
+                "preRemoveConditionText": "",
+                "postRemoveConditionText": ""
+            },
+            "otherActivityId": "none",
+            "otherActivityAsParentType": true,
+            "name": "Sprout Tendrils",
+            "img": "modules/transformations/Icons/Transformations/Aberrant%20Horror/Writhing_Tendrils.png"
+        }
+    },
+    {
+        "id": "high-aberrantHorror-writhing-tendrils-sprout-effect",
+        "pack": "gh-transformations",
+        "key": "!items.effects!dQECAYtnFKFfmX3E.Hle0KezjlY51rv68",
+        "op": "create",
+        "doc": {
+            "name": "Writhing Tendrils",
+            "img": "modules/transformations/Icons/Transformations/Aberrant%20Horror/Writhing_Tendrils.png",
+            "origin": "Compendium.transformations.gh-transformations.Item.dQECAYtnFKFfmX3E",
+            "transfer": false,
+            "_id": "Hle0KezjlY51rv68",
+            "type": "base",
+            "system": {},
+            "changes": [],
+            "disabled": false,
+            "duration": {
+                "startTime": null,
+                "combat": null,
+                "seconds": 60,
+                "rounds": null,
+                "turns": null,
+                "startRound": null,
+                "startTurn": null
+            },
+            "description": "<p>Your tendrils are sprouted. You can use Aberrant Pushback, Aberrant Disengage and Aberrant Affliction while they last. Delete this effect to retract them.</p>",
+            "tint": "#ffffff",
+            "statuses": [],
+            "sort": 0,
+            "flags": {
+                "dnd5e": {
+                    "riders": {
+                        "statuses": []
+                    }
+                },
+                "dae": {
+                    "enableCondition": "",
+                    "disableCondition": "",
+                    "stackable": "noneName",
+                    "showIcon": true,
+                    "disableIncapacitated": false,
+                    "selfTarget": false,
+                    "selfTargetAlways": false,
+                    "dontApply": false,
+                    "durationExpression": "",
+                    "macroRepeat": "none",
+                    "specialDuration": []
+                },
+                "core": {
+                    "overlay": false
+                },
+                "ActiveAuras": {
+                    "isAura": false,
+                    "aura": "All",
+                    "nameOverride": "",
+                    "radius": "",
+                    "alignment": "",
+                    "type": "",
+                    "customCheck": "",
+                    "ignoreSelf": false,
+                    "height": false,
+                    "hidden": false,
+                    "displayTemp": false,
+                    "hostile": false,
+                    "onlyOnce": false,
+                    "wallsBlock": "system",
+                    "statuses": []
+                }
+            },
+            "_stats": {
+                "compendiumSource": null,
+                "duplicateSource": null,
+                "exportSource": null,
+                "coreVersion": "13.351",
+                "systemId": "dnd5e",
+                "systemVersion": "5.2.3",
+                "lastModifiedBy": null
+            }
+        }
+    },
+    {
+        "id": "high-aberrantHorror-writhing-tendrils-sprout-effect-ref",
+        "pack": "gh-transformations",
+        "key": "!items!dQECAYtnFKFfmX3E",
+        "op": "arrayAdd",
+        "path": "effects",
+        "value": "Hle0KezjlY51rv68"
+    }
+]

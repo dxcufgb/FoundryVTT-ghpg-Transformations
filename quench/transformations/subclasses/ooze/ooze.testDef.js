@@ -491,7 +491,7 @@ export const oozeTestDef = {
                         effect.flags.match.push({
                             path: "dae",
                             expected: {
-                                disableCondition: "@flags.tarnsformations.ooze.oozeForm != 1"
+                                disableCondition: "@flags.transformations.ooze.oozeForm != 1"
                             }
                         })
                     })
@@ -714,6 +714,7 @@ export const oozeTestDef = {
                     item.addEffect(effect => {
                         effect.name = "Slippery Ego"
                         effect.changes.count = 0
+                        effect.transfer = false
                     })
                 })
                 validate(actorDto, {assert})
@@ -850,6 +851,7 @@ export const oozeTestDef = {
                     item.addEffect(effect => {
                         effect.name = "Slippery Ego"
                         effect.changes.count = 0
+                        effect.transfer = false
                     })
                 })
                 validate(actorDto, {assert})

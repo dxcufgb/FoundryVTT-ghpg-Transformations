@@ -12,7 +12,7 @@ export function createModuleApi({
         executeMacro: macros.executeMacro,
         getTransformations()
         {
-            logger.debug("game.transformations.getTransformations called")
+            Registry.logger?.debug?.("game.transformations.getTransformations called")
             return Registry.services
                 .transformationRegistry
                 .getAllEntries()

@@ -785,7 +785,10 @@ export function createItemRepository({
         sourceItem               = null
     )
     {
-        if (advancementConfiguration?.type !== "spell") {
+        // ItemGrant configurations have no "type" field; the spell settings
+        // apply only when the granted item itself is a spell.
+        const sourceItemType = resolveSourceItemData(sourceItem)?.type
+        if (sourceItemType != null && sourceItemType !== "spell") {
             return {}
         }
 
@@ -812,12 +815,13 @@ export function createItemRepository({
                 spellConfiguration.prepared
         }
 
-        if (spellConfiguration.uses?.max != null) {
-            overrides["system.uses.max"] = spellConfiguration.uses.max
-            overrides["system.uses.value"] = spellConfiguration.uses.value
-        }
+        // Mirrors dnd5e SpellConfigurationData#applySpellChanges: limited uses
+        // only apply when both a max and a recovery period are configured.
+        const hasLimitedUses =
+            !!spellConfiguration.uses?.max && !!spellConfiguration.uses?.per
 
-        if (spellConfiguration.uses?.per != null) {
+        if (hasLimitedUses) {
+            overrides["system.uses.max"] = spellConfiguration.uses.max
             overrides["system.uses.recovery"] = [{
                 period: spellConfiguration.uses.per,
                 type: "recoverAll"
@@ -829,40 +833,78 @@ export function createItemRepository({
                 spellConfiguration.uses.requireSlot
         }
 
-        if (spellConfiguration.uses) {
-            for (const activityPath of resolveSpellActivityPaths(sourceItem)) {
-                overrides[`${activityPath}.consumption.targets`] = [{
+        if (hasLimitedUses) {
+            const method =
+                spellConfiguration.method ??
+                resolveSourceItemData(sourceItem)?.system?.method
+            const createForwardActivity =
+                !spellConfiguration.uses.requireSlot &&
+                !!globalThis.CONFIG?.DND5E?.spellcasting?.[method]?.slots
+
+            for (const {id, activity} of resolveSpellActivities(sourceItem)) {
+                // Activities that do not cast with a spell slot are left alone.
+                if (!activity?.consumption?.spellSlot) continue
+
+                const itemUsesTarget = {
                     type: "itemUses",
+                    target: "",
                     value: "1"
-                }]
+                }
+
+                if (createForwardActivity) {
+                    const forwardId = foundry.utils.randomID()
+                    overrides[`system.activities.${forwardId}`] = {
+                        _id: forwardId,
+                        type: "forward",
+                        name: `${activity?.name ?? sourceItem?.name ?? "Cast"} (free casting)`,
+                        sort: (activity?.sort ?? 0) + 1,
+                        activity: {id},
+                        consumption: {targets: [itemUsesTarget]}
+                    }
+                    continue
+                }
+
+                overrides[`system.activities.${id}.consumption.targets`] = [
+                    ...(activity?.consumption?.targets ?? []),
+                    itemUsesTarget
+                ]
             }
         }
 
         return overrides
     }
 
-    function resolveSpellActivityPaths(sourceItem = null)
+    function resolveSourceItemData(sourceItem = null)
     {
-        const activities = sourceItem?.system?.activities
-        if (!activities) return []
+        return typeof sourceItem?.toObject === "function"
+            ? sourceItem.toObject()
+            : sourceItem
+    }
 
-        if (Array.isArray(activities)) {
-            return activities.map((_, index) => `system.activities.${index}`)
-        }
+    /**
+     * Resolve the source spell's activities keyed by their activity id. The
+     * paths must match the created item's source data, where
+     * system.activities is an object keyed by id (not a Collection).
+     */
+    function resolveSpellActivities(sourceItem = null)
+    {
+        const activities = resolveSourceItemData(sourceItem)?.system?.activities
+        if (!activities || typeof activities !== "object") return []
 
-        if (Array.isArray(activities.contents)) {
-            return activities.contents.map(
-                (_, index) => `system.activities.contents.${index}`
-            )
-        }
+        const list = Array.isArray(activities)
+            ? activities.map(activity => [activity?._id ?? activity?.id, activity])
+            : Array.isArray(activities.contents)
+                ? activities.contents.map(activity => [activity?._id ?? activity?.id, activity])
+                : Object.entries(activities)
 
-        if (typeof activities === "object") {
-            return Object.keys(activities)
-            .filter(key => key !== "contents")
-            .map(key => `system.activities.${key}`)
-        }
-
-        return []
+        return list
+        .filter(([id]) => typeof id === "string" && id.length > 0)
+        .map(([id, activity]) => ({
+            id,
+            activity: typeof activity?.toObject === "function"
+                ? activity.toObject()
+                : activity
+        }))
     }
 
     function resolveSpellAdvancementAbility(ability)

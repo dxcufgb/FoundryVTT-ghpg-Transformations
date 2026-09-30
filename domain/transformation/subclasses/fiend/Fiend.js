@@ -3,6 +3,8 @@ import { renderDevilishContractor } from "./activities/DevilishContractor.js"
 import { giftsOfDamnation } from "./giftsOfDamnation/index.js";
 import { ChatCardActionBinder } from "../../../../ui/chatCards/ChatCardActionBinder.js";
 
+const PULL_OF_THE_NETHERWORLD_ACTIVITY_ID = "GkER88EWbz2oElES"
+
 /**
  * Domain subclass.
  * No Foundry.
@@ -35,18 +37,10 @@ export class Fiend extends Transformation {
 
         if (!giftOfUnfetteredLoss) return
 
-        const currentHitDieMod =
-                  actor.flags?.transformations?.fiend?.giftOfUnfetteredGlory?.hitDieModifier ?? 0
-        const nextHitDieMod = currentHitDieMod + 2
-        actor.flags.transformations.fiend.giftOfUnfetteredGlory.hitDieModifier = nextHitDieMod
-        if (currentHitDieMod > 0) {
-            for (const roll of context.rolls ?? []) {
-                roll.parts = roll.parts.map(part =>
-                {
-                    if (typeof part !== "string") return part
-                    return part + `-${currentHitDieMod}`
-                })
-            }
+        // Each Hit Point Die regains 2 fewer Hit Points: a flat -2 on every hit die roll.
+        for (const roll of context.rolls ?? []) {
+            if (!Array.isArray(roll?.parts)) continue
+            roll.parts = [...roll.parts, "-2"]
         }
     }
 
@@ -240,8 +234,12 @@ export class Fiend extends Transformation {
 
         if (usesLeft == 0 || roll?.natural !== 1) return
 
-        const activity = pullOfTheNetherworld.system.activities.find(a => a.name == "Midi Damage")
-        activity.use()
+        const activity =
+                  pullOfTheNetherworld.system.activities.get?.(PULL_OF_THE_NETHERWORLD_ACTIVITY_ID) ??
+                  pullOfTheNetherworld.system.activities.find(a => a.name == "Midi Damage")
+        if (!activity) return
+
+        await activity.use()
     }
 }
 

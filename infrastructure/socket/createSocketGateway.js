@@ -12,32 +12,7 @@ export function createSocketGateway({
     })
 
     let socket = null
-    const queue = []
 
-    function enqueue({ action, payload })
-    {
-        logger.debug("createSocketGateway.enqueue", { action, payload })
-        queue.push({ action, payload })
-        logger.debug("Queued GM action", { action, payload })
-    }
-
-    async function flushQueue()
-    {
-        logger.debug("createSocketGateway.flushQueue", { queueLength: queue.length })
-        if (!queue.length) return
-
-        logger.debug(`Flushing ${queue.length} GM actions`)
-
-        return tracker.track(
-            (async () =>
-            {
-                while (queue.length) {
-                    const { action, payload } = queue.shift()
-                    await getExecutor().execute(action, payload)
-                }
-            })()
-        )
-    }
     function setSocket(s)
     {
         logger.debug("createSocketGateway.setSocket", { s })
@@ -106,8 +81,6 @@ export function createSocketGateway({
         executeAsUser,
         isGMOnline,
         register,
-        isReady,
-        enqueue,
-        flushQueue
+        isReady
     })
 }

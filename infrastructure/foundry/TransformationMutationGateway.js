@@ -129,12 +129,15 @@ export function createTransformationMutationGateway({
                     return fn(payload)
                 } else {
                     if (!socketGateway.isGMOnline()) {
-                        socketGateway.enqueue({
-                            action,
-                            payload
-                        })
-                        notifier.info(
-                            "A GM must be online for this action to be performed. action will run once GM is online!"
+                        // Mutations are performed by the GM client. There is no
+                        // persistent queue, so refuse clearly instead of
+                        // promising a replay that never happens.
+                        logger.warn(
+                            "No GM online, transformation mutation not performed",
+                            { action, payload }
+                        )
+                        notifier.warn(
+                            "A GM must be online for this action to be performed. The action was not applied; please try again once a GM is connected."
                         )
                         return
                     }

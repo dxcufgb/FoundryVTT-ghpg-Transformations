@@ -1,6 +1,5 @@
 import { registerDnd5eHooks } from "../../infrastructure/hooks/dnd5eHooks.js"
 import { Lich } from "../../domain/transformation/subclasses/lich/Lich.js"
-import { Lycanthrope } from "../../domain/transformation/subclasses/lycanthrope/Lycanthrope.js"
 import { Primordial } from "../../domain/transformation/subclasses/primordial/Primordial.js"
 import { Seraph } from "../../domain/transformation/subclasses/seraph/Seraph.js"
 import { Vampire } from "../../domain/transformation/subclasses/vampire/Vampire.js"
@@ -424,8 +423,57 @@ quench.registerBatch(
                         id: "item-1",
                         name: "Hideous Appearance",
                         uuid: "Actor.actor-1.Item.item-1",
+                        type: null,
                         sourceUuid
                     })
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("marks a save as against a spell from the pre-roll midi-qol workflow item", async function ()
+            {
+                const actor = {
+                    ...createActor(),
+                    uuid: "Actor.actor-1"
+                }
+                const harness = createHookHarness()
+
+                try {
+                    const preRoll = harness.callbacks.get("dnd5e.preRollSavingThrow")
+                    const postRoll = harness.callbacks.get("dnd5e.rollSavingThrow")
+
+                    preRoll(
+                        {
+                            subject: actor,
+                            ability: "wis",
+                            midiOptions: {
+                                workflow: {
+                                    item: {type: "spell", name: "Hold Person"}
+                                }
+                            }
+                        },
+                        {},
+                        {}
+                    )
+                    postRoll(
+                        [createRoll({natural: 12, total: 14, isSuccess: true})],
+                        {subject: actor, ability: "wis"}
+                    )
+                    await flushAsyncWork()
+
+                    preRoll({subject: actor, ability: "con", midiOptions: {}}, {}, {})
+                    postRoll(
+                        [createRoll({natural: 5, total: 7, isSuccess: false})],
+                        {subject: actor, ability: "con"}
+                    )
+                    await flushAsyncWork()
+
+                    const saves = harness.calls.triggerRuntime
+                    .filter(call => call.name === "savingThrow")
+                    .map(call => call.data?.saves?.current?.isSpell)
+
+                    expect(saves).to.deep.equal([true, false])
                 } finally {
                     harness.restore()
                 }
@@ -1536,12 +1584,22 @@ quench.registerBatch(
             it("delegates pre-roll attack handling to the transformation class", async function ()
             {
                 const actor = createActor()
+                const receivedArgs = []
                 const harness = createHookHarness({
                     transformationOverrides: {
-                        TransformationClass: Lycanthrope
+                        TransformationClass: {
+                            onPreRollHitDie() {},
+                            async onPreRollSavingThrow() {},
+                            async onRoll() {},
+                            async onPreRollAttack(args)
+                            {
+                                receivedArgs.push(args)
+                                args.rollConfig.advantage = true
+                                args.rollConfig.disadvantage = false
+                            }
+                        }
                     }
                 })
-                const originalTargets = game.user.targets
                 const rollConfig = {
                     subject: {
                         actor,
@@ -1549,32 +1607,6 @@ quench.registerBatch(
                     },
                     disadvantage: true
                 }
-
-                game.user.targets = new Set([
-                    {
-                        actor: {
-                            flags: {
-                                transformations: {
-                                    lycanthrope: {
-                                        huntersMark: 1
-                                    }
-                                }
-                            },
-                            getFlag(scope, key)
-                            {
-                                if (
-                                    scope === "transformations" &&
-                                    key === "lycanthrope.huntersMark"
-                                )
-                                {
-                                    return 1
-                                }
-
-                                return null
-                            }
-                        }
-                    }
-                ])
 
                 try {
                     const callback = harness.callbacks.get("dnd5e.preRollAttack")
@@ -1584,10 +1616,12 @@ quench.registerBatch(
 
                     await flushAsyncWork()
 
+                    expect(receivedArgs).to.have.length(1)
+                    expect(receivedArgs[0].actor).to.equal(actor)
+                    expect(receivedArgs[0].rollConfig).to.equal(rollConfig)
                     expect(rollConfig.advantage).to.equal(true)
                     expect(rollConfig.disadvantage).to.equal(false)
                 } finally {
-                    game.user.targets = originalTargets
                     harness.restore()
                 }
             })
@@ -1973,6 +2007,128 @@ quench.registerBatch(
                             key: "damageTypePerMidiId",
                             value: {
                                 existing: "cold"
+                            }
+                        })
+                    } finally {
+                        harness.restore()
+                    }
+                }
+            )
+
+            it(
+                "passes the pre-mitigation damage type and amount from preCalculateDamage to applyDamage",
+                async function ()
+                {
+                    let receivedArgs = null
+                    const actor = {
+                        id: "actor-1",
+                        flags: {transformations: {}},
+                        getFlag(scope, key)
+                        {
+                            return this.flags?.[scope]?.[key] ?? null
+                        },
+                        async setFlag() {},
+                        async update() {}
+                    }
+                    const harness = createHookHarness({
+                        transformationOverrides: {
+                            TransformationClass: {
+                                onPreRollHitDie() {},
+                                async onPreRollSavingThrow() {},
+                                async onRoll() {},
+                                async onPreCalculateDamage(args)
+                                {
+                                    receivedArgs = args
+                                }
+                            }
+                        }
+                    })
+                    const details = {
+                        midi: {sourceActorUuid: "midi-source-1"}
+                    }
+
+                    try {
+                        harness.callbacks.get("dnd5e.preCalculateDamage")(
+                            {actor},
+                            [
+                                {type: "fire", value: 9},
+                                {type: "fire", value: 3},
+                                {type: "slashing", value: 5}
+                            ],
+                            details
+                        )
+                        // Immune to fire: nothing of the instance was applied.
+                        harness.callbacks.get("dnd5e.applyDamage")({actor}, 0, details)
+
+                        await flushAsyncWork()
+
+                        expect(receivedArgs).to.exist
+                        expect(receivedArgs.damage).to.equal(0)
+                        expect(receivedArgs.damageType).to.equal("fire")
+                        expect(receivedArgs.rawDamage).to.equal(12)
+                        expect(details.transformations).to.equal(undefined)
+                    } finally {
+                        harness.restore()
+                    }
+                }
+            )
+
+            it(
+                "deletes the cleared midi damage type entry with a -= update when the actor supports update",
+                async function ()
+                {
+                    const updates = []
+                    const actor = {
+                        id: "actor-1",
+                        flags: {
+                            transformations: {
+                                damageTypePerMidiId: {
+                                    "midi-source-1": "fire",
+                                    existing: "cold"
+                                }
+                            }
+                        },
+                        getFlag(scope, key)
+                        {
+                            return this.flags?.[scope]?.[key] ?? null
+                        },
+                        async setFlag()
+                        {
+                            throw new Error("setFlag should not be used to delete a key")
+                        },
+                        async update(data)
+                        {
+                            updates.push(data)
+                            return this
+                        }
+                    }
+                    const harness = createHookHarness({
+                        transformationOverrides: {
+                            TransformationClass: {
+                                onPreRollHitDie() {},
+                                async onPreRollSavingThrow() {},
+                                async onRoll() {},
+                                async onPreCalculateDamage() {}
+                            }
+                        }
+                    })
+
+                    try {
+                        const callback = harness.callbacks.get("dnd5e.applyDamage")
+                        callback({actor}, {amount: 12}, {
+                            midi: {sourceActorUuid: "midi-source-1"},
+                            source: "test"
+                        })
+
+                        await flushAsyncWork()
+
+                        expect(updates.at(-1)).to.deep.equal({
+                            flags: {
+                                transformations: {
+                                    damageTypePerMidiId: {
+                                        "-=midi-source-1": null
+                                    }
+                                }
                             }
                         })
                     } finally {

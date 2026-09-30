@@ -31,11 +31,15 @@ export class Hag extends Transformation
             "Compendium.transformations.gh-transformations.Item.6xN7rWi01hoqVLtv"
         ]
 
-        if (itemsWithCustomSavingThrowTriggers.find(i => i === context.workflow?.item?.flags.transformations.sourceUuid)) {
-            context.subject.setFlag(
+        // midi-qol puts the workflow on context.midiOptions.workflow.
+        const workflow = context?.midiOptions?.workflow ?? context?.workflow
+        const sourceUuid = workflow?.item?.flags?.transformations?.sourceUuid
+
+        if (sourceUuid && itemsWithCustomSavingThrowTriggers.includes(sourceUuid)) {
+            await context.subject?.setFlag?.(
                 "transformations",
                 "saveItemUuid",
-                context.workflow?.item?.flags.transformations.sourceUuid
+                sourceUuid
             )
         }
     }

@@ -1,6 +1,17 @@
 import { TransformationDefinition } from "./TransformationDefinition.js"
 import { RollTableEffectCatalog } from "../rollTable/RollTableEffectCatalog.js"
 
+const KNOWN_WHEN_KEYS = [
+    "stage",
+    "actor",
+    "items",
+    "effects",
+    "effect",
+    "saveFailed",
+    "saveSucceeded",
+    "custom"
+]
+
 export function createTransformationDefinitionFactory({
     transformationRegistry,
     logger
@@ -182,9 +193,18 @@ export function createTransformationDefinitionFactory({
         if (when.actor) out.actor = when.actor
         if (when.items) out.items = when.items
         if (when.effects) out.effects = when.effects
+        else if (when.effect) out.effects = when.effect
         if (when.saveFailed) out.saveFailed = when.saveFailed
         if (when.saveSucceeded) out.saveSucceeded = when.saveSucceeded
         if (when.custom) out.custom = when.custom
+
+        const unknownKeys = Object.keys(when).filter(key => !KNOWN_WHEN_KEYS.includes(key))
+        if (unknownKeys.length) {
+            logger.warn?.(
+                "createTransformationDefinitionFactory.normalizeWhen: unknown when keys ignored",
+                { unknownKeys, when }
+            )
+        }
 
         return Object.keys(out).length ? out : undefined
     }

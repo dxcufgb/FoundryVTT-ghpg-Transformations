@@ -1,0 +1,1072 @@
+[
+  {
+    "id": "high-fey-F31-thunderwave-method",
+    "pack": "gh-transformations",
+    "key": "!items!6rTGRPz9LTviIN0P",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-thunderwave-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!6rTGRPz9LTviIN0P",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-stinking-cloud-method",
+    "pack": "gh-transformations",
+    "key": "!items!7MHP4HCodAvWMxap",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-stinking-cloud-b4WUwQ8fDL83FwYC-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!7MHP4HCodAvWMxap",
+    "op": "set",
+    "path": "system.activities.b4WUwQ8fDL83FwYC.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-lightning-bolt-method",
+    "pack": "gh-transformations",
+    "key": "!items!8tmFyQ0LbPZe93c9",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-lightning-bolt-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!8tmFyQ0LbPZe93c9",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-darkness-method",
+    "pack": "gh-transformations",
+    "key": "!items!CvnXPXDMoNw6XyLy",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-darkness-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!CvnXPXDMoNw6XyLy",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-flame-blade-method",
+    "pack": "gh-transformations",
+    "key": "!items!D7TUKogaloUL97E7",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-flame-blade-OIU1htXAoSF0cU3U-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!D7TUKogaloUL97E7",
+    "op": "set",
+    "path": "system.activities.OIU1htXAoSF0cU3U.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-blight-method",
+    "pack": "gh-transformations",
+    "key": "!items!DgNsvwAXjTtvfcXw",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-blight-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!DgNsvwAXjTtvfcXw",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-fog-cloud-method",
+    "pack": "gh-transformations",
+    "key": "!items!Pcn3yjh4NbYs2Ec7",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-fog-cloud-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!Pcn3yjh4NbYs2Ec7",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-cone-of-cold-method",
+    "pack": "gh-transformations",
+    "key": "!items!TdEFNeRQPS3Ys95k",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-cone-of-cold-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!TdEFNeRQPS3Ys95k",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-ice-storm-method",
+    "pack": "gh-transformations",
+    "key": "!items!XBhEOfOXg987Oryu",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-ice-storm-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!XBhEOfOXg987Oryu",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-dream-method",
+    "pack": "gh-transformations",
+    "key": "!items!ZnuyJAuZauk8atLn",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-dream-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!ZnuyJAuZauk8atLn",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-misty-step-method",
+    "pack": "gh-transformations",
+    "key": "!items!aF8b9e0KBKhBb2Af",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-misty-step-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!aF8b9e0KBKhBb2Af",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-cloudkill-method",
+    "pack": "gh-transformations",
+    "key": "!items!cG7yegCP2pLGjcXW",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-cloudkill-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!cG7yegCP2pLGjcXW",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-hold-monster-method",
+    "pack": "gh-transformations",
+    "key": "!items!cK1cNO4jj5GtBBMW",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-hold-monster-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!cK1cNO4jj5GtBBMW",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-ice-knife-method",
+    "pack": "gh-transformations",
+    "key": "!items!dgYEkwNt7bp9F6Yj",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-ice-knife-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!dgYEkwNt7bp9F6Yj",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-fireball-method",
+    "pack": "gh-transformations",
+    "key": "!items!nRYfP6VNoFbJi2Cl",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-fireball-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!nRYfP6VNoFbJi2Cl",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-fire-shield-method",
+    "pack": "gh-transformations",
+    "key": "!items!oW1ImnWFEeQ58m8M",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-fire-shield-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!oW1ImnWFEeQ58m8M",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-vampiric-touch-method",
+    "pack": "gh-transformations",
+    "key": "!items!ohE2j7tJ9OdnYtbK",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-vampiric-touch-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!ohE2j7tJ9OdnYtbK",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-burning-hands-method",
+    "pack": "gh-transformations",
+    "key": "!items!pSZsUoI3D1V9Bot2",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-burning-hands-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!pSZsUoI3D1V9Bot2",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-ray-of-enfeeblement-method",
+    "pack": "gh-transformations",
+    "key": "!items!usF8FEGtQuKhEjeH",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-ray-of-enfeeblement-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!usF8FEGtQuKhEjeH",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F31-vitriolic-sphere-method",
+    "pack": "gh-transformations",
+    "key": "!items!wT4Tp9WQ8Qi9oH85",
+    "op": "set",
+    "path": "system.method",
+    "value": "atwill",
+    "expect": "spell"
+  },
+  {
+    "id": "high-fey-F31-vitriolic-sphere-dnd5eactivity000-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!wT4Tp9WQ8Qi9oH85",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F32-blight-itemuses",
+    "pack": "gh-transformations",
+    "key": "!items!DgNsvwAXjTtvfcXw",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.targets",
+    "value": [
+      {
+        "type": "itemUses",
+        "value": "1",
+        "target": "",
+        "scaling": {
+          "mode": ""
+        }
+      }
+    ],
+    "expect": [
+      {
+        "type": "activityUses",
+        "value": "1",
+        "scaling": {
+          "mode": ""
+        }
+      }
+    ]
+  },
+  {
+    "id": "high-fey-F32-cloudkill-itemuses",
+    "pack": "gh-transformations",
+    "key": "!items!cG7yegCP2pLGjcXW",
+    "op": "set",
+    "path": "system.activities.dnd5eactivity000.consumption.targets",
+    "value": [
+      {
+        "type": "itemUses",
+        "value": "1",
+        "target": "",
+        "scaling": {
+          "mode": ""
+        }
+      }
+    ],
+    "expect": [
+      {
+        "type": "activityUses",
+        "value": "1",
+        "scaling": {
+          "mode": ""
+        }
+      }
+    ]
+  },
+  {
+    "id": "high-fey-F35-tooth-claw-1grTgXQQsSdIGasQ-bonus",
+    "pack": "gh-transformations",
+    "key": "!items!rID40yYHDRry6TJ5",
+    "op": "set",
+    "path": "system.activities.1grTgXQQsSdIGasQ.attack.bonus",
+    "value": "",
+    "expect": "@mod"
+  },
+  {
+    "id": "high-fey-F35-tooth-claw-ZgRZ2Lu7PkvQhoUU-bonus",
+    "pack": "gh-transformations",
+    "key": "!items!rID40yYHDRry6TJ5",
+    "op": "set",
+    "path": "system.activities.ZgRZ2Lu7PkvQhoUU.attack.bonus",
+    "value": "",
+    "expect": "@mod"
+  },
+  {
+    "id": "high-fey-F35-tooth-claw-action-targets",
+    "pack": "gh-transformations",
+    "key": "!items!rID40yYHDRry6TJ5",
+    "op": "set",
+    "path": "system.activities.1grTgXQQsSdIGasQ.consumption.targets",
+    "value": [],
+    "expect": [
+      {
+        "type": "activityUses",
+        "value": "1"
+      },
+      {
+        "type": "itemUses",
+        "value": "1",
+        "target": ""
+      }
+    ]
+  },
+  {
+    "id": "high-fey-F35-tooth-claw-action-uses",
+    "pack": "gh-transformations",
+    "key": "!items!rID40yYHDRry6TJ5",
+    "op": "set",
+    "path": "system.activities.1grTgXQQsSdIGasQ.uses",
+    "value": {
+      "spent": 0,
+      "recovery": [],
+      "max": ""
+    },
+    "expect": {
+      "spent": 0,
+      "recovery": [
+        {
+          "period": "turn",
+          "type": "recoverAll"
+        }
+      ],
+      "max": "1"
+    }
+  },
+  {
+    "id": "high-fey-F35-tooth-claw-bonus-targets",
+    "pack": "gh-transformations",
+    "key": "!items!rID40yYHDRry6TJ5",
+    "op": "set",
+    "path": "system.activities.ZgRZ2Lu7PkvQhoUU.consumption.targets",
+    "value": [
+      {
+        "type": "activityUses",
+        "value": "1"
+      }
+    ],
+    "expect": [
+      {
+        "type": "activityUses",
+        "value": "1"
+      },
+      {
+        "type": "itemUses",
+        "value": "1",
+        "target": ""
+      }
+    ]
+  },
+  {
+    "id": "high-fey-F35-tooth-claw-psychic-targets",
+    "pack": "gh-transformations",
+    "key": "!items!rID40yYHDRry6TJ5",
+    "op": "set",
+    "path": "system.activities.DWMfSalmD4MA5n9A.consumption.targets",
+    "value": [
+      {
+        "type": "activityUses",
+        "value": "1"
+      }
+    ],
+    "expect": [
+      {
+        "type": "itemUses",
+        "value": "1",
+        "target": ""
+      },
+      {
+        "type": "activityUses",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "id": "high-fey-F35-tooth-claw-psychic-recovery",
+    "pack": "gh-transformations",
+    "key": "!items!rID40yYHDRry6TJ5",
+    "op": "set",
+    "path": "system.activities.DWMfSalmD4MA5n9A.uses.recovery",
+    "value": [
+      {
+        "period": "turnStart",
+        "type": "recoverAll"
+      }
+    ],
+    "expect": [
+      {
+        "period": "turn",
+        "type": "recoverAll"
+      }
+    ]
+  },
+  {
+    "id": "high-fey-F35-tooth-claw-1grTgXQQsSdIGasQ-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!rID40yYHDRry6TJ5",
+    "op": "set",
+    "path": "system.activities.1grTgXQQsSdIGasQ.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F35-tooth-claw-ZgRZ2Lu7PkvQhoUU-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!rID40yYHDRry6TJ5",
+    "op": "set",
+    "path": "system.activities.ZgRZ2Lu7PkvQhoUU.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F35-tooth-claw-DWMfSalmD4MA5n9A-noslot",
+    "pack": "gh-transformations",
+    "key": "!items!rID40yYHDRry6TJ5",
+    "op": "set",
+    "path": "system.activities.DWMfSalmD4MA5n9A.consumption.spellSlot",
+    "value": false,
+    "expect": true
+  },
+  {
+    "id": "high-fey-F35-tooth-claw-manifest-activity",
+    "pack": "gh-transformations",
+    "key": "!items!rID40yYHDRry6TJ5",
+    "op": "set",
+    "path": "system.activities.tcManifest0Fey01",
+    "value": {
+      "type": "utility",
+      "name": "Manifest Natural Weapon",
+      "_id": "tcManifest0Fey01",
+      "sort": -1,
+      "activation": {
+        "type": "bonus",
+        "override": false,
+        "condition": ""
+      },
+      "consumption": {
+        "scaling": {
+          "allowed": false
+        },
+        "spellSlot": false,
+        "targets": [
+          {
+            "type": "itemUses",
+            "value": "1",
+            "target": ""
+          }
+        ]
+      },
+      "description": {
+        "chatFlavor": "You manifest a Claw, Bite, or Gore for 1 minute. While it is manifested you can use it in place of any weapon attack."
+      },
+      "duration": {
+        "units": "minute",
+        "concentration": false,
+        "override": false,
+        "value": "1"
+      },
+      "effects": [
+        {
+          "_id": "tcManifestEff001",
+          "level": {
+            "min": null,
+            "max": null
+          }
+        }
+      ],
+      "flags": {},
+      "range": {
+        "units": "self",
+        "override": false,
+        "special": ""
+      },
+      "target": {
+        "template": {
+          "contiguous": false,
+          "units": "ft",
+          "type": ""
+        },
+        "affects": {
+          "choice": false,
+          "type": ""
+        },
+        "override": false,
+        "prompt": false
+      },
+      "uses": {
+        "spent": 0,
+        "recovery": [],
+        "max": ""
+      },
+      "visibility": {
+        "level": {
+          "min": null,
+          "max": null
+        },
+        "requireAttunement": false,
+        "requireIdentification": false,
+        "requireMagic": false,
+        "identifier": ""
+      },
+      "roll": {
+        "prompt": false,
+        "visible": false,
+        "name": "",
+        "formula": ""
+      },
+      "useConditionText": "",
+      "useConditionReason": "",
+      "effectConditionText": "",
+      "macroData": {
+        "name": "",
+        "command": ""
+      },
+      "ignoreTraits": {
+        "idi": false,
+        "idr": false,
+        "idv": false,
+        "ida": false,
+        "idm": false
+      },
+      "midiProperties": {
+        "ignoreTraits": [],
+        "triggeredActivityId": "none",
+        "triggeredActivityConditionText": "",
+        "triggeredActivityTargets": "targets",
+        "triggeredActivityRollAs": "self",
+        "autoConsume": false,
+        "forceConsumeDialog": "default",
+        "forceRollDialog": "default",
+        "forceDamageDialog": "default",
+        "confirmTargets": "default",
+        "autoTargetType": "any",
+        "autoTargetAction": "default",
+        "automationOnly": false,
+        "otherActivityCompatible": true,
+        "otherActivityAsParentType": true,
+        "identifier": "",
+        "displayActivityName": false,
+        "rollMode": "default",
+        "chooseEffects": false,
+        "toggleEffect": false,
+        "ignoreFullCover": false,
+        "removeChatButtons": "default",
+        "magicEffect": false,
+        "magicDamage": false,
+        "noConcentrationCheck": false,
+        "skipConcentrationCheck": false,
+        "autoCEEffects": "default"
+      },
+      "isOverTimeFlag": false,
+      "overTimeProperties": {
+        "saveRemoves": true,
+        "preRemoveConditionText": "",
+        "postRemoveConditionText": ""
+      },
+      "otherActivityId": "none",
+      "otherActivityAsParentType": true,
+      "img": ""
+    }
+  },
+  {
+    "id": "high-fey-F35-tooth-claw-manifest-effect",
+    "pack": "gh-transformations",
+    "key": "!items.effects!rID40yYHDRry6TJ5.tcManifestEff001",
+    "op": "create",
+    "doc": {
+      "name": "Tooth and Claw",
+      "img": "modules/transformations/Icons/Transformations/Fey/Tooth_and_Claw.png",
+      "origin": "Compendium.transformations.gh-transformations.Item.rID40yYHDRry6TJ5",
+      "transfer": false,
+      "_id": "tcManifestEff001",
+      "type": "base",
+      "system": {},
+      "changes": [],
+      "disabled": false,
+      "duration": {
+        "startTime": null,
+        "combat": null,
+        "seconds": 60,
+        "rounds": null,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null
+      },
+      "description": "<p>Your Claw, Bite, or Gore is manifested for 1 minute. You can use it in place of any weapon attack, and after an Attack action that did not use it you can take a Bonus Action later that turn to use it once.</p>",
+      "tint": "#ffffff",
+      "statuses": [],
+      "sort": 0,
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "statuses": []
+          }
+        },
+        "dae": {
+          "enableCondition": "",
+          "disableCondition": "",
+          "stackable": "noneName",
+          "showIcon": false,
+          "disableIncapacitated": false,
+          "selfTarget": true,
+          "selfTargetAlways": true,
+          "dontApply": false,
+          "durationExpression": "",
+          "specialDuration": []
+        },
+        "core": {
+          "overlay": false
+        }
+      },
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "dnd5e",
+        "systemVersion": "5.2.5"
+      }
+    }
+  },
+  {
+    "id": "high-fey-F35-tooth-claw-manifest-effect-ref",
+    "pack": "gh-transformations",
+    "key": "!items!rID40yYHDRry6TJ5",
+    "op": "arrayAdd",
+    "path": "effects",
+    "value": "tcManifestEff001"
+  },
+  {
+    "id": "high-fey-F36-seasonally-spring-effect",
+    "pack": "gh-transformations",
+    "key": "!items.effects!Zk0cqrKQcOcnzYPz.saSpringDeath001",
+    "op": "create",
+    "doc": {
+      "name": "Seasonally Affected",
+      "img": "modules/transformations/Icons/Transformations/Fey/Seasonally_Affected_Spring.png",
+      "origin": "Compendium.transformations.gh-transformations.Item.Zk0cqrKQcOcnzYPz",
+      "_id": "saSpringDeath001",
+      "type": "base",
+      "system": {},
+      "changes": [
+        {
+          "key": "system.attributes.death.roll.mode",
+          "mode": 2,
+          "value": "-1",
+          "priority": 20
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null,
+        "combat": null,
+        "seconds": null,
+        "rounds": null,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null
+      },
+      "description": "<p>You have Disadvantage on Death Saving Throws.</p>",
+      "tint": "#ffffff",
+      "transfer": true,
+      "statuses": [],
+      "sort": 0,
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "statuses": []
+          }
+        },
+        "dae": {
+          "disableCondition": "",
+          "stackable": "noneName",
+          "showIcon": false,
+          "disableIncapacitated": false,
+          "durationExpression": "",
+          "specialDuration": []
+        },
+        "core": {
+          "overlay": false
+        }
+      },
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "dnd5e",
+        "systemVersion": "5.2.5"
+      }
+    }
+  },
+  {
+    "id": "high-fey-F36-seasonally-spring-effect-ref",
+    "pack": "gh-transformations",
+    "key": "!items!Zk0cqrKQcOcnzYPz",
+    "op": "arrayAdd",
+    "path": "effects",
+    "value": "saSpringDeath001"
+  },
+  {
+    "id": "high-fey-F36-seasonally-summer-effect",
+    "pack": "gh-transformations",
+    "key": "!items.effects!AHxp5W4k9UpOKgEC.saSummerDeath001",
+    "op": "create",
+    "doc": {
+      "name": "Seasonally Affected",
+      "img": "modules/transformations/Icons/Transformations/Fey/Seasonally_Affected_Summer.png",
+      "origin": "Compendium.transformations.gh-transformations.Item.AHxp5W4k9UpOKgEC",
+      "_id": "saSummerDeath001",
+      "type": "base",
+      "system": {},
+      "changes": [
+        {
+          "key": "system.attributes.death.roll.mode",
+          "mode": 2,
+          "value": "-1",
+          "priority": 20
+        },
+        {
+          "key": "flags.transformations.feyFormResistanceBlocked.cold",
+          "mode": 5,
+          "value": "true",
+          "priority": 20
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null,
+        "combat": null,
+        "seconds": null,
+        "rounds": null,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null
+      },
+      "description": "<p>You have Disadvantage on Death Saving Throws.</p>",
+      "tint": "#ffffff",
+      "transfer": true,
+      "statuses": [],
+      "sort": 0,
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "statuses": []
+          }
+        },
+        "dae": {
+          "disableCondition": "",
+          "stackable": "noneName",
+          "showIcon": false,
+          "disableIncapacitated": false,
+          "durationExpression": "",
+          "specialDuration": []
+        },
+        "core": {
+          "overlay": false
+        }
+      },
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "dnd5e",
+        "systemVersion": "5.2.5"
+      }
+    }
+  },
+  {
+    "id": "high-fey-F36-seasonally-summer-effect-ref",
+    "pack": "gh-transformations",
+    "key": "!items!AHxp5W4k9UpOKgEC",
+    "op": "arrayAdd",
+    "path": "effects",
+    "value": "saSummerDeath001"
+  },
+  {
+    "id": "high-fey-F36-seasonally-autumn-effect",
+    "pack": "gh-transformations",
+    "key": "!items.effects!CLeYAvf7sMEZacSL.saAutumnDeath001",
+    "op": "create",
+    "doc": {
+      "name": "Seasonally Affected",
+      "img": "modules/transformations/Icons/Transformations/Fey/Seasonally_Affected_Autumn.png",
+      "origin": "Compendium.transformations.gh-transformations.Item.CLeYAvf7sMEZacSL",
+      "_id": "saAutumnDeath001",
+      "type": "base",
+      "system": {},
+      "changes": [
+        {
+          "key": "system.attributes.death.roll.mode",
+          "mode": 2,
+          "value": "-1",
+          "priority": 20
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null,
+        "combat": null,
+        "seconds": null,
+        "rounds": null,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null
+      },
+      "description": "<p>You have Disadvantage on Death Saving Throws.</p>",
+      "tint": "#ffffff",
+      "transfer": true,
+      "statuses": [],
+      "sort": 0,
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "statuses": []
+          }
+        },
+        "dae": {
+          "disableCondition": "",
+          "stackable": "noneName",
+          "showIcon": false,
+          "disableIncapacitated": false,
+          "durationExpression": "",
+          "specialDuration": []
+        },
+        "core": {
+          "overlay": false
+        }
+      },
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "dnd5e",
+        "systemVersion": "5.2.5"
+      }
+    }
+  },
+  {
+    "id": "high-fey-F36-seasonally-autumn-effect-ref",
+    "pack": "gh-transformations",
+    "key": "!items!CLeYAvf7sMEZacSL",
+    "op": "arrayAdd",
+    "path": "effects",
+    "value": "saAutumnDeath001"
+  },
+  {
+    "id": "high-fey-F36-seasonally-winter-effect",
+    "pack": "gh-transformations",
+    "key": "!items.effects!6PW6iYp8v7UoREu4.saWinterDeath001",
+    "op": "create",
+    "doc": {
+      "name": "Seasonally Affected",
+      "img": "modules/transformations/Icons/Transformations/Fey/Seasonally_Affected_Winter.png",
+      "origin": "Compendium.transformations.gh-transformations.Item.6PW6iYp8v7UoREu4",
+      "_id": "saWinterDeath001",
+      "type": "base",
+      "system": {},
+      "changes": [
+        {
+          "key": "system.attributes.death.roll.mode",
+          "mode": 2,
+          "value": "-1",
+          "priority": 20
+        },
+        {
+          "key": "flags.transformations.feyFormResistanceBlocked.fire",
+          "mode": 5,
+          "value": "true",
+          "priority": 20
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null,
+        "combat": null,
+        "seconds": null,
+        "rounds": null,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null
+      },
+      "description": "<p>You have Disadvantage on Death Saving Throws.</p>",
+      "tint": "#ffffff",
+      "transfer": true,
+      "statuses": [],
+      "sort": 0,
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "statuses": []
+          }
+        },
+        "dae": {
+          "disableCondition": "",
+          "stackable": "noneName",
+          "showIcon": false,
+          "disableIncapacitated": false,
+          "durationExpression": "",
+          "specialDuration": []
+        },
+        "core": {
+          "overlay": false
+        }
+      },
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "dnd5e",
+        "systemVersion": "5.2.5"
+      }
+    }
+  },
+  {
+    "id": "high-fey-F36-seasonally-winter-effect-ref",
+    "pack": "gh-transformations",
+    "key": "!items!6PW6iYp8v7UoREu4",
+    "op": "arrayAdd",
+    "path": "effects",
+    "value": "saWinterDeath001"
+  }
+]

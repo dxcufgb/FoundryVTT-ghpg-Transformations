@@ -1,0 +1,71 @@
+[
+    {
+        "id": "high-specter-paralyzing-touch-activity-effects",
+        "pack": "gh-transformations",
+        "key": "!items!kqUqRvNBuxkVNGNH",
+        "op": "set",
+        "path": "system.activities.uL2T8PyqlHlsQ6NK.effects",
+        "value": [
+            {
+                "_id": "F39rwQwQR6L4bwG3",
+                "onSave": false,
+                "level": {
+                    "min": null,
+                    "max": null
+                }
+            }
+        ],
+        "expect": [
+            {
+                "_id": "F39rwQwQR6L4bwG3",
+                "onSave": false,
+                "level": {
+                    "min": null,
+                    "max": null
+                }
+            },
+            {
+                "_id": "YV608hkllzDgltPa",
+                "onSave": false,
+                "level": {
+                    "min": null,
+                    "max": null
+                }
+            }
+        ]
+    },
+    {
+        "id": "high-specter-paralyzing-touch-choose-effects",
+        "pack": "gh-transformations",
+        "key": "!items!kqUqRvNBuxkVNGNH",
+        "op": "set",
+        "path": "system.activities.uL2T8PyqlHlsQ6NK.midiProperties.chooseEffects",
+        "value": false,
+        "expect": true
+    },
+    {
+        "id": "high-specter-paralyzing-touch-prone-macro",
+        "pack": "gh-transformations",
+        "key": "!items!kqUqRvNBuxkVNGNH",
+        "op": "set",
+        "path": "system.activities.uL2T8PyqlHlsQ6NK.macroData",
+        "value": {
+            "name": "Paralyzing Touch Prone On Save",
+            "command": "// Paralyzing Touch: failed save -> Paralyzed (applied by midi from the activity effects),\n// successful save -> Prone instead (applied here, only to the creatures that saved).\nconst { workflow, saveUuids } = args[0]\nif (!saveUuids?.length) return\nconst prone = workflow.item?.effects?.find(effect => effect.statuses?.has(\"prone\"))\nif (!prone || typeof globalThis.DAE?.doActivityEffects !== \"function\") return\nawait globalThis.DAE.doActivityEffects(workflow.activity, true, saveUuids, [prone.uuid], {\n    origin: workflow.item.uuid,\n    itemCardUuid: workflow.itemCardUuid,\n    metaData: { flags: { dae: { transfer: false } } }\n})"
+        },
+        "expect": {
+            "name": "",
+            "command": ""
+        }
+    },
+    {
+        "id": "high-specter-paralyzing-touch-onuse-flag",
+        "pack": "gh-transformations",
+        "key": "!items!kqUqRvNBuxkVNGNH",
+        "op": "set",
+        "path": "flags.midi-qol",
+        "value": {
+            "onUseMacroName": "[postActiveEffects]ActivityMacro-uL2T8PyqlHlsQ6NK"
+        }
+    }
+]

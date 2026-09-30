@@ -122,18 +122,18 @@ function effectConditionMet(actor, condition, logger = null)
     if (!condition) return true
 
     const effects = actor.effects ?? []
+    const hasEffect = name => effects.some(e => e.name === name)
+    const toList = value => (Array.isArray(value) ? value : [value]).filter(v => v != null)
 
-    if (condition.has) {
-        return condition.has.every(name =>
-            effects.some(e => e.name === name)
-        )
-    }
+    // `{name: "X"}` is shorthand for `{has: ["X"]}`
+    const required = [
+        ...(condition.has != null ? toList(condition.has) : []),
+        ...(condition.name != null ? toList(condition.name) : [])
+    ]
+    const missing = condition.missing != null ? toList(condition.missing) : []
 
-    if (condition.missing) {
-        return condition.missing.every(name =>
-            !effects.some(e => e.name === name)
-        )
-    }
+    if (!required.every(hasEffect)) return false
+    if (!missing.every(name => !hasEffect(name))) return false
 
     return true
 }

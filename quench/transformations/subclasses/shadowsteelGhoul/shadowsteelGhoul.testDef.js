@@ -1,7 +1,7 @@
 import { validate } from "../../../helpers/DTOValidators/validate.js"
 import { ActorValidationDTO } from "../../../helpers/validationDTOs/actor/ActorValidationDTO.js"
 import { waitForRollConfigurationDialogAndClickButton, waitForRollConfigurationDialogAndClose } from "../../../helpers/rollConfigurationDialog.js"
-import { SHADOWSTEEL_GHOUL_BLOODIED_ONCE_KEY, SHADOWSTEEL_GHOUL_TRIGGER_ACTIVITY_NAME, SHADOWSTEEL_GHOUL_TRIGGER_ITEM_UUID, SHADOWSTEEL_GHOUL_ZERO_HP_ONCE_KEY } from "../../../../domain/transformation/subclasses/shadowsteelGhoul/triggers/shadowsteelGhoulTriggerCommon.js"
+import { SHADOWSTEEL_GHOUL_EXPLOSION_ONCE_KEY, SHADOWSTEEL_GHOUL_TRIGGER_ACTIVITY_NAME, SHADOWSTEEL_GHOUL_TRIGGER_ITEM_UUID } from "../../../../domain/transformation/subclasses/shadowsteelGhoul/triggers/shadowsteelGhoulTriggerCommon.js"
 
 const DEBILITATING_MAGIC_NAME = "Debilitating Magic"
 const DEBILITATING_MAGIC_UUID = "Compendium.transformations.gh-transformations.Item.jAHcNJNgWzYnzltV"
@@ -320,11 +320,9 @@ async function triggerShadowsteelMidiSave({
 {
     const pendingTrigger = runtime.services.triggerRuntime.run(trigger, actor)
     const expectedOnceKey =
-              trigger === "bloodied"
-                  ? SHADOWSTEEL_GHOUL_BLOODIED_ONCE_KEY
-                  : trigger === "zeroHp"
-                      ? SHADOWSTEEL_GHOUL_ZERO_HP_ONCE_KEY
-                      : null
+              trigger === "bloodied" || trigger === "zeroHp"
+                  ? SHADOWSTEEL_GHOUL_EXPLOSION_ONCE_KEY
+                  : null
 
     await waitForRollConfigurationDialogAndClickButton("normal", {
         title: "Damage Roll",
@@ -376,8 +374,7 @@ async function completeShortRest({
     })
 
     await waiters.waitForCondition(() =>
-        getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_BLOODIED_ONCE_KEY) == null &&
-        getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_ZERO_HP_ONCE_KEY) == null
+        getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_EXPLOSION_ONCE_KEY) == null
     )
 }
 
@@ -756,10 +753,7 @@ const shadowsteelGhoulTriggerBehaviorTests = [
         {
             assert.strictEqual(staticVars.shadowsteelMidiSaveCallCount, 1)
             assert.isOk(
-                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_BLOODIED_ONCE_KEY)
-            )
-            assert.isNotOk(
-                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_ZERO_HP_ONCE_KEY)
+                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_EXPLOSION_ONCE_KEY)
             )
         }
     },
@@ -787,7 +781,7 @@ const shadowsteelGhoulTriggerBehaviorTests = [
         assertions: async ({actor, assert}) =>
         {
             assert.isNotOk(
-                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_BLOODIED_ONCE_KEY)
+                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_EXPLOSION_ONCE_KEY)
             )
         }
     },
@@ -857,7 +851,7 @@ const shadowsteelGhoulTriggerBehaviorTests = [
         {
             assert.strictEqual(staticVars.shadowsteelMidiSaveCallCount, 2)
             assert.isOk(
-                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_BLOODIED_ONCE_KEY)
+                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_EXPLOSION_ONCE_KEY)
             )
         }
     },
@@ -896,10 +890,7 @@ const shadowsteelGhoulTriggerBehaviorTests = [
         {
             assert.strictEqual(staticVars.shadowsteelMidiSaveCallCount, 1)
             assert.isOk(
-                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_ZERO_HP_ONCE_KEY)
-            )
-            assert.isNotOk(
-                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_BLOODIED_ONCE_KEY)
+                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_EXPLOSION_ONCE_KEY)
             )
         }
     },
@@ -950,7 +941,7 @@ const shadowsteelGhoulTriggerBehaviorTests = [
         {
             assert.strictEqual(staticVars.shadowsteelMidiSaveCallCount, 1)
             assert.isOk(
-                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_ZERO_HP_ONCE_KEY)
+                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_EXPLOSION_ONCE_KEY)
             )
         }
     },
@@ -978,12 +969,12 @@ const shadowsteelGhoulTriggerBehaviorTests = [
         assertions: async ({actor, assert}) =>
         {
             assert.isNotOk(
-                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_ZERO_HP_ONCE_KEY)
+                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_EXPLOSION_ONCE_KEY)
             )
         }
     },
     {
-        name: "Shadowsteel bloodied and zeroHp triggers have independent once-per-rest limits",
+        name: "Shadowsteel bloodied and zeroHp triggers share a single once-per-rest limit",
         uuid: SHADOWSTEEL_GHOUL_TRIGGER_ITEM_UUID,
         setup: async ({actor, helpers, staticVars}) =>
         {
@@ -1009,6 +1000,28 @@ const shadowsteelGhoulTriggerBehaviorTests = [
                     expectedCount: 1
                 })
             },
+            async ({actor, runtime, waiters}) =>
+            {
+                await runShadowsteelTrigger({
+                    actor,
+                    runtime,
+                    waiters,
+                    trigger: "zeroHp"
+                })
+                await runShadowsteelTrigger({
+                    actor,
+                    runtime,
+                    waiters,
+                    trigger: "bloodied"
+                })
+            },
+            async ({actor, waiters}) =>
+            {
+                await completeShortRest({
+                    actor,
+                    waiters
+                })
+            },
             async ({actor, runtime, waiters, staticVars}) =>
             {
                 await triggerShadowsteelMidiSave({
@@ -1032,41 +1045,6 @@ const shadowsteelGhoulTriggerBehaviorTests = [
                     waiters,
                     trigger: "bloodied"
                 })
-                await runShadowsteelTrigger({
-                    actor,
-                    runtime,
-                    waiters,
-                    trigger: "zeroHp"
-                })
-            },
-            async ({actor, waiters}) =>
-            {
-                await completeShortRest({
-                    actor,
-                    waiters
-                })
-            },
-            async ({actor, runtime, waiters, staticVars}) =>
-            {
-                await triggerShadowsteelMidiSave({
-                    actor,
-                    runtime,
-                    waiters,
-                    staticVars,
-                    trigger: "bloodied"
-                })
-                await waitForShadowsteelMidiSaveCallCount({
-                    waiters,
-                    staticVars,
-                    expectedCount: 3
-                })
-                await triggerShadowsteelMidiSave({
-                    actor,
-                    runtime,
-                    waiters,
-                    staticVars,
-                    trigger: "zeroHp"
-                })
             }
         ],
         await: async ({waiters, staticVars}) =>
@@ -1074,17 +1052,18 @@ const shadowsteelGhoulTriggerBehaviorTests = [
             await waitForShadowsteelMidiSaveCallCount({
                 waiters,
                 staticVars,
-                expectedCount: 4
+                expectedCount: 2
             })
         },
         assertions: async ({actor, assert, staticVars}) =>
         {
-            assert.strictEqual(staticVars.shadowsteelMidiSaveCallCount, 4)
-            assert.isOk(
-                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_BLOODIED_ONCE_KEY)
+            assert.strictEqual(staticVars.shadowsteelMidiSaveCallCount, 2)
+            assert.deepEqual(
+                staticVars.shadowsteelMidiSaveCalls.map(call => call.type),
+                ["trigger.bloodied", "trigger.zeroHp"]
             )
             assert.isOk(
-                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_ZERO_HP_ONCE_KEY)
+                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_EXPLOSION_ONCE_KEY)
             )
         }
     },
@@ -1126,7 +1105,7 @@ const shadowsteelGhoulTriggerBehaviorTests = [
                 0
             )
             assert.isNotOk(
-                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_BLOODIED_ONCE_KEY)
+                getTransformationOnceFlag(actor, SHADOWSTEEL_GHOUL_EXPLOSION_ONCE_KEY)
             )
         }
     }

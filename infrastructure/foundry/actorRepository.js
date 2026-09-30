@@ -180,11 +180,23 @@ export function createActorRepository({
                     return
                 }
 
-                await actor.setFlag(
-                    "transformations",
-                    "stageChoices",
-                    nextStageChoices
-                )
+                // setFlag merges objects, so removed keys must be deleted
+                // explicitly with the "-=" syntax.
+                const deletion = transformationId in nextStageChoices
+                    ? {[transformationId]: {[`-=${stage}`]: null}}
+                    : {[`-=${transformationId}`]: null}
+
+                if (typeof actor.update === "function") {
+                    await actor.update({
+                        flags: {transformations: {stageChoices: deletion}}
+                    })
+                } else {
+                    await actor.setFlag(
+                        "transformations",
+                        "stageChoices",
+                        nextStageChoices
+                    )
+                }
             })()
         )
     }
@@ -364,11 +376,23 @@ export function createActorRepository({
                     )
                 } else {
                     debouncedTracker.pulse("macroExecution")
-                    await actor.setFlag(
-                        "transformations",
-                        "macroExecutions",
-                        remaining
-                    )
+                    // setFlag merges objects, so the released lock must be
+                    // deleted explicitly with the "-=" syntax.
+                    if (typeof actor.update === "function") {
+                        await actor.update({
+                            flags: {
+                                transformations: {
+                                    macroExecutions: {[`-=${flagKey}`]: null}
+                                }
+                            }
+                        })
+                    } else {
+                        await actor.setFlag(
+                            "transformations",
+                            "macroExecutions",
+                            remaining
+                        )
+                    }
                 }
 
                 logger?.trace?.(

@@ -29,6 +29,7 @@ export const onLongRest = {
             name: "unstable-form-stage-1",
             when: {
                 stage: [1],
+                actor: {hasFlag: "aberrantHorror.tookDamage"}
             },
             actions: [
                 {
@@ -47,6 +48,7 @@ export const onLongRest = {
             name: "unstable-form-stage-2",
             when: {
                 stage: [2],
+                actor: {hasFlag: "aberrantHorror.tookDamage"}
             },
             actions: [
 
@@ -65,6 +67,7 @@ export const onLongRest = {
             name: "unstable-form-stage-3",
             when: {
                 stage: [3],
+                actor: {hasFlag: "aberrantHorror.tookDamage"}
             },
             actions: [
 
@@ -82,6 +85,7 @@ export const onLongRest = {
             name: "unstable-form-stage-4",
             when: {
                 stage: [4],
+                actor: {hasFlag: "aberrantHorror.tookDamage"}
             },
             actions: [
 
@@ -93,6 +97,21 @@ export const onLongRest = {
                         storeResultFlag: "unstableForm"
                     }
                 },
+            ]
+        },
+        {
+            name: "clear-damage-taken",
+            when: {
+                actor: {hasFlag: "aberrantHorror.tookDamage"}
+            },
+            actions: [
+                {
+                    type: "ACTOR_FLAG",
+                    data: {
+                        mode: "remove",
+                        key: "aberrantHorror.tookDamage"
+                    }
+                }
             ]
         }
     ]

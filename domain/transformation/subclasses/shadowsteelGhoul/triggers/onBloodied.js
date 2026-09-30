@@ -1,6 +1,6 @@
 import {
     createShadowsteelGhoulTriggerActionGroup,
-    SHADOWSTEEL_GHOUL_BLOODIED_ONCE_KEY
+    SHADOWSTEEL_GHOUL_EXPLOSION_ONCE_KEY
 } from "./shadowsteelGhoulTriggerCommon.js"
 
 export const onBloodied = {
@@ -8,7 +8,7 @@ export const onBloodied = {
     actionGroups: [
         createShadowsteelGhoulTriggerActionGroup({
             name: "shadowsteel-ghoul-bloodied-midi-save",
-            onceKey: SHADOWSTEEL_GHOUL_BLOODIED_ONCE_KEY
+            onceKey: SHADOWSTEEL_GHOUL_EXPLOSION_ONCE_KEY
         })
     ]
 }

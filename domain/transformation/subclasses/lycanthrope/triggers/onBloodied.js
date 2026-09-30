@@ -49,6 +49,9 @@ export const onBloodied = {
                 },
                 {
                     type: "MACRO",
+                    when: {
+                        saveFailed: "lycanthrope-bloodied-wis-save"
+                    },
                     data: {
                         transformationType: "lycanthrope",
                         action: lycanthropeMacros.triggerBloodiedHybridTransform,

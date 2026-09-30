@@ -430,12 +430,14 @@ quench.registerBatch(
                         uses: {},
                         preparation: {},
                         activities: {
-                            contents: [{
+                            CastGrantedSpell: {
+                                _id: "CastGrantedSpell",
                                 name: "Cast Granted Spell",
                                 consumption: {
+                                    spellSlot: true,
                                     targets: []
                                 }
-                            }]
+                            }
                         }
                     }
                 }
@@ -467,8 +469,7 @@ quench.registerBatch(
                                             requireSlot: false
                                         },
                                         prepared: 0
-                                    },
-                                    type: "spell"
+                                    }
                                 }
                             }]
                         }
@@ -492,10 +493,13 @@ quench.registerBatch(
                         type: "recoverAll"
                     }])
                     expect(createdSpell.system.uses.requireSlot).to.equal(false)
+                    expect(createdSpell.system.activities)
+                    .to.not.have.property("contents")
                     expect(
-                        createdSpell.system.activities.contents[0].consumption.targets
+                        createdSpell.system.activities.CastGrantedSpell.consumption.targets
                     ).to.deep.equal([{
                         type: "itemUses",
+                        target: "",
                         value: "1"
                     }])
                 } finally {
@@ -527,12 +531,14 @@ quench.registerBatch(
                         uses: {},
                         preparation: {},
                         activities: {
-                            contents: [{
+                            CastFirstSpellxx: {
+                                _id: "CastFirstSpellxx",
                                 name: "Cast First Spell",
                                 consumption: {
+                                    spellSlot: true,
                                     targets: []
                                 }
-                            }]
+                            }
                         }
                     }
                 }
@@ -548,12 +554,14 @@ quench.registerBatch(
                         uses: {},
                         preparation: {},
                         activities: {
-                            contents: [{
+                            CastSecondSpellx: {
+                                _id: "CastSecondSpellx",
                                 name: "Cast Second Spell",
                                 consumption: {
+                                    spellSlot: true,
                                     targets: []
                                 }
-                            }]
+                            }
                         }
                     }
                 }
@@ -607,8 +615,7 @@ quench.registerBatch(
                                             requireSlot: false
                                         },
                                         prepared: 0
-                                    },
-                                    type: "spell"
+                                    }
                                 }
                             }]
                         }
@@ -634,9 +641,10 @@ quench.registerBatch(
                     }])
                     expect(createdSpell.system.uses.requireSlot).to.equal(false)
                     expect(
-                        createdSpell.system.activities.contents[0].consumption.targets
+                        Object.values(createdSpell.system.activities)[0].consumption.targets
                     ).to.deep.equal([{
                         type: "itemUses",
+                        target: "",
                         value: "1"
                     }])
                 } finally {
@@ -668,12 +676,14 @@ quench.registerBatch(
                         uses: {},
                         preparation: {},
                         activities: {
-                            contents: [{
+                            CastFirstSpellxx: {
+                                _id: "CastFirstSpellxx",
                                 name: "Cast First Spell",
                                 consumption: {
+                                    spellSlot: true,
                                     targets: []
                                 }
-                            }]
+                            }
                         }
                     }
                 }
@@ -689,12 +699,14 @@ quench.registerBatch(
                         uses: {},
                         preparation: {},
                         activities: {
-                            contents: [{
+                            CastSecondSpellx: {
+                                _id: "CastSecondSpellx",
                                 name: "Cast Second Spell",
                                 consumption: {
+                                    spellSlot: true,
                                     targets: []
                                 }
-                            }]
+                            }
                         }
                     }
                 }
@@ -751,8 +763,7 @@ quench.registerBatch(
                                             requireSlot: false
                                         },
                                         prepared: 0
-                                    },
-                                    type: "spell"
+                                    }
                                 }
                             }]
                         }
