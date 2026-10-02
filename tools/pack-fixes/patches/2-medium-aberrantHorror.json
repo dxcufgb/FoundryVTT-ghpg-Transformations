@@ -31,5 +31,48 @@
         "path": "name",
         "value": "Eldritch Limbs (Hurled Barb)",
         "expect": "Eldritch Limbs (Piercing)"
+    },
+    {
+        "id": "medium-aberrantHorror-poisonous-mutations-aura-overtime",
+        "pack": "gh-transformations",
+        "key": "!items.effects!dPug75X8a0sc0dLz.aWDjI72GFQSIcYlV",
+        "op": "set",
+        "path": "changes",
+        "value": [
+            {
+                "key": "flags.midi-qol.OverTime",
+                "mode": 0,
+                "value": "turn=start, label=Poisonous Mutations, saveAbility=con, saveDC=8 + @prof + @flags.transformations.stage, saveDamage=nodamage, saveRemove=false, damageRoll=3d6, damageType=poison",
+                "priority": 20
+            }
+        ],
+        "expect": []
+    },
+    {
+        "id": "medium-aberrantHorror-poisonous-mutations-aura-hostile",
+        "pack": "gh-transformations",
+        "key": "!items.effects!dPug75X8a0sc0dLz.aWDjI72GFQSIcYlV",
+        "op": "set",
+        "path": "system.disposition",
+        "value": -1,
+        "expect": 0
+    },
+    {
+        "id": "medium-aberrantHorror-poisonous-mutations-disable-activeauras",
+        "pack": "gh-transformations",
+        "key": "!items.effects!dPug75X8a0sc0dLz.aWDjI72GFQSIcYlV",
+        "op": "set",
+        "path": "flags.ActiveAuras.isAura",
+        "value": false,
+        "expect": true
+    },
+    {
+        "id": "medium-aberrantHorror-poisonous-mutations-activation-condition",
+        "pack": "gh-transformations",
+        "key": "!items!dPug75X8a0sc0dLz",
+        "op": "set",
+        "path": "system.activities.6Rd7FvhZSnBAukrH.activation.condition",
+        "value": "Whenever a creature you choose starts its turn within 5 feet of you.",
+        "expect": "Whenever a creature you choses starts it's turn within 5 feet of you."
     }
 ]

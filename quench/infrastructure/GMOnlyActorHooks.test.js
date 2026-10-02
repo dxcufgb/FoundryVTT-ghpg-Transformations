@@ -144,7 +144,7 @@ async function runHpUpdate(harness, actor, {value, temp, damage = null, options 
     }
 }
 
-function createGame({activeGm = true} = {})
+function createGame({activeGm = true, scenes = []} = {})
 {
     const user = {id: "gm-this-client"}
     return {
@@ -152,8 +152,49 @@ function createGame({activeGm = true} = {})
         users: {
             // Which GM Foundry designates as the active one; another connected GM outranks this client.
             activeGM: activeGm ? user : {id: "gm-other-client"}
-        }
+        },
+        scenes
     }
+}
+
+// An Aberrant Horror whose Poisonous Mutations item carries an Aura Effects aura, an enemy holding
+// the copy the aura applied, and an enemy on another scene with a copy of the same name.
+function createAuraScenario()
+{
+    const auraUuid = "Actor.horror.Item.poison.ActiveEffect.aura"
+    const createTarget = (id, effects) =>
+    {
+        const target = {id, effects, deleted: []}
+        target.deleteEmbeddedDocuments = async (type, ids) =>
+        {
+            target.deleted.push(...ids)
+        }
+        return target
+    }
+
+    const source = createTarget("horror", [])
+    const item = {
+        parent: source,
+        effects: [
+            {type: "auraeffects.aura", uuid: auraUuid},
+            {type: "base", uuid: "Actor.horror.Item.poison.ActiveEffect.other"}
+        ]
+    }
+    const enemy = createTarget("enemy", [
+        {id: "applied", origin: auraUuid, flags: {auraeffects: {fromAura: true}}},
+        {id: "own-aura", origin: "Actor.enemy.Item.x.ActiveEffect.y", flags: {auraeffects: {fromAura: true}}},
+        {id: "unrelated", origin: auraUuid, flags: {}}
+    ])
+    const elsewhere = createTarget("elsewhere", [
+        {id: "elsewhere-applied", origin: auraUuid, flags: {auraeffects: {fromAura: true}}}
+    ])
+
+    const scenes = [
+        {tokens: [{actorId: "horror", actor: source}, {actorId: "enemy", actor: enemy}]},
+        {tokens: [{actorId: "elsewhere", actor: elsewhere}]}
+    ]
+
+    return {item, enemy, elsewhere, scenes}
 }
 
 function createHarness({
@@ -960,6 +1001,36 @@ quench.registerBatch(
                     expect(received).to.have.length(1)
                     expect(received[0].effect).to.equal(effect)
                     expect(received[0].actor).to.equal(actor)
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("removes the effects an aura applied when the item carrying the aura is deleted", async function()
+            {
+                const {item, enemy, elsewhere, scenes} = createAuraScenario()
+                const harness = createHarness({game: createGame({scenes})})
+
+                try {
+                    await harness.callbacks.get("deleteItem")(item, {}, "user-1")
+
+                    expect(enemy.deleted).to.deep.equal(["applied"])
+                    // The source has no token on that scene, so its aura never reached it.
+                    expect(elsewhere.deleted).to.have.length(0)
+                } finally {
+                    harness.restore()
+                }
+            })
+
+            it("does not remove applied aura effects from a GM client that is not the active GM", async function()
+            {
+                const {item, enemy, scenes} = createAuraScenario()
+                const harness = createHarness({game: createGame({activeGm: false, scenes})})
+
+                try {
+                    await harness.callbacks.get("deleteItem")(item, {}, "user-1")
+
+                    expect(enemy.deleted).to.have.length(0)
                 } finally {
                     harness.restore()
                 }

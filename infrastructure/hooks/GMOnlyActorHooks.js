@@ -266,6 +266,57 @@ export function registerGMOnlyActorHooks({
         )
     })
 
+    // Aura Effects only removes the effects an aura applied when the aura effect itself is deleted.
+    // Deleting the item that carries the aura (e.g. Poisonous Mutations) does not fire
+    // deleteActiveEffect for its effects, so the applied copies would stay on nearby creatures
+    // and, because they share the aura's name, block the aura from being applied again.
+    Hooks.on("deleteItem", async (item, options, userId) =>
+    {
+        logger.debug("GM deleteItem", item, options, userId)
+        if (!isActiveGM()) return
+
+        try {
+            await removeAppliedAuraEffects(item)
+        } catch (err) {
+            logger.error("Error removing aura effects of a deleted item", {item, err})
+        }
+    })
+
+    async function removeAppliedAuraEffects(item)
+    {
+        const auraUuids = new Set(
+            Array.from(item?.effects ?? [])
+                .filter(effect => effect.type === "auraeffects.aura")
+                .map(effect => effect.uuid)
+        )
+        if (!auraUuids.size) return
+
+        const sourceActorId = item.parent?.id
+        if (!sourceActorId) return
+
+        // An aura only reaches creatures on a scene where its source has a token.
+        const targets = new Set()
+        for (const scene of game.scenes ?? []) {
+            const tokens = Array.from(scene.tokens ?? [])
+            if (!tokens.some(token => token.actorId === sourceActorId)) continue
+
+            for (const token of tokens) {
+                if (token.actor) targets.add(token.actor)
+            }
+        }
+
+        for (const target of targets) {
+            const ids = Array.from(target.effects ?? [])
+                .filter(effect =>
+                    effect.flags?.auraeffects?.fromAura &&
+                    auraUuids.has(effect.origin)
+                )
+                .map(effect => effect.id)
+
+            if (ids.length) await target.deleteEmbeddedDocuments("ActiveEffect", ids)
+        }
+    }
+
     // Effects flagged with repeatSaveOnDamage ({ability, disadvantage}) let the target repeat
     // the save each time it takes damage (e.g. Fey Dreams and Nightmares). The DC comes from
     // the effect's midi-qol OverTime change, whose roll data DAE has already filled in.

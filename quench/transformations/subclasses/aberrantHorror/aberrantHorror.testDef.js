@@ -2483,9 +2483,26 @@ export const AberrantHorrorTestDef = {
                         effect.name = "Poisonous Mutations"
                         effect.type = "auraeffects.aura"
                         effect.collisionTypes = ["move"]
-                        effect.distanceFormula = "1"
+                        effect.distanceFormula = "5"
+                        // Aura Effects resolves @prof and the stage against the Aberrant Horror before applying.
+                        effect.changes.count = 1
+                        effect.changes.changes = [
+                            {
+                                key: "flags.midi-qol.OverTime",
+                                mode: 0,
+                                value: "turn=start, label=Poisonous Mutations, saveAbility=con, saveDC=8 + @prof + @flags.transformations.stage, saveDamage=nodamage, saveRemove=false, damageRoll=3d6, damageType=poison",
+                                priority: 20
+                            }
+                        ]
                     })
                 })
+
+                validate(actorDto, {assert})
+
+                const aura = actor.items.find(i => i.name === "Poisonous Mutations")
+                    ?.effects.find(e => e.name === "Poisonous Mutations")
+                assert.equal(aura?.system?.disposition, -1, "Poisonous Mutations aura should only affect hostile creatures")
+                assert.equal(aura?.flags?.ActiveAuras?.isAura, false, "Poisonous Mutations aura should not also be handled by Active Auras")
             }
         },
 
