@@ -6,8 +6,13 @@ const SECTION_ORDER = 900
 
 const WRAPPED_MARKER = Symbol.for("transformations.featuresSectionWrapped")
 
-function isAddedByTransformation(item)
+export const TRANSFORMATION_FEATURE_TYPE = "transformation"
+
+// Grouped by the feat's "Feature Type" so feats dropped onto the sheet land here too;
+// the flag covers granted items whose feature type was never set.
+export function isTransformationFeature(item)
 {
+    if (item?.type === "feat" && item.system?.type?.value === TRANSFORMATION_FEATURE_TYPE) return true
     return item?.flags?.transformations?.addedByTransformation === true
 }
 
@@ -22,7 +27,7 @@ export function resolveTransformationFeaturesLabel({
 }
 
 /**
- * Moves every transformation-granted feature out of the regular feature sections
+ * Moves every transformation feature (feature type "transformation") out of the regular feature sections
  * and into a dedicated "{Transformation} Features" section.
  *
  * Mutates the context produced by dnd5e's CharacterActorSheet#_prepareFeaturesContext.
@@ -46,7 +51,7 @@ export function addTransformationFeaturesSection({
 
     const items = context.sections
         .flatMap(section => section.items ?? [])
-        .filter(isAddedByTransformation)
+        .filter(isTransformationFeature)
     if (!items.length) return false
 
     const itemSet = new Set(items)

@@ -43,11 +43,13 @@ function createFakeContext({ granted, regular })
     }
 }
 
-function fakeItem(id, addedByTransformation)
+function fakeItem(id, addedByTransformation, featureType = "")
 {
     return {
         id,
         name: id,
+        type: "feat",
+        system: { type: { value: featureType } },
         flags: { transformations: addedByTransformation ? { addedByTransformation: true } : {} }
     }
 }
@@ -87,6 +89,26 @@ quench.registerBatch(
                 expect(context.itemContext.g1.dataset["group-origin"]).to.equal(TRANSFORMATION_FEATURES_SECTION_ID)
                 expect(context.itemContext.g1.groups.origin).to.equal(TRANSFORMATION_FEATURES_SECTION_ID)
                 expect(context.itemContext.r1.groups.origin).to.equal("other")
+            })
+
+            it("moves feats with the transformation feature type even without the granted flag", function()
+            {
+                const dropped = fakeItem("d1", false, "transformation")
+                const regular = fakeItem("r1", false, "class")
+                const context = createFakeContext({ granted: [dropped], regular: [regular] })
+
+                const added = addTransformationFeaturesSection({
+                    context,
+                    actor: { flags: { transformations: { type: "vampire" } } },
+                    transformationTypes,
+                    Inventory: createFakeInventory(),
+                    localizer: fakeLocalizer
+                })
+
+                expect(added).to.equal(true)
+                const section = context.sections.find(s => s.id === TRANSFORMATION_FEATURES_SECTION_ID)
+                expect(section.items.map(i => i.id)).to.deep.equal(["d1"])
+                expect(context.sections.find(s => s.id === "active").items.map(i => i.id)).to.deep.equal(["r1"])
             })
 
             it("places the section between class and species/other sections", function()
@@ -183,6 +205,11 @@ quench.registerBatch(
                         type: "feat",
                         flags: { transformations: { addedByTransformation: true } }
                     },
+                    {
+                        name: "Test Dropped Feature",
+                        type: "feat",
+                        system: { type: { value: "transformation" } }
+                    },
                     { name: "Test Regular Feature", type: "feat" }
                 ])
             })
@@ -211,7 +238,7 @@ quench.registerBatch(
 
                 expect(section.querySelector(".items-header .item-name").textContent.trim()).to.equal("Vampire Features")
                 const names = [...section.querySelectorAll(".item-list > .item")].map(li => li.dataset.itemName)
-                expect(names).to.deep.equal(["Test Granted Feature"])
+                expect(names.sort()).to.deep.equal(["Test Dropped Feature", "Test Granted Feature"])
             })
 
             it("keeps non-transformation features out of the section", async function()
